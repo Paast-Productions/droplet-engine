@@ -31,7 +31,6 @@
 #include <Graphics/DebugDraw.hpp>
 
 #include "Integration/Bridge/AssetProvider.hpp"
-#include "Integration/Bridge/Extract.hpp"
 
 using namespace Droplet;
 
@@ -161,18 +160,21 @@ namespace
 
     // -- World --
 
-    /// @brief DebugDraw's batched meshes as dynamic draws; returns their indices
-    std::vector<std::uint32_t> AddDebugDraws(Render::RenderWorld& world)
+    // CONVERT: DebugDraw's batched meshes to the renderer's dynamic draws, until the geometry step
+    /**
+     * @brief DebugDraw's batched meshes as dynamic draws
+     * @returns The draws the cameras with `debug` set show
+     */
+    std::vector<Render::DynamicDraw> DebugDraws()
     {
         Graphics::Debug::DebugDraw::FrameMeshes meshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
 
-        std::vector<std::uint32_t> indices;
-        const auto add = [&](std::vector<std::byte>& vertices, Render::DynamicTopology topology, bool depthTest)
+        std::vector<Render::DynamicDraw> draws;
+        const auto add = [&draws](std::vector<std::byte>& vertices, Render::DynamicTopology topology, bool depthTest)
         {
             if (vertices.empty())
                 return;
-            indices.push_back(static_cast<std::uint32_t>(world.dynamicDraws.size()));
-            world.dynamicDraws.push_back({
+            draws.push_back({
                 .layout = Render::DynamicVertexLayout::P3C4,
                 .topology = topology,
                 .vertexData = std::move(vertices),
@@ -182,59 +184,7 @@ namespace
         add(meshes.fillDepth, Render::DynamicTopology::Triangles, true);
         add(meshes.wire, Render::DynamicTopology::Lines, false);
         add(meshes.fill, Render::DynamicTopology::Triangles, false);
-        return indices;
-    }
-
-    /// @brief A view and a target per camera, an object per draw, then the render-target reads
-    void AddCameras(Render::RenderWorld& world, std::span<const Graphics::CameraRenderData> p_cameras,
-                    std::span<const std::uint32_t> debugDraws)
-    {
-        for (const Graphics::CameraRenderData& camera : p_cameras)
-        {
-            const Graphics::Common::RenderDesc& target = camera.renderTarget;
-            const Droplet::GUID targetId = target.id;
-            if (targetId == C_INVALID_GUID || target.extent.width == 0 || target.extent.height == 0)
-                continue;
-            if (std::ranges::any_of(world.targets, [&](const ::Common::RenderTargetDesc& desc) { return desc.id == targetId; }))
-                continue; // one writer per target
-
-            world.targets.push_back({
-                .id = targetId,
-                .width = target.extent.width,
-                .height = target.extent.height,
-                .format = target.format == Graphics::Common::PixelFormat::RGBA8_UNORM ? ::Common::PixelFormat::RGBA8_UNORM
-                                                                                     : ::Common::PixelFormat::RGBA8_SRGB });
-
-            Render::RenderView view;
-            view.view = camera.camera.GetViewMatrix();
-            view.proj = camera.camera.GetProjectionMatrix();
-            view.clearColor = camera.clearColor;
-            view.targetId = targetId;
-            if (camera.debug)
-                view.dynamicVisible.assign(debugDraws.begin(), debugDraws.end());
-
-            // already culled by the scene
-            for (const Graphics::RenderData& object : camera.renderData)
-            {
-                const Droplet::GUID textureId = object.texData.GUID;
-                const ::Common::ImageRef image{
-                    .kind = textureId == C_INVALID_GUID ? ::Common::ImageRef::Kind::None
-                          : object.texData.isRenderTarget ? ::Common::ImageRef::Kind::RenderTarget
-                                                          : ::Common::ImageRef::Kind::Texture,
-                    .id = textureId };
-
-                view.visible.push_back(static_cast<std::uint32_t>(world.objects.size()));
-                world.objects.push_back({
-                    .transform = object.transform,
-                    .meshId = object.meshData.GUID,
-                    .imageTexture = image,
-                    .transparent = object.transparent }); // shaderId invalid: the default shader
-            }
-            world.views.push_back(std::move(view));
-        }
-
-        // which views read which targets, break view loops
-        Bridge::ResolveTargetReads(world);
+        return draws;
     }
 }
 
@@ -417,13 +367,12 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
     ZoneScopedC(tracy::Color::SkyBlue1)
 
     // the scene's cameras and the editor's; the render graph orders the passes
-    std::vector<Graphics::CameraRenderData> cameras = m_sceneManager.GetRenderData();
-    cameras.insert(cameras.end(), p_cameras.begin(), p_cameras.end());
-
-    Render::RenderWorld world;
-    world.time = 0.0f; // TODO: the engine's elapsed time in seconds
-    const std::vector<std::uint32_t> debugDraws = AddDebugDraws(world);
-    AddCameras(world, cameras, debugDraws);
+    Render::RenderWorld world{
+        .cameras = m_sceneManager.GetRenderData(),
+        .dynamicDraws = DebugDraws(),
+        .time = 0.0f // TODO: the engine's elapsed time in seconds
+    };
+    world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
 
     ImDrawData* overlay = nullptr;
 #ifdef _EDITOR

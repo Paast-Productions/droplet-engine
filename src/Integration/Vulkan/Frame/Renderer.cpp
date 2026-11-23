@@ -16,6 +16,7 @@
 #include <stdexcept>
 
 #include "Graphics/Common/RenderData.hpp"
+#include "Integration/Render/ViewPlan.hpp"
 #include "Integration/Vulkan/Core/VulkanUtils.hpp"
 #include "Integration/Vulkan/Passes/PostProcessShader.hpp"
 #include "Integration/Vulkan/Frame/Prepare.hpp"
@@ -110,9 +111,10 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
     m_device.BeginFrame(); // what Prepare resolves counts as used this frame
 
-    // 1. prepare: the world (by GUID) becomes draw lists: one per view (by GPU handle, or a placeholder).
-    //    From here on nothing looks at the world
-    m_preparedFrame = Prepare(world, PrepareContext{
+    // 1. prepare: which cameras draw and what each reads, then the world (by GUID) becomes a draw list per drawn
+    //    camera (by GPU handle, or a placeholder). From here on nothing looks at the world
+    const std::vector<Render::ViewPlan> plans = Render::PlanViews(world);
+    m_preparedFrame = Prepare(world, plans, PrepareContext{
                                   .gpu = m_device.Resources(),
                                   .shaders = m_device.Shaders(),
                                   .pipelines = m_pipelineLibrary,
@@ -517,12 +519,13 @@ std::vector<Render::TargetHandle> Renderer::ResolveImGuiTextures(ImDrawData& ove
             if (command.UserCallback || command.TexRef._TexData || image == Droplet::C_INVALID_GUID)
                 continue;
 
-            // a world target, else an idle target (its last image), else a texture asset
+            // a camera's target, else an idle target (its last image), else a texture asset
             Render::TargetHandle handle{};
             Render::TextureHandle textureHandle{};
-            const auto descIt = std::ranges::find(world.targets, image, &Common::RenderTargetDesc::id);
-            if (descIt != world.targets.end())
-                handle = gpu.GetOrCreateTarget(*descIt);
+            const auto camera = std::ranges::find(world.cameras, image,
+                                                  [](const Droplet::Graphics::CameraRenderData& data) { return data.renderTarget.id; });
+            if (camera != world.cameras.end() && camera->renderTarget.extent.width != 0 && camera->renderTarget.extent.height != 0)
+                handle = gpu.GetOrCreateTarget(camera->renderTarget);
             else
                 handle = gpu.FindTarget(image);
             if (!handle.IsValid())

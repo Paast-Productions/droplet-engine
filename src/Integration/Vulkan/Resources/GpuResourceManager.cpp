@@ -248,7 +248,7 @@ namespace Vulkan
         return m_meshes.Add(std::move(gpu));
     }
 
-    Render::TargetHandle GpuResourceManager::CreateTarget(const Common::RenderTargetDesc& desc)
+    Render::TargetHandle GpuResourceManager::CreateTarget(const Droplet::Graphics::Common::RenderDesc& desc)
     {
         GpuRenderTarget gpu;
         gpu.desc = desc;
@@ -257,7 +257,7 @@ namespace Vulkan
             m_context->GetAllocator(), m_context->GetPhysicalDevice(), m_context->GetDevice(),
             RenderTargetCreateInfo{
                 .image = {
-                    .extent = {.width = desc.width, .height = desc.height},
+                    .extent = {.width = desc.extent.width, .height = desc.extent.height},
                     .format = ToVk(desc.format),
                     .usage = vk::ImageUsageFlagBits::eColorAttachment |
                     vk::ImageUsageFlagBits::eSampled |
@@ -418,13 +418,13 @@ namespace Vulkan
             deletionQueue.Retire(std::move(*mesh), retireValues);
     }
 
-    Render::TargetHandle GpuResourceManager::GetOrCreateTarget(const Common::RenderTargetDesc& desc)
+    Render::TargetHandle GpuResourceManager::GetOrCreateTarget(const Droplet::Graphics::Common::RenderDesc& desc)
     {
         if (const auto cachedTarget = m_targetLookup.find(desc.id); cachedTarget != m_targetLookup.end())
         {
             if (GpuRenderTarget* existing = m_targets.Get(cachedTarget->second))
             {
-                if (existing->desc.width == desc.width && existing->desc.height == desc.height &&
+                if (existing->desc.extent.width == desc.extent.width && existing->desc.extent.height == desc.extent.height &&
                     existing->desc.format == desc.format)
                 {
                     MarkUsed(existing->residency);

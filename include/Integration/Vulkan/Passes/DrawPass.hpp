@@ -58,7 +58,7 @@ namespace Vulkan
     {
     public:
         /// The renderer's shader for P3C4 dynamic geometry (vertex colour, unlit), compiled on first use
-        static constexpr Guid VERTEX_COLOR_SHADER = Guid::FromName("shader/built-in-vertex-color");
+        static constexpr Droplet::GUID VERTEX_COLOR_SHADER = GuidFromName("shader/built-in-vertex-color");
         [[nodiscard]] static Common::ShaderDesc VertexColorShaderAsset();
 
         /// @brief Creates the layouts and the descriptor pool, and retires the sets of released textures and targets

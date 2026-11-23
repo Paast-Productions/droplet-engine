@@ -6,32 +6,20 @@
 #include <string>
 #include <vector>
 
+#include "Graphics/Common/RenderData.hpp"
 #include "Integration/Common/RenderDesc.hpp"
 #include "Integration/Core/Guid.hpp"
 
 namespace Render
 {
-    /// @brief GUID of the default scene shader, drawn with by objects without a (working) shader. A shader asset under
-    ///        this GUID in the asset store replaces the renderer's built-in one (Shaders/scene.slang).
+    /**
+     * @brief GUID of the default scene shader, for objects without a working shader
+     * @details A shader asset under this GUID replaces the renderer's built-in one (Shaders/scene.slang)
+     */
     inline constexpr Droplet::GUID DEFAULT_SCENE_SHADER = GuidFromName("shader/scene");
 
-    /// @brief Half the edge of the placeholder cube the renderer draws for a mesh it does not have. Extract culls an
-    ///        object whose mesh is not in the storage with this cube's bounds.
+    /// @brief Half the edge of the placeholder cube drawn for a mesh the GPU does not have
     inline constexpr float PLACEHOLDER_CUBE_HALF_EXTENT = 0.5f;
-
-    /// A single object (mesh) in the RenderWorld
-    struct RenderObject
-    {
-        glm::mat4 transform{1.0f};
-        std::uint32_t sourceNode = 0;  ///< index into Scene::nodes; a camera skips its own node's object
-        Droplet::GUID meshId{ Droplet::C_INVALID_GUID }; ///< MeshAsset id
-        Common::ImageRef imageTexture; ///< texture asset or render target, by id
-        Droplet::GUID shaderId{ Droplet::C_INVALID_GUID }; ///< ShaderAsset id; invalid: the default scene shader
-        std::uint64_t meshRevision{ 0 };    ///< the storage's revision of meshId; 0: not in the storage
-        std::uint64_t textureRevision{ 0 }; ///< the storage's revision of a texture imageTexture
-        std::uint64_t shaderRevision{ 0 };  ///< the storage's revision of shaderId
-        bool transparent = false;           ///< alpha blended, drawn after the opaque objects without depth writes
-    };
 
     /// @brief How a dynamic draw's vertices are laid out
     enum class DynamicVertexLayout : std::uint8_t
@@ -60,37 +48,45 @@ namespace Render
         bool depthTest = true;              ///< false: drawn over everything, after the rest
     };
 
-    /// A single rendering camera
-    struct RenderView
+    /// @brief A view's name and post-process effects, by the target it draws to
+    struct ViewSettings
     {
-        std::string name; ///< name, primarily for debug
-        glm::mat4 view{1.0f}; ///< camera view matrix
-        glm::mat4 proj{1.0f}; ///< camera projection matrix
-        glm::vec4 clearColor{0.05f, 0.05f, 0.08f, 1.0f}; ///< the target's colour before the view draws
-        std::vector<std::uint32_t> visible; ///< indices into RenderWorld::objects
-
-        Droplet::GUID targetId{ Droplet::C_INVALID_GUID }; ///< RenderTargetDesc id of what this camera draws to
-        bool needsHistory = false;  ///< the target keeps a previous-frame copy: this view or a loop-breaking read samples it
-        std::vector<Droplet::GUID> readIds; ///< other targets sampled by visible objects, this frame's contents
-        /// other views' targets sampled as last frame's copy, because reading this frame's would close a loop between
-        /// views (e.g. C sees A's screen while A sees C's)
-        std::vector<Droplet::GUID> previousReadIds;
-        std::vector<Common::PostEffectDesc> effects; ///< enabled effects of the node's PostProcessComponent
-        std::vector<std::uint32_t> dynamicVisible;   ///< indices into RenderWorld::dynamicDraws
+        Droplet::GUID targetId{ Droplet::C_INVALID_GUID };
+        std::string name;                            ///< for graph and debug names
+        std::vector<Common::PostEffectDesc> effects; ///< applied to the view's output, in order
     };
 
-    /// Snapshot of the scene at a given frame
+    /// @brief Everything one frame draws
     struct RenderWorld
     {
-        std::vector<RenderObject> objects; ///< meshes
-        std::vector<RenderView> views; ///< cameras
-        std::vector<DynamicDraw> dynamicDraws; ///< this frame's dynamic geometry, shown by the views that list it
-        /// Every render target the world refers to, copied from the scene
-        std::vector<Common::RenderTargetDesc> targets;
-        Droplet::GUID presentedId{ Droplet::C_INVALID_GUID }; ///< target the frame presents
-        /// the storage's revision of its override of the default scene shader (Render::DEFAULT_SCENE_SHADER);
-        /// 0: no override, the renderer's built-in one is used
-        std::uint64_t defaultShaderRevision{ 0 };
+        std::vector<Droplet::Graphics::CameraRenderData> cameras; ///< each with the objects it sees, culled
+        std::vector<DynamicDraw> dynamicDraws;  ///< shown by the cameras with `debug` set
+        std::vector<ViewSettings> viewSettings; ///< optional; a view without one is named after its target
+        Droplet::GUID presentedId{ Droplet::C_INVALID_GUID }; ///< the target the window shows outside the editor
         float time = 0.0f; ///< seconds, for shaders
     };
+
+    // TODO:: convert RenderData's shader slots to one shader module, until pipelines are built per stage combination
+    /**
+     * @brief The shader module an object draws with
+     * @param object An object a camera sees
+     * @returns The module in both the vertex and fragment slot; invalid (the default scene shader) otherwise
+     */
+    constexpr Droplet::GUID ShaderOf(const Droplet::Graphics::RenderData& object) noexcept
+    {
+        return object.vsData.GUID == object.fsData.GUID ? object.vsData.GUID : Droplet::C_INVALID_GUID;
+    }
+
+    // TODO: convert RenderData's texture to the renderer's image reference
+    /**
+     * @brief The image an object shows
+     * @param texture An object's texture data
+     * @returns A render target, a texture or no image
+     */
+    constexpr Common::ImageRef ImageOf(const Droplet::Graphics::TextureData& texture) noexcept
+    {
+        if (texture.GUID == Droplet::C_INVALID_GUID)
+            return {};
+        return texture.isRenderTarget ? Common::ImageRef::FromTarget(texture.GUID) : Common::ImageRef::FromTexture(texture.GUID);
+    }
 }

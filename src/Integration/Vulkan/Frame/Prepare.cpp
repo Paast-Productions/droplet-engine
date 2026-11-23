@@ -5,6 +5,8 @@
 
 #include <algorithm>
 #include <array>
+#include <format>
+#include <span>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
@@ -45,12 +47,12 @@ namespace
         return gpu.WhiteTexture(); // no texture on purpose: not a missing one
     }
 
-    /// @brief A RenderObject's GUIDs as what is drawn for them. Mesh and base colour are always valid.
+    /// @brief What is drawn for an object's GUIDs; mesh and base colour are always valid
     struct ResolvedObject
     {
         Render::MeshHandle mesh;
         Render::ImageBinding baseColor;
-        Droplet::GUID shader; ///< a compiled shader; invalid: not even the default compiled
+        Droplet::GUID shader{ Droplet::C_INVALID_GUID }; ///< a compiled shader; invalid: not even the default compiled
     };
 
     /// @brief A target that a view samples as its history (last frame's copy) instead.
@@ -77,19 +79,18 @@ namespace
                    : static_cast<std::uint32_t>(sizeof(Vulkan::Vertex::P3N3UV2));
     }
 
-    /// @brief Packs every dynamic draw a view shows into `frame`: vertices grouped by layout (one vertex buffer offset
-    ///        per layout), indices made relative to the start of their layout's vertices
-    std::vector<PackedDynamicDraw> PackDynamicDraws(const Render::RenderWorld& world, Render::PreparedFrame& frame)
+    /**
+     * @brief Packs the dynamic draws into `frame` once, if a drawn camera shows them
+     * @details Vertices are grouped by layout (one vertex buffer offset per layout); indices are made relative to the
+     *          start of their layout's vertices
+     * @returns Where each dynamic draw ended up
+     */
+    std::vector<PackedDynamicDraw> PackDynamicDraws(
+        const Render::RenderWorld& world, std::span<const Render::ViewPlan> plans, Render::PreparedFrame& frame)
     {
-        std::vector<bool> shown(world.dynamicDraws.size(), false);
-        for (const Render::RenderView& view : world.views)
-        {
-            for (const std::uint32_t drawIndex : view.dynamicVisible)
-            {
-                if (drawIndex < shown.size())
-                    shown[drawIndex] = true;
-            }
-        }
+        bool shown = false;
+        for (std::size_t cameraIndex = 0; cameraIndex < world.cameras.size(); ++cameraIndex)
+            shown = shown || (plans[cameraIndex].drawn && world.cameras[cameraIndex].debug);
 
         std::vector<PackedDynamicDraw> packed(world.dynamicDraws.size());
         constexpr std::array layouts{ Render::DynamicVertexLayout::P3N3UV2, Render::DynamicVertexLayout::P3C4 };
@@ -103,7 +104,7 @@ namespace
             for (std::size_t drawIndex = 0; drawIndex < world.dynamicDraws.size(); ++drawIndex)
             {
                 const Render::DynamicDraw& draw = world.dynamicDraws[drawIndex];
-                if (draw.layout != layout || !shown[drawIndex] || draw.vertexData.empty() ||
+                if (draw.layout != layout || !shown || draw.vertexData.empty() ||
                     draw.vertexData.size() % stride != 0)
                     continue;
                 const auto drawVertices = static_cast<std::uint32_t>(draw.vertexData.size() / stride);
@@ -178,6 +179,7 @@ namespace
 
 Render::PreparedFrame Vulkan::Prepare(
     const Render::RenderWorld& world,
+    std::span<const Render::ViewPlan> plans,
     const Vulkan::PrepareContext& context)
 {
     GpuResourceManager& gpu = context.gpu;
@@ -185,32 +187,22 @@ Render::PreparedFrame Vulkan::Prepare(
     // the default shader: the asset storage's override once it has arrived, else the built-in one
     const Droplet::GUID defaultShader = context.shaders.ResolveDefault();
 
-    // 1. render targets, from the descriptions the world carries
+    // 1. render targets: one per drawn camera
     std::unordered_map<Droplet::GUID, Render::TargetHandle> targetHandles;
-    for (const Common::RenderTargetDesc& desc : world.targets)
+    for (std::size_t cameraIndex = 0; cameraIndex < world.cameras.size(); ++cameraIndex)
     {
+        if (plans[cameraIndex].drawn)
+        {
+            const Droplet::Graphics::Common::RenderDesc& desc = world.cameras[cameraIndex].renderTarget;
         targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
     }
-
-    // 2. objects: mesh, base colour and shader; what is missing is drawn as a placeholder. Every object is resolved,
-    //    seen by a view or not
-    std::vector<ResolvedObject> objects;
-    objects.reserve(world.objects.size());
-    for (const Render::RenderObject& object : world.objects)
-    {
-        objects.push_back({
-            .mesh = gpu.ResolveMesh(object.meshId),
-            .baseColor = ResolveImage(object.imageTexture, gpu, targetHandles),
-            // a shader that has not arrived or does not compile is replaced by the default
-            .shader = context.shaders.Resolve(object.shaderId, defaultShader)
-        });
     }
 
     Render::PreparedFrame frame;
     frame.time = world.time;
 
-    // 2b. dynamic geometry, packed once for every view; the vertex colour shader only when something uses it
-    const std::vector<PackedDynamicDraw> packedDynamic = PackDynamicDraws(world, frame);
+    // 2. dynamic geometry, packed once
+    const std::vector<PackedDynamicDraw> packedDynamic = PackDynamicDraws(world, plans, frame);
     const bool usesVertexColor = std::ranges::any_of(world.dynamicDraws, [](const Render::DynamicDraw& draw)
     {
         return draw.layout == Render::DynamicVertexLayout::P3C4;
@@ -218,36 +210,42 @@ Render::PreparedFrame Vulkan::Prepare(
     const bool vertexColorReady = usesVertexColor &&
         context.shaders.GetOrCreate(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VertexColorShaderAsset());
 
-    // 3. views: one draw list each
+    // 3. views: one draw list per drawn camera
     const Render::TargetHandle presented = ResolveTarget(world.presentedId, targetHandles);
     bool presentedFound = false;
 
-    frame.views.reserve(world.views.size());
-    for (const Render::RenderView& view : world.views)
+    frame.views.reserve(world.cameras.size());
+    for (std::size_t cameraIndex = 0; cameraIndex < world.cameras.size(); ++cameraIndex)
     {
-        const Render::TargetHandle target = ResolveTarget(view.targetId, targetHandles);
+        const Droplet::Graphics::CameraRenderData& camera = world.cameras[cameraIndex];
+        const Render::ViewPlan& plan = plans[cameraIndex];
+        if (!plan.drawn)
+            continue;
+        const Render::TargetHandle target = ResolveTarget(camera.renderTarget.id, targetHandles);
         const GpuRenderTarget* gpuTarget = gpu.Find(target);
         if (!gpuTarget)
             continue; // nothing to draw into
         // read now: creating a history below can grow the target pool and move gpuTarget
         const vk::Format colorFormat = gpuTarget->target.Format();
-        const glm::mat4 cameraToWorld = glm::inverse(view.view);
+        const glm::mat4 view = camera.camera.GetViewMatrix();
+        const glm::mat4 proj = camera.camera.GetProjectionMatrix();
 
+        const auto settings = std::ranges::find(world.viewSettings, camera.renderTarget.id, &Render::ViewSettings::targetId);
         Render::DrawList list{
-            .name = view.name,
-            .viewProj = view.proj * view.view,
-            .clearColor = view.clearColor,
-            .cameraPosition = glm::vec3(cameraToWorld[3]),
-            .cameraForward = -glm::normalize(glm::vec3(cameraToWorld[2])), // the camera looks down its -Z
+            .name = settings != world.viewSettings.end() ? settings->name : std::format("Camera {:016x}", camera.renderTarget.id),
+            .viewProj = proj * view,
+            .clearColor = camera.clearColor,
+            .cameraPosition = camera.camera.GetPosition(),
+            .cameraForward = glm::normalize(camera.camera.GetForward()),
             .target = target,
-            .history = view.needsHistory ? gpu.GetOrCreateHistory(target) : Render::TargetHandle{},
+            .history = plan.needsHistory ? gpu.GetOrCreateHistory(target) : Render::TargetHandle{},
             .presented = !presentedFound && target == presented,
-            .effects = view.effects,
+            .effects = settings != world.viewSettings.end() ? settings->effects : std::vector<Common::PostEffectDesc>{},
         };
         presentedFound = presentedFound || list.presented;
         
         // other views' targets, this frame's contents
-        for (const Droplet::GUID readId : view.readIds)
+        for (const Droplet::GUID readId : plan.readIds)
         {
             if (const Render::TargetHandle read = ResolveTarget(readId, targetHandles); read.IsValid())
                 list.reads.push_back(read);
@@ -259,7 +257,7 @@ Render::PreparedFrame Vulkan::Prepare(
 
         substitutes.push_back({.target = target, .history = list.history});
 
-        for (const Droplet::GUID previousId : view.previousReadIds)
+        for (const Droplet::GUID previousId : plan.previousReadIds)
         {
             const Render::TargetHandle previous = ResolveTarget(previousId, targetHandles);
             if (!previous.IsValid())
@@ -272,13 +270,18 @@ Render::PreparedFrame Vulkan::Prepare(
                 list.previousReads.push_back(history);
         }
 
-        // draws: per visible object, with the pipeline for its shader and this view's attachment formats (built on
-        // first use)
-        list.items.reserve(view.visible.size());
+        // draws: per object the camera sees, with the pipeline for its shader and this view's attachment formats
+        // (built on first use)
+        list.items.reserve(camera.renderData.size());
         std::vector<std::pair<float, Render::DrawItem>> transparentItems; // with their view-space depth
-        for (const std::uint32_t objectIndex : view.visible)
+        for (const Droplet::Graphics::RenderData& source : camera.renderData)
         {
-            const ResolvedObject& object = objects[objectIndex];
+            const ResolvedObject object{
+                .mesh = gpu.ResolveMesh(source.meshData.GUID),
+                .baseColor = ResolveImage(Render::ImageOf(source.texData), gpu, targetHandles),
+                // a shader that has not arrived or does not compile is replaced by the default
+                .shader = context.shaders.Resolve(Render::ShaderOf(source), defaultShader)
+            };
             if (object.shader == Droplet::C_INVALID_GUID)
                 continue; // no pipeline to draw it with
 
@@ -298,7 +301,6 @@ Render::PreparedFrame Vulkan::Prepare(
                 }
             }
 
-            const Render::RenderObject& source = world.objects[objectIndex];
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
@@ -307,17 +309,17 @@ Render::PreparedFrame Vulkan::Prepare(
                 .material = material
             };
             if (source.transparent)
-                transparentItems.emplace_back((view.view * source.transform[3]).z, std::move(item));
+                transparentItems.emplace_back((view * source.transform[3]).z, std::move(item));
             else
                 list.items.push_back(std::move(item));
         }
         SortForBinding(list.items);
 
-        // dynamic geometry the view shows
+        // dynamic geometry: a debug camera shows all of it
         std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
-        for (const std::uint32_t drawIndex : view.dynamicVisible)
+        for (std::size_t drawIndex = 0; camera.debug && drawIndex < world.dynamicDraws.size(); ++drawIndex)
         {
-            if (drawIndex >= packedDynamic.size() || !packedDynamic[drawIndex].packed)
+            if (!packedDynamic[drawIndex].packed)
                 continue;
             const Render::DynamicDraw& draw = world.dynamicDraws[drawIndex];
             const PackedDynamicDraw& packed = packedDynamic[drawIndex];
@@ -357,8 +359,6 @@ Render::PreparedFrame Vulkan::Prepare(
 
         frame.views.push_back(std::move(list));
     }
-
-    return frame;
 
     return frame;
 }

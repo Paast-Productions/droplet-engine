@@ -22,7 +22,7 @@ namespace Vulkan
         : m_context(&context), 
     m_gpu(&device.Resources())
 	{
-        // the sets ofjag evicted or replaced textures and targets go once the GPU is past this frame
+        // the sets of evicted or replaced textures and targets go once the GPU is past this frame
         device.OnResourcesReleased([this, &device](const QueueTimelineValues& frameRetireValues)
             {
                 RetireDeadMaterials(device.Deletions(), frameRetireValues);
