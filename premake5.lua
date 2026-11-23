@@ -47,6 +47,13 @@ workspace "DropletEngine"
         defines { "_EDITOR" }
     end
 
+    filter "system:linux"
+        buildoptions { "-fopenmp" }
+        linkoptions { "-fopenmp" }
+    filter "system:windows"
+        buildoptions { "/openmp" }
+    filter {}
+
 -- [[ PATHS ]] --
 
 rootPath = path.getdirectory(_SCRIPT)

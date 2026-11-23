@@ -42,18 +42,23 @@ Renderer::Renderer(SDL_Window *p_window) :
 	//         Debug       //
 	// - - - - - - - - - - //
 	
-	vk::DescriptorPoolSize poolSize
-	{
-		.type = vk::DescriptorType::eUniformBuffer,
-		.descriptorCount = 2
-	};
+	std::array<vk::DescriptorPoolSize, 2> poolSizes {{
+		{
+			.type = vk::DescriptorType::eUniformBuffer,
+			.descriptorCount = 2
+		},
+		{
+			.type = vk::DescriptorType::eCombinedImageSampler,
+			.descriptorCount = 256
+		}
+	}};
 	
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 3,
-		.poolSizeCount = 1,
-		.pPoolSizes = &poolSize 
+		.maxSets = 258,
+		.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
+		.pPoolSizes = poolSizes.data()
 	};
 	
 	m_debugDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), debugPoolInfo);
@@ -63,12 +68,15 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_context.GetPhysicalDevice(),
 		m_context.GetDevice(),
 		Vulkan::IntermediaryStorage::GetInstance().GetAllocator(),
+		m_context,
 		m_context.GetQueue(),
-		m_commandPool.Get(),
+		m_commandPool,
 		m_debugDescriptorPool,
 		m_swapchain.GetSurfaceFormat().format,
 		m_swapchain.GetDepthFormat(),
-		MAX_FRAMES_IN_FLIGHT);
+		MAX_FRAMES_IN_FLIGHT,
+		m_context.SupportsRectangularSmooth() ? vk::LineRasterizationMode::eRectangularSmooth : vk::LineRasterizationMode::eBresenham
+	);
 
 	constexpr Vulkan::ViewProjectionBuffer vpb
 	{
