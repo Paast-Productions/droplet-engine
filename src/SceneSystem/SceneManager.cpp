@@ -411,12 +411,42 @@ void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePa
     p_node.SetPrefabPath(relativePath);
 }
 
+void SceneManager::SerializeBehaviours(const std::string &p_filepath)
+{
+    nlohmann::json data = nlohmann::json::object();
+    
+    data["behaviours"] = nlohmann::json::array();
+    for (auto behaviour : m_behaviours)
+    {
+        data["behaviours"].push_back(behaviour->Serialize());
+    }
+    
+    if (!std::filesystem::exists(std::filesystem::path(p_filepath))) Core::JsonIO::CreateFile(p_filepath);
+
+    Core::JsonIO::Write(p_filepath, data);
+}
+
+void SceneManager::DeserializeBehaviours(const std::string &p_filepath)
+{
+    nlohmann::json data = Core::JsonIO::Read(p_filepath);
+    if (data.contains("behaviours"))
+    {
+        for (auto entry : data["behaviours"])
+        {
+            std::string type = entry["type"];
+            auto behaviour = BehaviourFactory::CreateBehaviour(type);
+            behaviour->Deserialize(entry);
+            m_behaviours.push_back(std::move(behaviour));
+        }
+    }
+}
+
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
 {
-	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
+	auto behaviour = BehaviourFactory::CreateBehaviour(p_behaviourTypeName);
 
     behaviour->SetSceneManager(this);
-    m_behaviours.push_back(behaviour);
+    m_behaviours.push_back(std::move(behaviour));
 
     behaviour->Start();
 

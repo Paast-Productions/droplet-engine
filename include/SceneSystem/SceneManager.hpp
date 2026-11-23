@@ -124,10 +124,13 @@ namespace Droplet::Scene
         /// @param p_node the node to be serialized
         /// @param p_filePath the filepath
         void SerializeNodeToFile(Node &p_node, const std::string &p_filePath);
+        
+        void SerializeBehaviours(const std::string &p_filepath);
+        void DeserializeBehaviours(const std::string &p_filepath);
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
-		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; } // TODO: (SCENE) Make weak pointer
+		const std::vector<std::unique_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; }
 
 		/// @brief Starts a behaviour of the specified type.
         /// @param p_behaviourTypeName The type name of the behaviour to start.
@@ -154,7 +157,7 @@ namespace Droplet::Scene
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
         const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
-		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
+		std::vector<std::unique_ptr<Behaviour>> m_behaviours;
         
         /// @brief Prepares all active Scenes for rendering.
         void PrepareRender();
