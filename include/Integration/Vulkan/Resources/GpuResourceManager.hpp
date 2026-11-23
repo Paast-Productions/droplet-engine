@@ -57,7 +57,7 @@ namespace Vulkan
         RenderTarget target;
         /// Cleared to black when created and left ShaderReadOnly (a history: read before it is first written)
         bool clearedOnCreation{false};
-        Common::RenderTargetDesc desc;
+        Droplet::Graphics::Common::RenderDesc desc;
         Residency residency;
     };
 
@@ -128,7 +128,7 @@ namespace Vulkan
 
         /// @brief The target for `desc`, marked used; created the first time, and replaced (new handle, new history)
         ///        when its size or format changed
-        Render::TargetHandle GetOrCreateTarget(const Common::RenderTargetDesc& desc);
+        Render::TargetHandle GetOrCreateTarget(const Droplet::Graphics::Common::RenderDesc& desc);
         /// @brief The existing target for `id`, marked used (it keeps its contents); invalid if there is none
         Render::TargetHandle FindTarget(Droplet::GUID id);
         Render::TargetHandle GetOrCreateHistory(Render::TargetHandle target);
@@ -163,7 +163,7 @@ namespace Vulkan
         /// @brief A texture (with its mip chain) from tightly packed RGBA8 pixels; not in the GUID lookup.
         Render::TextureHandle CreateTexture(std::uint32_t width, std::uint32_t height, Common::PixelFormat format,
                                             std::span<const std::byte> pixels, const Common::TextureSampling& sampling);
-        Render::TargetHandle CreateTarget(const Common::RenderTargetDesc& desc);
+        Render::TargetHandle CreateTarget(const Droplet::Graphics::Common::RenderDesc& desc);
         /// @brief Takes `target` and its history out of the pools, into the deletion queue, and reports them released
         void RetireTarget(Render::TargetHandle target);
         /// @brief Creates the placeholder cube, the placeholder checker texture and the white texture.

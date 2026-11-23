@@ -32,11 +32,11 @@ struct ImDrawData;
 namespace Vulkan
 {
     /**
-     * @brief Owns everything on the GPU side; Render(world) runs Prepare, BeginFrame, the render graph and EndFrame.
-     * @details One frame, by stage. The app does 1 and 2 (Bridge); Render does 3 to 6.
-     *   1. Extract  Bridge::Extract            Scene -> Render::RenderWorld      by GUID, no GPU calls
-     *   2. Provide  Bridge::ProvideAssets      RequiredAssetsOf(world) and Resident() -> AssetUploads -> Upload()
-     *   3. Prepare  Vulkan::Prepare            RenderWorld -> Render::PreparedFrame      by handle, placeholders for gaps
+     * @brief Owns everything on the GPU side; Render(world) runs Prepare, BeginFrame, the render graph and EndFrame
+     * @details One frame, by stage. The engine does 1 and 2; Render does 3 to 6.
+     *   1. World    the scene's CameraRenderData   -> Render::RenderWorld      by GUID, no GPU calls
+     *   2. Provide  Bridge::RequiredAssetsOf      what the GPU lacks -> AssetUploads -> Upload()
+     *   3. Prepare  Render::PlanViews, Prepare    RenderWorld -> Render::PreparedFrame      by handle, placeholders for gaps
      *   4. Build    Vulkan::BuildFrameGraph    PreparedFrame -> RenderGraph::Graph<PassContext>
      *   5. Compile  RenderGraph::Compile       Graph -> Compiled (schedule, barriers, waits)
      *   6. Execute  Vulkan::GraphExecutor      Compiled -> command buffers -> submit and present

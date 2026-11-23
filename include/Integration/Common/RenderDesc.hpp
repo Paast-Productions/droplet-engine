@@ -11,6 +11,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Graphics/Common/RenderDesc.hpp"
 #include "Integration/Core/Guid.hpp"
 
 /// namespace shared by scene (CPU) side and the render (GPU) side
@@ -18,22 +19,8 @@ namespace Common
 {
     // == Images and render targets ==
 
-    /// @brief agnostic version of pixel formats
-    enum class PixelFormat
-    {
-        RGBA8_SRGB,
-        RGBA8_UNORM
-    };
-
-    /// Offscreen render-target description. WSI will create a Vulkan render target 
-    /// and store a reference to the guid on first contact
-    struct RenderTargetDesc
-    {
-        Droplet::GUID id{ Droplet::C_INVALID_GUID };
-        std::uint32_t width = 0;
-        std::uint32_t height = 0;
-        PixelFormat format = PixelFormat::RGBA8_SRGB;
-    };
+    /// @brief Production's pixel formats
+    using PixelFormat = Droplet::Graphics::Common::PixelFormat;
 
     /// "An image" as seen from the scene: either a loaded texture asset or a declared render target
     struct ImageRef
