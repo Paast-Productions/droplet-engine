@@ -9,6 +9,7 @@
 #include <math/bounds/Sphere.hpp>
 #include <math/bounds/Frustum.hpp>
 #include <resource/GuidUtils.hpp>
+#include <Graphics/Common/RenderData.hpp>
 
 #include <vulkan/vulkan_raii.hpp>
 #include <vk_mem_alloc_raii.hpp>
@@ -16,6 +17,7 @@
 #include <array>
 #include <cstdint>
 #include <cstddef> // for size_t
+#include <memory>
 
 namespace Droplet::Graphics
 {
@@ -221,16 +223,11 @@ namespace Droplet::Graphics::Debug
 			bool p_depth = true
 		);
 		
-		/// @brief Store vertex data recorded during one frame.
-		struct FrameMeshes
-		{
-			std::vector<std::byte> wire;
-			std::vector<std::byte> wireDepth;
-			std::vector<std::byte> fill;
-			std::vector<std::byte> fillDepth;
-		};
-		
-		[[nodiscard]] static FrameMeshes GetFrameMeshes();
+		/**
+		 * @brief This frame's batched debug geometry as dynamic meshes, then clears the draw commands
+		 * @returns The non-empty batches: lines and triangles, each with and without depth test
+		 */
+		[[nodiscard]] static std::vector<std::shared_ptr<const DynamicMeshData>> GetFrameMeshes();
 
 
 	protected:

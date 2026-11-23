@@ -209,6 +209,8 @@ namespace Vulkan
         EvictedResources evicted;
         evicted.replaced = std::exchange(m_replacedSinceEndFrame, 0u);
         evicted.meshes = EvictIdle(m_meshLookup, m_meshes, m_frameIndex, m_idleFramesBeforeEviction,
+                                   frameRetireValues, deletionQueue)
+                       + EvictIdle(m_dynamicMeshLookup, m_meshes, m_frameIndex, m_idleFramesBeforeEviction,
                                    frameRetireValues, deletionQueue);
         evicted.textures = EvictIdle(m_textureLookup, m_textures, m_frameIndex, m_idleFramesBeforeEviction,
                                      frameRetireValues, deletionQueue);
@@ -228,10 +230,8 @@ namespace Vulkan
     Render::MeshHandle GpuResourceManager::CreateMesh(
         std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices)
     {
-        if (vertexData.empty() || indices.empty())
-            throw std::invalid_argument("Mesh has no vertices or indices");
-        if (vertexStride != sizeof(Vertex::P3N3UV2) || vertexData.size() % vertexStride != 0)
-            throw std::invalid_argument("Mesh vertices are not in the scene layout (Vertex::P3N3UV2)");
+        if (vertexData.empty() || vertexStride == 0 || vertexData.size() % vertexStride != 0)
+            throw std::invalid_argument("Mesh has no vertices, or its data is not whole vertices");
 
         GpuMesh gpu;
         gpu.vertexCount = static_cast<std::uint32_t>(vertexData.size() / vertexStride);
@@ -241,10 +241,13 @@ namespace Vulkan
             vertexData.data(),
             vertexData.size_bytes(),
             vk::BufferUsageFlagBits::eVertexBuffer);
+        if (!indices.empty()) // none: drawn in vertex order
+        {
         gpu.indexBuffer = m_uploader.CreateDeviceBuffer(
             indices.data(),
             indices.size_bytes(),
             vk::BufferUsageFlagBits::eIndexBuffer);
+        }
         return m_meshes.Add(std::move(gpu));
     }
 
@@ -405,17 +408,55 @@ namespace Vulkan
         }
     }
 
-    Render::MeshHandle GpuResourceManager::CreateDynamicMesh(
-        std::span<const std::byte> vertexData, std::uint32_t vertexStride, std::span<const std::uint32_t> indices)
+    Render::MeshHandle GpuResourceManager::UploadDynamicMesh(const Droplet::Graphics::DynamicMeshData& mesh)
     {
-        return CreateMesh(vertexData, vertexStride, indices);
+        if (const auto residentIt = m_dynamicMeshLookup.find(mesh.id); residentIt != m_dynamicMeshLookup.end())
+        {
+            if (GpuMesh* resident = m_meshes.Get(residentIt->second))
+            {
+                if (resident->residency.revision >= mesh.revision)
+                    return residentIt->second;
+
+                // an older revision, not used yet this frame: destroyed once the GPU is past its last use
+                const QueueTimelineValues retireValues = resident->residency.lastUsedRetireValues;
+                m_deletionQueue->Retire(std::move(*m_meshes.Remove(residentIt->second)), retireValues);
+                m_dynamicMeshLookup.erase(residentIt);
+                ++m_replacedSinceEndFrame;
+            }
+        }
+
+        const std::uint32_t vertexCount = mesh.vertexStride ? static_cast<std::uint32_t>(mesh.vertexData.size() / mesh.vertexStride) : 0;
+        const bool wholeVertices = vertexCount != 0 && mesh.vertexData.size() % mesh.vertexStride == 0;
+        const bool indicesInRange = std::ranges::all_of(mesh.indices, [vertexCount](std::uint32_t index) { return index < vertexCount; });
+        if (!wholeVertices || !indicesInRange)
+        {
+            if (const auto rejectedIt = m_rejectedMeshes.find(mesh.id);
+                rejectedIt == m_rejectedMeshes.end() || rejectedIt->second < mesh.revision)
+            {
+                std::println("GpuResourceManager: dynamic mesh {:016x} revision {} has {} bytes of vertex data at a stride of {} "
+                             "or an index past its vertices. Not uploaded", mesh.id, mesh.revision, mesh.vertexData.size(),
+                             mesh.vertexStride);
+                m_rejectedMeshes.insert_or_assign(mesh.id, mesh.revision);
+            }
+            return {};
+        }
+
+        const Render::MeshHandle handle = CreateMesh(mesh.vertexData, mesh.vertexStride, mesh.indices);
+        m_meshes.Get(handle)->residency.revision = mesh.revision;
+        m_dynamicMeshLookup.insert_or_assign(mesh.id, handle);
+        return handle;
     }
 
-    void GpuResourceManager::ReleaseDynamicMesh(
-        Render::MeshHandle handle, const QueueTimelineValues& retireValues, DeletionQueue& deletionQueue)
+    Render::MeshHandle GpuResourceManager::FindDynamicMesh(Droplet::GUID id)
     {
-        if (std::optional<GpuMesh> mesh = m_meshes.Remove(handle))
-            deletionQueue.Retire(std::move(*mesh), retireValues);
+        const auto residentIt = m_dynamicMeshLookup.find(id);
+        if (residentIt == m_dynamicMeshLookup.end())
+            return {};
+        GpuMesh* resident = m_meshes.Get(residentIt->second);
+        if (!resident)
+            return {};
+        MarkUsed(resident->residency);
+        return residentIt->second;
     }
 
     Render::TargetHandle GpuResourceManager::GetOrCreateTarget(const Droplet::Graphics::Common::RenderDesc& desc)

@@ -114,12 +114,26 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
     // 1. prepare: which cameras draw and what each reads, then the world (by GUID) becomes a draw list per drawn
     //    camera (by GPU handle, or a placeholder). From here on nothing looks at the world
     const std::vector<Render::ViewPlan> plans = Render::PlanViews(world);
+
+    // kept dynamic meshes the GPU lacks or holds an older revision of, before anything is resolved
+    for (std::size_t cameraIndex = 0; cameraIndex < world.cameras.size(); ++cameraIndex)
+    {
+        if (!plans[cameraIndex].drawn)
+            continue;
+        for (const Droplet::Graphics::RenderData& object : world.cameras[cameraIndex].renderData)
+        {
+            if (object.dynamicMesh && object.dynamicMesh->id != Droplet::C_INVALID_GUID)
+                (void)m_device.Resources().UploadDynamicMesh(*object.dynamicMesh);
+        }
+    }
+
     m_preparedFrame = Prepare(world, plans, PrepareContext{
                                   .gpu = m_device.Resources(),
                                   .shaders = m_device.Shaders(),
                                   .pipelines = m_pipelineLibrary,
                                   .scenePass = m_drawPass,
-                                  .depthFormat = m_depthFormat
+                                  .depthFormat = m_depthFormat,
+                                  .reportedMeshes = m_reportedMeshes
                               });
 
     // 2. wait until the GPU has finished the frame that last used the next frame slot, on every queue (its command

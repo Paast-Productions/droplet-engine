@@ -67,6 +67,8 @@ namespace Render
         std::vector<DrawItem> items;
         /// after `items`: opaque, then blended, then without depth test; neighbours that share all state are merged
         std::vector<DynamicDrawItem> dynamicItems;
+        /// last: kept dynamic meshes drawn without depth test
+        std::vector<DrawItem> lateItems;
     };
 
     // == Frame ==
@@ -76,8 +78,8 @@ namespace Render
     {
         std::vector<DrawList> views; ///< in the world's view order (the frame graph orders the passes)
         float time = 0.0f;           ///< RenderWorld::time
-        /// the dynamic geometry the views show, packed once: vertices grouped by layout, indices relative to the start of
-        /// their layout's vertices
+        /// the streamed dynamic meshes the views show, packed once: vertices grouped by stride, indices relative to the
+        /// start of their group's vertices
         std::vector<std::byte> dynamicVertexData;
         std::vector<std::uint32_t> dynamicIndices;
     };

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <unordered_map>
 
+#include "Graphics/Common/RenderData.hpp"
 #include "Integration/Render/RenderWorld.hpp"
 #include "Integration/Core/Guid.hpp"
 #include "Integration/Vulkan/Resources/DeletionQueue.hpp"
@@ -57,7 +58,15 @@ namespace Vulkan
     class DrawPass
     {
     public:
-        /// The renderer's shader for P3C4 dynamic geometry (vertex colour, unlit), compiled on first use
+        /// @brief The built-in shader interface a dynamic mesh's vertex layout fits
+        enum class MeshInterface : std::uint8_t
+        {
+            None,       ///< no built-in shader reads it
+            Scene,      ///< position, normal, uv at locations 0, 1, 2: the scene shaders and materials
+            VertexColor ///< position at 0, colour at 1: unlit, alpha blended
+        };
+
+        /// The renderer's shader for vertex-colour meshes (unlit), compiled on first use
         static constexpr Droplet::GUID VERTEX_COLOR_SHADER = GuidFromName("shader/built-in-vertex-color");
         [[nodiscard]] static Common::ShaderDesc VertexColorShaderAsset();
 
@@ -71,10 +80,25 @@ namespace Vulkan
         [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
             Droplet::GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
 
-        /// @brief The pipeline description for dynamic geometry of `layout` (P3C4 ignores `transparent`: it always blends)
-        [[nodiscard]] GraphicsPipelineDesc MakeDynamicPipelineDesc(
-            Droplet::GUID shader, Render::DynamicVertexLayout layout, Render::DynamicTopology topology,
-            vk::Format colorFormat, vk::Format depthFormat, bool transparent, bool depthTest) const;
+        /**
+         * @brief The built-in shader interface a mesh's vertex layout fits
+         * @param mesh A dynamic mesh
+         * @returns None if an attribute does not fit in the stride or no built-in shader reads the layout
+         */
+        [[nodiscard]] static MeshInterface InterfaceOf(const Droplet::Graphics::DynamicMeshData& mesh);
+
+        /**
+         * @brief The pipeline description for a dynamic mesh: its own vertex layout, topology and depth test
+         * @param shader The shader it draws with (VERTEX_COLOR_SHADER for MeshInterface::VertexColor)
+         * @param mesh A mesh whose interface is not None
+         * @param colorFormat The view's colour format
+         * @param depthFormat The view's depth format
+         * @param transparent Alpha blended without depth writes (vertex-colour meshes always blend)
+         * @returns A description for PipelineLibrary::GetOrCreate
+         */
+        [[nodiscard]] GraphicsPipelineDesc MakeMeshPipelineDesc(
+            Droplet::GUID shader, const Droplet::Graphics::DynamicMeshData& mesh,
+            vk::Format colorFormat, vk::Format depthFormat, bool transparent) const;
 
         /// @brief Writes every view's SceneViewUniforms and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame
         void BeginFrame(std::uint32_t frameSlot, const Render::PreparedFrame& frame);

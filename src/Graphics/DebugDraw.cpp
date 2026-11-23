@@ -333,26 +333,33 @@ namespace
 // Renderer Backend
 //
 
-DebugDraw::FrameMeshes DebugDraw::GetFrameMeshes()
+std::vector<std::shared_ptr<const DynamicMeshData>> DebugDraw::GetFrameMeshes()
 {
     ZoneScoped
 
     DebugDraw& dbgDraw = DebugDraw::Get();
     dbgDraw.PrepareRender(0); // no render :)
 
-    // convert vertices to bytes to be uniform with the rest of the rendering
-    const auto toBytes = [](const std::vector<Vertex>& p_mesh) -> std::vector<std::byte>
+    // position and colour, streamed every frame (no id)
+    std::vector<std::shared_ptr<const DynamicMeshData>> meshes;
+    const auto add = [&meshes](const std::vector<Vertex>& p_vertices, MeshTopology p_topology, bool p_depthTest)
     {
-        const std::span<const std::byte> bytes = std::as_bytes(std::span(p_mesh));
-        return std::vector(bytes.begin(), bytes.end());
+        if (p_vertices.empty())
+            return;
+        const std::span<const std::byte> bytes = std::as_bytes(std::span(p_vertices));
+        meshes.push_back(std::make_shared<const DynamicMeshData>(DynamicMeshData{
+            .vertexStride = sizeof(Vertex),
+            .attributes = {
+                { .location = 0, .format = VertexFormat::Float3, .offset = offsetof(Vertex, position) },
+                { .location = 1, .format = VertexFormat::Float4, .offset = offsetof(Vertex, color) } },
+            .vertexData = { bytes.begin(), bytes.end() },
+            .topology = p_topology,
+            .depthTest = p_depthTest }));
     };
-
-    FrameMeshes meshes{
-        .wire = toBytes(dbgDraw.m_wireMesh),
-        .wireDepth = toBytes(dbgDraw.m_wireDepthMesh),
-        .fill = toBytes(dbgDraw.m_fillMesh),
-        .fillDepth = toBytes(dbgDraw.m_fillDepthMesh)
-    };
+    add(dbgDraw.m_wireDepthMesh, MeshTopology::Lines, true);
+    add(dbgDraw.m_fillDepthMesh, MeshTopology::Triangles, true);
+    add(dbgDraw.m_wireMesh, MeshTopology::Lines, false);
+    add(dbgDraw.m_fillMesh, MeshTopology::Triangles, false);
     
     dbgDraw.ClearDrawCommands();
     return meshes;

@@ -8,6 +8,7 @@
 #include <span>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <vulkan/vulkan_raii.hpp>
@@ -126,6 +127,7 @@ namespace Vulkan
         // == Scene pass and pipelines ==
         DrawPass m_drawPass;               ///< Scene material interface and draw loop, shared by every view
         PipelineLibrary m_pipelineLibrary; ///< Pipelines by description; requested in Prepare
+        std::unordered_set<std::uint64_t> m_reportedMeshes; ///< dynamic meshes reported as not drawable (once each)
 
         Render::PreparedFrame m_preparedFrame; ///< This frame, prepared; the graph's pass callbacks read it
         bool m_compositeScene{ true };         ///< SetCompositeScene

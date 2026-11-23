@@ -2,7 +2,9 @@
 /// @brief Vulkan::Prepare: resolves the RenderWorld's GUIDs to GPU handles and pipelines.
 #pragma once
 
+#include <cstdint>
 #include <span>
+#include <unordered_set>
 
 #include <vulkan/vulkan_raii.hpp>
 
@@ -23,6 +25,7 @@ namespace Vulkan
         PipelineLibrary& pipelines;
         const DrawPass& scenePass; ///< scene material interface (MakePipelineDesc)
         vk::Format depthFormat;    ///< of the views' depth transients
+        std::unordered_set<std::uint64_t>& reportedMeshes; ///< dynamic meshes already reported as not drawable
     };
 
     /**

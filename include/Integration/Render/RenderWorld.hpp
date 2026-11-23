@@ -21,33 +21,6 @@ namespace Render
     /// @brief Half the edge of the placeholder cube drawn for a mesh the GPU does not have
     inline constexpr float PLACEHOLDER_CUBE_HALF_EXTENT = 0.5f;
 
-    /// @brief How a dynamic draw's vertices are laid out
-    enum class DynamicVertexLayout : std::uint8_t
-    {
-        P3N3UV2, ///< position, normal, uv: drawn with a scene shader and material
-        P3C4     ///< position, RGBA colour: drawn unlit and alpha blended (debug lines and shapes)
-    };
-
-    enum class DynamicTopology : std::uint8_t
-    {
-        Triangles,
-        Lines
-    };
-
-    /// @brief Geometry rebuilt every frame (particles, debug shapes): sent as data, nothing stays on the GPU
-    struct DynamicDraw
-    {
-        DynamicVertexLayout layout = DynamicVertexLayout::P3N3UV2;
-        DynamicTopology topology = DynamicTopology::Triangles;
-        std::vector<std::byte> vertexData;  ///< tightly packed vertices of `layout`
-        std::vector<std::uint32_t> indices; ///< into vertexData; empty: drawn in vertex order
-        glm::mat4 transform{1.0f};
-        Common::ImageRef imageTexture;      ///< P3N3UV2 only: a texture asset (a render target shows the placeholder)
-        Droplet::GUID shaderId{ Droplet::C_INVALID_GUID }; ///< P3N3UV2 only; invalid: the default scene shader
-        bool transparent = false;           ///< P3N3UV2: alpha blended without depth writes, after the opaque draws
-        bool depthTest = true;              ///< false: drawn over everything, after the rest
-    };
-
     /// @brief A view's name and post-process effects, by the target it draws to
     struct ViewSettings
     {
@@ -60,7 +33,6 @@ namespace Render
     struct RenderWorld
     {
         std::vector<Droplet::Graphics::CameraRenderData> cameras; ///< each with the objects it sees, culled
-        std::vector<DynamicDraw> dynamicDraws;  ///< shown by the cameras with `debug` set
         std::vector<ViewSettings> viewSettings; ///< optional; a view without one is named after its target
         Droplet::GUID presentedId{ Droplet::C_INVALID_GUID }; ///< the target the window shows outside the editor
         float time = 0.0f; ///< seconds, for shaders
