@@ -15,7 +15,7 @@
 #include <string>
 
 namespace Droplet::Scene
-{
+{ 
     /// @brief Test only: a streamed star rebuilt every frame, or a quad kept on the GPU
     class TestDynamicMeshComponent : public Component
     {

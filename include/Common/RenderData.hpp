@@ -56,8 +56,8 @@ namespace Droplet::Common
         Float1,
         Float2,
         Float3,
-        Float4,
-        UNorm8x4 ///< four bytes read as floats 0..1 (colours)
+        Float4,  
+        UNorm8x4 ///< four consecutive bytes read as floats from 0..1 (colours)
     };
 
     /// @brief How a mesh's vertices or indices form primitives
@@ -85,7 +85,7 @@ namespace Droplet::Common
         std::vector<std::byte> vertexData;
         std::vector<std::uint32_t> indices; ///< empty: drawn in vertex order
         MeshTopology topology{ MeshTopology::Triangles };
-        bool depthTest{ true };             ///< false: drawn over everything
+        bool depthTest{ true };             ///< false -> drawn over everything
     };
 
     struct RenderData
