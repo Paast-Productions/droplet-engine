@@ -6,7 +6,7 @@
 
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/DefaultNodeBounds.hpp>
-#include <Graphics/Common/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <Resource/StaticResourceHandle.hpp>
 #include <Resource/Types/Texture2DResource.hpp>
 
@@ -44,7 +44,7 @@ namespace Droplet::Scene
         void UpdateImpl() override;
         void EditorUpdateImpl() override;
         void QueueRenderImpl() override;
-        [[nodiscard]] Droplet::Graphics::RenderData GetRenderDataImpl() override;
+        [[nodiscard]] Common::RenderData GetRenderDataImpl() override;
         void RenderUIImpl() override;
 
         [[nodiscard]] nlohmann::json SerializeImpl() override;
@@ -60,8 +60,8 @@ namespace Droplet::Scene
         float m_angle = 0.0f;                         ///< degrees, the star's spin
         GUID m_quadId = C_INVALID_GUID;               ///< the kept quad's id, made on first build
         std::uint64_t m_quadRevision = 0;
-        std::shared_ptr<const Droplet::Graphics::DynamicMeshData> m_star{};
-        std::shared_ptr<const Droplet::Graphics::DynamicMeshData> m_quad{};
+        std::shared_ptr<const Common::DynamicMeshData> m_star{};
+        std::shared_ptr<const Common::DynamicMeshData> m_quad{};
         StaticResourceHandle<Texture2DResource> m_texture{}; ///< the kept quad's texture
         std::string m_textureDisplayName;
         DefaultNodeBounds m_bounds{ glm::vec3(0.0f), glm::vec3(1.0f) };

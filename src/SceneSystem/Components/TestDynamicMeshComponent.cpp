@@ -76,9 +76,9 @@ void TestDynamicMeshComponent::QueueRenderImpl()
     GetOwner()->GetScene()->QueueRenderable(shared_from_this());
 }
 
-Graphics::RenderData TestDynamicMeshComponent::GetRenderDataImpl()
+Common::RenderData TestDynamicMeshComponent::GetRenderDataImpl()
 {
-    Graphics::RenderData renderData{};
+    Common::RenderData renderData{};
     renderData.dynamicMesh = m_mode == Mode::Streamed ? m_star : m_quad;
     if (m_mode == Mode::Kept)
     {
@@ -110,11 +110,11 @@ void TestDynamicMeshComponent::BuildStar()
                        });
     }
 
-    m_star = std::make_shared<const Graphics::DynamicMeshData>(Graphics::DynamicMeshData{
+    m_star = std::make_shared<const Common::DynamicMeshData>(Common::DynamicMeshData{
         .vertexStride = sizeof(StarVertex),
         .attributes = {
-            {.location = 0, .format = Graphics::VertexFormat::Float3, .offset = offsetof(StarVertex, position)},
-            {.location = 1, .format = Graphics::VertexFormat::UNorm8x4, .offset = offsetof(StarVertex, color)}
+            {.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(StarVertex, position)},
+            {.location = 1, .format = Common::VertexFormat::UNorm8x4, .offset = offsetof(StarVertex, color)}
         },
         .vertexData = ToBytes(std::span<const StarVertex>(vertices)),
         .indices = std::move(indices)
@@ -155,14 +155,14 @@ void TestDynamicMeshComponent::BuildQuad()
         }
     };
 
-    m_quad = std::make_shared<const Graphics::DynamicMeshData>(Graphics::DynamicMeshData{
+    m_quad = std::make_shared<const Common::DynamicMeshData>(Common::DynamicMeshData{
         .id = m_quadId,
         .revision = m_quadRevision,
         .vertexStride = sizeof(QuadVertex),
         .attributes = {
-            {.location = 0, .format = Graphics::VertexFormat::Float3, .offset = offsetof(QuadVertex, position)},
-            {.location = 1, .format = Graphics::VertexFormat::Float3, .offset = offsetof(QuadVertex, normal)},
-            {.location = 2, .format = Graphics::VertexFormat::Float2, .offset = offsetof(QuadVertex, uv)}
+            {.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(QuadVertex, position)},
+            {.location = 1, .format = Common::VertexFormat::Float3, .offset = offsetof(QuadVertex, normal)},
+            {.location = 2, .format = Common::VertexFormat::Float2, .offset = offsetof(QuadVertex, uv)}
         },
         .vertexData = ToBytes(std::span<const QuadVertex>(vertices)),
         .indices = {} // no indices

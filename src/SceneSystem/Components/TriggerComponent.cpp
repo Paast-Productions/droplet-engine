@@ -3,7 +3,7 @@
 #include <Transform.hpp>
 #include <Components/ScriptComponent.hpp>
 #include <Time.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 
 using namespace Droplet::Scene;

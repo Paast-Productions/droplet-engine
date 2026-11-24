@@ -34,7 +34,7 @@ void ResourceBrowser::InitImpl()
 
 	BuildBrowserTree(ResourceManager::GetInstance().GetRegisteredResources());
 
-	m_previewCamera.camera = Graphics::Camera(
+	m_previewCamera.camera = Common::Camera(
 		glm::vec3(0, 0, -10), // Position
 		glm::vec3(0, 0, 1), // Forward
 		glm::vec3(0, 1, 0), // Up
@@ -44,8 +44,8 @@ void ResourceBrowser::InitImpl()
 	);
 
 	// the renderer creates the image when the preview first renders. Released if unused for a while
-	m_previewCamera.renderTarget.id = GuidUtils::Generate();
-	m_previewCamera.renderTarget.extent = {
+	m_previewCamera.target.id = GuidUtils::Generate();
+	m_previewCamera.target.extent = {
 		static_cast<std::uint32_t>(m_previewCamera.resolution.x), static_cast<std::uint32_t>(m_previewCamera.resolution.y) };
 }
 
@@ -614,7 +614,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = imageSize * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef textureRef = ImTextureRef(Graphics::ImGuiTextureId(guid));
+			ImTextureRef textureRef = ImTextureRef(Common::ImGuiTextureId(guid));
 			
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -694,7 +694,7 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			ImVec2 scaledImageSize = ImVec2(previewSizeX, previewSizeY) * imageScale;
 			ImVec2 previewPos = regionCenter - scaledImageSize * 0.5f;
 
-			ImTextureRef previewTexture = ImTextureRef(Graphics::ImGuiTextureId(m_previewCamera.renderTarget.id));
+			ImTextureRef previewTexture = ImTextureRef(Common::ImGuiTextureId(m_previewCamera.target.id));
 
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
@@ -705,17 +705,17 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 			EndChild();
 
 			{
-				Graphics::CameraRenderData camRenderData{};
+				Common::CameraRenderData camRenderData{};
 				camRenderData.camera = m_previewCamera.camera;
 				camRenderData.priority = 100;
-				camRenderData.renderTarget = m_previewCamera.renderTarget;
+				camRenderData.target = m_previewCamera.target;
 				camRenderData.debug = false;
 
-				Graphics::RenderData renderData{
-					.vsData = Graphics::ShaderData(m_previewCamera.vsHandle.GetGUID()),
-					.fsData = Graphics::ShaderData(m_previewCamera.fsHandle.GetGUID()),
-					.meshData = Graphics::MeshData(guid),
-					.texData = Graphics::TextureData(m_previewCamera.texHandle.GetGUID()),
+				Common::RenderData renderData{
+					.vsData = Common::ShaderData(m_previewCamera.vsHandle.GetGUID()),
+					.fsData = Common::ShaderData(m_previewCamera.fsHandle.GetGUID()),
+					.meshData = Common::MeshData(guid),
+					.texData = Common::TextureData(m_previewCamera.texHandle.GetGUID()),
 					.transform = glm::mat4(1.0f)
 				};
 				camRenderData.renderData.push_back(renderData);

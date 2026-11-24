@@ -68,8 +68,8 @@ void NodeInspectorWindow::RenderImpl()
 		m_currentNode.lock()->SetActiveSelf(active);
 	}
 
-	Graphics::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
-	if (Graphics::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
+	Common::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
+	if (Common::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
 	{
 		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}

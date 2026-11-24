@@ -2,7 +2,7 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <Resource/ResourceManager.hpp>
-#include <Graphics/Common/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <Editor/DragDropFields.hpp>
@@ -102,14 +102,14 @@ void MeshComponent::QueueRenderImpl()
     GetOwner()->GetScene()->QueueRenderable(shared_from_this());
 }
 
-Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
+Common::RenderData MeshComponent::GetRenderDataImpl()
 {
-    Droplet::Graphics::RenderData renderData{};
-    renderData.fsData.GUID = m_shaderData.fs.GetGUID();
-    renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
-    renderData.tesData.GUID = m_shaderData.tes.GetGUID();
-    renderData.gsData.GUID = m_shaderData.gs.GetGUID();
-    renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+    Common::RenderData renderData{};
+    renderData.fsData.guid = m_shaderData.fs.GetGUID();
+    renderData.tcsData.guid = m_shaderData.tcs.GetGUID();
+    renderData.tesData.guid = m_shaderData.tes.GetGUID();
+    renderData.gsData.guid = m_shaderData.gs.GetGUID();
+    renderData.vsData.guid = m_shaderData.vs.GetGUID();
 
     renderData.meshData.GUID = m_mesh.GetGUID();
     renderData.texData.GUID = GetTextureGUID();

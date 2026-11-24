@@ -12,9 +12,9 @@ namespace Droplet
 {
     bool ResourceSlot(
         const char *p_label,
-        Droplet::GUID p_current,
+        GUID p_current,
         const std::string &p_currentDisplayName,
-        Droplet::GUID &p_outGUID,
+        GUID &p_outGUID,
         std::string &p_outDisplayName,
         Droplet::StaticResourceType p_expectedType,
         Droplet::ShaderResource::ShaderType p_expectedShader,

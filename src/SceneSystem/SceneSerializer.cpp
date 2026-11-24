@@ -77,7 +77,7 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
     if (p_json.contains("drawLayer"))
     {
         uint16_t drawLayerValue = p_json["drawLayer"];
-        node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+        node->SetDrawLayer(static_cast<Common::DrawLayer>(drawLayerValue));
     }
 
     if (p_json.contains("collisionLayerMask"))
@@ -196,7 +196,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
         if (p_json.contains("drawLayer"))
         {
             uint16_t drawLayerValue = p_json["drawLayer"];
-            node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+            node->SetDrawLayer(static_cast<Common::DrawLayer>(drawLayerValue));
         }
 
         if (p_json.contains("collisionLayerMask"))

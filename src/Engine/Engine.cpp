@@ -28,9 +28,9 @@
 #include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 
-#include "Integration/Bridge/AssetProvider.hpp"
+#include "ResourceBridge/ResourceTransfer.hpp"
 
 using namespace Droplet;
 
@@ -69,14 +69,14 @@ namespace
     // -- Assets --
 
     /// @brief The entry for `id` in `assets`, or nullptr
-    const Assets::ResidentAsset* Find(const std::vector<Assets::ResidentAsset>& assets, Droplet::GUID id)
+    const Bridge::ResidentResource* Find(const std::vector<Bridge::ResidentResource>& assets, GUID id)
     {
-        const auto assetIt = std::ranges::find(assets, id, &Assets::ResidentAsset::id);
+        const auto assetIt = std::ranges::find(assets, id, &Bridge::ResidentResource::id);
         return assetIt != assets.end() ? &*assetIt : nullptr;
     }
 
     /// @brief Adds the mesh to `uploads` once the resource manager has loaded it
-    void AddMesh(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
+    void AddMesh(ResourceManager& resMan, Bridge::ResourceUploads& uploads, GUID id)
     {
         // not loaded yet: asked for again next frame (GetResource would hand over the fallback mesh)
         if (resMan.GetState(id) != ResourceState::Ready)
@@ -95,7 +95,7 @@ namespace
     }
 
     /// @brief Adds the texture's top mip level to `uploads` once the resource manager has loaded it
-    void AddTexture(ResourceManager& resMan, Assets::AssetUploads& uploads, Droplet::GUID id)
+    void AddTexture(ResourceManager& resMan, Bridge::ResourceUploads& uploads, GUID id)
     {
         // not loaded yet: asked for again next frame (GetResource would hand over the fallback texture)
         if (resMan.GetState(id) != ResourceState::Ready)
@@ -129,9 +129,9 @@ namespace
     }
 
     /// @brief Adds the default scene shader; production's own shaders need bindless
-    void AddShader(Assets::AssetUploads& uploads, Droplet::GUID id)
+    void AddShader(Bridge::ResourceUploads& uploads, GUID id)
     {
-        if (id != Render::DEFAULT_SCENE_SHADER)
+        if (id != Graphics::Render::DEFAULT_SCENE_SHADER)
             return;
         uploads.shaders.push_back({
             .id = id,
@@ -141,22 +141,22 @@ namespace
     }
 
     /// @brief The uploads for what `required` needs and the GPU lacks
-    Assets::AssetUploads ProvideAssets(const Assets::RequiredAssets& required, const Assets::ResidentAssets& resident)
+    Bridge::ResourceUploads ProvideAssets(const Bridge::RequiredResources& required, const Bridge::ResidentResources& resident)
     {
         ResourceManager& resMan = ResourceManager::GetInstance();
-        Assets::AssetUploads uploads;
+        Bridge::ResourceUploads uploads;
 
-        for (const Droplet::GUID id : required.meshes)
+        for (const GUID id : required.meshes)
         {
             if (!Find(resident.meshes, id))
                 AddMesh(resMan, uploads, id);
         }
-        for (const Droplet::GUID id : required.textures)
+        for (const GUID id : required.textures)
         {
             if (!Find(resident.textures, id))
                 AddTexture(resMan, uploads, id);
         }
-        for (const Droplet::GUID id : required.shaders)
+        for (const GUID id : required.shaders)
         {
             if (!Find(resident.shaders, id) && !Find(resident.failedShaders, id))
                 AddShader(uploads, id);
@@ -341,24 +341,24 @@ void Engine::BeginFrame()
 #endif
 }
 
-DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_cameras)
+DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_cameras)
 {
     ZoneScopedC(tracy::Color::SkyBlue1)
 
     // the scene's cameras and the editor's; the render graph orders the passes
-    Render::RenderWorld world{
+    Graphics::Render::RenderWorld world{
         .cameras = m_sceneManager.GetRenderData(),
         .time = 0.0f // TODO: the engine's elapsed time in seconds
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
 
     // DebugDraw's meshes, in the cameras that show debug drawing
-    const std::vector<std::shared_ptr<const Graphics::DynamicMeshData>> debugMeshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
-    for (Graphics::CameraRenderData& camera : world.cameras)
+    const std::vector<std::shared_ptr<const Common::DynamicMeshData>> debugMeshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
+    for (Common::CameraRenderData& camera : world.cameras)
     {
         if (!camera.debug)
             continue;
-        for (const std::shared_ptr<const Graphics::DynamicMeshData>& mesh : debugMeshes)
+        for (const std::shared_ptr<const Common::DynamicMeshData>& mesh : debugMeshes)
             camera.renderData.push_back({ .transform = glm::mat4{ 1.0f }, .dynamicMesh = mesh });
     }
 
@@ -366,12 +366,12 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
 #ifdef _EDITOR
     overlay = m_imguiFrame.End();
     // and the textures the editor's windows show
-    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world, Vulkan::Renderer::ImGuiImages(*overlay));
+    const Bridge::RequiredResources required = Bridge::RequiredAssetsOf(world, Graphics::Vulkan::Renderer::ImGuiImages(*overlay));
     m_renderer.SetCompositeScene(false); // the editor's windows show the cameras
 #else
-    const Assets::RequiredAssets required = Bridge::RequiredAssetsOf(world);
+    const BridgeRequiredAssets required = Bridge::RequiredAssetsOf(world);
 #endif
-    m_renderer.Upload(ProvideAssets(required, m_renderer.Resident()));
+    m_renderer.Upload(ProvideAssets(required, m_renderer.Residents()));
 
     m_renderer.Render(world, overlay);
 
