@@ -41,6 +41,7 @@ namespace RenderGraph
 
     Compiled Compile(const GraphData& graph)
     {
+        ZoneScoped
         Compiled out;
         const std::size_t passCount = graph.passes.size();
         const std::size_t resourceCount = graph.resources.size();

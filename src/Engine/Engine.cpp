@@ -378,6 +378,5 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Graphics::CameraRenderData> p_
     m_sceneManager.PostRender(); // clears the cameras' render data
     ResourceManager::GetInstance().Update();
 
-    FrameMark;
     return DROPLET_RETURNTYPE::OK;
 }

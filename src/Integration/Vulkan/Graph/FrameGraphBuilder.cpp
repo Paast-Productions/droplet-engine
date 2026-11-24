@@ -34,6 +34,7 @@ namespace Vulkan
         const Render::PreparedFrame& frame,
         const FrameGraphInputs& inputs)
     {
+        ZoneScoped
         const std::vector<DrawList>& views = frame.views;
 
         FrameGraphBuild out;

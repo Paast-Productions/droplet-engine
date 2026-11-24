@@ -197,6 +197,8 @@ Render::PreparedFrame Vulkan::Prepare(
     std::span<const Render::ViewPlan> plans,
     const Vulkan::PrepareContext& context)
 {
+    ZoneScoped
+    
     GpuResourceManager& gpu = context.gpu;
 
     // the default shader: the asset storage's override once it has arrived, else the built-in one

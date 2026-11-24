@@ -1,6 +1,6 @@
 #include "SlangFormat.hpp"
 
-#include <Graphics/Vulkan/ShaderCompiler.hpp>
+#include "Resource/IO/ShaderCompiler.hpp"
 #include <Resource/Meta/MetaUtils.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 

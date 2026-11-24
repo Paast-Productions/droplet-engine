@@ -70,6 +70,7 @@ namespace Vulkan
 
     Buffer Uploader::CreateDeviceBuffer(const void* data, vk::DeviceSize size, vk::BufferUsageFlags usage)
     {
+        ZoneScoped
         Buffer staging = CreateStaging(data, size);
         Buffer buffer = Buffer::Create(
             m_context->GetAllocator(),
@@ -98,6 +99,7 @@ namespace Vulkan
         vk::Format format,
         std::uint32_t mipLevels)
     {
+        ZoneScoped
         if (byteSize != vk::DeviceSize{extent.width} * extent.height * sizeof(std::uint32_t))
             throw std::invalid_argument("UploadImage2D: expected tightly packed 4-byte pixels");
 
@@ -180,6 +182,7 @@ namespace Vulkan
 
     void Uploader::ClearToSampled(vk::Image image, const vk::ImageSubresourceRange& range)
     {
+        ZoneScoped
         ImageState state = ImageState::Undefined();
         SubmitAndWait([&](vk::CommandBuffer cmd)
         {
