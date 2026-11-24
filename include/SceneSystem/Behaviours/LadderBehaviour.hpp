@@ -39,6 +39,8 @@ namespace Droplet::Scene
             std::weak_ptr<Scene> p_currentScene
         );
 
+        void LoadTargetScene(const std::string &p_targetSceneName);
+
     protected:
         void StartImpl() override;
 
