@@ -27,6 +27,7 @@ StructuredBuffer<GlyphInstance> glyphInstances;
 
 struct TextPushConstants
 {
+    float4x4 model;
     float4 color;
 };
 
@@ -61,8 +62,7 @@ VertexOutput slugVertMain(uint vertexID : SV_VertexID, uint instanceID : SV_Inst
     
     float2 localPosition = positions[vertexID] * instance.scaleBias.xy + instance.scaleBias.zw;
 
-    float4 worldPosition = float4(localPosition, 0.0f, 1.0f);
-
+    float4 worldPosition = mul(textPushConstants.model, float4(localPosition, 0.0f, 1.0f));
     
     VertexOutput output;
     

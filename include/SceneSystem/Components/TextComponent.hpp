@@ -31,9 +31,10 @@ namespace Droplet::Scene
 	protected:
 		void StartImpl() override;
 		void UpdateImpl() override;
+		void EditorUpdateImpl() override;
 		void QueueRenderImpl() override;
 		void RenderUIImpl() override;
-		// [[nodiscard]] Graphics::RenderData GetRenderDataImpl() override;
+		[[nodiscard]] Graphics::RenderData GetRenderDataImpl() override;
 		
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(const nlohmann::json p_compJson) override;
@@ -42,10 +43,12 @@ namespace Droplet::Scene
 		std::string m_fontDisplayName;
 		
 		StaticResourceHandle<FontResource> m_font{};
-		bool m_textIsDirty = false; // Used to decide whether the text layout should be updated.
+		bool m_textIsDirty = true; // Used to decide whether the text layout should be updated.
 		
 		glm::vec4 m_textColor = {1, 1, 1, 1};
 		float m_emSize = 0.5f;
 		std::string m_text = "Text";
+		
+		std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> m_glyphInstances;
 	};
 }

@@ -1,6 +1,11 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <optional>
+
+#include "FontResource.hpp"
+#include "StaticResourceHandle.hpp"
+#include "Graphics/Text/GlyphInstance.hpp"
 
 namespace Droplet::Graphics
 {
@@ -31,12 +36,14 @@ namespace Droplet::Graphics
         std::uint64_t GUID {0};
     };
 
-    // struct TextData
-    // {
-    //     std::uint64_t GUID {0};
-    //     
-    //     std::shared_ptr<const std::vector<GlyphInstance>> glyphInstances;
-    // };
+    struct TextData
+    {
+        StaticResourceHandle<FontResource> font;
+        
+        glm::vec4 color {1.0f};
+        
+        std::shared_ptr<const std::vector<Text::GlyphInstance>> glyphInstances;
+    };
     
     struct RenderData
     {
@@ -50,6 +57,8 @@ namespace Droplet::Graphics
         TextureData texData{};
 
         glm::mat4 transform{};
+        
+        std::optional<TextData> textData{};
 
         // Settings
 		bool transparent { false };

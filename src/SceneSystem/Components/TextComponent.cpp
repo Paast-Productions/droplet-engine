@@ -8,6 +8,8 @@
 #include <ImGui/imgui_stdlib.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "Text/TextLayout.hpp"
+
 Droplet::Scene::TextComponent::TextComponent()
 {
 	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::EditorFlags))
@@ -29,6 +31,9 @@ void Droplet::Scene::TextComponent::SetFontGUID(GUID p_guid)
 	{
 		m_fontDisplayName = entry.displayName;
 	}
+	
+	m_glyphInstances.reset();
+	m_textIsDirty = true;
 }
 
 void Droplet::Scene::TextComponent::StartImpl()
@@ -38,11 +43,49 @@ void Droplet::Scene::TextComponent::StartImpl()
 
 void Droplet::Scene::TextComponent::UpdateImpl()
 {
-	// TODO: MeshComponent has a todo here - I don't know
+	if (!m_textIsDirty || !m_font.IsReady())
+		return;
+	
+	const FontResource* font = m_font.Get();
+	
+	if (!font)
+		return;
+	
+	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
+	
+	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
+	
+	m_textIsDirty = false;
+}
+
+void Droplet::Scene::TextComponent::EditorUpdateImpl()
+{
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
+		return;
+	
+	if (!IsActive())
+		return;
+	
+	if (!m_textIsDirty || !m_font.IsReady())
+		return;
+	
+	const FontResource* font = m_font.Get();
+	
+	if (!font)
+		return;
+	
+	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
+	
+	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
+	
+	m_textIsDirty = false;
 }
 
 void Droplet::Scene::TextComponent::QueueRenderImpl()
 {
+	if (!m_font.IsReady() || m_textIsDirty || !m_glyphInstances || m_glyphInstances->empty())
+		return;
+	
 	GetOwner()->GetScene()->QueueRenderable(shared_from_this());
 }
 
@@ -125,6 +168,21 @@ void Droplet::Scene::TextComponent::RenderUIImpl()
 #endif
 }
 
+Droplet::Graphics::RenderData Droplet::Scene::TextComponent::GetRenderDataImpl()
+{
+	Graphics::RenderData data{};
+	
+	data.textData = Graphics::TextData{
+		.font = m_font,
+		.color = m_textColor,
+		.glyphInstances = m_glyphInstances
+	};
+	
+	data.transparent = true;
+	
+	return data;
+}
+
 nlohmann::json Droplet::Scene::TextComponent::SerializeImpl()
 {
 	nlohmann::json json = {
@@ -170,5 +228,7 @@ void Droplet::Scene::TextComponent::DeserializeImpl(const nlohmann::json p_compJ
 	{
 		m_text = p_compJson["displayText"].get<std::string>();
 	}
+	
+	m_textIsDirty = true;
 }
 

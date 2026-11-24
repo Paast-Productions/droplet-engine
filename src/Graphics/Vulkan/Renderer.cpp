@@ -42,27 +42,18 @@ Renderer::Renderer(SDL_Window *p_window) :
 	//         Debug       //
 	// - - - - - - - - - - //
 	
-	std::array<vk::DescriptorPoolSize, 3> poolSizes{{
-			{
-				.type = vk::DescriptorType::eUniformBuffer,
-				.descriptorCount = 2
-			},
-			{
-				.type = vk::DescriptorType::eSampledImage,
-				.descriptorCount = 4
-			},
-			{
-				.type = vk::DescriptorType::eStorageBuffer,
-				.descriptorCount = 2
-			}
-		}};
+	vk::DescriptorPoolSize poolSize
+	{
+		.type = vk::DescriptorType::eUniformBuffer,
+		.descriptorCount = 2
+	};
 	
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 8,
-		.poolSizeCount = poolSizes.size(),
-		.pPoolSizes = poolSizes.data()
+		.maxSets = 3,
+		.poolSizeCount = 1,
+		.pPoolSizes = &poolSize
 	};
 	
 	m_debugDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), debugPoolInfo);
@@ -79,8 +70,7 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_swapchain.GetDepthFormat(),
 		MAX_FRAMES_IN_FLIGHT);
 	
-	m_slugPrototype = Vulkan::Slug::SlugPrototype();
-	m_slugPrototype.Initialize(m_context, Vulkan::IntermediaryStorage::GetInstance().GetAllocator(), m_debugDescriptorPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat(), m_commandPool);
+	m_textRenderer.Initialize(m_context, Vulkan::IntermediaryStorage::GetInstance().GetAllocator(), m_commandPool, m_swapchain.GetSurfaceFormat().format, m_swapchain.GetDepthFormat(), MAX_FRAMES_IN_FLIGHT);
 
 	constexpr Vulkan::ViewProjectionBuffer vpb
 	{
@@ -151,7 +141,7 @@ Renderer::~Renderer()
 	
 	m_context.GetDevice().waitIdle();
 	Debug::DebugDraw::Get().Shutdown();
-	m_slugPrototype.Shutdown();
+	m_textRenderer.Shutdown();
 	Vulkan::IntermediaryStorage::GetInstance().Shutdown();
 
 #ifdef _EDITOR
@@ -318,8 +308,35 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	std::vector<Vulkan::Pipeline*> pipelines {};
 	std::vector<std::uint32_t> textureIDs {};
 	std::vector<glm::mat4> transforms {};
+	
+	std::vector<uint32_t> textDrawIndices;
+	
 	for (const RenderData& data : p_renderData)
 	{
+		if (data.textData)
+		{
+			const auto& text = *data.textData;
+			
+			if (!text.font.IsReady() ||
+				!text.glyphInstances ||
+				text.glyphInstances->empty())
+			{
+				continue;
+			}
+			
+			const auto drawIndex = m_textRenderer.Prepare(
+				m_frameIndex,
+				text.font.GetGUID(),
+				p_camera,
+				*text.glyphInstances,
+				data.transform,
+				text.color
+			);
+			
+			textDrawIndices.push_back(drawIndex);
+			continue;
+		}
+		
 		Vulkan::Mesh mesh = Vulkan::IntermediaryStorage::GetInstance().GetMesh(commandBuffer, data);
 		if (!mesh.valid) { continue; }
 		
@@ -372,8 +389,11 @@ void Renderer::RecordRenderTargetCommandBuffer(
 		commandBuffer.bindIndexBuffer(mesh.indexBuffer, 0, vk::IndexType::eUint32);
 		commandBuffer.drawIndexed(mesh.indexCount, 1, 0, 0, 0);
 	}
-
-	m_slugPrototype.RenderToCamera(p_camera, commandBuffer, p_renderTarget.GetExtent(), m_frameIndex);
+	
+	for (const auto drawIndex : textDrawIndices)
+	{
+		m_textRenderer.Record(commandBuffer, m_frameIndex, drawIndex, p_renderTarget.GetExtent());
+	}
 
 	if (p_debug)
 		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, renderingInfo.renderArea.extent, m_frameIndex);
@@ -572,9 +592,27 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	}
 
 	std::uint32_t imageIndex = resVal.value;
+	
 
 	auto &commandBuffer = m_commandPool.GetBufferAt(m_frameIndex);
 	commandBuffer.reset();
+	
+	m_textRenderer.BeginFrame(m_frameIndex);
+	for (const auto& cameraData : p_renderData)
+	{
+		for (const auto& data : cameraData.renderData)
+		{
+			if (!data.textData)
+				continue;
+			
+			const auto& text = *data.textData;
+			if (!text.font.IsReady() || !text.font.Get())
+				continue;
+			
+			m_textRenderer.EnsureFont(text.font.GetGUID(), *text.font.Get());
+		}
+	}
+	
 	commandBuffer.begin({});
 
 	// Render all cameras

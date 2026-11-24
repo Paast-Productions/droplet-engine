@@ -115,6 +115,12 @@ namespace Droplet
 		/// @return Reference to uint16 vec2 vector containing the band texture data
 		const std::vector<glm::u16vec2> &GetBandsTextureData() const;
 		
+		[[nodiscard]] uint16_t GetCurveTextureWidth() const;
+		[[nodiscard]] uint16_t GetCurveTextureHeight() const;
+		
+		[[nodiscard]] uint16_t GetBandsTextureWidth() const;
+		[[nodiscard]] uint16_t GetBandsTextureHeight() const;
+		
 		const std::string &GetName() const;
 		
 	private:

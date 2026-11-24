@@ -19,8 +19,7 @@ namespace Droplet::Graphics::Text
 	[[nodiscard]] TextLayoutResult BuildTextLayout(
 		const FontResource& p_font,
 		const std::string_view &p_text,
-		float p_emSize,
-		const glm::vec4& p_color
+		float p_emSize
 	);
 	
 	// TODO: Consider this. Are we okay with keeping this in the codebase?

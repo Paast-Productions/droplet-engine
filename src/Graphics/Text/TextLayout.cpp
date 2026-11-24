@@ -1,11 +1,11 @@
 #include "Text/TextLayout.hpp"
 
 Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayout(const FontResource &p_font,
-	const std::string_view &p_text, float p_emSize, const glm::vec4 &p_color)
+	const std::string_view &p_text, float p_emSize)
 {
 	TextLayoutResult result{};
 	
-	FontResource::SlugFontHeader fontHeader = p_font.GetFontHeader();
+	const FontResource::SlugFontHeader& fontHeader = p_font.GetFontHeader();
 	
 	float fontScale = p_emSize / static_cast<float>(fontHeader.unitsPerEm);
 	

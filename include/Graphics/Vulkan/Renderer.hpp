@@ -10,7 +10,7 @@
 #include <Graphics/Vulkan/Swapchain.hpp>
 #include <Graphics/Vulkan/Context.hpp>
 
-#include "SlugPrototype.hpp"
+#include "TextRenderer.hpp"
 
 namespace Droplet
 {
@@ -122,6 +122,6 @@ namespace Droplet::Graphics
 		VkFormat m_imGuiColorFormat {};
 #endif
 
-		Vulkan::Slug::SlugPrototype m_slugPrototype;
+		Vulkan::TextRenderer m_textRenderer;
 	};
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 namespace Droplet::Graphics::Text
 {
@@ -21,6 +22,7 @@ namespace Droplet::Graphics::Text
 	
 	struct TextPushConstants
 	{
+		glm::mat4 model{1.0f};
 		glm::vec4 color{1.0f};
 	};
 }

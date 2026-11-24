@@ -47,6 +47,26 @@ namespace Droplet
 		return m_bandsTextureData;
 	}
 
+	uint16_t FontResource::GetCurveTextureWidth() const
+	{
+		return m_curveTextureWidth;
+	}
+
+	uint16_t FontResource::GetCurveTextureHeight() const
+	{
+		return m_curveTextureHeight;
+	}
+
+	uint16_t FontResource::GetBandsTextureWidth() const
+	{
+		return m_bandsTextureWidth;
+	}
+
+	uint16_t FontResource::GetBandsTextureHeight() const
+	{
+		return m_bandsTextureHeight;
+	}
+
 	const std::string &FontResource::GetName() const
 	{
 		return m_name;

@@ -11,5 +11,5 @@ slangc debug_draw.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -f
 slangc debug_icon.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry iconVertMain -o ..\..\Build\Target\%config%\%project%\debug_icon.vert.spv || exit /b 1
 slangc debug_icon.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry iconFragMain -o ..\..\Build\Target\%config%\%project%\debug_icon.frag.spv || exit /b 1
 
-slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry slugVertMain -o ..\..\Build\Target\%config%\%project%\slug_test.vert.spv || exit /b 1
-slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -fvk-use-entrypoint-name -entry slugFragMain -o ..\..\Build\Target\%config%\%project%\slug_test.frag.spv || exit /b 1
+slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -matrix-layout-column-major -fvk-use-entrypoint-name -entry slugVertMain -o ..\..\Build\Target\%config%\%project%\slug_test.vert.spv || exit /b 1
+slangc slug_test.slang -target spirv -profile spirv_1_4 -emit-spirv-directly -matrix-layout-column-major -fvk-use-entrypoint-name -entry slugFragMain -o ..\..\Build\Target\%config%\%project%\slug_test.frag.spv || exit /b 1
