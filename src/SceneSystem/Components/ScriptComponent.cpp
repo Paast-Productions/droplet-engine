@@ -43,6 +43,7 @@ void Droplet::Scene::ScriptComponent::AttachScript(const std::string p_scriptPat
     }
 
     ScriptSystem::Get().CreateComponentScript(this, m_scriptPath);
+	ScriptSystem::Get().StartComponent(this); //TODO: temp for now, should be removed and called correctly
 }
 
 void ScriptComponent::DetachScript()

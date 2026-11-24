@@ -4,12 +4,13 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Fish",
@@ -20,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "WoodTexture",
                         "textureGUID": 1466059150086384494,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -28,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 108,
+            "id": 3385,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -50,10 +52,22 @@
             }
         }
     ],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
             "data": {
+                "amount": 1,
+                "collectibleType": 0,
+                "itemId": 1
+            },
+            "id": 2,
+            "type": "CollectibleTypeComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
                 "filepath": "Engine_Side/Fih.lua"
             },
             "id": 1,
@@ -61,13 +75,13 @@
         }
     ],
     "drawLayer": 1,
-    "id": 107,
+    "id": 3384,
     "name": "WoodRoach",
     "transform": {
         "position": [
-            0.0,
-            0.0,
-            0.0
+            29.110015869140625,
+            9.476302146911621,
+            -4.24635124206543
         ],
         "rotation": [
             -4.371138828673793e-08,

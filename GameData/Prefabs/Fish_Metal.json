@@ -1,0 +1,98 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "metal_fish",
+                        "meshGUID": 5755047849884764840,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "metal_fish_base",
+                        "textureGUID": 10717291864087825473,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 3409,
+            "name": "Mesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -1.0728440713592136e-07,
+                    0.0,
+                    0.0,
+                    -1.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "amount": 1,
+                "collectibleType": 0,
+                "itemId": 4
+            },
+            "id": 2,
+            "type": "CollectibleTypeComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Engine_Side/Fih.lua"
+            },
+            "id": 1,
+            "type": "ScriptComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 3408,
+    "name": "Fish_Metal",
+    "transform": {
+        "position": [
+            -33.1705207824707,
+            -11.953865051269531,
+            38.833065032958984
+        ],
+        "rotation": [
+            1.9861630562445498e-08,
+            0.0,
+            0.0,
+            1.0
+        ],
+        "scale": [
+            5.0,
+            5.0,
+            5.0
+        ]
+    }
+}

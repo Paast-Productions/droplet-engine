@@ -1,0 +1,89 @@
+{
+    "active": true,
+    "children": [],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": false,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Cube",
+                "meshGUID": 17470227938033865898,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "damage": 1.0,
+                "direction": [
+                    0.0,
+                    0.0,
+                    1.0
+                ]
+            },
+            "id": 4,
+            "type": "HazardComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "aabbExtX0": 1.0,
+                "aabbExtY0": 1.0,
+                "aabbExtZ0": 1.0,
+                "aabbOffX0": 0.0,
+                "aabbOffY0": 0.0,
+                "aabbOffZ0": 0.0,
+                "collisionLayerMask": 32,
+                "numAabb": 1,
+                "numObb": 0,
+                "numSphere": 0
+            },
+            "id": 5,
+            "type": "TriggerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Heat.lua"
+            },
+            "id": 6,
+            "type": "ScriptComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 1077,
+    "name": "Heat",
+    "transform": {
+        "position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

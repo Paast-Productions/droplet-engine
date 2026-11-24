@@ -21,7 +21,7 @@
 
 #include <SceneSystem/Components/HealthComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 
@@ -415,11 +415,11 @@ namespace Droplet::Scene
 			return components.empty() ? nullptr : components.front();
 		}
 		
-		/// @brief Gets the DamageComponent attached to this Node.
-		/// @return The DamageComponent, or nullptr if none is attached.
-		[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
+		/// @brief Gets the HazardComponent attached to this Node.
+		/// @return The HazardComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<HazardComponent> GetHazardComponent()
 		{
-			const auto components = GetComponents<DamageComponent>();
+			const auto components = GetComponents<HazardComponent>();
 			return components.empty() ? nullptr : components.front();
 		}
 

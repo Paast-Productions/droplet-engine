@@ -21,8 +21,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodControls",
+                                "textureGUID": 1704392341138977716,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -31,7 +31,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 10,
+                    "id": 8,
                     "name": "Button Up",
                     "transform": {
                         "position": [
@@ -69,8 +69,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodControls",
+                                "textureGUID": 1704392341138977716,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -79,7 +79,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 11,
+                    "id": 9,
                     "name": "Button Down",
                     "transform": {
                         "position": [
@@ -115,8 +115,8 @@
                         "tcsName": "",
                         "tes": 0,
                         "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
+                        "textureDisplayName": "PodControls",
+                        "textureGUID": 1704392341138977716,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -125,7 +125,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 9,
+            "id": 7,
             "name": "Dive Panel",
             "transform": {
                 "position": [
@@ -179,7 +179,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 14,
+                            "id": 12,
                             "name": "Drone Monitor Screen",
                             "transform": {
                                 "position": [
@@ -215,8 +215,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodControls",
+                                "textureGUID": 1704392341138977716,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -225,7 +225,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 13,
+                    "id": 11,
                     "name": "Drone Monitor",
                     "transform": {
                         "position": [
@@ -263,8 +263,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodControls",
+                                "textureGUID": 1704392341138977716,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -273,7 +273,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 15,
+                    "id": 13,
                     "name": "Keyboard",
                     "transform": {
                         "position": [
@@ -311,8 +311,8 @@
                                 "tcsName": "",
                                 "tes": 0,
                                 "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
+                                "textureDisplayName": "PodControls",
+                                "textureGUID": 1704392341138977716,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -321,7 +321,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 16,
+                    "id": 14,
                     "name": "Joystick",
                     "transform": {
                         "position": [
@@ -345,7 +345,7 @@
             ],
             "components": [],
             "drawLayer": 1,
-            "id": 12,
+            "id": 10,
             "name": "Drone Control",
             "transform": {
                 "position": [
@@ -381,8 +381,8 @@
                 "tcsName": "",
                 "tes": 0,
                 "tesName": "",
-                "textureDisplayName": "White",
-                "textureGUID": 13855953862202670664,
+                "textureDisplayName": "PodInterior",
+                "textureGUID": 5956185883982929326,
                 "vs": 7809030845991192100,
                 "vsName": "Base.VS"
             },
@@ -410,7 +410,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 8,
+    "id": 6,
     "name": "Pod Interior",
     "transform": {
         "position": [
