@@ -28,6 +28,9 @@
 #include "Integration/Render/RenderWorld.hpp"
 #include "Integration/Render/PreparedFrame.hpp"
 
+#include <tracy/public/tracy/Tracy.hpp>
+
+
 struct ImDrawData;
 
 namespace Vulkan
@@ -74,7 +77,11 @@ namespace Vulkan
 
         /// @brief Uploads assets (see RenderDevice::Upload). Call between frames; the spans only have to live until
         ///        this returns.
-        void Upload(const Assets::AssetUploads& uploads) { m_device.Upload(uploads); }
+        void Upload(const Assets::AssetUploads& uploads)
+        {
+            ZoneScoped;
+            m_device.Upload(uploads);
+        }
 
         /// @brief The assets on the GPU with their revisions; pass to Bridge::ProvideAssets.
         [[nodiscard]] Assets::ResidentAssets Resident() const { return m_device.Resident(); }

@@ -178,7 +178,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
         busInspectorWindow.Init();
         sceneInspectorWindow.Init();
 
-        FrameMark;
+        FrameMark; // start of first frame
 
         bool showStyleEditor = false;
 
@@ -633,8 +633,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
                 run = false;
                 break;
             }
-
+            
             editorContext.ClearQueuedEditorCameras();
+            FrameMark;
         }
     }
 

@@ -47,6 +47,7 @@ void GraphExecutor::Execute(
 	const GraphExecutionInfo& executionInfo,
 	const ResolveImportFn& resolveImport)
 {
+	ZoneScoped
 	if (!compiled.ok)
 		throw std::logic_error("GraphExecutor::Execute called with a graph that failed to compile");
 	if (executionInfo.submitter == nullptr)

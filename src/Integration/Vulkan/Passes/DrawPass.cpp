@@ -157,6 +157,7 @@ namespace Vulkan
 
 	void DrawPass::BeginFrame(std::uint32_t frameSlot, const Render::PreparedFrame& frame)
 	{
+    	ZoneScoped
 		m_frameSlot = frameSlot;
 
 		// the slot's buffer is not in use any more: grow it in place, and point the slot's set at the new one
@@ -215,6 +216,7 @@ namespace Vulkan
 	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
 		Droplet::GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
+    	ZoneScoped
 		constexpr auto binding = Vertex::P3N3UV2::GetBindingDescription();
 		constexpr auto attributes = Vertex::P3N3UV2::GetAttributeDescription();
 
@@ -251,6 +253,7 @@ namespace Vulkan
 
 	DrawPass::MeshInterface DrawPass::InterfaceOf(const Droplet::Graphics::DynamicMeshData& mesh)
 	{
+    	ZoneScoped
 		using Droplet::Graphics::VertexFormat;
 		const auto formatAt = [&mesh](std::uint32_t location) -> std::optional<VertexFormat>
 		{
@@ -274,6 +277,7 @@ namespace Vulkan
 		Droplet::GUID shader, const Droplet::Graphics::DynamicMeshData& mesh,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
+    	ZoneScoped
 		const bool vertexColor = InterfaceOf(mesh) == MeshInterface::VertexColor;
 		GraphicsPipelineDesc desc = MakePipelineDesc(shader, colorFormat, depthFormat, transparent || vertexColor);
 
@@ -304,6 +308,7 @@ namespace Vulkan
 
 	vk::raii::DescriptorSet DrawPass::CreateSet(vk::ImageView view, vk::Sampler sampler) const
 	{
+    	ZoneScoped
 		const vk::DescriptorSetLayout layout = *m_setLayout;
 		const vk::DescriptorSetAllocateInfo allocInfo{
 			.descriptorPool = *m_pool,
@@ -335,6 +340,7 @@ namespace Vulkan
 
 	vk::DescriptorSet DrawPass::MaterialSet(const Render::ImageBinding& binding)
 	{
+    	ZoneScoped
 		auto* cache = &m_textureSets;
 		std::uint64_t key = 0;
 		vk::ImageView view{};
@@ -381,6 +387,7 @@ namespace Vulkan
 		const PipelineLibrary& pipelines,
 		DrawFilter filter)
 	{
+    	ZoneScoped
 		// Same Y flip as the existing scene pass: negative height with the origin moved to the bottom.
 		const vk::Viewport viewport{
 			.x = 0.0f,
@@ -504,6 +511,7 @@ namespace Vulkan
 	void DrawPass::RetireDeadMaterials(
 		DeletionQueue& deletionQueue, const QueueTimelineValues& frameRetireValues)
 	{
+    	ZoneScoped
 		// a set may be bound by this frame's command buffers, so it lives until the GPU is past the frame
 		std::erase_if(m_textureSets, [&](auto& entry)
 			{

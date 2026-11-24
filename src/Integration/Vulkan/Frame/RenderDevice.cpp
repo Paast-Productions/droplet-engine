@@ -47,11 +47,13 @@ RenderDevice::RenderDevice(const Context& context, std::uint32_t framesInFlight)
 
 void RenderDevice::BeginFrame()
 {
+    ZoneScoped
     m_resources.BeginFrame();
 }
 
 void RenderDevice::EndFrame()
 {
+    ZoneScoped
     // with no frame submitted, the last submitted frame's values still cover every use so far
     const QueueTimelineValues frameRetireValues = m_frameSubmitter.FrameRetireValues();
 
@@ -71,6 +73,7 @@ void RenderDevice::EndFrame()
 
 void RenderDevice::Upload(const Assets::AssetUploads& uploads)
 {
+    ZoneScoped
     for (const Assets::MeshUpload& mesh : uploads.meshes)
     {
         m_resources.UploadMesh(mesh);
@@ -87,6 +90,7 @@ void RenderDevice::Upload(const Assets::AssetUploads& uploads)
 
 Assets::ResidentAssets RenderDevice::Resident() const
 {
+    ZoneScoped
     Assets::ResidentAssets resident;
     m_resources.AppendResident(resident);
     m_shaders.AppendResident(resident);

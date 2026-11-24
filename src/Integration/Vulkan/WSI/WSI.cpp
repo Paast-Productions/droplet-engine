@@ -85,6 +85,7 @@ std::optional<Frame> WSI::BeginFrame()
 
 void WSI::EndFrame(const Frame& frame)
 {
+    ZoneScoped
     // 3. the graph has been submitted (the Renderer's FrameSubmitter): it waited on the acquire semaphore and
     //    signalled the render-finished semaphore of this image. Present waits on that.
     const SwapchainStatus presentStatus = m_swapchain.Present(frame.swapchainImage.index);

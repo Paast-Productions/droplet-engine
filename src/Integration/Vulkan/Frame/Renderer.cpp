@@ -210,7 +210,9 @@ void Renderer::CompileShaders()
 
 void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData* overlay)
 {
-    Vulkan::FrameGraphInputs inputs{
+    ZoneScoped
+    
+    FrameGraphInputs inputs{
         .currentState = [this](Render::TargetHandle handle)
         {
             // a target no graph has used yet: undefined, unless it was cleared when it was created (a history), then
@@ -391,7 +393,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
     }
 #endif
 
-    Vulkan::FrameGraphBuild build = Vulkan::BuildFrameGraph(m_preparedFrame, inputs);
+    FrameGraphBuild build = BuildFrameGraph(m_preparedFrame, inputs);
     RenderGraph::Compiled compiled = build.graph.Compile();
 
     // A graph that does not compile still has to consume the acquire semaphore, signal render-finished and leave the
@@ -401,7 +403,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
     {
         std::print("{}", RenderGraph::Dump(build.graph.Data(), compiled));
         m_preparedFrame = {};
-        build = Vulkan::BuildFrameGraph(m_preparedFrame, inputs);
+        build = BuildFrameGraph(m_preparedFrame, inputs);
         compiled = build.graph.Compile();
         if (!compiled.ok)
             throw std::logic_error("Renderer: the fallback frame graph (clear the swapchain image) does not compile");
@@ -451,7 +453,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
 
 PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resource, const Frame& frame) const
 {
-    if (resource.externalKey == Vulkan::SWAPCHAIN_KEY)
+    if (resource.externalKey == SWAPCHAIN_KEY)
     {
         return {
             .image = {
@@ -464,7 +466,7 @@ PhysicalResource Renderer::ResolveImport(const RenderGraph::ResourceInfo& resour
         };
     }
 
-    const Render::TargetHandle handle = Vulkan::TargetFromKey(resource.externalKey);
+    const Render::TargetHandle handle = TargetFromKey(resource.externalKey);
     const GpuRenderTarget* target = m_device.Resources().Find(handle);
     if (!target)
         throw std::runtime_error(std::format(
