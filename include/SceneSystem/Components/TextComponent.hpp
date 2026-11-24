@@ -42,5 +42,10 @@ namespace Droplet::Scene
 		std::string m_fontDisplayName;
 		
 		StaticResourceHandle<FontResource> m_font{};
+		bool m_textIsDirty = false; // Used to decide whether the text layout should be updated.
+		
+		glm::vec4 m_textColor = {1, 1, 1, 1};
+		float m_emSize = 0.5f;
+		std::string m_text = "Text";
 	};
 }
