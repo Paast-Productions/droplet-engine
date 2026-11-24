@@ -17,6 +17,7 @@ project "Editor"
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
 		"TRACY_MEMORY",
+		"TRACY_CALLSTACK",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
         "ROOT_PATH=" .. AddQuotation(rootPath)

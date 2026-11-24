@@ -39,22 +39,16 @@ void ScriptSystem::Shutdown()
 
 void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
-	ZoneScoped;
-
 	m_scriptManager.StartComponent(p_scriptComponent);
 }
 
 void ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
-	ZoneScoped;
-
 	m_scriptManager.StartBehaviour(p_scriptBehaviour);
 }
 
 void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
 {
-	ZoneScoped;
-
 	m_scriptManager.UpdateComponent(p_scriptComponent, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
@@ -66,8 +60,6 @@ void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent,
 
 void ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
 {
-	ZoneScoped;
-
 	m_scriptManager.UpdateBehaviour(p_scriptBehaviour, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
@@ -79,36 +71,28 @@ void ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour,
 
 std::string Droplet::Script::ScriptSystem::SerializeComponent(Droplet::Scene::Component *p_scriptComponent)
 {
-	ZoneScoped;
-
 	return m_scriptManager.SerializeComponent(p_scriptComponent);
 }
 
 void Droplet::Script::ScriptSystem::DeserializeComponent(Droplet::Scene::Component *p_scriptComponent, const std::string &p_data)
 {
-	ZoneScoped;
-
 	m_scriptManager.DeserializeComponent(p_scriptComponent, p_data);
 }
 
 std::string Droplet::Script::ScriptSystem::SerializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
-	ZoneScoped;
-
 	return m_scriptManager.SerializeBehaviour(p_scriptBehaviour);
 }
 
 void Droplet::Script::ScriptSystem::DeserializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_data)
 {
-	ZoneScoped;
-
+	m_scriptManager.DeserializeBehaviour(p_scriptBehaviour, p_data);
 }
 
 void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode )
 {
 	//if(p_component.AlreadyTriggered) return
-	ZoneScoped;
-	
+
 	m_scriptManager.TriggerComponentScript(p_scriptComponent, p_deltaTime, p_otherNode);
 	
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
@@ -166,15 +150,11 @@ void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 
 void ScriptSystem::DetachComponentScript(Scene::Component *p_scriptComponent)
 {
-	ZoneScoped;
-
 	m_scriptManager.DetachComponentScript(p_scriptComponent);
 }
 
 void ScriptSystem::DetachBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
 {
-	ZoneScoped;
-
 	m_scriptManager.DetachBehaviourScript(p_scriptBehaviour);
 }
 
@@ -190,7 +170,5 @@ std::string ScriptSystem::GetScriptPath()
 
 void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)
 {
-	ZoneScoped;
-
 	m_scriptManager.DetachAllInstancesToScript(p_scriptPath);
 }
