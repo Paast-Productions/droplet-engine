@@ -26,7 +26,8 @@ ImageView::ImageView(const vk::raii::Device &p_device,
 ImageView::ImageView(const vk::raii::Device &p_device,
     const vk::Image p_image,
     const vk::Format p_format, 
-    const vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits)
+    const vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits,
+    const std::uint32_t p_mipLevels)
 {
     const vk::ImageViewCreateInfo viewInfo 
     {
@@ -37,7 +38,7 @@ ImageView::ImageView(const vk::raii::Device &p_device,
         {
             .aspectMask = p_aspectFlagBits,
             .baseMipLevel = 0,
-            .levelCount = 1,
+            .levelCount = p_mipLevels,
             .baseArrayLayer = 0,
             .layerCount = 1
         }

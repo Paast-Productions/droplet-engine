@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "RonnyEVIL",
+            "guid": 6107750390668191606,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "RonnyEVIL",
+            "type": 1
+        }
+    ]
+}

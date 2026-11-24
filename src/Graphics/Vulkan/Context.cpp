@@ -95,6 +95,8 @@ void Context::CreateLogicalDevice()
 	}
 
 	// query for Vulkan features
+	const bool supportsSamplerAnisotropy = m_physicalDevice.getFeatures().samplerAnisotropy;
+
 	vk::StructureChain<vk::PhysicalDeviceFeatures2,
 		vk::PhysicalDeviceVulkan11Features,
 		vk::PhysicalDeviceVulkan12Features,
@@ -108,6 +110,7 @@ void Context::CreateLogicalDevice()
 					.logicOp = true,
 					.fillModeNonSolid = true,
 					.wideLines = true,
+					.samplerAnisotropy = supportsSamplerAnisotropy,
 				}
 			},	
 			{	// vk::PhysicalDeviceVulkan11Features

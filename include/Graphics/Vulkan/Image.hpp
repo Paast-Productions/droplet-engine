@@ -43,6 +43,8 @@ namespace Droplet::Graphics::Vulkan
 		/// @param p_tiling Image tiling flag
 		/// @param p_usage Image usage flags
 		/// @param p_properties Memory property flags
+		/// @param p_dataMipLevels Number of mip levels packed into p_pixels, tightly, largest first.
+		/// @param p_generateMipmaps If true, mip levels beyond p_dataMipLevels are generated on the GPU.
 		Image(const vma::raii::Allocator &p_allocator,
 			const CommandPool &p_commandPool,
 			const Context &p_context,
@@ -53,7 +55,9 @@ namespace Droplet::Graphics::Vulkan
 			vk::Format p_format,
 			vk::ImageTiling p_tiling,
 			vk::ImageUsageFlags p_usage,
-			vk::MemoryPropertyFlags p_properties);
+			vk::MemoryPropertyFlags p_properties,
+			std::uint32_t p_dataMipLevels = 1,
+			bool p_generateMipmaps = false);
 		
 		/// @brief Constructor for creating an imageview
 		/// @param p_allocator VMA RAII Allocator
@@ -111,10 +115,13 @@ namespace Droplet::Graphics::Vulkan
 		
 		[[nodiscard]] vk::Format GetFormat() const { return m_format; }
 
+		[[nodiscard]] std::uint32_t GetMipLevels() const { return m_mipLevels; }
+
 	private:
 		vma::raii::Image m_image { nullptr };
 		vk::Extent2D m_extent { 960, 480 };
 		vk::Format m_format {};
+		std::uint32_t m_mipLevels = 1;
 		
 	};
 }
