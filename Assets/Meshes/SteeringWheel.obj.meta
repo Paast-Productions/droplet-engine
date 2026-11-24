@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Steering_Wheel",
+            "guid": 11865638226406090295,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Steering_Wheel",
+            "type": 3
+        }
+    ]
+}

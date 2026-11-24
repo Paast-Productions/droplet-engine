@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "PodLamp",
+            "guid": 12631460672734736476,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "PodLamp",
+            "type": 3
+        }
+    ]
+}
