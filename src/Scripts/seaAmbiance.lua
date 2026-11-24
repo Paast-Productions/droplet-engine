@@ -1,5 +1,4 @@
 local SeaAmbianceSound = nil
-local playingAmbiance = false
 
 -- Called when script starts
 function OnStart()
@@ -8,15 +7,12 @@ function OnStart()
         print("Unable to find ambiance sound (seaAmbiance.lua)")
         return
     end
-
-    playingAmbiance = false
 end
 
 function OnUpdate(dt)
     -- Ambiance Sound
-    if playingAmbiance == false then
+    if not SeaAmbianceSound:IsPlaying() then
         SeaAmbianceSound:Play()
-        playingAmbiance = true
     end
 end
 
