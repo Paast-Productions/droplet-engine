@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vulkan/vulkan_raii.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 
 #ifdef _EDITOR
 #include <ImGui/imgui_impl_vulkan.h>
@@ -97,6 +98,7 @@ namespace Droplet::Graphics
 		std::vector<vk::raii::Semaphore>	 	m_presentCompleteSemaphores;
 		std::vector<vk::raii::Semaphore>	 	m_renderFinishedSemaphores;
 		std::vector<vk::raii::Fence>		 	m_inFlightFences;
+		TracyVkCtx							 	m_tracyVkContext { nullptr };
 		
 		std::uint32_t m_vpBufferIndex { Droplet::G_INVALID_INDEX };
 		
