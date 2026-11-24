@@ -27,6 +27,7 @@ namespace Vulkan
 {
     class Context;
 
+    
     struct TransientImageDesc
     {
         vk::Format format{vk::Format::eUndefined};

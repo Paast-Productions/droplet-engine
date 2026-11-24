@@ -20,14 +20,12 @@
 #include "Integration/Vulkan/Graph/RenderGraphVk.hpp"
 
 namespace Vulkan
-{
-    /// @brief Submits render graphs with one timeline per logical queue: BeginFrame (wait for the slot), Prepare
-    ///        (reserve timeline values), graph.Execute (one command buffer and submit2 per Submission), EndFrame.
-    /// @details A logical queue without a device queue submits to the graphics queue and keeps its own timeline, so
-    ///          a single-queue device runs any graph. Not copyable or movable.
+{   
     /**
-     *@brief Submits render graphs with one timeline per logical queue
-     *@details 
+     * @brief Submits render graphs with one timeline per logical queue
+     * @details A logical queue without a device queue submits to the graphics queue and keeps its
+     * own timeline, so a single-queue device runs any graph. Not copyable or movable.
+     * 
      *  Usage:
      *     BeginFrame : wait for the frame slot to be available on the GPU
      *     Prepare    : prepare to execute the graph by storing data and reserving timeline values

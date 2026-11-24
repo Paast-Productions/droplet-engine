@@ -636,8 +636,7 @@ namespace RenderGraph
             return {};
         }
     }
-
-
+    
     Extent2D ResolveExtent(const GraphData& graph, 
         ResourceId id, 
         Extent2D swapChainExtent,

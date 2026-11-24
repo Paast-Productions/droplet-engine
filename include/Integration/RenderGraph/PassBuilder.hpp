@@ -4,13 +4,17 @@
 
 namespace RenderGraph
 {
-    /// Builds a RenderPass to be consumed by the rendering
+    /**
+     * @brief Orders PassInfo by resource access.
+     */
     class PassBuilder
     {
     public:
+        /// This holds a reference to the PassInfo to ensure it lives to the end of the frame.
         explicit PassBuilder(PassInfo& pass) : m_pass(pass)
         {
         }
+
 
         void Read(
             ResourceId resourceId,
@@ -19,8 +23,15 @@ namespace RenderGraph
             Add(resourceId, usage, false, false);
         }
 
-        void ReadPrevious(ResourceId resourceId, Usage usage = Usage::SampledRead) { Add(resourceId, usage, false, true); }
-        void Write(ResourceId resourceId, Usage usage = Usage::ColorWrite) { Add(resourceId, usage, true, false); }
+        void ReadPrevious(ResourceId resourceId, Usage usage = Usage::SampledRead)
+        {
+            Add(resourceId, usage, false, true);
+        }
+        
+        void Write(ResourceId resourceId, Usage usage = Usage::ColorWrite)
+        {
+            Add(resourceId, usage, true, false);
+        }
         
         /// Never culled (presents, readbacks, anything observable outside the graph).
         void SideEffect() const { m_pass.sideEffect = true; }
@@ -29,7 +40,14 @@ namespace RenderGraph
         void OnQueue(Queue queue) const { m_pass.queue = queue; }
 
     private:
-        void Add(ResourceId resourceId, Usage usage, bool write, bool history)
+        /**
+         * Adds a resource to the PassInfo as an access
+         * @param resourceId id of the resource
+         * @param usage @copybrief RenderGraph::Usage
+         * @param write true if the resource is expecting to write
+         * @param history true if resource needs access to history (state last frame)
+         */
+        void Add(ResourceId resourceId, Usage usage, bool write, bool history) const
         {
             if (usage == Usage::None)
                 m_pass.setupErrors.emplace_back("access with Usage::None");
@@ -47,6 +65,6 @@ namespace RenderGraph
                 });
         }
 
-        PassInfo& m_pass;
+        PassInfo& m_pass; ///< held until the end of the frame submission.
     };
 }

@@ -15,13 +15,14 @@ namespace
     using SlotCommandPools = std::array<vk::raii::CommandPool, RenderGraph::QUEUE_COUNT>;
 
 
-    /// helper 
+    /// helper for creating timeline semaphores RAII
     template <std::size_t... QueueIndex>
     std::array<Semaphore, sizeof...(QueueIndex)> MakeTimelines(
-        const vk::raii::Device& device, std::index_sequence<QueueIndex...>)
+        const vk::raii::Device& device,
+        std::index_sequence<QueueIndex...>)
     {
         // one timeline per logical queue, whether or not it has a physical queue of its own
-        return {((void)QueueIndex, Semaphore(device, Vulkan::Semaphore::Type::Timeline))...};
+        return {((void)QueueIndex, Semaphore(device, Semaphore::Type::Timeline))...};
     }
 
 
@@ -84,12 +85,16 @@ void FrameSubmitter::BeginFrame(std::uint32_t frameSlot)
 
     // wait until the GPU is past everything the slot's previous frame submitted, on every queue
     for (std::size_t queueIndex = 0; queueIndex < RenderGraph::QUEUE_COUNT; ++queueIndex)
+    {
         m_timelines[queueIndex].Wait(slot.retireValues.values[queueIndex]);
+    }
 
     // its command buffers are free now: drop them, then reset the pools they came from
     slot.commandBuffers.clear();
     for (auto& commandPool : slot.commandPools)
+    {
         commandPool.reset();
+    }
 }
 
 void FrameSubmitter::Prepare(const RenderGraph::Compiled& compiled, const ResourceTable& resources, External external)
@@ -127,7 +132,7 @@ PassContext& FrameSubmitter::Begin(const RenderGraph::Submission& submission)
     vk::raii::CommandBuffer& commandBuffer = slot.commandBuffers.back();
     commandBuffer.begin(vk::CommandBufferBeginInfo{.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
 
-    m_passContext = PassContext {
+    m_passContext = PassContext{
         .cmd = *commandBuffer,
         .queue = submission.queue,
         .resources = m_resources
@@ -226,7 +231,9 @@ RenderGraph::ResourceState Vulkan::FinalState(
 {
     const RenderGraph::LastUse& lastUse = compiled.lastUse[resource.index];
     if (!lastUse.touched)
-        return graph.resources[resource.index].initialState;
+    {        
+    return graph.resources[resource.index].initialState;
+    }
 
     const RenderGraph::Submission& submission = compiled.submissions[lastUse.submission];
     return {
