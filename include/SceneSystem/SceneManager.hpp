@@ -22,6 +22,8 @@ namespace Droplet::Scene
     class Behaviour;
     class Node;
 	class CameraComponent;
+    
+    constexpr std::string_view BEHAVIOUR_SAVE_PATH = ROOT_PATH "/GameData/Behaviours/Behaviours.json";
 
     /// @brief Manages the Scenes used by the application.
     ///
@@ -36,10 +38,10 @@ namespace Droplet::Scene
     public:
 
         /// @brief Constructs an empty SceneManager.
-        SceneManager();
+        SceneManager() = default;
 
         /// @brief Destroys the SceneManager.
-        ~SceneManager();
+        ~SceneManager() = default;
 
         /// @brief Loads a Scene with the specified name.
         ///
@@ -125,8 +127,8 @@ namespace Droplet::Scene
         /// @param p_filePath the filepath
         void SerializeNodeToFile(Node &p_node, const std::string &p_filePath);
         
-        void SerializeBehaviours(const std::string &p_filepath);
-        void DeserializeBehaviours(const std::string &p_filepath);
+        void SerializeBehaviours();
+        void DeserializeBehaviours();
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
@@ -136,11 +138,11 @@ namespace Droplet::Scene
         /// @param p_behaviourTypeName The type name of the behaviour to start.
 		/// @return A shared pointer to the started Behaviour.
 		/// @throws std::runtime_error if the behaviour type is not registered or cannot be started.
-        [[nodiscard]] std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName);
+        [[nodiscard]] Behaviour *StartBehaviour(const std::string &p_behaviourTypeName);
 
         /// @brief Shuts down a behaviour.
 		/// @param p_behaviour A weak pointer to the behaviour to shut down.
-		void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour);
+		void ShutdownBehaviour(Behaviour *p_behaviour);
         
 		/// @brief Gets the main camera of all active scenes.
 		/// @return A weak pointer to the CameraComponent at the end of the camera stack.

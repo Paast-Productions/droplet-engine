@@ -13,16 +13,6 @@
 
 using namespace Droplet::Scene;
 
-Droplet::Scene::SceneManager::SceneManager()
-{
-
-}
-
-Droplet::Scene::SceneManager::~SceneManager()
-{
-    
-}
-
 std::weak_ptr<Scene> SceneManager::LoadScene(const std::string &p_name)
 {
     ZoneScoped;
@@ -411,61 +401,89 @@ void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePa
     p_node.SetPrefabPath(relativePath);
 }
 
-void SceneManager::SerializeBehaviours(const std::string &p_filepath)
+void SceneManager::SerializeBehaviours()
 {
-    nlohmann::json data = nlohmann::json::object();
+    nlohmann::json data;
     
     data["behaviours"] = nlohmann::json::array();
-    for (auto behaviour : m_behaviours)
+    for (const auto& behaviour : m_behaviours)
     {
         data["behaviours"].push_back(behaviour->Serialize());
     }
     
-    if (!std::filesystem::exists(std::filesystem::path(p_filepath))) Core::JsonIO::CreateFile(p_filepath);
+    if (!std::filesystem::exists(std::filesystem::path(BEHAVIOUR_SAVE_PATH)))
+    {
+        Core::JsonIO::CreateFile(std::string(BEHAVIOUR_SAVE_PATH));
+    }
 
-    Core::JsonIO::Write(p_filepath, data);
+    try
+    {
+        Core::JsonIO::Write(std::string(BEHAVIOUR_SAVE_PATH), data);
+    }
+    catch (const std::runtime_error& e)
+    {
+        Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to save behaviour data: ") + e.what());
+    }
 }
 
-void SceneManager::DeserializeBehaviours(const std::string &p_filepath)
+void SceneManager::DeserializeBehaviours()
 {
-    nlohmann::json data = Core::JsonIO::Read(p_filepath);
+    m_behaviours.clear();
+    
+    nlohmann::json data;
+    try
+    {
+         data = Core::JsonIO::Read(std::string(BEHAVIOUR_SAVE_PATH));
+    }
+    catch (const std::runtime_error &e)
+    {
+        Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to read saved behaviour data: ") + e.what());
+        return;
+    }
+    
     if (data.contains("behaviours"))
     {
-        for (auto entry : data["behaviours"])
+        for (const auto &entry : data["behaviours"])
         {
-            std::string type = entry["type"];
-            auto behaviour = BehaviourFactory::CreateBehaviour(type);
-            behaviour->Deserialize(entry);
-            m_behaviours.push_back(std::move(behaviour));
+            if (entry.contains("type"))
+            {
+                std::string type = entry["type"];
+                auto behaviour = BehaviourFactory::CreateBehaviour(type);
+                if (!behaviour)
+                {
+                    Debug::Log(Debug::LogType::Warning, "SceneManager: Failed to deserialize unknown behaviour type: "+ type);
+                    continue;
+                }
+                behaviour->SetSceneManager(this);
+                m_behaviours.push_back(std::move(behaviour));   
+                m_behaviours.back()->Deserialize(entry);
+            }
         }
     }
 }
 
-std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
+Behaviour *SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
 {
 	auto behaviour = BehaviourFactory::CreateBehaviour(p_behaviourTypeName);
 
     behaviour->SetSceneManager(this);
     m_behaviours.push_back(std::move(behaviour));
+    m_behaviours.back()->Start();
 
-    behaviour->Start();
-
-	return behaviour;
+	return m_behaviours.back().get();
 }
 
-void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
+void SceneManager::ShutdownBehaviour(Behaviour *p_behaviour)
 {
-    auto behaviour = p_behaviour.lock();
-    if (!behaviour)
+    if (!p_behaviour)
     {
 		return;
     }
 
-    auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
-    if (it != m_behaviours.end())
+    auto it = std::erase_if(m_behaviours, [p_behaviour](const auto& behaviour)
     {
-        m_behaviours.erase(it);
-	}
+        return behaviour.get() == p_behaviour;
+    });
 }
 
 std::weak_ptr<CameraComponent> SceneManager::GetMainCamera() const

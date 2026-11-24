@@ -19,7 +19,7 @@ namespace Droplet::Scene
 
         /// @brief Gets a weak reference to the associated PlayerBehaviour.
         /// @return A weak pointer to the PlayerBehaviour, if available.
-        [[nodiscard]] std::weak_ptr<PlayerBehaviour> GetPlayerBehaviour() { return m_playerBehaviour; }
+        [[nodiscard]] PlayerBehaviour *GetPlayerBehaviour() { return m_playerBehaviour; }
 
         /// @brief Gets a shared reference to the PlayerBehaviour for Lua bindings.
         ///
@@ -27,7 +27,7 @@ namespace Droplet::Scene
         /// to access the behaviour while the returned shared pointer exists.
         /// @return A shared pointer to the PlayerBehaviour, or nullptr
         /// if the behaviour no longer exists.
-        [[nodiscard]] std::shared_ptr<PlayerBehaviour> GetPlayerBehaviourLua() { return m_playerBehaviour.lock(); }
+        [[nodiscard]] PlayerBehaviour *GetPlayerBehaviourLua() { return m_playerBehaviour; }
 
     protected:
         /// @brief Initializes the component and associates it with the player behaviour.
@@ -48,6 +48,6 @@ namespace Droplet::Scene
         void DeserializeImpl(const nlohmann::json p_compJson) override;
 
     private:
-        std::weak_ptr<PlayerBehaviour> m_playerBehaviour; /// Reference to the associated player behaviour.
+        PlayerBehaviour *m_playerBehaviour = nullptr; /// Reference to the associated player behaviour.
     };
 }

@@ -19,7 +19,7 @@ void BehaviourInspector::RenderImpl()
     const float width = ImGui::GetContentRegionAvail().x;
     Droplet::Scene::Behaviour *behaviourToOpen = nullptr;
 
-    if (ImGui::Button("+ Add Behaviour", ImVec2(width, 0.0f)))
+    if (ImGui::Button("+ Add Behaviour", ImVec2(width * 2.0f/3.0f, 0.0f)))
     {
         ImGui::OpenPopup("Add Behaviour");
     }
@@ -43,20 +43,26 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem(name.c_str()))
             {
-                if (auto behaviour = sceneManager.StartBehaviour(name).lock())
+                if (auto behaviour = sceneManager.StartBehaviour(name))
                 {
-                    behaviourToOpen = behaviour.get();
+                    behaviourToOpen = behaviour;
                 }
             }
 
         }
         ImGui::EndPopup();
     }
+    
+    ImGui::SameLine();
+    if(ImGui::Button("Save Behaviours", ImVec2(width / 3.0f, 0.0f)))
+    {
+        sceneManager.SerializeBehaviours();
+    }
 
     ImGui::Separator();
 
 
-    std::weak_ptr<Droplet::Scene::Behaviour> behaviourToRemove;
+    Droplet::Scene::Behaviour *behaviourToRemove = nullptr;
     bool removeRequest = false;
 
     for (const auto &behaviour : sceneManager.GetBehaviours())
@@ -81,7 +87,7 @@ void BehaviourInspector::RenderImpl()
         {
             if (ImGui::MenuItem("Remove Behaviour"))
             {
-                behaviourToRemove = behaviour;
+                behaviourToRemove = behaviour.get();
                 removeRequest = true;
             }
 

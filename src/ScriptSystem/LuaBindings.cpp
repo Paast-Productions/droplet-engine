@@ -139,14 +139,15 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			return node.GetComponent<Scene::PlayerComponent>();
 		},
 		"GetPlayerBehaviour",
-		[](Scene::Node &node)
+		[](Scene::Node &node) -> Scene::PlayerBehaviour*
 		{
+		    // Why are we fetching this through the player component?
 			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
 			if (playerComponent)
 			{
 				return playerComponent->GetPlayerBehaviourLua();
 			}
-			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+			return nullptr;
 		},
 		"GetAudioEmitter",
 		[](Scene::Node &node, const std::string& p_name)

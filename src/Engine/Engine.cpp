@@ -127,6 +127,8 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     Audio::AudioSystem::GetInstance().Initialize();
     
 	GameInput::Get().SetMainWindow(m_window.Get());
+    
+    m_sceneManager.DeserializeBehaviours(); // Placing this here for now
 }
 
 Engine::~Engine()

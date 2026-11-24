@@ -266,11 +266,11 @@ namespace Droplet::Scene
 
 		void SetSceneManager(SceneManager *p_sceneManager) { m_sceneManager = p_sceneManager; }
         template<typename T>
-        std::shared_ptr<T> GetBehaviour() const
+        T* GetBehaviour() const
         {
             for (const auto &behaviour : m_sceneManager->GetBehaviours())
             {
-                if (auto result = std::dynamic_pointer_cast<T>(behaviour))
+                if (auto result = dynamic_cast<T*>(behaviour.get()))
                 {
                     return result;
                 }
@@ -279,11 +279,11 @@ namespace Droplet::Scene
             return nullptr;
         }
 
-        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
+        const std::vector<std::unique_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
 
-        std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
+        Behaviour* StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
-        void ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
+        void ShutdownBehaviour(Behaviour *p_behaviour) { m_sceneManager->ShutdownBehaviour(p_behaviour); }
 
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.

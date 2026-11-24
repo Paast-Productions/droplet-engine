@@ -18,7 +18,7 @@ namespace Droplet::Scene
     /// 
 	/// As behaviours are not serialized with scenes, they are not automatically
     /// suited for tasks that require persistent data across runtimes.
-	class Behaviour : public std::enable_shared_from_this<Behaviour>
+	class Behaviour
     {
     public:
 		Behaviour() = default;
