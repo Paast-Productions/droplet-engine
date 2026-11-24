@@ -90,7 +90,7 @@ namespace Droplet::Scene
         ///
         /// @return A shared pointer to the Scene, or nullptr if the
         /// Scene is not loaded.
-        [[nodiscard]] std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: Make weak pointer
+        [[nodiscard]] std::shared_ptr<Scene> GetScene(const std::string &p_name) const; // TODO: (SCENE) Make weak pointer
 
         /// @brief Gets the currently active Scenes.
         ///
@@ -114,7 +114,7 @@ namespace Droplet::Scene
         /// @brief Seralizes and writes a scene to a file
         /// @param p_scene The scene that is to serialize
         /// @param p_filePath The json file to write to
-        void SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string& p_filePath); // TODO: Make weak pointer
+        void SerializeToFile(std::shared_ptr<Scene> p_scene, const std::string& p_filePath); // TODO: (SCENE) Make weak pointer
 
         /// @brief Loads a scene from a file
         /// @param p_filePath The name of the file the scene is serialized in
@@ -127,7 +127,7 @@ namespace Droplet::Scene
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
-		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; } // TODO: Make weak pointer
+		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; } // TODO: (SCENE) Make weak pointer
 
 		/// @brief Starts a behaviour of the specified type.
         /// @param p_behaviourTypeName The type name of the behaviour to start.

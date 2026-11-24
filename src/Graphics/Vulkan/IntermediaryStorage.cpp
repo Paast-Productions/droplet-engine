@@ -24,6 +24,12 @@ void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
+
+    ResourceManager::GetInstance().RegisterReloadCallback(
+        [this](GUID p_guid)
+        {
+            InvalidatePipelinesUsingShader(p_guid);
+        });
 }
 
 void IntermediaryStorage::Shutdown()
@@ -123,8 +129,34 @@ void IntermediaryStorage::DestroyUnusedResources()
         
         m_destroyQueue.pop();
     }
+
+    while (!m_pipelineDestroyQueue.empty())
+    {
+        m_pipelineDestroyQueue.pop();
+    }
     
     TracyPlot("Vulkan Objects", static_cast<std::int64_t>(m_liveObjects.size()));
+}
+
+void IntermediaryStorage::InvalidatePipelinesUsingShader(GUID p_shaderGuid)
+{
+    for (auto it = m_pipelineMap.begin(); it != m_pipelineMap.end();)
+    {
+        const PipelineKey &key = it->first;
+        if (key.vsGuid == p_shaderGuid ||
+            key.tcsGuid == p_shaderGuid ||
+            key.tesGuid == p_shaderGuid ||
+            key.gsGuid == p_shaderGuid ||
+            key.fsGuid == p_shaderGuid)
+        {
+            m_pipelineDestroyQueue.push(std::move(it->second));
+            it = m_pipelineMap.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
@@ -284,6 +316,27 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_c
 Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
+
+    ResourceManager &resourceManager = ResourceManager::GetInstance();
+    const GUID shaderGuids[] =
+    {
+        p_renderData.vsData.GUID,
+        p_renderData.tcsData.GUID,
+        p_renderData.tesData.GUID,
+        p_renderData.gsData.GUID,
+        p_renderData.fsData.GUID
+    };
+    for (GUID shaderGuid : shaderGuids)
+    {
+        if (shaderGuid != 0 &&
+            (resourceManager.GetState(shaderGuid) == ResourceState::LoadingAsync ||
+             resourceManager.GetState(shaderGuid) == ResourceState::Queued ||
+             resourceManager.GetState(shaderGuid) == ResourceState::Uploading))
+        {
+            return nullptr;
+        }
+    }
+
     // TRY FINDING ALREADY CREATED PIPELINE
     
     PipelineKey key {

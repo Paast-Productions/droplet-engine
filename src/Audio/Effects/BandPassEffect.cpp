@@ -56,6 +56,6 @@ void Droplet::Audio::BandPassEffect::DeserializeImpl(nlohmann::json p_json)
 		m_frequency = p_json["frequency"];
 	}
 
-	//HACK 
+	//HACK (AUDIO)
 	StartImpl();
 }

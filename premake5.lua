@@ -47,6 +47,13 @@ workspace "DropletEngine"
         defines { "_EDITOR" }
     end
 
+    filter "system:linux"
+        buildoptions { "-fopenmp" }
+        linkoptions { "-fopenmp" }
+    filter "system:windows"
+        buildoptions { "/openmp" }
+    filter {}
+
 -- [[ PATHS ]] --
 
 rootPath = path.getdirectory(_SCRIPT)
@@ -69,11 +76,12 @@ include "Premake/Test"
 include "Premake/Engine"
 
 -- [[ SAMPLES ]] --
+-- IF NEW SAMPLES ARE TO BE ADDED, INCLUDE THEIR PREMAKE LUA HERE, and undo the comment on --group "Samples"
+-- File path starts from Premake/
+-- Source files should be in Samples/[sample name]
 
 group "Samples"
 
-include "Premake/Samples/Engine/HelloEngine"
-include "Premake/Samples/Scene/Scene"
 
 group ""
 

@@ -1,5 +1,5 @@
 #include "SceneViewWindow.hpp"
-#include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
+#include <Editor/ViewOverlayUI.hpp> // TODO: (BEYOND OUR PAY GRADE) Clean whatever this mess is
 #include <Math/Bounds/Intersection.hpp>
 #include <Math/Bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
@@ -27,9 +27,12 @@ using namespace Droplet::Graphics::Debug;
 
 namespace
 {
+	static int s_rollingFrameTimeQueueCount = 250;
+	static std::vector<float> s_rollingFrameTimeQueue;
+	static std::vector<float> s_frameTimes;
+
 	float GetFPSDisplayNum()
 	{
-		static std::vector<float> s_frameTimes;
 		static float s_frameTimeCollectTimer = 0.0f;
 		static float s_frameTimeCollectInterval = 0.2f;
 		static float s_lastFPSAvg = 0.0f;
@@ -52,6 +55,12 @@ namespace
 			s_lastFPSAvg = s_frameTimes.empty() ? 0.0f : ((float)s_frameTimes.size() / frameTimeSum);
 			s_frameTimes.clear();
 		}
+
+		if (s_rollingFrameTimeQueue.size() > (s_rollingFrameTimeQueueCount - 1))
+		{
+			s_rollingFrameTimeQueue.erase(s_rollingFrameTimeQueue.begin());
+		}
+		s_rollingFrameTimeQueue.push_back(dT);
 
 		return s_lastFPSAvg;
 	}
@@ -226,9 +235,6 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	// TODO: 
-	//     Move this to the renderer and camera class. 
-	//     The camera should request the renderer to create a render target.
 	using namespace Graphics::Vulkan;
 
 	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
@@ -429,9 +435,58 @@ void SceneViewWindow::RenderToolbar()
 	ImGui::Separator();
 
 	float fpsDisplayNum = GetFPSDisplayNum();
+	static bool s_showFPSGraph = false;
 
 	std::string fpsDisplayText = std::format("{:.0f}", fpsDisplayNum);
 	ImGui::Text("FPS: %s", fpsDisplayText.c_str());
+
+	// On click, open the FPS graph window
+	if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()))
+	{
+		// Draw a highlight around the FPS text to indicate it's clickable
+		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 100), 0.0f, 0, 1.0f);
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+		{
+			s_showFPSGraph = !s_showFPSGraph;
+		}
+	}
+
+	if (s_showFPSGraph)
+	{
+		if (ImGui::Begin("FPS Graph", &s_showFPSGraph, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar))
+		{
+			float maxFPS = 0.0f;
+			for (size_t i = 0; i < s_rollingFrameTimeQueue.size(); i++)
+			{
+				float fps = 1.0f / s_rollingFrameTimeQueue[i];
+				if (fps > maxFPS)
+				{
+					maxFPS = fps;
+				}
+			}
+
+			char buffer[32];
+			ImFormatString(buffer, sizeof(buffer), "Max: %.2f", maxFPS);
+
+			ImGui::PlotLines("##Frame Times",
+				[](void *data, int idx) -> float {
+					const std::vector<float> *frameTimes = static_cast<std::vector<float> *>(data);
+					if (idx < 0 || idx >= frameTimes->size())
+						return 0.0f;
+					return 1.0f / (*frameTimes)[idx];
+				},
+				static_cast<void *>(&s_rollingFrameTimeQueue),
+				s_rollingFrameTimeQueue.size(),
+				0,
+				buffer,
+				0.0f,
+				maxFPS * 1.2f,
+				ImVec2(0, 80)
+			);
+		}
+		ImGui::End();
+	}
 }
 
 void SceneViewWindow::RenderImpl()
@@ -1635,7 +1690,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
 		// Rotate around the pivot, keeping the distance to it
-		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
+		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: (EDITOR) Make configurable
 
 		camera.Rotate(
 			-input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
@@ -1648,7 +1703,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
-		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
+		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: (EDITOR) Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
 		if (p_viewWidth > 0.0f && m_skipMouseDeltas == 0)
@@ -1664,7 +1719,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_hoveringSceneView && io.MouseWheel != 0.0f)
 	{
-		constexpr float C_SCROLL_STEP = 0.1f; // TODO: Make configurable
+		constexpr float C_SCROLL_STEP = 0.1f; // TODO: (EDITOR) Make configurable
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{
