@@ -119,8 +119,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			}
 			return sol::as_table(std::move(children));
 		},
-		"GetActive", &Scene::Node::GetActive,
-		"GetActiveSelf", &Scene::Node::GetActiveSelf,
+		"IsActive", &Scene::Node::IsActive,
+		"IsActiveSelf", &Scene::Node::IsActiveSelf,
 		"SetActiveSelf", &Scene::Node::SetActiveSelf,
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
@@ -216,8 +216,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetName", "string", {} },
 		{"GetID", "integer", {} },
 		{"GetTransform", "Transform", {} },
-		{"GetActive", "bool", {} },
-		{"GetActiveSelf", "bool", {} },
+		{"IsActive", "bool", {} },
+		{"IsActiveSelf", "bool", {} },
 		{"SetActiveSelf", "void", {{ "state", "bool" }} },
 		{"GetParent", "Node", {} },
 		{"GetChildren", "table", {} },
