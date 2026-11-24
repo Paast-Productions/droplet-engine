@@ -52,7 +52,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 56,
+            "id": 542,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -89,7 +89,7 @@
                                     "fov": 90.0,
                                     "planes": [
                                         0.10000000149011612,
-                                        100.0
+                                        300.0
                                     ]
                                 },
                                 "clearColor": [
@@ -120,7 +120,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 58,
+                    "id": 544,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -177,7 +177,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 57,
+            "id": 543,
             "name": "Player",
             "transform": {
                 "position": [
@@ -255,7 +255,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 61,
+                            "id": 547,
                             "name": "Door",
                             "transform": {
                                 "position": [
@@ -280,7 +280,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 60,
+                    "id": 546,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -305,7 +305,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 62,
+                    "id": 548,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -331,7 +331,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 63,
+                    "id": 549,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -357,7 +357,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 59,
+            "id": 545,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -410,7 +410,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 73,
+                    "id": 559,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -435,7 +435,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 72,
+            "id": 558,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -485,7 +485,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 74,
+            "id": 560,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -510,7 +510,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 75,
+            "id": 561,
             "name": "RonnyCutout",
             "prefab": "GameData\\Prefabs\\RonnyCutout.json",
             "transform": {
@@ -564,7 +564,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 84,
+                    "id": 570,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -614,7 +614,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 85,
+                    "id": 571,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -664,7 +664,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 86,
+                    "id": 572,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -714,7 +714,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 87,
+                    "id": 573,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -764,7 +764,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 88,
+                    "id": 574,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -814,7 +814,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 89,
+                    "id": 575,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -864,7 +864,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 90,
+                    "id": 576,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -914,7 +914,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 91,
+                    "id": 577,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -964,7 +964,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 92,
+                    "id": 578,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1014,7 +1014,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 93,
+                    "id": 579,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1064,7 +1064,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 94,
+                    "id": 580,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1114,7 +1114,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 95,
+                    "id": 581,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1164,7 +1164,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 96,
+                    "id": 582,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1214,7 +1214,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 97,
+                    "id": 583,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1264,7 +1264,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 98,
+                    "id": 584,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1314,7 +1314,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 99,
+                    "id": 585,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1364,7 +1364,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 100,
+                    "id": 586,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1414,7 +1414,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 101,
+                    "id": 587,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1464,7 +1464,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 102,
+                    "id": 588,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1514,7 +1514,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 103,
+                    "id": 589,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1564,7 +1564,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 104,
+                    "id": 590,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1614,7 +1614,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 105,
+                    "id": 591,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1664,7 +1664,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 106,
+                    "id": 592,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1714,7 +1714,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 107,
+                    "id": 593,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1764,7 +1764,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 108,
+                    "id": 594,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1789,7 +1789,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 83,
+            "id": 569,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1813,190 +1813,50 @@
         {
             "active": true,
             "children": [],
-            "collisionLayerMask": 1,
+            "collisionLayerMask": 64,
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "angularVelocityRange": [
-                            0.0,
-                            0.0
-                        ],
-                        "bursts": [],
-                        "coneAngle": 25.0,
-                        "debugDraw": true,
-                        "duration": 5.0,
-                        "emissionRate": 1173.0,
-                        "emissionShape": 3,
-                        "gravityModifier": 3.299999952316284,
-                        "lifetimeRange": [
-                            1.7999999523162842,
-                            1.7999999523162842
-                        ],
-                        "looping": true,
-                        "maxParticles": 3541,
-                        "playOnAwake": true,
-                        "rotationOverLifetime": {
-                            "points": [
-                                {
-                                    "controlPoint1": [
-                                        0.0,
-                                        0.0
-                                    ],
-                                    "controlPoint2": [
-                                        0.0,
-                                        0.0
-                                    ],
-                                    "position": [
-                                        0.0,
-                                        0.0
-                                    ]
-                                },
-                                {
-                                    "controlPoint1": [
-                                        1.0,
-                                        0.0
-                                    ],
-                                    "controlPoint2": [
-                                        1.0,
-                                        0.0
-                                    ],
-                                    "position": [
-                                        1.0,
-                                        0.0
-                                    ]
-                                }
-                            ],
-                            "type": 0
-                        },
-                        "rotationRange": [
-                            0.0,
-                            0.0
-                        ],
-                        "shapeBoxSize": [
-                            25.0,
-                            1.0,
-                            30.0
-                        ],
-                        "shapeRadius": 1.0,
-                        "simulationSpace": 0,
-                        "sizeOverLifetime": {
-                            "points": [
-                                {
-                                    "controlPoint1": [
-                                        0.0,
-                                        1.0
-                                    ],
-                                    "controlPoint2": [
-                                        0.0,
-                                        1.0
-                                    ],
-                                    "position": [
-                                        0.0,
-                                        1.0
-                                    ]
-                                },
-                                {
-                                    "controlPoint1": [
-                                        1.0,
-                                        1.0
-                                    ],
-                                    "controlPoint2": [
-                                        1.0,
-                                        1.0
-                                    ],
-                                    "position": [
-                                        1.0,
-                                        1.0
-                                    ]
-                                }
-                            ],
-                            "type": 0
-                        },
-                        "sizeRange": [
-                            0.05000000074505806,
-                            0.07999999821186066
-                        ],
-                        "speedRange": [
-                            0.0,
-                            0.0
-                        ],
-                        "startColorMode": 1,
-                        "startColorRange": [
-                            [
-                                0.14509804546833038,
-                                0.5176470875740051,
-                                1.0,
-                                1.0
-                            ],
-                            [
-                                0.13725490868091583,
-                                0.13725490868091583,
-                                0.5058823823928833,
-                                1.0
-                            ]
-                        ],
-                        "startDelay": 0.0,
-                        "textureDisplayName": "None",
-                        "textureGUID": 0,
+                        "fs": 13112886787923826438,
+                        "fsName": "Transparent.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Skybox",
+                        "meshGUID": 17708890864794196341,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Skybox",
+                        "textureGUID": 6240586937985701558,
                         "transparent": true,
-                        "velocityOverLifetime": {
-                            "points": [
-                                {
-                                    "controlPoint1": [
-                                        0.0,
-                                        1.0
-                                    ],
-                                    "controlPoint2": [
-                                        0.0,
-                                        1.0
-                                    ],
-                                    "position": [
-                                        0.0,
-                                        1.0
-                                    ]
-                                },
-                                {
-                                    "controlPoint1": [
-                                        1.0,
-                                        1.0
-                                    ],
-                                    "controlPoint2": [
-                                        1.0,
-                                        1.0
-                                    ],
-                                    "position": [
-                                        1.0,
-                                        1.0
-                                    ]
-                                }
-                            ],
-                            "type": 0
-                        }
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
                     },
                     "id": 1,
-                    "type": "ParticleEmitterComponent"
+                    "type": "MeshComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 109,
-            "name": "Empty Node",
+            "id": 595,
+            "name": "Skybox",
             "transform": {
                 "position": [
-                    -5.1577982902526855,
-                    49.36410140991211,
+                    0.0,
+                    0.0,
                     0.0
                 ],
                 "rotation": [
-                    0.9985367059707642,
+                    0.8281325101852417,
                     0.0,
-                    0.0,
-                    0.05407891422510147
+                    -0.5605323910713196,
+                    0.0
                 ],
                 "scale": [
-                    0.9999949932098389,
-                    0.9999967813491821,
-                    1.0
+                    100.00010681152344,
+                    100.0,
+                    100.00006866455078
                 ]
             }
         }

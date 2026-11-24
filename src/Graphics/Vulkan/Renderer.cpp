@@ -88,6 +88,15 @@ Renderer::Renderer(SDL_Window *p_window) :
 
 	CreateSyncObjects();
 
+#ifdef TRACY_ENABLE
+	m_tracyVkContext = TracyVkContext(
+		*m_context.GetPhysicalDevice(),
+		*m_context.GetDevice(),
+		*m_context.GetQueue(),
+		*m_commandPool.GetBufferAt(0));
+	TracyVkContextName(m_tracyVkContext, "Vulkan GPU", 11);
+#endif
+
 	// - - - - - - - - - - //
 	//         ImGui       //
 	// - - - - - - - - - - //
@@ -146,6 +155,10 @@ Renderer::~Renderer()
 	ZoneScoped;
 	
 	m_context.GetDevice().waitIdle();
+#ifdef TRACY_ENABLE
+	TracyVkDestroy(m_tracyVkContext);
+	m_tracyVkContext = nullptr;
+#endif
 	Debug::DebugDraw::Get().Shutdown();
 	Vulkan::IntermediaryStorage::GetInstance().Shutdown();
 
@@ -219,6 +232,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	std::sort(p_renderData.begin(), p_renderData.end());
 
 	auto &commandBuffer = /*p_commandBuffer;*/m_commandPool.GetBufferAt(m_frameIndex);
+	TracyVkZone(m_tracyVkContext, *commandBuffer, "Render Target");
 
 	//commandBuffer.begin({});
 
@@ -334,9 +348,11 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(renderingInfo.renderArea.extent.height), static_cast<float>(renderingInfo.renderArea.extent.width), -static_cast<float>(renderingInfo.renderArea.extent.height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), renderingInfo.renderArea.extent));
-	
+
 	for (std::size_t i {0}; i < meshes.size(); ++i)
 	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Draw Mesh");
+
 		Vulkan::Mesh mesh { meshes[i] };
 		Vulkan::Pipeline *pipeline { pipelines[i] };
 		std::uint32_t texID { textureIDs[i] };
@@ -369,7 +385,10 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	}
 
 	if (p_debug)
+	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Debug Draw");
 		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, renderingInfo.renderArea.extent, m_frameIndex);
+	}
 	commandBuffer.endRendering();
 
 	TransitionImageLayout(
@@ -398,6 +417,7 @@ void Renderer::RecordImGuiCommandBuffer(
 	uint32_t p_imageIndex)
 {
 	ZoneScoped;
+	TracyVkZone(m_tracyVkContext, *p_commandBuffer, "ImGui");
 
 	auto &commandBuffer = p_commandBuffer;
 	TransitionImageLayout(
@@ -573,6 +593,8 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	// Render all cameras
 	for (auto &camRenderData : p_renderData)
 	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Render Camera");
+
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
 
@@ -612,6 +634,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 	Debug::DebugDraw::Get().ClearDrawCommands();
 
+	TracyVkCollect(m_tracyVkContext, *commandBuffer);
 	commandBuffer.end();
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);

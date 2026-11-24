@@ -15,6 +15,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 #undef _USE_MATH_DEFINES
 
 using namespace Droplet::Math;
