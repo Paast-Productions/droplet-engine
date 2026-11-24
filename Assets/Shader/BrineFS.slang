@@ -19,6 +19,13 @@ struct FSInput
 
 layout(set = 2, binding = 0) Sampler2D textureArr[];
 
+float2 hash22(float2 p)
+{
+    float3 p3 = frac(float3(p.xyx) * float3(0.1031, 0.1030, 0.0973));
+    p3 += dot(p3, p3.yzx + 33.33);
+    return frac((p3.xx + p3.yz) * p3.zy);
+}
+
 float Hash31(float3 p)
 {
     p = frac(p * 0.1031);
@@ -79,17 +86,34 @@ float FractalNoise(float3 p)
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET
 {
-    float height = vertIn.fragTexCoord.y;
+    float height = round(vertIn.fragTexCoord.y * 3.1) * (1.0 / 3.0);
     float underside = vertIn.fragTexCoord.x;
 
+    float heightAlphaOffset = ((1.0 - height) * 1.2 + 0.25);
+    float heightCurrentStrength = (height * 0.5 + 0.5);
+
+    float2 currentDir = hash22(float2(height * 9.79491, height * 3.518));
+    currentDir -= float2(0.5, 0.5);
+    currentDir = normalize(currentDir);
+
     float3 pos = vertIn.wPos.xyz;
-    float3 animatedPos = pos * 0.65 + float3(0.0, pc.time * 0.2, 0.0);
+    float3 animatedPos = pos * 0.65 + float3(currentDir.x * pc.time * heightCurrentStrength * 0.5, 0.0, currentDir.y * pc.time * heightCurrentStrength * 0.5);
 
-    float fracNoise = FractalNoise(animatedPos);
+    float fracNoise = FractalNoise(animatedPos * float3(1.0, 0.0, 1.0));
     float density = smoothstep(0.0, 0.85, fracNoise);
-    float alpha = 0.27 + density * 0.25;
+    float noiseAlpha = 0.27 + density * 0.25;
 
-    float3 color = float3(0.2, 0.6, 0.4);
+    float3 color = float3(0.3, 0.6, 0.45);
+    float alpha = (noiseAlpha * noiseAlpha * 2.0) * heightAlphaOffset;
+    //float alpha = noiseAlpha * heightAlphaOffset;
 
-    return float4(color, alpha * 0.5);
+    // if (vertIn.fragTexCoord.y < 0.9)
+    //if (vertIn.fragTexCoord.y < 0.4 || vertIn.fragTexCoord.y > 0.6)
+    //if (vertIn.fragTexCoord.y > 0.1)
+    if (false)
+    {
+        clip(-1);
+    }
+
+    return float4(color, alpha);
 }
