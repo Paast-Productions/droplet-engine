@@ -12,8 +12,8 @@
 #include "Graphics/RenderSettings.hpp"
 
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/Common/Camera.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Common/Camera.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
@@ -553,14 +553,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
             // TEMP TEMP TEMP TEMP this is the part I give a shit about
 
-            std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.
+            std::vector<Droplet::Common::CameraRenderData> queuedEditorCameras = editorContext.
                 GetQueuedEditorCameras();
 
             if (renderEditorView)
             {
                 ZoneScopedN("Editor Camera Render Data");
 
-                Droplet::Graphics::CameraRenderData camRenderData{};
+                Droplet::Common::CameraRenderData camRenderData{};
                 camRenderData.debug = true;
 
                 auto& editorCamera = editorContext.GetEditorCamera();
@@ -568,8 +568,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
                 if (activeScene)
                 {
-                    camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-                    camRenderData.renderTarget = editorCamera.GetTarget();
+                    camRenderData.camera = static_cast<Droplet::Common::Camera>(editorCamera);
+                    camRenderData.target = editorCamera.GetTarget();
 
                     auto& renderables = activeScene->GetRenderables();
 

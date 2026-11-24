@@ -5,7 +5,7 @@
 #include <EditorWindow.hpp>
 #include <ResourceManager.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/Common/RenderDesc.hpp>
+#include <Common/RenderDesc.hpp>
 
 namespace Droplet::Editor::Resource
 {
@@ -20,9 +20,9 @@ namespace Droplet::Editor::Resource
 
 	struct PreviewCamera
 	{
-		Graphics::Camera camera{};
+		Common::Camera camera{};
 
-		Droplet::Graphics::Common::RenderDesc renderTarget {};
+		Common::RenderTargetDesc target {};
 		glm::ivec2 resolution{ 256, 256 };
 
 		StaticResourceHandle<Texture2DResource> texHandle {};

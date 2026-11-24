@@ -8,15 +8,15 @@
 #include <vector>
 
 // TEMP TEMP TEMP TEMP
-#include "Integration/Platform/SDLWindow.hpp"
-#include "Integration/Platform/SDLVulkan.hpp"
-#include "Integration/Vulkan/Frame/Renderer.hpp"
+#include "Platform/SDLWindow.hpp"
+#include "Platform/SDLVulkan.hpp"
+#include "Graphics/Vulkan/Frame/Renderer.hpp"
 #ifdef _EDITOR
-#include "Integration/App/ImGuiFrame.hpp"
+#include "Graphics/Debug/ImGuiFrame.hpp"
 #include <ImGui/imgui.h>
 #endif
 
-#include <Graphics/Common/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
@@ -61,7 +61,7 @@ namespace Droplet
        void BeginFrame();
 
        /// @brief Renders the scene's cameras and `p_cameras` (the editor's), then the ImGui frame
-       [[nodiscard]] DROPLET_RETURNTYPE Render(std::span<const Graphics::CameraRenderData> p_cameras);
+       [[nodiscard]] DROPLET_RETURNTYPE Render(std::span<const Common::CameraRenderData> p_cameras);
 
        /// @brief Adds an event listener that will be called when an SDL event is polled.
        /// @param p_listener The event listener to add.
@@ -99,9 +99,9 @@ namespace Droplet
        Platform::SDL::Window m_window;
        Platform::SDL::VulkanSurfaceProvider m_surfaceProvider;
 #ifdef _EDITOR
-       ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
+		Graphics::Debug::ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
 #endif
-       Vulkan::Renderer m_renderer;
+		Graphics::Vulkan::Renderer m_renderer;
 
        /// @brief Registry containing the game's registered item definitions.
        Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour

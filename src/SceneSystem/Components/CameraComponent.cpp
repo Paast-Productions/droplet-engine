@@ -2,10 +2,11 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGui/imgui.h>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Common;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
@@ -84,7 +85,7 @@ void CameraComponent::RenderUIImpl()
 
 	m_uiSelected = true;
 
-	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
+	Common::DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
 
 	InputInt("Priority", &m_priority);
 
@@ -123,7 +124,7 @@ void CameraComponent::RenderUIImpl()
 
 	if (TreeNode("Preview"))
 	{
-		ImTextureRef camViewTexture = ImTextureRef(ImGuiTextureId(m_target.id));
+		ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(m_target.id));
 		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
 		float availWidth = GetContentRegionAvail().x;
@@ -187,7 +188,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
 	renderData.priority = m_priority;
-	renderData.renderTarget = m_target;
+	renderData.target = m_target;
 	renderData.renderData = m_renderData;
 	renderData.debug = m_debugDraw;
 	renderData.clearColor = m_clearColor;
@@ -244,7 +245,7 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 
 	if (p_compJson.contains("drawLayerMask"))
 	{
-		m_drawLayerMask = static_cast<Graphics::DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
+		m_drawLayerMask = static_cast<DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
 	}
 
 	if (p_compJson.contains("priority"))

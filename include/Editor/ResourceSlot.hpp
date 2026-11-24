@@ -14,14 +14,14 @@ namespace Droplet
     struct ResourceSlotChoice
     {
         std::string displayName;
-        Droplet::GUID guid = Droplet::C_INVALID_GUID;
+        GUID guid = Droplet::C_INVALID_GUID;
     };
 
     bool ResourceSlot(
         const char *p_label,
-        Droplet::GUID p_current,
+        GUID p_current,
         const std::string &p_currentDisplayName,
-        Droplet::GUID &p_outGUID,
+        GUID &p_outGUID,
         std::string &p_outDisplayName,
         Droplet::StaticResourceType p_expectedType,
         Droplet::ShaderResource::ShaderType p_expectedShader = Droplet::ShaderResource::ShaderType::Vertex,

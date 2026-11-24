@@ -14,14 +14,14 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
-using namespace Droplet::Graphics::Vulkan;
+using namespace Droplet::Common;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -235,7 +235,7 @@ void SceneViewWindow::InitImpl()
 	ToggleToolbar(true);
 	
 	// a new id; the renderer creates the image when it first sees it
-	m_editorContext->GetEditorCamera().SetTarget(Graphics::Common::RenderDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
+	m_editorContext->GetEditorCamera().SetTarget(RenderTargetDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -546,7 +546,7 @@ void SceneViewWindow::RenderEditorView()
 	};
 
 	float contentAspect = contentRegion.x / contentRegion.y;
-	const Graphics::Common::Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().extent;
+	const Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().extent;
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -590,7 +590,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = ImTextureRef(Graphics::ImGuiTextureId(m_editorContext->GetEditorCamera().GetTarget().id));
+	ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(m_editorContext->GetEditorCamera().GetTarget().id));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1173,7 +1173,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = ImTextureRef(Graphics::ImGuiTextureId(camera->GetTarget().id));
+			ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(camera->GetTarget().id));
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1816,7 +1816,7 @@ void SceneViewWindow::FocusCameraOnSelection()
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
 	// same id, new size: the renderer replaces the image on the next frame
-	Graphics::Common::RenderDesc target = m_editorContext->GetEditorCamera().GetTarget();
+	RenderTargetDesc target = m_editorContext->GetEditorCamera().GetTarget();
 	target.extent = { width, height };
 	m_editorContext->GetEditorCamera().SetTarget(target);
 }

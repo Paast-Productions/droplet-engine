@@ -9,7 +9,7 @@
 #include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/Common/RenderDesc.hpp>
+#include <Common/RenderDesc.hpp>
 #include <Engine.hpp>
 
 namespace Droplet::Editor::Scene
