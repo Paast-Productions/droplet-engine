@@ -17,8 +17,8 @@ struct FSInput
     float2 fragTexCoord;
 };
 
-static const float3 BRINE_SHALLOW = float3(0.10, 0.38, 0.32);
-static const float3 BRINE_DEEP = float3(0.02, 0.12, 0.13);
+static const float3 BRINE_SHALLOW = float3(0.22, 0.38, 0.3);
+static const float3 BRINE_DEEP = float3(0.08, 0.16, 0.15);
 static const float3 BRINE_GLINT = float3(0.65, 0.92, 0.80);
 
 float hash13(float3 p)
@@ -68,8 +68,8 @@ float fbm(float3 p)
     return sum / 0.9375;
 }
 
-static const float FLOW_DISTANCE = 0.8;
-static const float DIRECTION_RATE = 0.2;
+static const float FLOW_DISTANCE = 2.5;
+static const float DIRECTION_RATE = 0.1;
 
 // Random unit direction for a given layer and direction "cell" (changes every cell).
 float3 flowDir(float layerId, float cell)
@@ -112,8 +112,8 @@ float4 main(FSInput vertIn) : SV_TARGET
     float n1 = flowNoise(p, layerId, tt);
     float n2 = flowNoise(p * 2.7 + 13.1, layerId, tt);
 
-    // Opacity: subtle at the top (~0.08), mostly opaque at the bottom (~0.9), modulated by noise.
-    float baseAlpha = lerp(0.08, 0.9, layer);
+    // Opacity: subtle at the top, mostly opaque at the bottom, modulated by noise.
+    float baseAlpha = lerp(0.12, 0.8, layer);
     float alpha = baseAlpha * lerp(0.6, 1.3, n1);
 
     // Thicken the view at grazing angles.
@@ -121,7 +121,7 @@ float4 main(FSInput vertIn) : SV_TARGET
     float3 camToFrag = normalize(pc.cameraPos.xyz - vertIn.wPos.xyz);
     float facing = abs(dot(normal, camToFrag));
     float grazing = pow(1.0 - facing, 3.0);
-    alpha = saturate(alpha + grazing * 0.15);
+    alpha = saturate(alpha + grazing * 0.35);
 
     // Brine colour: lighter and greener near the surface, darker and denser at depth.
     float3 baseColor = lerp(BRINE_SHALLOW, BRINE_DEEP, layer);

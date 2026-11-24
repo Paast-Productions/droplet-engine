@@ -231,14 +231,13 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	// Note: The condition it sorts by is the operator<() defined in RenderData
 	std::sort(p_renderData.begin(), p_renderData.end());
 
-	// Sort transparent RenderData based on along the camera's forward vector (furthest to nearest)
+	// Sort transparent RenderData based on distance from the camera (furthest to nearest)
 	std::sort(p_renderData.begin(), p_renderData.end(), [&p_camera](const RenderData &a, const RenderData &b) {
 		if (a.transparent && b.transparent)
 		{
 			const glm::vec3 cameraPos = p_camera.GetPosition();
-			const glm::vec3 cameraForward = p_camera.GetForward();
-			const float aDistance = glm::dot(glm::vec3(a.transform[3]) - cameraPos, cameraForward);
-			const float bDistance = glm::dot(glm::vec3(b.transform[3]) - cameraPos, cameraForward);
+			const float aDistance = glm::length(glm::vec3(a.transform[3]) - cameraPos);
+			const float bDistance = glm::length(glm::vec3(b.transform[3]) - cameraPos);
 			return aDistance > bDistance; // Sort from furthest to nearest
 		}
 		return false; // Keep the original order for non-transparent objects

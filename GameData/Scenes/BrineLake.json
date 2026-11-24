@@ -3,40 +3,168 @@
     "roots": [
         {
             "active": true,
-            "children": [],
-            "collisionLayerMask": 1,
-            "components": [
+            "children": [
                 {
                     "active": true,
-                    "data": {
-                        "fs": 9231716951358039710,
-                        "fsName": "BrineFS",
-                        "gs": 0,
-                        "gsName": "",
-                        "meshDisplayName": "BrinePool",
-                        "meshGUID": 15050370849964860945,
-                        "tcs": 0,
-                        "tcsName": "",
-                        "tes": 0,
-                        "tesName": "",
-                        "textureDisplayName": "White",
-                        "textureGUID": 13855953862202670664,
-                        "transparent": true,
-                        "vs": 7809030845991192100,
-                        "vsName": "Base.VS"
-                    },
-                    "id": 1,
-                    "type": "MeshComponent"
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 9231716951358039710,
+                                "fsName": "BrineFS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BrinePoolLayer1",
+                                "meshGUID": 1592583097579035018,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "transparent": true,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 2,
+                    "name": "Layer 1",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            -0.5,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 9231716951358039710,
+                                "fsName": "BrineFS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BrinePoolLayer2",
+                                "meshGUID": 5606252760067024058,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "transparent": true,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 3,
+                    "name": "Layer 2",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 9231716951358039710,
+                                "fsName": "BrineFS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BrinePoolLayer3",
+                                "meshGUID": 9785540404026015327,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "transparent": true,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 4,
+                    "name": "Layer 3",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.5,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
                 }
             ],
+            "collisionLayerMask": 1,
+            "components": [],
             "drawLayer": 1,
             "id": 1,
             "name": "BrinePoolSurface",
             "transform": {
                 "position": [
                     0.0,
-                    -0.8372670412063599,
-                    0.0
+                    -0.45479828119277954,
+                    0.22049742937088013
                 ],
                 "rotation": [
                     1.0,
@@ -46,7 +174,7 @@
                 ],
                 "scale": [
                     10.454999923706055,
-                    2.4211177825927734,
+                    0.47999998927116394,
                     10.609000205993652
                 ]
             }
@@ -80,7 +208,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2,
+            "id": 5,
             "name": "BrineLake",
             "transform": {
                 "position": [
