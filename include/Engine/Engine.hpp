@@ -8,14 +8,13 @@
 #include <vector>
 
 // TEMP TEMP TEMP TEMP
-#include "Integration/Platform/Window.hpp"
+#include "Integration/Platform/SDLWindow.hpp"
 #include "Integration/Platform/SDLVulkan.hpp"
 #include "Integration/Vulkan/Frame/Renderer.hpp"
 #ifdef _EDITOR
 #include "Integration/App/ImGuiFrame.hpp"
 #include <ImGui/imgui.h>
 #endif
-// TEMP TEMP TEMP TEMP
 
 #include <Graphics/Common/RenderData.hpp>
 #include <Engine/EngineFlags.hpp>
@@ -37,7 +36,7 @@ namespace Droplet
 	/// @brief EngineConfig is used to configure engine functionality on startup.
 	struct EngineConfig
 	{
-		::SDL::Window::Config WindowConfig;
+		Platform::SDL::Window::Config WindowConfig;
 		UpdateFlags UpdateFlags{ UpdateFlags::DefaultFlags };
 	};
 	
@@ -97,8 +96,8 @@ namespace Droplet
        UpdateFlagsSetter m_updateFlagsSetter;
 
        // == Window and rendering == constructed in this order, destroyed in reverse
-       ::SDL::Window m_window;
-       ::SDL::VulkanSurfaceProvider m_surfaceProvider;
+       Platform::SDL::Window m_window;
+       Platform::SDL::VulkanSurfaceProvider m_surfaceProvider;
 #ifdef _EDITOR
        ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
 #endif

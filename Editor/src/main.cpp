@@ -40,11 +40,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
     Droplet::EngineConfig config{
         .WindowConfig = {
-            .window = {
-                .name = "Droplet Editor",
-                .width = static_cast<int>(windowSize.x),
-                .height = static_cast<int>(windowSize.y)
-            }
+            .title = "Droplet Editor",
+            .width = static_cast<int>(windowSize.x),
+            .height = static_cast<int>(windowSize.y)
         },
         .UpdateFlags = Droplet::UpdateFlags::EditorFlags
     };
@@ -552,10 +550,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
             bool renderEditorView =
                 EditorConfig::LoadBool("Editor.ShowEditorView", true) &&
                 !sceneViewWindow.IsRenderingGameView();
-            
+
             // TEMP TEMP TEMP TEMP this is the part I give a shit about
 
-            std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+            std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.
+                GetQueuedEditorCameras();
 
             if (renderEditorView)
             {
@@ -590,11 +589,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 
                         // Check if the node is in the list of visible components
                         auto it = std::ranges::find_if(visibleComponents,
-                                       [&node](const std::weak_ptr<Droplet::Scene::Node>& weakNode)
-                                       {
-                                           auto sharedNode = weakNode.lock();
-                                           return sharedNode && sharedNode == node;
-                                       });
+                                                       [&node](const std::weak_ptr<Droplet::Scene::Node>& weakNode)
+                                                       {
+                                                           auto sharedNode = weakNode.lock();
+                                                           return sharedNode && sharedNode == node;
+                                                       });
 
                         if (it != visibleComponents.end())
                         {
@@ -634,7 +633,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
                 run = false;
                 break;
             }
-            
+
             editorContext.ClearQueuedEditorCameras();
         }
     }
