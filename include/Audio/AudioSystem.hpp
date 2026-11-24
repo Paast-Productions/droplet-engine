@@ -127,7 +127,7 @@ namespace Droplet::Audio
 	    void ProcessFinishedPlaybacks();
 	    void RegisterEffects();
 	    
-	    bool m_isGameMode = false;  // TODO: This has to default to true in an exported game somehow. Maybe we could
+	    bool m_isGameMode = false;  // TODO: (AUDIO) This has to default to true in an exported game somehow. Maybe we could
 									// check for a definition?
 	    bool m_isGamePaused = false;
 

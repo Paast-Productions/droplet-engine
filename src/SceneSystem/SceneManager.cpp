@@ -141,7 +141,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
     m_activeScenes.end());
 }
 
-std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: Make weak pointer
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: (SCENE) Make weak pointer
 {
     auto it = m_scenes.find(p_name);
 

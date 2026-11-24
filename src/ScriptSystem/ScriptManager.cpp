@@ -84,6 +84,8 @@ void Droplet::Script::ScriptManager::UpdateBehaviour(Droplet::Scene::Behaviour *
 
 std::string Droplet::Script::ScriptManager::SerializeComponent(Droplet::Scene::Component *p_scriptComponent)
 {
+	ZoneScoped;
+
 	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
 	{
 		return instance->OnSerialize();
@@ -94,6 +96,8 @@ std::string Droplet::Script::ScriptManager::SerializeComponent(Droplet::Scene::C
 
 void Droplet::Script::ScriptManager::DeserializeComponent(Droplet::Scene::Component *p_scriptComponent, const std::string &p_data)
 {
+	ZoneScoped;
+
 	if (ScriptInstance *instance = GetComponentsScript(p_scriptComponent))
 	{
 		instance->OnDeserialize(p_data);
@@ -102,6 +106,8 @@ void Droplet::Script::ScriptManager::DeserializeComponent(Droplet::Scene::Compon
 
 std::string Droplet::Script::ScriptManager::SerializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	ZoneScoped;
+
 	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
 	{
 		return instance->OnSerialize();
@@ -112,6 +118,8 @@ std::string Droplet::Script::ScriptManager::SerializeBehaviour(Droplet::Scene::B
 
 void Droplet::Script::ScriptManager::DeserializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_data)
 {
+	ZoneScoped;
+
 	if (ScriptInstance *instance = GetBehaviourScript(p_scriptBehaviour))
 	{
 		instance->OnDeserialize(p_data);

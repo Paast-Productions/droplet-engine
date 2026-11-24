@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Skybox",
+            "guid": 17708890864794196341,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Skybox",
+            "type": 3
+        }
+    ]
+}

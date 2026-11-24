@@ -10,7 +10,7 @@
 
 using namespace Droplet::Scene;
 
-Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // TODO: Make weak pointer
+Node::Node(const std::shared_ptr<Scene> &p_scene, const std::string &p_name) // TODO: (SCENE) Make weak pointer
 	: m_name(p_name), m_transform(this), m_scene(p_scene), m_id(s_nextID.fetch_add(1, std::memory_order_relaxed))
 {
 	if (!m_scene.lock())
@@ -92,7 +92,7 @@ void Node::Start()
 
 void Node::Update()
 {
- 	assert(m_constructed && "Node must be constructed before calling Update().");
+	assert(m_constructed && "Node must be constructed before calling Update().");
 
 	if (!m_active)
 	{
@@ -256,7 +256,7 @@ bool Node::IsActiveSelf() const
 	return m_active;
 }
 
-std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos) // TODO: Make weak pointer
+std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepWorldPos) // TODO: (SCENE) Make weak pointer
 {
 	if (!p_child)
 	{
@@ -321,7 +321,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 		p_child->GetTransform().SetMatrix(wMat, Transform::Space::World);
 	}
 
-	// TODO: Consider if start should be called here or ex. in the Nodes constructor
+	// TODO: (SCENE) Consider if start should be called here or ex. in the Nodes constructor
 	if (m_started)
 	{
 		p_child->Start();
@@ -335,7 +335,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	return p_child;
 }
 
-void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos) // TODO: Make weak pointer
+void Node::RemoveChild(const std::shared_ptr<Node> &p_child, bool p_keepWorldPos) // TODO: (SCENE) Make weak pointer
 {
 	if (!p_child)
 	{
@@ -477,7 +477,7 @@ std::weak_ptr<Node> Node::GetParent() const
 	return m_parent;
 }
 
-const std::vector<std::shared_ptr<Node>> Node::GetChildren(bool p_recursive) const // TODO: Make weak pointer
+const std::vector<std::shared_ptr<Node>> Node::GetChildren(bool p_recursive) const // TODO: (SCENE) Make weak pointer
 {
 	if (!p_recursive)
 	{
@@ -502,7 +502,7 @@ const std::vector<std::shared_ptr<Node>> Node::GetChildren(bool p_recursive) con
 	return recursiveChildren;
 }
 
-std::shared_ptr<Scene> Node::GetScene() const // TODO: Make weak pointer
+std::shared_ptr<Scene> Node::GetScene() const // TODO: (SCENE) Make weak pointer
 {
 	return m_scene.lock();
 }
@@ -543,12 +543,12 @@ std::weak_ptr<AudioPlayerComponent> Droplet::Scene::Node::GetAudioPlayer(const s
 	return {};
 }
 
-std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: Make weak pointer
+std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: (COMPONENT) Make weak pointer
 {
 	return m_components;
 }
 
-void Node::RemoveComponent(const Component *p_component) // TODO: Make weak pointer
+void Node::RemoveComponent(const Component *p_component) // TODO: (COMPONENT) Make weak pointer
 {
 	if (!p_component)
 	{
@@ -735,7 +735,7 @@ void Node::SetBoundsEnabled(bool p_enabled)
 	m_boundsEnabled = p_enabled;
 }
 
-void Node::SetScene(std::shared_ptr<Scene> p_scene) // TODO: Make weak pointer
+void Node::SetScene(std::shared_ptr<Scene> p_scene) // TODO: (SCENE) Make weak pointer
 {
 	m_scene = p_scene;
 
@@ -769,7 +769,7 @@ void Node::ActiveChanged(bool p_active)
 	}
 }
 
-bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: Make weak pointer
+bool Node::IsDescendantOf(const std::shared_ptr<Node> &p_node) const // TODO: (SCENE) Make weak pointer
 {
 	auto parent = m_parent.lock();
 

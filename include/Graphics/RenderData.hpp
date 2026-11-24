@@ -47,7 +47,7 @@ namespace Droplet::Graphics
         // Settings
 		bool transparent { false };
        
-        // HACK: Sort based on transparency
+        // HACK: (RENDERER) Sort based on transparency
         bool operator<(const RenderData &p_other) const
         {
             return transparent < p_other.transparent;

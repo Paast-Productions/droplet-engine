@@ -227,6 +227,10 @@ namespace Droplet::Math::Curves
 		int c = points.size();
 		if (c <= 1)
 			return 0;
+		if (x <= points.front().position.x)
+			return points.front().position.y;
+		if (x >= points.back().position.x)
+			return points.back().position.y;
 
 		// Find the segment that contains the specified x-value
 		int i = -1;

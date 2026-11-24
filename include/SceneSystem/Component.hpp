@@ -88,7 +88,7 @@ namespace Droplet::Scene
         /// @brief Gets the Node that owns this component.
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
-        [[nodiscard]] std::shared_ptr<Node> GetOwner() const; // TODO: Make weak pointer
+        [[nodiscard]] std::shared_ptr<Node> GetOwner() const; // TODO: (SCENE) Make weak pointer
     
 		/// @brief Serializes the component to a JSON object.
 		/// @return A JSON object representing the component's state.
@@ -220,6 +220,6 @@ namespace Droplet::Scene
         /// the component is added to a Node.
         ///
         /// @param p_owner Node that will own the component.
-        void SetOwner(std::shared_ptr<Node> p_owner); // TODO: Make weak pointer
+        void SetOwner(std::shared_ptr<Node> p_owner); // TODO: (SCENE) Make weak pointer
     };
 }
