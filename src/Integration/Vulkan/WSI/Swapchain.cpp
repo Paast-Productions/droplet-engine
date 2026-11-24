@@ -25,7 +25,9 @@ namespace
     {
         std::uint32_t minImageCount = std::max(3u, capabilities.minImageCount);
         if (0 < capabilities.maxImageCount && capabilities.maxImageCount < minImageCount)
+        {
             minImageCount = capabilities.maxImageCount;
+        }
         return minImageCount;
     }
 
@@ -35,12 +37,14 @@ namespace
         if (availableFormats.empty())
             throw std::runtime_error("The surface reports no formats");
 
+        // TODO: put in a config
+        static constexpr auto SC_FORMAT = vk::Format::eR8G8B8A8Unorm;
+        static constexpr auto SC_COLOR_SPACE = vk::ColorSpaceKHR::eSrgbNonlinear;
         const auto preferredFormatIt = std::ranges::find_if(
             availableFormats,
             [](const vk::SurfaceFormatKHR& surfaceFormat)
             {
-                return surfaceFormat.format == vk::Format::eB8G8R8A8Srgb
-                    && surfaceFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear;
+                return surfaceFormat.format == SC_FORMAT && surfaceFormat.colorSpace == SC_COLOR_SPACE;
             });
 
         return preferredFormatIt != availableFormats.end() ? *preferredFormatIt : availableFormats.front();
@@ -143,7 +147,7 @@ SwapchainStatus Swapchain::Present(std::uint32_t imageIndex) const
     };
 
     const vk::Result result = m_context->GetGraphicsQueue().presentKHR(presentInfo);
-    Vulkan::Utils::CheckResult(result, "Presentation failed",
+    Utils::CheckResult(result, "Presentation failed",
                                vk::Result::eSuccess, vk::Result::eSuboptimalKHR, vk::Result::eErrorOutOfDateKHR);
 
     switch (result)
