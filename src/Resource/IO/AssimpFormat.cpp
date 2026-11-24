@@ -157,7 +157,7 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 
 	MeshResource mesh{};
 	mesh.SetMeshData(vertexData, indexData, vertexByteSize, vertexLayout);
-		
+
 	s_importer.FreeScene();
 
 	mesh.GenerateBVH();
@@ -466,9 +466,6 @@ std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(cons
 	AnimationResource animation{};
 	animation.SetName(p_animName);
 	animation.SetKeyframes(animKeyframes);
-
-	// Log Info: Successfully loaded p_meshFile
-	std::println("Successfully loaded {}", p_assetPath.generic_string()); // Temporary log
 
 	s_importer.FreeScene();
 
