@@ -1,3 +1,7 @@
+/**
+ * @file SDLVulkan.hpp
+ * @brief Abstracts SDL_vulkan.h and defines a version of the platform-independent ISurfaceProfider for an SDL window.
+ */
 #pragma once
 
 #include <stdexcept>
@@ -10,7 +14,7 @@
 
 #include "Integration/Vulkan/Core/SurfaceProvider.hpp"
 
-namespace SDL
+namespace Droplet::Platform::SDL
 {
     /// Get required vulkan extensions in order to use an SDL_Window as a VkSurface
     inline std::vector<const char*> GetRequiredInstanceExtensions()
@@ -51,8 +55,8 @@ namespace SDL
     {
     public:
         /**
-         * @param window window created with SDL_WINDOW_VULKAN
-         * @throws std::invalid_argument if window is null
+         * @param window A window created with SDL_WINDOW_VULKAN window flag set
+         * @throws std::invalid_argument if window is nullptr
          */
         explicit VulkanSurfaceProvider(SDL_Window* window)
             : m_window{ window }
@@ -61,9 +65,7 @@ namespace SDL
                 throw std::invalid_argument("SDLVulkanSurface: window was null");
         }
 
-        /// @copydoc
-        /// 
-        ///  Vulkan::ISurfaceProvider::GetRequiredInstanceExtensions
+        /// @copydoc Vulkan::ISurfaceProvider::GetRequiredInstanceExtensions
         [[nodiscard]] std::vector<const char*> GetRequiredInstanceExtensions() const override
         {
             return SDL::GetRequiredInstanceExtensions();
@@ -94,6 +96,6 @@ namespace SDL
         }
 
     private:
-        SDL_Window* m_window{ nullptr }; ///< Not owned.
+        SDL_Window* m_window{ nullptr }; ///< Not owned
     };
 }
