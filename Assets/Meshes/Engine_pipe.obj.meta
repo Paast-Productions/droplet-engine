@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "pipe",
+            "guid": 14947082584196746576,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "pipe",
+            "type": 3
+        }
+    ]
+}
