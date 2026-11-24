@@ -50,5 +50,6 @@ namespace Droplet::Scene
         std::weak_ptr<LadderBehaviour> m_ladderBehaviour;
 
         std::string m_targetSceneName;
+		bool m_targetSceneLoaded = false;
     };
 }
