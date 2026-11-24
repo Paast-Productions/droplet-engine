@@ -204,6 +204,8 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    	
+    	Octree &GetOctree();
     
 		/// @brief Render octree
 		/// @param p_renderOctants True to render octants
