@@ -32,6 +32,7 @@ namespace Droplet::Scene
         void StopTracks(float p_fadeSeconds = 0.0f);
         
         void SetTargetVolumeDb(float p_volumeDb);
+        
         void SetBusName(const std::string& p_busName) { m_busName = p_busName; }
         
     protected:
@@ -53,11 +54,11 @@ namespace Droplet::Scene
         Audio::PlaybackID m_currentId   = Audio::C_INVALID_PLAYBACK_ID;
         Audio::PlaybackID m_fadingOutId = Audio::C_INVALID_PLAYBACK_ID;
         
-        float m_targetVolumeDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_currentTrackPeakDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_currentInDb         = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_fadeOutStartDb      = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        
         float m_fadeDuration    = 0.0f;
         float m_fadeElapsed     = 0.0f;
-        
-        float m_currentTrackPeakDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
-        float m_fadingOutStartDb    = Audio::C_VOLUME_DECIBEL_DEFAULT;
     };
 }

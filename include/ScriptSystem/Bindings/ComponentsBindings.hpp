@@ -12,6 +12,8 @@ namespace Droplet::Script::Bindings
 	void RegisterDamageComponent(sol::state_view p_luaState);
 	void RegisterPlayerComponent(sol::state_view p_luaState);
 	void RegisterPlayerBehaviour(sol::state_view p_luaState);
+    
+    void RegisterAudioBehaviour(sol::state_view p_luaState);
 	void RegisterAudioPlayerComponent(sol::state_view p_luaState);
 	void RegisterAudioEmitterComponent(sol::state_view p_luaState);
 }

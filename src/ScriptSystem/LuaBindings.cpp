@@ -25,6 +25,7 @@
 #include <PhysicsComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Behaviours/AudioBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
@@ -33,6 +34,8 @@
 #include <tuple>
 #include <algorithm>
 #include <vector>
+
+#include "AudioBehaviour.hpp"
 
 using namespace Droplet::Script;
 using namespace Droplet::Script::Bindings;
@@ -149,6 +152,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			}
 			return nullptr;
 		},
+		"GetAudioBehaviour",
+		[](Scene::Node &node)
+		{
+		    return node.GetScene()->GetBehaviour<Scene::AudioBehaviour>();
+		},
 		"GetAudioEmitter",
 		[](Scene::Node &node, const std::string& p_name)
 		{
@@ -159,9 +167,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetAudioPlayer(p_name).lock();
 		}
-
-
-
 	);
 
 	LuaClassDefinition classDef;
@@ -179,7 +184,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
-		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
+		{"GetAudioBehaviour", "AudioBehaviour", {}}
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);
