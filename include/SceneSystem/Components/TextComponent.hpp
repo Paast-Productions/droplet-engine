@@ -33,7 +33,7 @@ namespace Droplet::Scene
 		void UpdateImpl() override;
 		void QueueRenderImpl() override;
 		void RenderUIImpl() override;
-		[[nodiscard]] Graphics::RenderData GetRenderDataImpl() override;
+		// [[nodiscard]] Graphics::RenderData GetRenderDataImpl() override;
 		
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(const nlohmann::json p_compJson) override;

@@ -14,11 +14,13 @@ namespace Droplet::Graphics::Text
 		/// @brief Glyph dimensions (xy) and band scaling factors (zw).
 		glm::vec4 glyphBandScale;
 
-		/// @brief RGBA color of the glyph.
-		glm::vec4 glyphColor;
-
 		/// @brief Maximum horizontal and vertical band indices (xy),
 		/// and starting coordinates in the band texture (zw).
 		glm::uvec4 bandMaxTexCoords;
+	};
+	
+	struct TextPushConstants
+	{
+		glm::vec4 color{1.0f};
 	};
 }

@@ -43,7 +43,6 @@ Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayo
 					pen.y + height * 0.5f,
 				},
 				.glyphBandScale = glm::vec4(0.0f),
-				.glyphColor = p_color,
 				.bandMaxTexCoords = glm::uvec4(0)
 			};
 			shouldRender = true; // We want to render a "missing char" glyph
@@ -72,7 +71,6 @@ Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayo
 					width / static_cast<float>(glyph->bandDimX),
 					height / static_cast<float>(glyph->bandDimY)
 				},
-				.glyphColor = p_color,
 				.bandMaxTexCoords = {
 					glyph->bandCount - 1,
 					glyph->bandCount - 1,

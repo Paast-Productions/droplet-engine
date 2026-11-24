@@ -146,7 +146,6 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 	
 	const float lineHeight = static_cast<float>(m_fontHeader.ascent - m_fontHeader.descent + m_fontHeader.lineGap) * fontScale;
 
-	glm::vec4 textColor = glm::vec4(1.f, 1.f, 1.f, 1.f);
 	glm::vec2 pen{0.0f};
 	int i = 0;
 	m_glyphInstances.clear();
@@ -180,7 +179,6 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 					pen.y + height * 0.5f,
 				},
 				.glyphBandScale = glm::vec4(0.0f),
-				.glyphColor = textColor,
 				.bandMaxTexCoords = glm::uvec4(0)
 			};
 			shouldRender = true; // We want to render a "missing char" glyph
@@ -209,7 +207,6 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 					width / glyph->bandDimX,
 					height / glyph->bandDimY
 				},
-				.glyphColor = textColor,
 				.bandMaxTexCoords = {
 					glyph->bandCount - 1,
 					glyph->bandCount - 1,
@@ -269,7 +266,7 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::Initialize(const Context &p
 	vk::PushConstantRange pushConstant {
 		.stageFlags = vk::ShaderStageFlagBits::eFragment,
 		.offset = 0,
-		.size = sizeof(SlugGlyphData)
+		.size = sizeof(Text::TextPushConstants)
 	};
 	
 	const vk::PipelineLayoutCreateInfo layoutInfo {
@@ -507,6 +504,20 @@ void Droplet::Graphics::Vulkan::Slug::SlugPrototype::RenderToCamera(const Camera
 		vk::Offset2D(0, 0), 
 		p_extent 
 	};
+	
+	glm::vec4 textColor = glm::vec4(0.f, 1.f, 1.f, 1.f);
+	
+	Text::TextPushConstants pushConstants{
+		.color = textColor
+	};
+	
+	p_commandBuffer.pushConstants(
+		*m_pipelineLayout,
+		vk::ShaderStageFlagBits::eFragment,
+		0,
+		sizeof(Text::TextPushConstants),
+		&pushConstants
+	);
 	
 	p_commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_pipeline);
 	p_commandBuffer.setViewport(0, viewport);

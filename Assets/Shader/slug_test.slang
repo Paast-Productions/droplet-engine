@@ -19,12 +19,19 @@ struct GlyphInstance
 {
     float4 scaleBias;
     float4 glyphBandScale;
-    float4 glyphColor;
     uint4 bandMaxTexCoords;
 };
 
 [[vk::binding(3, 0)]]
 StructuredBuffer<GlyphInstance> glyphInstances;
+
+struct TextPushConstants
+{
+    float4 color;
+};
+
+[[vk::push_constant]]
+ConstantBuffer<TextPushConstants> textPushConstants;
 
 struct VertexOutput
 {
@@ -174,8 +181,8 @@ float4 slugFragMain(VertexOutput input) : SV_TARGET
         float border = 1.0f - smoothstep(0.03f, 0.05f, distanceToEdge);
 
         return float4(
-            instance.glyphColor.rgb,
-            instance.glyphColor.a * border
+            textPushConstants.color.rgb,
+            textPushConstants.color.a * border
         );
     }
 
@@ -209,5 +216,5 @@ float4 slugFragMain(VertexOutput input) : SV_TARGET
     coverageY = min(abs(coverageY), 1.0);
     
     float glyphCoverage = (coverageX + coverageY) * 0.5;
-    return float4(instance.glyphColor.xyz, instance.glyphColor.w * glyphCoverage);
+    return float4(textPushConstants.color.rgb, textPushConstants.color.a * glyphCoverage);
 }
