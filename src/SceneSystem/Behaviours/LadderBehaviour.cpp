@@ -58,6 +58,24 @@ void LadderBehaviour::RemoveLadderComponent(
     );
 }
 
+
+void LadderBehaviour::LoadTargetScene(const std::string &p_targetSceneName)
+{
+    auto sceneManager = GetSceneManager();
+
+    if (!sceneManager)
+    {
+        return;
+    }
+
+	if (sceneManager->GetScene(p_targetSceneName))
+    {
+        return;
+
+	}
+    sceneManager->LoadFromFile(ROOT_PATH "/GameData/Scenes/" + p_targetSceneName + ".json");
+}
+
 void LadderBehaviour::BeginTransition(
     const std::string &p_targetSceneName,
     std::weak_ptr<Scene> p_currentScene)
