@@ -1,0 +1,251 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.007",
+                        "meshGUID": 18195477296200930384,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "T_Bookrow1",
+                        "textureGUID": 1147602990638187171,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 89,
+            "name": "Books",
+            "transform": {
+                "position": [
+                    2.3954410552978516,
+                    -0.011886954307556152,
+                    0.3057851791381836
+                ],
+                "rotation": [
+                    3.8138161926326575e-06,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9998433589935303,
+                    0.9999978542327881,
+                    0.9998433589935303
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.007",
+                        "meshGUID": 18195477296200930384,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "T_Bookrow2",
+                        "textureGUID": 8852506309314562784,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 90,
+            "name": "Books",
+            "transform": {
+                "position": [
+                    2.395502805709839,
+                    -0.6739515066146851,
+                    0.30577898025512695
+                ],
+                "rotation": [
+                    4.000203261966817e-06,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9998707175254822,
+                    0.9999978542327881,
+                    0.9998707175254822
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.007",
+                        "meshGUID": 18195477296200930384,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "T_Bookrow3",
+                        "textureGUID": 1860999159056633409,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 91,
+            "name": "Books",
+            "transform": {
+                "position": [
+                    2.395502805709839,
+                    -1.3128150701522827,
+                    0.30577898025512695
+                ],
+                "rotation": [
+                    1.8834745105777984e-06,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9998567700386047,
+                    0.9999978542327881,
+                    0.9998567700386047
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube.007",
+                        "meshGUID": 18195477296200930384,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "T_Bookrow4",
+                        "textureGUID": 2311689133199628985,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 92,
+            "name": "Books",
+            "transform": {
+                "position": [
+                    2.395503520965576,
+                    -1.9788191318511963,
+                    0.30577921867370605
+                ],
+                "rotation": [
+                    2.016271764659905e-06,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9998438954353333,
+                    0.9999978542327881,
+                    0.9998438954353333
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Bookshelf",
+                "meshGUID": 1447338291679625972,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "Cog",
+                "textureGUID": 14398772776344451943,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 88,
+    "name": "Bookshelf",
+    "transform": {
+        "position": [
+            -3.368739128112793,
+            0.9795874953269958,
+            2.7088279724121094
+        ],
+        "rotation": [
+            0.7071067094802856,
+            0.0,
+            0.7071068286895752,
+            0.0
+        ],
+        "scale": [
+            0.7997611165046692,
+            0.8000000715255737,
+            0.7997611165046692
+        ]
+    }
+}
