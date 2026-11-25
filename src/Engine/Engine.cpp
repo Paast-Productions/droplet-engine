@@ -102,13 +102,15 @@ namespace
             return;
         const auto* texture = resMan.GetResource<Texture2DResource>(id);
         if (!texture)
-        {            return; // not loaded (yet): the placeholder texture
+        {
+            return; // not loaded (yet): the placeholder texture
         }
 
         // RGBA8 only: a compressed texture is smaller than this and shows the placeholder
         const std::size_t topLevelBytes = static_cast<std::size_t>(texture->GetWidth()) * texture->GetHeight() * 4;
         const std::span<const std::byte> pixels = texture->GetPixelData();
-        if (pixels.size() < topLevelBytes){            
+        if (pixels.size() < topLevelBytes)
+        {
             return;
         }
 
@@ -136,12 +138,13 @@ namespace
         uploads.shaders.push_back({
             .id = id,
             .revision = 1,
-            .shader = ::Common::ShaderDesc{ .moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang" }
+            .shader = ::Common::ShaderDesc{.moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang"}
         });
     }
 
     /// @brief The uploads for what `required` needs and the GPU lacks
-    Bridge::ResourceUploads ProvideAssets(const Bridge::RequiredResources& required, const Bridge::ResidentResources& resident)
+    Bridge::ResourceUploads ProvideAssets(const Bridge::RequiredResources& required,
+                                          const Bridge::ResidentResources& resident)
     {
         ResourceManager& resMan = ResourceManager::GetInstance();
         Bridge::ResourceUploads uploads;
@@ -169,12 +172,12 @@ namespace
 
 Engine::Engine(EngineConfig p_config)
     : m_updateFlagsSetter(p_config.UpdateFlags),
-    m_window(p_config.WindowConfig),
-    m_surfaceProvider(m_window.GetSDLWindow()),
+      m_window(p_config.WindowConfig),
+      m_surfaceProvider(m_window.GetSDLWindow()),
 #ifdef _EDITOR
-    m_imguiFrame(m_window.GetSDLWindow()),
+      m_imguiFrame(m_window.GetSDLWindow()),
 #endif
-    m_renderer(m_surfaceProvider)
+      m_renderer(m_surfaceProvider)
 {
     ZoneScoped;
 
@@ -343,40 +346,48 @@ void Engine::BeginFrame()
 
 DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_cameras)
 {
+    using namespace Droplet::Graphics;
     ZoneScopedC(tracy::Color::SkyBlue1)
 
-    // the scene's cameras and the editor's; the render graph orders the passes
-    Graphics::Render::RenderWorld world{
+    // the scene's cameras and the editor's. // TODO: check post-process
+    Render::RenderWorld world{
         .cameras = m_sceneManager.GetRenderData(),
-        .time = 0.0f // TODO: the engine's elapsed time in seconds
+        .time = Time::Get().GetDeltaTime()
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
 
     // DebugDraw's meshes, in the cameras that show debug drawing
-    const std::vector<std::shared_ptr<const Common::DynamicMeshData>> debugMeshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
+    const std::vector<std::shared_ptr<const Common::DynamicMeshData>> debugMeshes = Debug::DebugDraw::GetFrameMeshes();
     for (Common::CameraRenderData& camera : world.cameras)
     {
         if (!camera.debug)
+        {
+            // only draw debug geometry on cameras that are flagged for debug drawing
             continue;
+        }
         for (const std::shared_ptr<const Common::DynamicMeshData>& mesh : debugMeshes)
-            camera.renderData.push_back({ .transform = glm::mat4{ 1.0f }, .dynamicMesh = mesh });
+        {
+            camera.renderData.push_back({.transform = glm::mat4{1.0f}, .dynamicMesh = mesh});
+        }
     }
 
+    // ImGui gets drawn as an overlay. Skip if we're not in editor mode
     ImDrawData* overlay = nullptr;
 #ifdef _EDITOR
     overlay = m_imguiFrame.End();
-    // and the textures the editor's windows show
-    const Bridge::RequiredResources required = Bridge::RequiredAssetsOf(world, Graphics::Vulkan::Renderer::ImGuiImages(*overlay));
+    const Bridge::RequiredResources required = Bridge::RequiredResourcesOf(
+        world, Vulkan::Renderer::ImGuiImages(*overlay));
     m_renderer.SetCompositeScene(false); // the editor's windows show the cameras
 #else
-    const BridgeRequiredAssets required = Bridge::RequiredAssetsOf(world);
+    const BridgeRequiredAssets required = Bridge::RequiredResourcesOf(world);
 #endif
     m_renderer.Upload(ProvideAssets(required, m_renderer.Residents()));
 
     m_renderer.Render(world, overlay);
 
     m_sceneManager.PostRender(); // clears the cameras' render data
-    ResourceManager::GetInstance().Update();
+    
+    // ResourceManager::GetInstance().Update();
 
     return DROPLET_RETURNTYPE::OK;
 }

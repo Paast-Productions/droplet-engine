@@ -88,6 +88,6 @@ namespace Droplet::Bridge
     * @param images ImGui images that are not included in the world
     * @returns A RequiredAssets struct with vectors of GUIDs for each asset type
     */
-    [[nodiscard]] RequiredResources RequiredAssetsOf(
+    [[nodiscard]] RequiredResources RequiredResourcesOf(
         const Graphics::Render::RenderWorld& world, std::span<const GUID> images = {});
 }

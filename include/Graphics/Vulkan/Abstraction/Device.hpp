@@ -41,8 +41,8 @@ namespace Droplet::Graphics::Vulkan
     {
         return static_cast<std::size_t>(std::to_underlying(queueIndex));
     };
-    inline constexpr std::size_t QUEUE_INDEX_COUNT = ToIndex(QueueKind::Count);
-    ///< Total number of indices in the Queue array
+    inline constexpr std::size_t QUEUE_INDEX_COUNT = ToIndex(QueueKind::Count); ///< Total number of indices in the Queue array
+
 
     /// @brief Device's queues by role.
     /// @details Graphics queue always exists. Compute and transfer exists if the GPU supports giving them their own

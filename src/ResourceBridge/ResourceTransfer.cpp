@@ -28,7 +28,7 @@ namespace Droplet::Bridge
         }
     }
 
-    RequiredResources RequiredAssetsOf(const Graphics::Render::RenderWorld& world, std::span<const GUID> images)
+    RequiredResources RequiredResourcesOf(const Graphics::Render::RenderWorld& world, std::span<const GUID> images)
     {
         RequiredResources required;
         AddUniqueId(required.shaders, Graphics::Render::DEFAULT_SCENE_SHADER);

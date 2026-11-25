@@ -73,7 +73,9 @@ namespace Droplet::Graphics::Vulkan
         bool previousUseOnOtherQueue{false}; ///< see ResolvedImage::previousUseOnOtherQueue
     };
 
-    /// @brief A graph resource's physical image (view, size) or buffer for one frame.
+    /// @brief Either a graph resource's buffer or image with view and size for a single frame. 
+    /// @details Called physical because it is an actual allocated resource, not a virtual one used for sorting the 
+    /// frame.
     struct PhysicalResource
     {
         ResolvedImage image{};   ///< What barriers use (images)
@@ -106,12 +108,15 @@ namespace Droplet::Graphics::Vulkan
             return resource.index < m_entries.size() && m_entries[resource.index].has_value();
         }
 
-        /// @brief The entry for `resource`.
+        /// @brief Get mapped entry for the resource.
+        /// @param resource The Resource to be checked against.
         /// @throws std::out_of_range if it has none (the resource is not used by a live pass, or was never set)
         [[nodiscard]] const PhysicalResource& Get(RenderGraph::ResourceId resource) const
         {
             if (!Contains(resource))
+            {
                 throw std::out_of_range("ResourceTable: no physical image for resource " + std::to_string(resource.index));
+            }
             return *m_entries[resource.index];
         }
 
@@ -124,15 +129,15 @@ namespace Droplet::Graphics::Vulkan
         std::vector<std::optional<PhysicalResource>> m_entries;
     };
 
-    ///@brief  What every pass callback receives. Passes begin/end dynamic rendering themselves
+    ///@brief What every pass callback receives. Passes begin/end dynamic rendering by themselves
     struct PassContext
     {
-        vk::CommandBuffer cmd;
+        vk::CommandBuffer cmd; ///< Handle to the pass's command buffer
         RenderGraph::Queue queue = RenderGraph::Queue::Graphics; ///< Queue this pass is running on
-        const ResourceTable* resources = nullptr; ///< This frame's physical images; set by the recorder.
+        const ResourceTable* resources = nullptr; ///< This frame's physical images; set by the frame recorder.
     };
 
-    /// @brief deduce image state from usage and submit queue
+    /// @brief Deduce image state from usage and submit queue
     /// @details Stage masks must exist on the queue that records the barrier, so sampling is
     /// a fragment-shader read on graphics and a compute-shader read on compute
     inline ImageState ToImageState(RenderGraph::Usage usage, RenderGraph::Queue queue)

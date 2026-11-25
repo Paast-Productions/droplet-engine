@@ -37,23 +37,26 @@ namespace Droplet::Graphics::Vulkan
 {
     /**
      * @brief Owns everything on the GPU side; Render(world) runs Prepare, BeginFrame, the render graph and EndFrame
-     * @details One frame, by stage. The engine does 1 and 2; Render does 3 to 6.
+     * @pre CameraRenderData has been converted to Render::RenderWorld and resources used by the scene or that are 
+     * marked as missing by the GPU-stage are uploaded.
      *   1. World    the scene's CameraRenderData   -> Render::RenderWorld      by GUID, no GPU calls
      *   2. Provide  Bridge::RequiredAssetsOf      what the GPU lacks -> AssetUploads -> Upload()
-     *   3. Prepare  Render::PlanViews, Prepare    RenderWorld -> Render::PreparedFrame      by handle, placeholders for gaps
-     *   4. Build    Vulkan::BuildFrameGraph    PreparedFrame -> RenderGraph::Graph<PassContext>
-     *   5. Compile  RenderGraph::Compile       Graph -> Compiled (schedule, barriers, waits)
-     *   6. Execute  Vulkan::GraphExecutor      Compiled -> command buffers -> submit and present
+     * @details One frame, by stage.
+     *   1. Prepare  Render::PlanViews, Prepare   RenderWorld -> Render::PreparedFrame by handle,  placeholders for gaps
+     *   2. Build    Vulkan::BuildFrameGraph    PreparedFrame -> RenderGraph::Graph<PassContext>
+     *   3. Compile  RenderGraph::Compile       Graph -> Compiled (schedule, barriers, waits)
+     *   4. Execute  Vulkan::GraphExecutor      Compiled -> command buffers -> submit and present
      */
     class Renderer
     {
     public:
-        /// @brief Creates the context, swapchain, compositor, effect pass and resource managers, and compiles the
-        ///        shaders.
-        /// @param surfaceProvider must outlive the scene renderer
+        /**
+         * @brief Creates and manages all relevant rendering interfaces.
+         * @param surfaceProvider abstract type that wraps a platform window (SDL3, glfw, win32, etc.)
+         */
         explicit Renderer(const ISurfaceProvider& surfaceProvider);
 
-        /// @brief Waits for the GPU to go idle before anything is destroyed
+        /// @brief Destructor. Waits for the GPU to go idle before anything is destroyed
         ~Renderer() noexcept;
 
         // no copy, no move
@@ -62,16 +65,23 @@ namespace Droplet::Graphics::Vulkan
         Renderer(Renderer&&) = delete;
         Renderer& operator=(Renderer&&) = delete;
 
-        /// @brief Renders and presents `world`; does nothing while minimized. Assets it refers to that are not on the
-        ///        GPU (yet) are drawn as placeholders.
+        /** 
+         * @brief Renders and presents a render world
+         * @param world A struct containing CameraRenderData, view settings, a present target id and time
+         * @param overlay Optionally renders ImGui draw data on top of the rendered output
+         * @details Any resources referred to that are not yet uploaded to the GPU will be rendered as placeholders 
+         * until they are available.
+         */
         void Render(const Render::RenderWorld& world, ImDrawData* overlay = nullptr);
 
 #ifdef _EDITOR
-        /// @brief Initialises ImGui's Vulkan backend, call once @pre an ImGui context exists
+        /// @brief Initialises ImGui's Vulkan backend. Called once @pre ImGui context exists
         void InitImGui();
-        /// @brief The backend's per-frame start. Call before ImGui::NewFrame
+        /// @brief Starts ImGui's Vulkan backend. Called per-frame before ImGui::NewFrame
         void NewImGuiFrame();
-        /// @brief The images an ImGui frame shows by ImGuiTextureId (for Bridge::RequiredAssetsOf)
+        /**
+        * @brief Converts the images of an ImGui frame into GUIDs used for The images an ImGui frame shows by ImGuiTextureId (for Bridge::RequiredAssetsOf)
+        */
         [[nodiscard]] static std::vector<GUID> ImGuiImages(const ImDrawData& overlay);
 #endif
 
@@ -94,7 +104,7 @@ namespace Droplet::Graphics::Vulkan
         void OnRestore() { m_wsi.OnRestore(); }
         [[nodiscard]] bool IsMinimized() const noexcept { return m_wsi.IsMinimized(); }
 
-        /// @brief False: the composite only clears the window instead of showing the presented view (editor mode,
+        /// @brief false: the composite only clears the window instead of showing the presented view (editor mode,
         ///        where viewport windows show the cameras); true by default
         void SetCompositeScene(bool compositeScene) noexcept { m_compositeScene = compositeScene; }
 
@@ -113,6 +123,7 @@ namespace Droplet::Graphics::Vulkan
         void RecordFrameGraph(const Frame& frame, ImDrawData* overlay);
 #ifdef _EDITOR
         /// @brief Points the overlay's render-target ids at this frame's images; returns the targets they show
+        /// @pre Editor mode only
         std::vector<Render::TargetHandle> ResolveImGuiTextures(ImDrawData& overlay, const Render::RenderWorld& world);
 #endif
 
