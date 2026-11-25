@@ -2,6 +2,7 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <Resource/ResourceManager.hpp>
+#include <SceneSystem/SceneResourceLoad.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
@@ -370,7 +371,7 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
 void MeshComponent::SetMeshGUID(GUID p_guid)
 {
-	m_mesh = ResourceManager::GetInstance().LoadResource<MeshResource>(p_guid);
+	m_mesh = LoadTrackedResource<MeshResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_meshDisplayName = entry.displayName;
@@ -379,7 +380,7 @@ void MeshComponent::SetMeshGUID(GUID p_guid)
 
 void MeshComponent::SetTextureGUID(GUID p_guid)
 {
-	m_2dTexture = ResourceManager::GetInstance().LoadResource<Texture2DResource>(p_guid);
+	m_2dTexture = LoadTrackedResource<Texture2DResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_textureDisplayName = entry.displayName;
@@ -388,7 +389,7 @@ void MeshComponent::SetTextureGUID(GUID p_guid)
 
 void MeshComponent::SetVSGUID(GUID p_guid)
 { 
-	m_shaderData.vs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); 
+	m_shaderData.vs = LoadTrackedResource<ShaderResource>(TryGetScene(), p_guid); 
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_vsDisplayName = entry.displayName;
@@ -397,7 +398,7 @@ void MeshComponent::SetVSGUID(GUID p_guid)
 
 void MeshComponent::SetTCSGUID(GUID p_guid)
 {
-	m_shaderData.tcs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid);
+	m_shaderData.tcs = LoadTrackedResource<ShaderResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_tcsDisplayName = entry.displayName;
@@ -406,7 +407,7 @@ void MeshComponent::SetTCSGUID(GUID p_guid)
 
 void MeshComponent::SetTESGUID(GUID p_guid)
 {
-	m_shaderData.tes = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid);
+	m_shaderData.tes = LoadTrackedResource<ShaderResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_tesDisplayName = entry.displayName;
@@ -415,7 +416,7 @@ void MeshComponent::SetTESGUID(GUID p_guid)
 
 void MeshComponent::SetGSGUID(GUID p_guid)
 {
-	m_shaderData.gs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid);
+	m_shaderData.gs = LoadTrackedResource<ShaderResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_gsDisplayName = entry.displayName;
@@ -424,7 +425,7 @@ void MeshComponent::SetGSGUID(GUID p_guid)
 
 void MeshComponent::SetFSGUID(GUID p_guid)
 { 
-	m_shaderData.fs = ResourceManager::GetInstance().LoadResource<ShaderResource>(p_guid); 
+	m_shaderData.fs = LoadTrackedResource<ShaderResource>(TryGetScene(), p_guid); 
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_fsDisplayName = entry.displayName;

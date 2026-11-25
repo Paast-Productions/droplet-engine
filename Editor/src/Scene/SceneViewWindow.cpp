@@ -1238,19 +1238,23 @@ void SceneViewWindow::RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneVi
 
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 	{
+		ImGui::BeginDisabled(!m_editorContext->GetActiveScene().lock()->AreResourcesLoaded());
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
 
 		ImGui::SetCursorScreenPos(buttonPos);
+
 		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
 		{
-			m_editorContext->EnterPlayMode();
+			if (m_editorContext->GetActiveScene().lock()->AreResourcesLoaded())
+				m_editorContext->EnterPlayMode();
 		}
 
 		ImGui::PopStyleColor(4);
 		m_hoveringPlayButton = ImGui::IsItemHovered();
+		ImGui::EndDisabled();
 		return;
 	}
 

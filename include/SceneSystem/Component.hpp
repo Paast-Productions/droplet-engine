@@ -161,6 +161,10 @@ namespace Droplet::Scene
 
         std::shared_ptr<Scene> GetScene() const;
 
+        /// @brief Gets the Scene of the owning Node without throwing.
+        /// @return The Scene, or nullptr if the component has no owner yet.
+        std::shared_ptr<Scene> TryGetScene() const;
+
     protected:
 
         virtual void ConstructImpl() {}

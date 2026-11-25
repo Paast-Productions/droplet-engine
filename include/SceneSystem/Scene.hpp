@@ -1,8 +1,12 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_set>
 #include <vector>
+
+#include <resource/GuidUtils.hpp>
 
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
@@ -173,6 +177,22 @@ namespace Droplet::Scene
         /// @return true if the Scene is loaded, otherwise false.
         bool IsLoaded() const;
 
+        /// @brief Notifies the Scene that a resource it depends on has started loading.
+        ///
+        /// Tracking is per guid, so repeated loads of the same guid count once. Must be paired with
+        /// EndResourceLoad(). Prefer LoadTrackedResource(), which handles the pairing. Thread safe.
+        /// @param p_guid The guid of the resource.
+        void BeginResourceLoad(GUID p_guid);
+
+        /// @brief Notifies the Scene that a resource it depends on has finished loading or has failed. Thread safe.
+        /// @param p_guid The guid of the resource.
+        void EndResourceLoad(GUID p_guid);
+
+        /// @brief Checks whether all resources the Scene depends on have finished loading.
+        ///
+        /// @return true if no tracked resource loads are pending, otherwise false.
+        [[nodiscard]] bool AreResourcesLoaded() const;
+
         /// @brief Checks whether the Scene is active.
         ///
         /// An inactive Scene does not perform its normal update or
@@ -309,6 +329,9 @@ namespace Droplet::Scene
 
         bool m_loaded = false;
         bool m_active = false;
+
+        std::unordered_set<GUID> m_pendingResourceLoads;
+        mutable std::mutex m_resourceLoadMutex;
 
 		SceneManager *m_sceneManager = nullptr;
     };     

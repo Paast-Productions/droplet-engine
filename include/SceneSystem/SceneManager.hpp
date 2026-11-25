@@ -1,11 +1,15 @@
 #pragma once
 
+#include <atomic>
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 #include <json/json.hpp>
 #include <Audio/AudioSystem.hpp>
+#include <Core/ThreadSafeQueue.hpp>
+
 namespace Droplet::Graphics
 {
 	struct CameraRenderData;
@@ -120,6 +124,24 @@ namespace Droplet::Scene
         /// @param p_filePath The name of the file the scene is serialized in
         void LoadFromFile(const std::string &p_filePath);
 
+        /// @brief Loads a scene from a file asynchronously.
+        ///
+        /// The file is read, parsed, and deserialized on the thread pool. Not all
+        /// systems are thread safe, so deserialization may race with the main thread.
+        /// The Scene is registered during the next call to Update(), on the calling
+        /// thread, and then p_onLoaded is invoked. Failures are reported to stderr,
+        /// the Scene is not registered, and p_onLoaded receives nullptr.
+        /// @param p_filePath The name of the file the scene is serialized in
+        /// @param p_onLoaded Optional callback invoked on the main thread when loading finishes
+        void LoadFromFileAsync(const std::string &p_filePath, std::function<void(std::shared_ptr<Scene>)> p_onLoaded = nullptr);
+
+        /// @return True if any scene loaded with LoadFromFileAsync has not yet been created.
+        [[nodiscard]] bool HasPendingAsyncLoads() const;
+
+        /// @brief Checks whether all scenes are fully loaded and every resource they depend on has finished loading.
+        /// @return True if no async scene loads are pending and every scene reports its resources as loaded.
+        [[nodiscard]] bool IsLoadingComplete() const;
+
         /// @brief Serializes a lonesome node to a josn file
         /// @param p_node the node to be serialized
         /// @param p_filePath the filepath
@@ -156,6 +178,23 @@ namespace Droplet::Scene
 
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
         
+        struct AsyncSceneLoadResult
+        {
+            std::string filePath;
+            std::string sceneName;
+            std::shared_ptr<Scene> scene;
+            std::string error;
+            std::function<void(std::shared_ptr<Scene>)> onLoaded;
+        };
+
+        /// @brief Creates and deserializes a Scene from parsed json. Does not register the Scene.
+        [[nodiscard]] std::shared_ptr<Scene> CreateSceneFromJson(const nlohmann::json &p_json);
+        /// @brief Registers the Scenes for all completed asynchronous loads. Must run on the main thread.
+        void FinalizeAsyncSceneLoads();
+
+        ThreadSafeQueue<AsyncSceneLoadResult> m_asyncSceneReadResults;
+        std::atomic<std::size_t> m_pendingAsyncSceneLoads = 0;
+
         /// @brief Prepares all active Scenes for rendering.
         void PrepareRender();
     };

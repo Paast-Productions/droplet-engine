@@ -267,6 +267,12 @@ Transform &Component::GetTransform()
 	return owner->GetTransform();
 }
 
+std::shared_ptr<Scene> Component::TryGetScene() const
+{
+	auto owner = m_owner.lock();
+	return owner ? owner->GetScene() : nullptr;
+}
+
 std::shared_ptr<Scene> Component::GetScene() const
 {
 	auto owner = m_owner.lock();

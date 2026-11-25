@@ -5,7 +5,9 @@
 #include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
+#include <Core/ThreadPool.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <iostream>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
 #include <Graphics/Vulkan/Camera.hpp>
@@ -161,6 +163,8 @@ const std::vector<std::weak_ptr<Scene>> &SceneManager::GetActiveScenes() const
 void SceneManager::Update()
 {
     ZoneScoped;
+
+    FinalizeAsyncSceneLoads();
 
     Droplet::Time &time = Droplet::Time::Get();
 
@@ -367,31 +371,129 @@ void SceneManager::LoadFromFile(const std::string &p_filePath)
 {
     ZoneScoped;
 
-    SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+    std::shared_ptr<Scene> scene = CreateSceneFromJson(json);
+    const std::string name = json["name"].get<std::string>();
 
-    if (!json.contains("name"))
+    if (m_scenes.contains(name))
+    {
+        UnloadScene(name);
+    }
+
+    m_scenes[name] = scene;
+}
+
+void SceneManager::LoadFromFileAsync(const std::string &p_filePath, std::function<void(std::shared_ptr<Scene>)> p_onLoaded)
+{
+    ZoneScoped;
+
+    ++m_pendingAsyncSceneLoads;
+
+    ThreadPool::GetInstance().PushTask([this, p_filePath, onLoaded = std::move(p_onLoaded)]() mutable
+    {
+        AsyncSceneLoadResult result{ p_filePath, {}, nullptr, {}, std::move(onLoaded) };
+
+        try
+        {
+            nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+            if (!json.contains("name"))
+            {
+                throw std::runtime_error("Scene json has no 'name' field");
+            }
+
+            result.sceneName = json["name"].get<std::string>();
+            result.scene = CreateSceneFromJson(json);
+        }
+        catch (const std::exception &e)
+        {
+            result.error = e.what();
+        }
+
+        m_asyncSceneReadResults.Push(std::move(result));
+    });
+}
+
+bool SceneManager::HasPendingAsyncLoads() const
+{
+    return m_pendingAsyncSceneLoads.load() > 0;
+}
+
+bool SceneManager::IsLoadingComplete() const
+{
+    if (HasPendingAsyncLoads())
+    {
+        return false;
+    }
+
+    for (const auto &[name, scene] : m_scenes)
+    {
+        if (!scene->AreResourcesLoaded())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void SceneManager::FinalizeAsyncSceneLoads()
+{
+    ZoneScoped;
+
+    AsyncSceneLoadResult result;
+    while (m_asyncSceneReadResults.Pop(result))
+    {
+        --m_pendingAsyncSceneLoads;
+
+        if (!result.error.empty())
+        {
+            std::cerr << "Failed to load Scene from '" << result.filePath << "': " << result.error << '\n';
+
+            if (result.onLoaded)
+            {
+                result.onLoaded(nullptr);
+            }
+            continue;
+        }
+
+        if (m_scenes.contains(result.sceneName))
+        {
+            UnloadScene(result.sceneName);
+        }
+
+        m_scenes[result.sceneName] = result.scene;
+
+        if (result.onLoaded)
+        {
+            result.onLoaded(result.scene);
+        }
+    }
+}
+
+std::shared_ptr<Scene> SceneManager::CreateSceneFromJson(const nlohmann::json &p_json)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+
+    if (!p_json.contains("name"))
     {
         throw std::runtime_error("Invalid json was sent to LoadFromFile");
     }
 
-    if (m_scenes.contains(json["name"]))
-    {
-        UnloadScene(json["name"]);
-        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
-    }
-
-    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
-    scene->SetSceneManager(this);
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_json["name"]);
     if (!scene)
     {
-        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+        throw std::runtime_error("Cannot load Scene "+ p_json["name"].get<std::string>());
     }
+    scene->SetSceneManager(this);
     scene->Load();
-    serializer.DeserializeScene(json, scene);
+    serializer.DeserializeScene(p_json, scene);
 
-    m_scenes[json["name"]] = scene;
+    return scene;
 }
+
 
 void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePath)
 {

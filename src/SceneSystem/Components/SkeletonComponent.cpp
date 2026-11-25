@@ -4,6 +4,7 @@
 #include <Graphics/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <resource/ResourceManager.hpp>
+#include <SceneSystem/SceneResourceLoad.hpp>
 
 #include <glm/glm.hpp>
 
@@ -73,7 +74,7 @@ void SkeletonComponent::SetSkinnedMeshResource(StaticResourceHandle<SkinnedMeshR
 void SkeletonComponent::SetSkinnedMeshGUID(Droplet::GUID p_guid)
 {
     const std::weak_ptr<bool> alive = m_alive;
-    StaticResourceHandle<SkinnedMeshResource> handle = ResourceManager::GetInstance().LoadResource<Droplet::SkinnedMeshResource>(
+    StaticResourceHandle<SkinnedMeshResource> handle = LoadTrackedResource<Droplet::SkinnedMeshResource>(TryGetScene(),
         p_guid,
         [this, alive](StaticResourceHandle<SkinnedMeshResource> p_loaded)
         {
