@@ -41,9 +41,9 @@ namespace Droplet::Graphics::Vulkan
          */
         Buffer CreateStaging(const void* data, vk::DeviceSize size) const;
 
-        /// Blocking submit
+        /// Blocking submit; `name` labels the GPU zone the recording is timed in
         template <class Record>
-        void SubmitAndWait(Record&& record);
+        void SubmitAndWait(const char* name, Record&& record);
 
         const Context* m_context; ///< Not owned; outlives this.
         vk::raii::CommandPool m_pool;
