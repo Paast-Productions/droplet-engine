@@ -1,8 +1,20 @@
 
 local InteractableSystem = require("InteractableSystem")
+local HatchSound = nil
+local WantToPlayHatchSound = false
 
 function OnStart()
     InteractableSystem.RegisterInteractable(self)
+    GetSound()
+    WantToPlayHatchSound = false
+end
+
+function OnUpdate(dt)
+    if WantToPlayHatchSound then
+        GetSound()
+        HatchSound:Play()
+        WantToPlayHatchSound = false
+    end
 end
 
 function OnDestroy()
@@ -37,7 +49,17 @@ function OnTrigger(dt, node)
     ladder:BeginTransition()
     print("Going upp the ladder!! YIPPIIII!!!!")
 
+    WantToPlayHatchSound = true
+
     tracy.ZoneEnd()
+end
+
+function GetSound()
+    HatchSound = self:GetAudioPlayer("hatch-interact")
+    if HatchSound == nil then  
+        print("Unable to find hatch sound (ladder.lua)")
+        return
+    end
 end
 
 function RenderUI()
