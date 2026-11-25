@@ -7,10 +7,10 @@
 #include <unordered_map>
 #include <vector>
 
-// TEMP TEMP TEMP TEMP
 #include "Platform/SDLWindow.hpp"
 #include "Platform/SDLVulkan.hpp"
 #include "Graphics/Vulkan/Frame/Renderer.hpp"
+
 #ifdef _EDITOR
 #include "Graphics/Debug/ImGuiFrame.hpp"
 #include <ImGui/imgui.h>
@@ -106,6 +106,7 @@ namespace Droplet
 		Graphics::Vulkan::Renderer m_renderer;
 		StaticResourceHandle<ShaderResource> m_defaultVertexShader;   ///< Base.VS, kept loaded
 		StaticResourceHandle<ShaderResource> m_defaultFragmentShader; ///< Base.FS, kept loaded
+		std::unordered_map<GUID, StaticResourceHandle<ShaderResource>> m_requestedShaders; ///< shaders loaded for the renderer (e.g. editor overrides)
 
        /// @brief Registry containing the game's registered item definitions.
        Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour

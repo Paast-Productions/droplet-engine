@@ -167,8 +167,27 @@ namespace
     }
 
     /// @brief The uploads for what `required` needs and the GPU lacks
+    /**
+     * @brief Starts loading a required shader that nothing holds a handle to (e.g. an editor shader override)
+     * @param p_loaded The handles kept by the engine, so the shaders stay loaded
+     * @param p_id The shader's GUID
+     */
+    void RequestShader(std::unordered_map<GUID, StaticResourceHandle<ShaderResource>>& p_loaded, GUID p_id)
+    {
+        if (p_id == C_INVALID_GUID || p_loaded.contains(p_id))
+        {
+            return;
+        }
+        ResourceManager& resMan = ResourceManager::GetInstance();
+        if (resMan.GetState(p_id) == ResourceState::Unloaded)
+        {
+            p_loaded.emplace(p_id, resMan.LoadResource<ShaderResource>(p_id));
+        }
+    }
+
     Bridge::ResourceUploads ProvideAssets(const Bridge::RequiredResources& required,
-                                          const Bridge::ResidentResources& resident)
+                                          const Bridge::ResidentResources& resident,
+                                          std::unordered_map<GUID, StaticResourceHandle<ShaderResource>>& requestedShaders)
     {
         ResourceManager& resMan = ResourceManager::GetInstance();
         Bridge::ResourceUploads uploads;
@@ -186,7 +205,10 @@ namespace
         for (const GUID id : required.shaders)
         {
             if (!Find(resident.shaders, id) && !Find(resident.failedShaders, id))
+            {
+                RequestShader(requestedShaders, id);
                 AddShader(resMan, uploads, id);
+        }
         }
         return uploads;
     }
@@ -430,7 +452,7 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
 #else
     const BridgeRequiredAssets required = Bridge::RequiredResourcesOf(world);
 #endif
-    m_renderer.Upload(ProvideAssets(required, m_renderer.Residents()));
+    m_renderer.Upload(ProvideAssets(required, m_renderer.Residents(), m_requestedShaders));
 
     m_renderer.Render(world, overlay);
 

@@ -13,7 +13,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <Transform.hpp>
+#include <Core/Transform.hpp>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Common/RenderData.hpp>
 #include <Common/DrawLayer.hpp>
@@ -27,7 +27,6 @@
 
 namespace Droplet::Scene
 {
-
 	// TODO: (SCENE) Refactor after Material implementation
 	struct NodeData
 	{

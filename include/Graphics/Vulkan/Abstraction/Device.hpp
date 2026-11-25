@@ -13,10 +13,11 @@ namespace Droplet::Graphics::Vulkan
 {
     /**
      * @brief Bindless textures: one texture array, updated at any time (update-after-bind)
-     * @details false: a texture array per frame slot, written before the frame (any GPU with descriptor indexing,
-     *          Pascal included). true: the GPU must support update-after-bind for sampled images. Shaders are the same
+     * @details false: a texture array per frame slot, written before the frame (any GPU with descriptor indexing) 
+     *          true: the GPU must support update-after-bind for sampled images
+     *          TODO: use 
      */
-    inline constexpr bool USE_BINDLESS = false;
+    inline constexpr bool USE_BINDLESS = true;
 
     class Instance;
     class Surface;
