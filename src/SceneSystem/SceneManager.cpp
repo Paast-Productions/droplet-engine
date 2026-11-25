@@ -457,6 +457,7 @@ void SceneManager::DeserializeBehaviours()
                 behaviour->SetSceneManager(this);
                 m_behaviours.push_back(std::move(behaviour));   
                 m_behaviours.back()->Deserialize(entry);
+                m_behaviours.back()->Start();
             }
         }
     }
