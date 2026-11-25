@@ -459,7 +459,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
             m_loading.erase(vsIT);
         }
     }
-    else if (vs.IsValid())
+    else if (vs.GetGUID() != 0)
     {
         return nullptr;
     }
@@ -473,7 +473,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         tcsModule = ShaderModule{ m_context->GetDevice(), tcsRes->GetByteCode() };
         shaderVec.emplace_back(tcsModule.Get(), vk::ShaderStageFlagBits::eTessellationControl);
     }
-    else if (tcs.IsValid())
+    else if (tcs.GetGUID() != 0)
     {
         return nullptr;
     }
@@ -487,7 +487,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         tesModule = ShaderModule{ m_context->GetDevice(), tesRes->GetByteCode() };
         shaderVec.emplace_back(tesModule.Get(), vk::ShaderStageFlagBits::eTessellationEvaluation);
     }
-    else if (tes.IsValid())
+    else if (tes.GetGUID() != 0)
     {
         return nullptr;
     }
@@ -501,13 +501,13 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
         gsModule = ShaderModule{ m_context->GetDevice(), gsRes->GetByteCode() };
         shaderVec.emplace_back(gsModule.Get(), vk::ShaderStageFlagBits::eGeometry);
     }
-    else if (gs.IsValid())
+    else if (gs.GetGUID() != 0)
     {
         return nullptr;
     }
 
     // Fragment Shader
-    
+        
     ShaderModule fsModule{ nullptr };
     if (fs.IsReady())
     {
@@ -521,7 +521,7 @@ Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceF
             m_loading.erase(fsIT);
         }
     }
-    else if (fs.IsValid())
+    else if (fs.GetGUID() != 0)
     {
         return nullptr;
     }

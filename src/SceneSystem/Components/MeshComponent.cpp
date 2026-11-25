@@ -81,9 +81,15 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	
 #ifdef _EDITOR
 
+	ResourceManager &rsMan = ResourceManager::GetInstance();
+	MetaEntry entry;
+
 	if (Droplet::Editor::Graphics::ShaderOverride::GetVertexFlag() == Droplet::Editor::Graphics::VertexFlag::Basic)
 	{
-		renderData.vsData.GUID = 7809030845991192100;
+		if (rsMan.GetResourceMetaEntry("Base.VS", entry))
+		{
+			renderData.vsData.GUID = entry.guid;
+		}
 	}
 
 	switch (Droplet::Editor::Graphics::ShaderOverride::GetFragmentFlag())
@@ -91,16 +97,28 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	default:
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Basic:
-		renderData.fsData.GUID = 13680123319807966343;
+		if (rsMan.GetResourceMetaEntry("Base.FS", entry))
+		{
+			renderData.fsData.GUID = entry.guid;
+		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Color:
-		renderData.fsData.GUID = 1781302864085332600;
+		if (rsMan.GetResourceMetaEntry("Color.FS", entry))
+		{
+			renderData.fsData.GUID = entry.guid;
+		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Normal:
-		renderData.fsData.GUID = 6544072074583339891;
+		if (rsMan.GetResourceMetaEntry("Normal.FS", entry))
+		{
+			renderData.fsData.GUID = entry.guid;
+		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::UV:
-		renderData.fsData.GUID = 12244945915070321057;
+		if (rsMan.GetResourceMetaEntry("UV.FS", entry))
+		{
+			renderData.fsData.GUID = entry.guid;
+		}
 		break;
 	}
 #endif
