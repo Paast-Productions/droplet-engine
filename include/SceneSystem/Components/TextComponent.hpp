@@ -6,6 +6,8 @@
 
 #include <string_view>
 
+#include "TextLayout.hpp"
+
 namespace Droplet::Scene
 {
 	/// @brief Component that attaches a text to a Node.
@@ -27,6 +29,10 @@ namespace Droplet::Scene
 		void SetFontGUID(GUID p_guid);
 		
 		[[nodiscard]] GUID GetFontGUID() const { return m_font.GetGUID(); }
+		
+		/// @brief Gets the local-space bounds of the rendered text.
+		/// @return The text bounds, or std::nullopt if no drawable glyphs exist.
+		[[nodiscard]] std::optional<Math::AABB> GetLocalRenderBounds() const;
 		
 	protected:
 		void StartImpl() override;
@@ -50,5 +56,6 @@ namespace Droplet::Scene
 		std::string m_text = "Text";
 		
 		std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> m_glyphInstances;
+		std::optional<Math::AABB> m_localRenderBounds;
 	};
 }

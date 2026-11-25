@@ -3,16 +3,15 @@
 Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayout(const FontResource &p_font,
 	const std::string_view &p_text, float p_emSize)
 {
-	TextLayoutResult result{};
+	glm::vec2 minBounds{std::numeric_limits<float>::max()};
+	glm::vec2 maxBounds{std::numeric_limits<float>::lowest()};
 	
 	const FontResource::SlugFontHeader& fontHeader = p_font.GetFontHeader();
-	
 	float fontScale = p_emSize / static_cast<float>(fontHeader.unitsPerEm);
-	
 	const float lineHeight = static_cast<float>(fontHeader.ascent - fontHeader.descent + fontHeader.lineGap) * fontScale;
-
-	glm::vec2 pen{0.0f};
 	
+	TextLayoutResult result{};
+	glm::vec2 pen{0.0f};
 	result.instances.reserve((p_text.size()));
 	for (uint32_t codePoint : DecodeUTF8(p_text))
 	{
@@ -88,9 +87,28 @@ Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayo
 		pen.x += advance;
 		
 		if (shouldRender)
+		{
+			const glm::vec2 halfSize = glm::vec2(instance.scaleBias) * 0.5f;
+			const glm::vec2 center = glm::vec2(instance.scaleBias.z, instance.scaleBias.w);
+			
+			minBounds = glm::min(minBounds, center - halfSize);
+			maxBounds = glm::max(maxBounds, center + halfSize);
+			
 			result.instances.push_back(instance);
-		
+		}
 	}
+	
+	if (!result.instances.empty())
+	{
+		result.minBounds = minBounds;		
+		result.maxBounds = maxBounds;		
+	}
+	else
+	{
+		result.minBounds = glm::vec2(0.0f);
+		result.maxBounds = glm::vec2(0.0f);
+	}
+	
 	return result;
 }
 

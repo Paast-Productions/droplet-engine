@@ -36,6 +36,11 @@ void Droplet::Scene::TextComponent::SetFontGUID(GUID p_guid)
 	m_textIsDirty = true;
 }
 
+std::optional<Droplet::Math::AABB> Droplet::Scene::TextComponent::GetLocalRenderBounds() const
+{
+	return m_localRenderBounds;
+}
+
 void Droplet::Scene::TextComponent::StartImpl()
 {
 	SetRenderable();
@@ -75,6 +80,27 @@ void Droplet::Scene::TextComponent::EditorUpdateImpl()
 		return;
 	
 	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
+	
+	if (!layout.instances.empty())
+	{
+		constexpr float thickness = 0.001f;
+		
+		const glm::vec3 minBounds {
+			layout.minBounds,
+			-thickness
+		};
+		
+		const glm::vec3 maxBounds {
+			layout.maxBounds,
+			thickness
+		};
+		
+		m_localRenderBounds = Math::AABB::FromMinMax(
+			minBounds,
+			maxBounds
+		);
+	}
+	
 	
 	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
 	
