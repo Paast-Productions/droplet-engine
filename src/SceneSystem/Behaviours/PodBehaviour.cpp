@@ -5,6 +5,7 @@
 #include <SceneSystem/Components/PodComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <Time.hpp>
+#include <iostream>
 
 using namespace Droplet::Scene;
 
@@ -27,6 +28,8 @@ void PodBehaviour::PreUpdateImpl()
 		}
 		m_pendingUnloadScene = {};
 	}
+
+	UpdatePendingTransition();
 
 	if (m_transitionTimer > 0.0f)
 	{
@@ -154,17 +157,31 @@ void PodBehaviour::RenderUIImpl()
 
 void PodBehaviour::LoadPodScene()
 {
-	// Load the pod scene if not already loaded
+	// Load the pod scene if not already loaded. Scenes queued at startup are not tracked
+	// by m_loadingScenes, so wait for them to finish instead of requesting a duplicate.
 	if (m_podScene.expired())
 	{
 		m_podScene = GetSceneManager()->GetScene("PodScene");
 
-		if (m_podScene.expired())
+		if (m_podScene.expired() && !GetSceneManager()->HasPendingAsyncLoads())
 		{
-			GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
-			m_podScene = GetSceneManager()->GetScene("PodScene");
+			RequestSceneLoad("PodScene");
 		}
 	}
+}
+
+void PodBehaviour::RequestSceneLoad(const std::string &p_sceneName)
+{
+	if (GetSceneManager()->GetScene(p_sceneName) || !m_loadingScenes->insert(p_sceneName).second)
+	{
+		return; // Already loaded or already loading
+	}
+
+	// The callback runs on the main thread after the scene is registered, so it only touches the shared set
+	auto loadingScenes = m_loadingScenes;
+	GetSceneManager()->LoadFromFileAsync(
+		ROOT_PATH "/GameData/Scenes/" + p_sceneName + ".json",
+		[loadingScenes, p_sceneName](std::shared_ptr<Scene>) { loadingScenes->erase(p_sceneName); });
 }
 
 void PodBehaviour::AddPodComponent(std::weak_ptr<PodComponent> p_podComponent)
@@ -241,10 +258,8 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::weak_ptr<Scene> p_s
 	return std::weak_ptr<PodComponent>();
 }
 
-std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sceneName)
+std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sceneName) const
 {
-	// Try to find the scene by name, if failed, load the scene
-
 	for (const auto &podComponent : m_podComponents)
 	{
 		auto podComponentShared = podComponent.lock();
@@ -259,20 +274,12 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sce
 		}
 	}
 
-	GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/" + p_sceneName + ".json");   
-	if(p_sceneName == "BoatScene")
-	{
-		GetSceneManager()->LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
-		GetSceneManager()->GetScene("PodScene")->GetBehaviour<PlayerBehaviour>()->TransferDroneInventoryToPlayer();
-	}
-	auto scene = GetSceneManager()->GetScene(p_sceneName);
-
-	return GetPodInScene(scene);
+	return std::weak_ptr<PodComponent>();
 }
 
 void PodBehaviour::BeginTransition(const std::string &p_targetSceneName, std::weak_ptr<Scene> p_currentScene)
 {
-	if (m_transitionTimer > 0.0f)
+	if (m_transitionTimer > 0.0f || m_pendingTransition)
 	{
 		return; // Already performing a transition
 	}
@@ -284,12 +291,15 @@ void PodBehaviour::BeginTransition(const std::string &p_targetSceneName, std::we
 
 	auto &sceneManager = *GetSceneManager();
 
-	auto podInTargetScene = GetPodInScene(p_targetSceneName).lock();
-	auto targetScene = sceneManager.GetScene(p_targetSceneName);
-
-	if (!podInTargetScene)
+	// Start loading the target now. The transition timer starts once the target is ready.
+	if (p_targetSceneName == "BoatScene" && !sceneManager.GetScene(p_targetSceneName) && m_loadingScenes->count(p_targetSceneName) == 0)
 	{
-		return; // No pod in the target scene, cannot transition
+		m_transferInventoryOnBoatLoad = true;
+	}
+	RequestSceneLoad(p_targetSceneName);
+	if (p_targetSceneName == "BoatScene")
+	{
+		RequestSceneLoad("InsideBoatScene");
 	}
 
 	// If moving from the boat scene, set the pod player node's position and rotation 
@@ -355,6 +365,67 @@ void PodBehaviour::BeginTransition(const std::string &p_targetSceneName, std::we
 		sceneManager.ActivateScene(podSceneShared->GetName());
 	}
 
-	m_targetScene = targetScene;
+	m_pendingTransition = PendingTransition{ p_targetSceneName, p_currentScene };
+	UpdatePendingTransition();
+}
+
+void PodBehaviour::UpdatePendingTransition()
+{
+	if (!m_pendingTransition || m_transitionTimer > 0.0f)
+	{
+		return;
+	}
+
+	auto &sceneManager = *GetSceneManager();
+	const std::string targetName = m_pendingTransition->targetSceneName;
+
+	auto targetScene = sceneManager.GetScene(targetName);
+	if (!targetScene)
+	{
+		if (m_loadingScenes->count(targetName) == 0)
+		{
+			// The load finished without registering the scene, so it will never become ready
+			std::cerr << "Pod transition to '" << targetName << "' cancelled: scene failed to load.\n";
+			m_pendingTransition.reset();
+		}
+		return;
+	}
+
+	if (targetName == "BoatScene" && !sceneManager.GetScene("InsideBoatScene"))
+	{
+		return; // Wait for the inside scene, which is loaded alongside the boat scene
+	}
+
+	if (GetPodInScene(targetName).expired())
+	{
+		if (m_loadingScenes->count(targetName) == 0)
+		{
+			std::cerr << "Pod transition to '" << targetName << "' cancelled: no pod in scene.\n";
+			m_pendingTransition.reset();
+		}
+		return;
+	}
+
+	if (!targetScene->AreResourcesLoaded())
+	{
+		return; // Wait for the target's resources so they do not pop in after the transition
+	}
+
+	if (m_transferInventoryOnBoatLoad && targetName == "BoatScene")
+	{
+		m_transferInventoryOnBoatLoad = false;
+		if (auto podScene = m_podScene.lock())
+		{
+			podScene->GetBehaviour<PlayerBehaviour>()->TransferDroneInventoryToPlayer();
+		}
+	}
+
+	StartTransition(targetScene);
+}
+
+void PodBehaviour::StartTransition(std::shared_ptr<Scene> p_targetScene)
+{
+	m_targetScene = p_targetScene;
+	m_pendingTransition.reset();
 	m_transitionTimer = m_transitionTime; // Start the transition timer
 }
