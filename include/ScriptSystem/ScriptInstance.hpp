@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LuaStateHandler.hpp"
-#include "GameInput.hpp"
+#include "Platform/GameInput.hpp"
 
 #include <SceneSystem/Node.hpp>
 #include <string>

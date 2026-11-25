@@ -10,7 +10,7 @@
 #include <iostream>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Common/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
@@ -345,11 +345,12 @@ void SceneManager::PrepareRender()
     }
 }
 
-std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
+std::vector<Droplet::Common::CameraRenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
 
 	using namespace Droplet::Graphics;
+using namespace Droplet::Common;
 
     std::vector<CameraRenderData> renderViews{};
     

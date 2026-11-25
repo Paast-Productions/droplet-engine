@@ -155,7 +155,7 @@ namespace Droplet::Scene
 		void EditorUpdateImpl() override;
 		void QueueRenderImpl() override;
 		void RenderUIImpl() override;
-		[[nodiscard]] Droplet::Graphics::RenderData GetRenderDataImpl() override;
+		[[nodiscard]] Droplet::Common::RenderData GetRenderDataImpl() override;
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 

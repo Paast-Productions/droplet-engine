@@ -43,27 +43,27 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Graphics::Camera>(
+	p_luaState.new_usertype<Common::Camera>(
 		"Camera",
-		"Move", &Graphics::Camera::Move,
-		"Rotate", &Graphics::Camera::Rotate,
-		"GetPosition", &Graphics::Camera::GetPosition,
-		"GetForward", &Graphics::Camera::GetForward,
-		"GetRight", &Graphics::Camera::GetRight,
-		"GetUp", &Graphics::Camera::GetUp,
-		"GetViewMatrix", &Graphics::Camera::GetViewMatrix,
-		"GetProjectionMatrix", &Graphics::Camera::GetProjectionMatrix,
-		"GetFOV", &Graphics::Camera::GetFOV,
-		"GetAspect", &Graphics::Camera::GetAspect,
-		"GetPlanes", &Graphics::Camera::GetPlanes,
-		"SetPosition", &Graphics::Camera::SetPosition,
-		"SetFOV", &Graphics::Camera::SetFOV
+		"Move", &Common::Camera::Move,
+		"Rotate", &Common::Camera::Rotate,
+		"GetPosition", &Common::Camera::GetPosition,
+		"GetForward", &Common::Camera::GetForward,
+		"GetRight", &Common::Camera::GetRight,
+		"GetUp", &Common::Camera::GetUp,
+		"GetViewMatrix", &Common::Camera::GetViewMatrix,
+		"GetProjectionMatrix", &Common::Camera::GetProjectionMatrix,
+		"GetFOV", &Common::Camera::GetFOV,
+		"GetAspect", &Common::Camera::GetAspect,
+		"GetPlanes", &Common::Camera::GetPlanes,
+		"SetPosition", &Common::Camera::SetPosition,
+		"SetFOV", &Common::Camera::SetFOV
 	);
 
 	p_luaState.new_usertype<Scene::CameraComponent>(
 		"CameraComponent",
 		"GetCamera",
-        [](Scene::CameraComponent &p_component) -> Graphics::Camera &
+        [](Scene::CameraComponent &p_component) -> Common::Camera &
         {
             return p_component.GetCamera();
         },
