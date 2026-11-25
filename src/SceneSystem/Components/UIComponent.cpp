@@ -51,15 +51,17 @@ namespace Droplet::Scene
 
     nlohmann::json UIComponent::SerializeImpl()
     {
-        return {};
+        nlohmann::json json;
+        json["hover"]   = m_hover;
+        json["pressed"] = m_pressed;
+        json["held"]    = m_held;
+        return json;
+    }
+
+    void UIComponent::DeserializeImpl(nlohmann::json p_compJson)
+    {
+        if (p_compJson.contains("hover")) m_hover = p_compJson["hover"];
+        if (p_compJson.contains("pressed")) m_pressed = p_compJson["pressed"];
+        if (p_compJson.contains("held")) m_held = p_compJson["held"];
     }
 }
-//ui
-//
-//rendera en bild av sepbastain
-//
-//om det är hover knapp
-//
-//om det är knapp eller inte
-//
-//konponent
