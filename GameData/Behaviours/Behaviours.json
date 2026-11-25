@@ -14,7 +14,7 @@
         {
             "data": {
                 "busName": "Music",
-                "targetVolumeDb": 0.0,
+                "name": "Music",
                 "tracks": [
                     {
                         "looping": false,
