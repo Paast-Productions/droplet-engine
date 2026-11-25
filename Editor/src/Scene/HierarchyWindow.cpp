@@ -492,8 +492,8 @@ void HierarchyWindow::DrawSceneWindow()
         const std::string sceneName = activeScene->GetName();
         std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
         fileName[sizeof(fileName) - 1] = '\0';
+        previousScene = activeScene;
     }
-    previousScene = activeScene;
     hasPreviousScene = true;
 
     ImGui::InputText("Scene name", fileName, sizeof(fileName));
