@@ -72,6 +72,59 @@ void SceneManager::UnloadScene(const std::string &p_name)
     m_scenes.erase(it);
 }
 
+void SceneManager::UnloadSceneAsync(const std::string &p_name, std::function<void()> p_onUnloaded)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    auto it = m_scenes.find(p_name);
+
+    if (it == m_scenes.end())
+    {
+        throw std::runtime_error("Cannot unload Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    std::shared_ptr<Scene> scene = it->second;
+
+    if (scene->IsActive())
+    {
+        DeactivateScene(p_name);
+    }
+
+    scene->Unload();
+    m_scenes.erase(it);
+
+    ++m_pendingAsyncSceneUnloads;
+
+    // Dropping the last reference here destroys the Scene on a worker thread
+    ThreadPool::GetInstance().PushTask([this, scene = std::move(scene), onUnloaded = std::move(p_onUnloaded)]() mutable
+    {
+        scene.reset();
+        m_asyncSceneUnloadResults.Push(AsyncSceneUnloadResult{ std::move(onUnloaded) });
+    });
+}
+
+bool SceneManager::HasPendingAsyncUnloads() const
+{
+    return m_pendingAsyncSceneUnloads.load() > 0;
+}
+
+void SceneManager::FinalizeAsyncSceneUnloads()
+{
+    ZoneScoped;
+
+    AsyncSceneUnloadResult result;
+    while (m_asyncSceneUnloadResults.Pop(result))
+    {
+        --m_pendingAsyncSceneUnloads;
+
+        if (result.onUnloaded)
+        {
+            result.onUnloaded();
+        }
+    }
+}
+
 void SceneManager::ActivateScene(const std::string &p_name)
 {
     ZoneScoped;
@@ -165,6 +218,7 @@ void SceneManager::Update()
     ZoneScoped;
 
     FinalizeAsyncSceneLoads();
+    FinalizeAsyncSceneUnloads();
 
     Droplet::Time &time = Droplet::Time::Get();
 

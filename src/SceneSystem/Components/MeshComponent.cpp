@@ -22,7 +22,7 @@ using namespace Droplet::Scene;
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
-	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::EditorFlags))
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor) && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 	{
 		// Set default resources
 
