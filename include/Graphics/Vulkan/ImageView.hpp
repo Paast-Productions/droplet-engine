@@ -36,10 +36,12 @@ namespace Droplet::Graphics::Vulkan
         /// @param p_image Vulkan Image
         /// @param p_format Vulkan Image Format
         /// @param p_aspectFlagBits Image Aspect Flags
+        /// @param p_mipLevels Number of mip levels visible through the view
         ImageView(const vk::raii::Device &p_device, 
             vk::Image p_image, 
             vk::Format p_format,
-            vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits);
+            vk::Flags<vk::ImageAspectFlagBits> p_aspectFlagBits,
+            std::uint32_t p_mipLevels = 1);
         
         // TODO: </REFACTOR>
         

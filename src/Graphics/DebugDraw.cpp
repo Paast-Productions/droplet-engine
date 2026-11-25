@@ -5,6 +5,7 @@
 #include <Graphics/Vulkan/CommandPool.hpp>
 #include <Graphics/Vulkan/Image.hpp>
 #include <Graphics/Vulkan/ImageView.hpp>
+#include <Graphics/Vulkan/TextureFormatUtils.hpp>
 #include <Graphics/Vulkan/Sampler.hpp>
 #include <resource/ResourceManager.hpp>
 #include <Math/Bezier.hpp>
@@ -15,6 +16,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 #undef _USE_MATH_DEFINES
 
 using namespace Droplet::Math;
@@ -701,16 +703,19 @@ void DebugDraw::PrepareRender(std::uint32_t p_frameIndex)
 				texture->GetPixelData().size(),
 				texture->GetWidth(),
 				texture->GetHeight(),
-				vk::Format::eR8G8B8A8Unorm,
+				Vulkan::TextureFormatUtils::ToVkFormat(texture->GetFormat()),
 				vk::ImageTiling::eOptimal,
 				vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-				vk::MemoryPropertyFlagBits::eDeviceLocal
+				vk::MemoryPropertyFlagBits::eDeviceLocal,
+				static_cast<std::uint32_t>(texture->GetMipLevels()),
+				texture->GetGenerateMipmaps()
 			);
 			cached.imageView = std::make_unique<Vulkan::ImageView>(
 				*m_device,
 				cached.image->Get(),
-				vk::Format::eR8G8B8A8Unorm,
-				vk::ImageAspectFlagBits::eColor
+				cached.image->GetFormat(),
+				vk::ImageAspectFlagBits::eColor,
+				cached.image->GetMipLevels()
 			);
 
 			const vk::DescriptorSetAllocateInfo allocateInfo {

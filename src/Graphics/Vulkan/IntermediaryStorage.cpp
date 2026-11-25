@@ -6,6 +6,7 @@
 
 #include <Graphics/Vulkan/ShaderModule.hpp> 
 #include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Graphics/Vulkan/TextureFormatUtils.hpp>
 #include <Graphics/Vulkan/ImGuiTexture.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
@@ -24,6 +25,12 @@ void IntermediaryStorage::Initialise(const Context &p_context, const CommandPool
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eUniformBuffer);
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eStorageBuffer);
     m_descriptorSets.emplace_back(m_context->GetDevice(), m_descriptorPool.Get(), vk::DescriptorType::eCombinedImageSampler);
+
+    ResourceManager::GetInstance().RegisterReloadCallback(
+        [this](GUID p_guid)
+        {
+            InvalidatePipelinesUsingShader(p_guid);
+        });
 }
 
 void IntermediaryStorage::Shutdown()
@@ -123,8 +130,34 @@ void IntermediaryStorage::DestroyUnusedResources()
         
         m_destroyQueue.pop();
     }
+
+    while (!m_pipelineDestroyQueue.empty())
+    {
+        m_pipelineDestroyQueue.pop();
+    }
     
     TracyPlot("Vulkan Objects", static_cast<std::int64_t>(m_liveObjects.size()));
+}
+
+void IntermediaryStorage::InvalidatePipelinesUsingShader(GUID p_shaderGuid)
+{
+    for (auto it = m_pipelineMap.begin(); it != m_pipelineMap.end();)
+    {
+        const PipelineKey &key = it->first;
+        if (key.vsGuid == p_shaderGuid ||
+            key.tcsGuid == p_shaderGuid ||
+            key.tesGuid == p_shaderGuid ||
+            key.gsGuid == p_shaderGuid ||
+            key.fsGuid == p_shaderGuid)
+        {
+            m_pipelineDestroyQueue.push(std::move(it->second));
+            it = m_pipelineMap.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(std::uint32_t p_width, std::uint32_t p_height)
@@ -284,6 +317,27 @@ Droplet::Graphics::RenderTarget IntermediaryStorage::CreateRenderTarget(GUID p_c
 Pipeline *IntermediaryStorage::GetPipeline(RenderData p_renderData, vk::SurfaceFormatKHR p_surfaceFormat)
 {
     ZoneScoped;
+
+    ResourceManager &resourceManager = ResourceManager::GetInstance();
+    const GUID shaderGuids[] =
+    {
+        p_renderData.vsData.GUID,
+        p_renderData.tcsData.GUID,
+        p_renderData.tesData.GUID,
+        p_renderData.gsData.GUID,
+        p_renderData.fsData.GUID
+    };
+    for (GUID shaderGuid : shaderGuids)
+    {
+        if (shaderGuid != 0 &&
+            (resourceManager.GetState(shaderGuid) == ResourceState::LoadingAsync ||
+             resourceManager.GetState(shaderGuid) == ResourceState::Queued ||
+             resourceManager.GetState(shaderGuid) == ResourceState::Uploading))
+        {
+            return nullptr;
+        }
+    }
+
     // TRY FINDING ALREADY CREATED PIPELINE
     
     PipelineKey key {
@@ -559,10 +613,12 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
         texRes.Get()->GetPixelData().size(),
         texRes.Get()->GetWidth(),
         texRes.Get()->GetHeight(),
-        vk::Format::eR8G8B8A8Unorm,
+        TextureFormatUtils::ToVkFormat(texRes.Get()->GetFormat()),
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-        vk::MemoryPropertyFlagBits::eDeviceLocal
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        static_cast<std::uint32_t>(texRes.Get()->GetMipLevels()),
+        texRes.Get()->GetGenerateMipmaps()
     );
     
     std::uint32_t destIndex = static_cast<std::uint32_t>(m_viewMap.size());
@@ -570,8 +626,9 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     m_viewMap.emplace_back(
         m_context->GetDevice(),
         m_imageMap.back().Get(),
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageAspectFlagBits::eColor
+        m_imageMap.back().GetFormat(),
+        vk::ImageAspectFlagBits::eColor,
+        m_imageMap.back().GetMipLevels()
     );
 
     const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
@@ -654,10 +711,12 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             texRes.Get()->GetPixelData().size(),
             texRes.Get()->GetWidth(),
             texRes.Get()->GetHeight(),
-            vk::Format::eR8G8B8A8Unorm,
+            TextureFormatUtils::ToVkFormat(texRes.Get()->GetFormat()),
             vk::ImageTiling::eOptimal,
             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-            vk::MemoryPropertyFlagBits::eDeviceLocal)
+            vk::MemoryPropertyFlagBits::eDeviceLocal,
+            static_cast<std::uint32_t>(texRes.Get()->GetMipLevels()),
+            texRes.Get()->GetGenerateMipmaps())
     };
     
     GUID imageGuid { GuidUtils::Generate() };
@@ -671,8 +730,9 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
         .resource = std::make_unique<ImageView>(
             m_context->GetDevice(),
             imGuiImageHandle->Get(),
-            vk::Format::eR8G8B8A8Unorm,
-            vk::ImageAspectFlagBits::eColor)
+            imGuiImageHandle->GetFormat(),
+            vk::ImageAspectFlagBits::eColor,
+            imGuiImageHandle->GetMipLevels())
     };
     
     GUID imageViewGuid { GuidUtils::Generate() };

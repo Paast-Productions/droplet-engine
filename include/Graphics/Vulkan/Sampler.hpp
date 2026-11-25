@@ -8,6 +8,9 @@ namespace Droplet::Graphics::Vulkan
 	class Sampler
 	{
 	public:
+		/// @brief Default maximum anisotropy used for sampling. Clamped to the device limit.
+		static constexpr float C_DEFAULT_MAX_ANISOTROPY = 8.0f;
+
 		Sampler()
 		{
 			m_sampler = nullptr;

@@ -86,7 +86,7 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -98,7 +98,7 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -123,7 +123,7 @@ void Scene::LateUpdate()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -159,7 +159,7 @@ void Scene::FixedUpdate()
 
     for (const auto &root : m_roots)
     {
-        if (root == nullptr)
+        if (root == nullptr || !this->IsActive())
         {
             continue;
         }
@@ -402,6 +402,11 @@ void Scene::RebuildOctree()
     {
         RegisterNodeRecursive(root);
     }
+}
+
+Octree &Scene::GetOctree()
+{
+    return m_octree;
 }
 
 void Scene::RenderOctree(const bool p_renderOctants, const bool p_renderNodes)
