@@ -147,9 +147,10 @@ namespace Droplet::Graphics::Vulkan
 
 	Common::ShaderDesc DrawPass::VertexColorShaderAsset()
 	{
+    	static constexpr auto SOURCE_PATH = ROOT_PATH "/Assets/Shaders/vertex_color.slang";
 		return Common::ShaderDesc{
 			.moduleName = "vertex_color",
-			.sourcePath = "Shaders/vertex_color.slang",
+			.sourcePath = SOURCE_PATH,
 			.vertexEntry = "vMain",
 			.fragmentEntry = "fMain"
 		};

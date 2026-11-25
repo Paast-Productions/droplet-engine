@@ -1,8 +1,7 @@
 #pragma once
-
 #include "InteractionState.hpp"
 #include "SceneSystem/Scene.hpp"
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Common/Camera.hpp>
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
 #include <Engine/Engine.hpp>
@@ -23,7 +22,7 @@ namespace Droplet::Editor
 	};
 
 	/// @brief A class that holds the information of active Scene, Renderer, EditorCamera and controller 
-	class EditorContext
+	class EditorContext 
 	{
 	public:
 		/// @brief Constructor that holds a reference to the rendering pipeline

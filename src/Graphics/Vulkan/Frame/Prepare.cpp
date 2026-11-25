@@ -380,6 +380,12 @@ Render::PreparedFrame Vulkan::Prepare(
                 continue;
             }
 
+            // no mesh on purpose (e.g. a particle emitter): nothing to draw. A mesh that is missing shows the placeholder
+            if (source.meshData.GUID == Droplet::C_INVALID_GUID)
+            {
+                continue;
+            }
+
             const ResolvedObject object{
                 .mesh = gpu.ResolveMesh(source.meshData.GUID),
                 .baseColor = materialOf(source.texData),

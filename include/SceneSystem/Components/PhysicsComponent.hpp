@@ -64,12 +64,12 @@ namespace Droplet::Scene
 				Shape = new JPH::CapsuleShapeSettings(p_halfHeightOfCylinder, p_radius);
 				ShapeType = ShapeType::Capsule;
 			}
-			void SetMeshShape(const GUID p_meshGuid)
+			void SetMeshShape(const Droplet::GUID p_meshGuid)
 			{
 				Shape = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
 				ShapeType = ShapeType::Mesh;
 			}
-			void SetConvexHullShape(const GUID p_meshGuid, float p_edgeRadius = 0.0f)
+			void SetConvexHullShape(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f)
 			{
 				Shape = new JPH::ConvexHullShapeSettings(CreateConvexHullShapeSettings(p_meshGuid, p_edgeRadius));
 				ShapeType = ShapeType::ConvexHull;
@@ -120,13 +120,13 @@ namespace Droplet::Scene
 		/// @brief Set a mesh collider
 		/// @param p_meshGuid The GUID of the mesh
 		/// @param p_offset The offset position from the nodes position
-		void SetMeshCollider(const GUID p_meshGuid, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
+		void SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		
 		/// @brief Set a convex hull collider
 		/// @param p_meshGuid The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
 		/// @param p_offset The offset position from the nodes position
-		void SetConvexHullCollider(const GUID p_meshGuid, float p_edgeRadius = 0.0f,
+		void SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f,
 			const JPH::Vec3 &p_offset = JPH::Vec3(0.0f, 0.0f, 0.0f));
 		
 		/// @brief Set a compound shape collider, merges multiple shapes into one shape
@@ -251,7 +251,7 @@ namespace Droplet::Scene
 		/// @brief Helper function creating convex hull shape settings
 		/// @param p_meshGuid The mesh resource to make a collider of
 		/// @param p_edgeRadius The radius of the edges of the collider, zero and negative values defaults to Jolts value
-		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const GUID p_meshGuid, float p_edgeRadius = 0.0f);
+		static JPH::ConvexHullShapeSettings CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius = 0.0f);
 		
 		bool m_skipSyncFrame = false;
 
@@ -272,7 +272,7 @@ namespace Droplet::Scene
 		glm::vec3 m_currentPos = glm::vec3(0.0f, 0.0f, 0.0f);
 		glm::vec3 m_previousPos = glm::vec3(0.0f, 0.0f, 0.0f);
 		
-		GUID m_meshGuid = C_INVALID_GUID;
+		Droplet::GUID m_meshGuid = C_INVALID_GUID;
 
 		// Member variables solely for (de)serialization
 		struct SerializeData
@@ -286,6 +286,6 @@ namespace Droplet::Scene
 			float restitution = temp.mRestitution;
 		} m_serializeData;
 		bool m_isDeserialized = false;
-		std::unique_ptr<std::function<void(GUID, JPH::Vec3, float)>> m_function;
+		std::function<void(Droplet::GUID, JPH::Vec3, float)> m_function;
 	};
 }

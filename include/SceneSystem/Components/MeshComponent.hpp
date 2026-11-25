@@ -80,7 +80,7 @@ namespace Droplet::Scene
         void UpdateImpl() override;
 		void QueueRenderImpl() override;
         void RenderUIImpl() override;
-        [[nodiscard]] Common::RenderData GetRenderDataImpl() override;
+        [[nodiscard]] Droplet::Common::RenderData GetRenderDataImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
@@ -89,12 +89,12 @@ namespace Droplet::Scene
         // Settings
 		bool m_transparent = false;
 
+        // Resource handles
+        StaticResourceHandle<MeshResource> m_mesh {};
         // A texture that is not a resource
         GUID m_textureTarget = C_INVALID_GUID; ///< a camera's target id, when m_textureIsTarget
         bool m_textureIsTarget = false;
 
-        // Resource handles
-        StaticResourceHandle<MeshResource> m_mesh {};
         StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: (RENDERING) Until Material class is implemented
 
         // TODO: (RENDERING) REWRITE AS MATERIAL

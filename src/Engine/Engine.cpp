@@ -133,12 +133,13 @@ namespace
     /// @brief Adds the default scene shader; production's own shaders need bindless
     void AddShader(Bridge::ResourceUploads& uploads, GUID id)
     {
+        static constexpr auto SOURCE_PATH = ROOT_PATH "/Assets/Shaders/droplet_base.slang";
         if (id != Graphics::Render::DEFAULT_SCENE_SHADER)
             return;
         uploads.shaders.push_back({
             .id = id,
             .revision = 1,
-            .shader = ::Common::ShaderDesc{.moduleName = "droplet_base", .sourcePath = "Shaders/droplet_base.slang"}
+            .shader = ::Common::ShaderDesc{.moduleName = "droplet_base", .sourcePath = SOURCE_PATH}
         });
     }
 
@@ -205,7 +206,7 @@ Engine::Engine(EngineConfig p_config)
     resManInstance.Initialize(assetDir);
 
     // Register scanners
-    // TODO: (RESOURCES) Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
+    // TODO: Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
@@ -352,12 +353,12 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
     // the scene's cameras and the editor's. // TODO: check post-process
     Render::RenderWorld world{
         .cameras = m_sceneManager.GetRenderData(),
-        .time = Time::Get().GetDeltaTime()
+        .time = Time::Get().GetRuntime() // seconds since start, for shaders
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
 
     // DebugDraw's meshes, in the cameras that show debug drawing
-    const std::vector<std::shared_ptr<const Common::DynamicMeshData>> debugMeshes = Debug::DebugDraw::GetFrameMeshes();
+    const std::vector<std::shared_ptr<const Common::DynamicMeshData>> debugMeshes = Graphics::Debug::DebugDraw::GetFrameMeshes();
     for (Common::CameraRenderData& camera : world.cameras)
     {
         if (!camera.debug)

@@ -78,7 +78,7 @@ void PhysicsComponent::SetCapsuleCollider(const float p_halfHeightOfCylinder, co
 	m_serializeData.r = p_radius;
 }
 
-void PhysicsComponent::SetMeshCollider(const GUID p_meshGuid, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH::Vec3 &p_offset)
 {
 	if (!m_bodyID.IsInvalid())
 	{
@@ -93,7 +93,7 @@ void PhysicsComponent::SetMeshCollider(const GUID p_meshGuid, const JPH::Vec3 &p
 	m_meshGuid = p_meshGuid;
 }
 
-void PhysicsComponent::SetConvexHullCollider(const GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
+void PhysicsComponent::SetConvexHullCollider(const Droplet::GUID p_meshGuid, float p_edgeRadius, const JPH::Vec3 &p_offset)
 {
 	if (!m_bodyID.IsInvalid())
 	{
@@ -677,7 +677,7 @@ void PhysicsComponent::RenderUIImpl()
 	static float offsetX = 0.0f;
 	static float offsetY = 0.0f;
 	static float offsetZ = 0.0f;
-	GUID guid = 0;
+	Droplet::GUID guid = 0;
 	std::shared_ptr<Node> node = GetOwner();
 	std::vector<std::shared_ptr<MeshComponent>> meshComponents = node->GetComponents<MeshComponent>();
 	static std::vector<CompoundShape> compoundShapes{};
@@ -819,9 +819,9 @@ void PhysicsComponent::RenderUIImpl()
 			ImGui::InputFloat("z##2", &shapeRotZ, 0.01f, 1.0f, "%.3f");
 			
 			static std::string displayName = "";
-			static GUID currentGUID = Droplet::C_INVALID_GUID;
+			static Droplet::GUID currentGUID = Droplet::C_INVALID_GUID;
 			static std::string newName = "";
-			static GUID newGUID{};
+			static Droplet::GUID newGUID{};
 			static int selectedColliderIdx1 = 0; // Here we store our selection data as an index.
 			
 			ImGui::NewLine();
@@ -1130,7 +1130,7 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 	
 	if (p_compJson.contains("meshGUID"))
 	{
-		m_meshGuid = p_compJson["meshGUID"].get<GUID>();
+		m_meshGuid = p_compJson["meshGUID"].get<Droplet::GUID>();
 	}
 	if (p_compJson.contains("offsetX"))
 	{
@@ -1195,16 +1195,16 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 			SetCapsuleCollider(m_serializeData.h, m_serializeData.r, m_offset);
 			break;
 		case ShapeType::Mesh:
-			m_function = std::make_unique<std::function<void(GUID, JPH::Vec3, float)>>(
-				[&](GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
 					std::cout << "Callback this: " << this << '\n';
 				    SetMeshCollider(p_meshGuid, p_offset);
 				});
 			break;
 		case ShapeType::ConvexHull:
-			m_function = std::make_unique<std::function<void(GUID, JPH::Vec3, float)>>(
-				[&](GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
+			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
+				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
 					SetConvexHullCollider(p_meshGuid, p_r, p_offset);
 				});
@@ -1439,7 +1439,7 @@ void PhysicsComponent::DebugDrawShape()
 	}
 }
 
-JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const GUID p_meshGuid, float p_edgeRadius)
+JPH::ConvexHullShapeSettings PhysicsComponent::CreateConvexHullShapeSettings(const Droplet::GUID p_meshGuid, float p_edgeRadius)
 {
 	StaticResourceHandle<MeshResource> meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(p_meshGuid);
 	MeshResource *mesh = meshHandle.Get();

@@ -289,8 +289,9 @@ std::vector<Droplet::Common::CameraRenderData> SceneManager::GetRenderData()
     ZoneScoped;
 
 	using namespace Droplet::Graphics;
+using namespace Droplet::Common;
 
-    std::vector<Common::CameraRenderData> renderViews{};
+    std::vector<CameraRenderData> renderViews{};
     
     for (auto it = m_activeScenes.begin(); it != m_activeScenes.end(); )
     {
@@ -324,7 +325,7 @@ std::vector<Droplet::Common::CameraRenderData> SceneManager::GetRenderData()
     }
 
 	// Sort the render views by priority (highest priority first)
-	std::sort(renderViews.begin(), renderViews.end(), [](const Common::CameraRenderData &a, const Common::CameraRenderData &b) {
+	std::sort(renderViews.begin(), renderViews.end(), [](const CameraRenderData &a, const CameraRenderData &b) {
 		return a.priority > b.priority;
 	});
 

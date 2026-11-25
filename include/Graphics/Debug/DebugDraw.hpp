@@ -1,5 +1,4 @@
 #pragma once
-
 #include <vector>
 #include <map>
 #include <glm/glm.hpp>
@@ -8,30 +7,13 @@
 #include <Math/Bounds/OBB.hpp>
 #include <Math/Bounds/Sphere.hpp>
 #include <Math/Bounds/Frustum.hpp>
-#include <resource/GuidUtils.hpp>
-#include "Common/RenderData.hpp"
-#include "Common/Camera.hpp"
-
-#include <vulkan/vulkan_raii.hpp>
-#include <vk_mem_alloc_raii.hpp>
+#include <Resource/GuidUtils.hpp>
+#include <Common/RenderData.hpp>
 
 #include <array>
 #include <cstdint>
-#include <cstddef> // for size_t
+#include <unordered_map>
 #include <memory>
-
-namespace Droplet::Graphics
-{
-	// Forward declarations
-	class Renderer;
-}
-
-namespace Droplet::Graphics::Vulkan
-{
-	class Context;
-	class CommandPool;
-	class Sampler;
-}
 
 namespace Droplet::Graphics::Debug
 {
@@ -39,7 +21,7 @@ namespace Droplet::Graphics::Debug
 	/// 
 	/// Handles the drawing of lines, tris, quads, curves, bounding volumes and icons.
 	/// 
-	/// @note Initialized and managed by the Renderer class.
+	/// @note The renderer collects each frame's geometry with GetFrameMeshes().
 	class DebugDraw
 	{
 	public:
@@ -241,17 +223,15 @@ namespace Droplet::Graphics::Debug
 			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
 			bool p_depth = true
 		);
-		
+
+
 		/**
 		 * @brief This frame's batched debug geometry as dynamic meshes, then clears the draw commands
 		 * @returns The non-empty batches: lines and triangles, each with and without depth test
 		 */
 		[[nodiscard]] static std::vector<std::shared_ptr<const Common::DynamicMeshData>> GetFrameMeshes();
 
-
 	protected:
-		// Renderer is a friend class to ensure that only the Renderer can access the internal rendering methods of DebugDraw.
-		friend class Renderer;
 
 		/// @brief Get the singleton instance of DebugDraw
 		/// @return Reference to the singleton instance of DebugDraw
@@ -261,59 +241,11 @@ namespace Droplet::Graphics::Debug
 			return instance;
 		}
 
-		/// @brief Initialize the debug draw system with the given Vulkan data and formats.
-		/// @param p_instance The Vulkan instance.
-		/// @param p_physicalDevice The Vulkan physical device.
-		/// @param p_device The Vulkan logical device.
-		/// @param p_allocator The Vulkan memory allocator.
-		/// @param p_queue The Vulkan queue for command submission.
-		/// @param p_commandPool The Vulkan command pool for allocating command buffers.
-		/// @param p_descriptorPool The Vulkan descriptor pool for allocating descriptor sets.
-		/// @param p_colorFormat The format of the color attachment.
-		/// @param p_depthFormat The format of the depth attachment.
-		/// @param p_framesInFlight The number of frames in flight.
-		void Initialize(
-			const vk::raii::Instance &p_instance,
-			const vk::raii::PhysicalDevice &p_physicalDevice,
-			const vk::raii::Device &p_device,
-			const vma::raii::Allocator &p_allocator,
-			const Vulkan::Context &p_context,
-			const vk::raii::Queue &p_queue,
-			const Vulkan::CommandPool &p_commandPool,
-			const vk::raii::DescriptorPool &p_descriptorPool,
-			vk::Format p_colorFormat,
-			vk::Format p_depthFormat,
-			std::uint32_t p_framesInFlight,
-			vk::LineRasterizationMode p_lineRasterizationMode
-		);
-
-		/// @brief Shutdown the debug draw system and release graphics resources
-		void Shutdown();
-
-		/// @brief Generate camera-indepentent draw data
-		/// @param p_frameIndex The index of the current frame in flight
-		void PrepareRender(std::uint32_t p_frameIndex);
-
-		/// @brief Generate camera-dependent draw data and render to the camera output
-		/// @param p_camera The camera to render to.
-		/// @param p_commandBuffer The command buffer to record draw commands into.
-		/// @param p_extent The extent of the render target.
-		/// @param p_frameIndex The index of the current frame in flight.
-		void RenderToCamera(
-			const Common::Camera &p_camera, 
-			const vk::raii::CommandBuffer &p_commandBuffer, 
-			vk::Extent2D p_extent, 
-			std::uint32_t p_frameIndex);
+		/// @brief Builds this frame's line and triangle meshes from the draw commands
+		void PrepareRender();
 
 		/// @brief Clear all draw commands for the next frame
 		void ClearDrawCommands();
-
-		/// @brief This frame's batched lines (PrepareRender builds them), as P3C4 bytes
-		[[nodiscard]] std::span<const std::byte> WireMesh(bool p_depthTest) const { return std::as_bytes(std::span(p_depthTest ? m_wireDepthMesh : m_wireMesh)); }
-		
-		/// @brief This frame's batched triangles (PrepareRender builds them), as P3C4 bytes
-		[[nodiscard]] std::span<const std::byte> FillMesh(bool p_depthTest) const { return std::as_bytes(std::span(p_depthTest ? m_fillDepthMesh : m_fillMesh)); }
-
 
 
 	private:
@@ -393,34 +325,6 @@ namespace Droplet::Graphics::Debug
 			glm::vec2 texCoord;
 		};
 
-		struct IconTexture
-		{
-			StaticResourceHandle<Texture2DResource> resourceHandle{};
-			std::unique_ptr<Vulkan::Image> image{};
-			std::unique_ptr<Vulkan::ImageView> imageView{};
-			vk::raii::DescriptorSet descriptorSet { nullptr };
-			std::uint32_t unusedFrames = 0;
-		};
-
-		struct FrameResources
-		{
-			vma::raii::Buffer wireBuffer { nullptr };
-			vma::raii::Buffer fillBuffer { nullptr };
-			vma::raii::Buffer iconBuffer { nullptr };
-			vma::raii::Buffer indexBuffer { nullptr };
-			vma::raii::Buffer cameraBuffer { nullptr };
-			vk::raii::DescriptorSet descriptorSet { nullptr };
-			vk::DeviceSize wireCapacity = 0;
-			vk::DeviceSize fillCapacity = 0;
-			vk::DeviceSize iconCapacity = 0;
-			vk::DeviceSize indexCapacity = 0;
-			std::uint32_t wireDepthFirst = 0;
-			std::uint32_t fillDepthFirst = 0;
-			std::uint32_t iconDepthFirst = 0;
-			std::uint32_t wireDepthCount = 0;
-			std::uint32_t fillDepthCount = 0;
-		};
-
 		/// @brief Append the given lines to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_lines The lines to convert to vertices and append
@@ -450,45 +354,9 @@ namespace Droplet::Graphics::Debug
 		std::vector<Vertex> m_fillDepthMesh{};
 		std::map<GUID, std::vector<IconVertex>> m_iconMeshes{};
 		std::map<GUID, std::vector<IconVertex>> m_iconDepthMeshes{};
-		std::unordered_map<GUID, IconTexture> m_iconTextureCache{};
-		static constexpr std::uint32_t C_ICON_TEXTURE_CACHE_FRAMES = 120;
 
 		// Cached unit geometry by detail level.
 		std::map<int, std::vector<DbgTri>> m_icosphereCache{};
 		std::map<int, std::vector<glm::vec3>> m_circleCache{};
-
-		// Vulkan resources and state.
-		const vk::raii::Instance *m_instance = nullptr;
-		const vk::raii::PhysicalDevice *m_physicalDevice = nullptr;
-		const vk::raii::Device *m_device = nullptr;
-		const vma::raii::Allocator *m_allocator = nullptr;
-		const Vulkan::Context *m_context = nullptr;
-		const vk::raii::Queue *m_queue = nullptr;
-		const Vulkan::CommandPool *m_commandPool = nullptr;
-		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
-		vk::Format m_colorFormat {};
-		vk::Format m_depthFormat {}; 
-		std::vector<FrameResources> m_frameResources {};
-		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
-		vk::raii::DescriptorSetLayout m_iconDescriptorSetLayout { nullptr };
-		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
-		vk::raii::PipelineLayout m_iconPipelineLayout { nullptr };
-		Vulkan::Sampler m_iconSampler { nullptr };
-		std::array<vk::raii::ShaderModule, 4> m_shaderModules
-		{
-			vk::raii::ShaderModule { nullptr },
-			vk::raii::ShaderModule { nullptr },
-			vk::raii::ShaderModule { nullptr },
-			vk::raii::ShaderModule { nullptr }
-		};
-		std::array<vk::raii::Pipeline, 6> m_pipelines
-		{
-			vk::raii::Pipeline { nullptr },
-			vk::raii::Pipeline { nullptr },
-			vk::raii::Pipeline { nullptr },
-			vk::raii::Pipeline { nullptr },
-			vk::raii::Pipeline { nullptr },
-			vk::raii::Pipeline { nullptr }
-		};
 	};
 }

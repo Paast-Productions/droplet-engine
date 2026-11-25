@@ -6,7 +6,7 @@
 #include <resource/ResourceManager.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <Editor/ImGuiCurve.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <Math/Bounds/Sphere.hpp>
 #include <Math/Bounds/AABB.hpp>
 #include <Math/Bounds/OBB.hpp>
@@ -18,6 +18,7 @@ using namespace Droplet;
 using namespace Droplet::Math;
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics;
+using namespace Droplet::Common;
 
 ParticleEmitterComponent::ParticleEmitterComponent()
 {

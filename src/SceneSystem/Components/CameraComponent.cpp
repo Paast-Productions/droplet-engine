@@ -214,6 +214,7 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["autoRender"] = m_autoRender;
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
 	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
+	compJson["debugDraw"] = m_debugDraw;
 	compJson["targetId"] = m_target.id; // if a mesh uses the output as a texture
 
 	return compJson;
@@ -279,6 +280,11 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 			m_clearColor.b = color[2].get<float>();
 			m_clearColor.a = color[3].get<float>();
 		}
+	}
+
+	if (p_compJson.contains("debugDraw"))
+	{
+		m_debugDraw = p_compJson["debugDraw"].get<bool>();
 	}
 
 	if (p_compJson.contains("targetId"))

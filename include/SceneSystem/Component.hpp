@@ -3,7 +3,7 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Common/RenderData.hpp>
 
 namespace Droplet::Scene
@@ -14,7 +14,7 @@ namespace Droplet::Scene
     class Transform;
     class SerializationContext;
 
-    /// @brief Base class for componens that can be attached to a Node.
+    /// @brief Base class for components that can be attached to a Node.
     ///
     /// Components provide reusable functionality that can be added to Nodes
     /// at runtime. Derived components can override Initialize(), OnStart(),
@@ -78,7 +78,7 @@ namespace Droplet::Scene
 
 		/// @brief Retrieves any resources needed for rendering the component.
 		/// @return A RenderData object containing the component's rendering data.
-        [[nodiscard]] Common::RenderData GetRenderData();
+        [[nodiscard]] Droplet::Common::RenderData GetRenderData();
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -181,7 +181,7 @@ namespace Droplet::Scene
         
 		virtual void DestroyImpl() {}
 
-        [[nodiscard]] virtual Common::RenderData GetRenderDataImpl() { return {}; }
+        [[nodiscard]] virtual Droplet::Common::RenderData GetRenderDataImpl() { return {}; }
 
 		/// @brief Internal rendering function for the component's UI.
         /// 

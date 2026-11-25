@@ -70,7 +70,7 @@ void SkeletonComponent::SetSkinnedMeshResource(StaticResourceHandle<SkinnedMeshR
     SyncWithResource();
 }
 
-void SkeletonComponent::SetSkinnedMeshGUID(GUID p_guid)
+void SkeletonComponent::SetSkinnedMeshGUID(Droplet::GUID p_guid)
 {
     const std::weak_ptr<bool> alive = m_alive;
     StaticResourceHandle<SkinnedMeshResource> handle = ResourceManager::GetInstance().LoadResource<Droplet::SkinnedMeshResource>(
@@ -257,7 +257,7 @@ void SkeletonComponent::RenderUIImpl()
         TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
         TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 
-        GUID newGUID = C_INVALID_GUID;
+        Droplet::GUID newGUID = C_INVALID_GUID;
         std::string newName;
 
         if (ResourceSlot(
@@ -295,7 +295,7 @@ void SkeletonComponent::DeserializeImpl(const nlohmann::json p_compJson)
 {
     if (p_compJson.contains("skinnedMeshGUID"))
     {
-        SetSkinnedMeshGUID(p_compJson["skinnedMeshGUID"].get<GUID>());
+        SetSkinnedMeshGUID(p_compJson["skinnedMeshGUID"].get<Droplet::GUID>());
     }
 
     if (p_compJson.contains("skinnedMeshDisplayName"))

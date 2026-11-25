@@ -121,7 +121,7 @@ Droplet::Common::RenderData Component::GetRenderData()
 		return {};
 	}
 
-	Common::RenderData rData = GetRenderDataImpl();
+	Droplet::Common::RenderData rData = GetRenderDataImpl();
 	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
 
 	return rData;

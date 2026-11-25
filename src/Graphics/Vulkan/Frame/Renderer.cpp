@@ -32,10 +32,11 @@ using namespace Droplet;
 
 namespace
 {
-    constexpr auto FULLSCREEN_SHADER_PATH = "Shaders/fullscreen.vs.slang"; ///< fullscreen-triangle vertex shader
-    constexpr auto POST_PROCESSING_SHADER_PATH = "Shaders/postprocess.fs.slang"; ///< post-process fragment shader
-    constexpr auto EFFECT_SHADER_PATH = "Shaders/postprocess.cs.slang"; ///< post-process compute shader
-    constexpr auto SCENE_SHADER_PATH = "Shaders/scene.slang"; ///< scene vertex + fragment shader
+    
+    constexpr auto FULLSCREEN_SHADER_PATH = ROOT_PATH "/Assets/Shaders/fullscreen.vs.slang"; ///< fullscreen-triangle vertex shader
+    constexpr auto POST_PROCESSING_SHADER_PATH = ROOT_PATH "/Assets/Shaders/postprocess.fs.slang"; ///< post-process fragment shader
+    constexpr auto EFFECT_SHADER_PATH = ROOT_PATH "/Assets/Shaders/postprocess.cs.slang"; ///< post-process compute shader
+    constexpr auto SCENE_SHADER_PATH = ROOT_PATH "/Assets/Shaders/scene.slang"; ///< scene vertex + fragment shader
 
     /// The renderer's own default scene shader, under its own GUID: objects without a shader (or with one that is
     /// missing or broken) use it until the asset storage's override (Render::DEFAULT_SCENE_SHADER) has arrived, if
