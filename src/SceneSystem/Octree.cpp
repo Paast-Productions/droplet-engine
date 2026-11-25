@@ -8,11 +8,11 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/bounds/NodeBounds.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <GameInput.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 
@@ -73,15 +73,10 @@ void Octree::Update()
 		nodeBounds.GetCorners(corners);
 		AABB fatBounds = AABB::FromPoints(corners, 8);
 
-		fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+		fatBounds.extents += m_fatAabbMargin; // Add a margin to the fat AABB to reduce reinsertion frequency
 
 		m_placements[nodePtr.get()].fatBounds = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
-	}
-		
-	if (GameInput::Get().KeyToggle(Key::KeyB)) // HACK: Should probably not be here
-	{
-		Render();
 	}
 }
 
@@ -106,7 +101,7 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 	nodeBounds.GetCorners(corners);
 	AABB fatBounds = AABB::FromPoints(corners, 8);
 
-	fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+	fatBounds.extents += m_fatAabbMargin; // Add a margin to the fat AABB to reduce reinsertion frequency
 	
 	m_containedNodes.push_back(p_node);
 	m_placements[nodePtr.get()].fatBounds = fatBounds;
@@ -339,8 +334,34 @@ void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::w
 	p_nodes = std::move(uniqueNodes);
 }
 
+float Octree::GetExtentLength() const
+{
+	return m_root->octant.extents.x;
+}
+
+std::uint8_t Octree::GetMaxNodes() const
+{
+	 return m_maxNodes;
+}
+
+std::uint8_t Octree::GetMaxDepth() const
+{
+	return m_maxDepth;
+}
+
+void Octree::SetMaxNodes(const std::uint8_t p_maxNodes)
+{
+	m_maxNodes = p_maxNodes;
+	m_mergeThreshold = m_maxNodes / 2;
+}
+
+void Octree::SetMaxDepth(const std::uint8_t p_maxDepth)
+{
+	m_maxDepth = p_maxDepth;
+}
+
 void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::AABB& p_shape,
-	const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
+                               const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
@@ -538,9 +559,14 @@ std::string Octree::ToGraphvizTree()
 	return toReturn + "}\n";
 }
 	
-void Octree::Render()
+void Octree::Render(const bool p_renderOctants, const bool p_renderNodes)
 {
-	RenderOctant(m_root);
+	if (!p_renderOctants && !p_renderNodes)
+	{
+		return;
+	}
+	
+	RenderOctant(m_root, p_renderOctants, p_renderNodes);
 }
 
 void Octree::Clear()
@@ -640,7 +666,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 		return;
 	}
 
-	if (p_treeNode->level > C_MAX_DEPTH)
+	if (p_treeNode->level > m_maxDepth)
 	{
 		return;
 	}
@@ -676,7 +702,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 	p_treeNode->nodes.push_back(p_node);
 
 	// Subdivide if capacity is exceeded and max depth is not reached
-	if (p_treeNode->nodes.size() > C_MAX_NODES && p_treeNode->level < C_MAX_DEPTH)
+	if (p_treeNode->nodes.size() > m_maxNodes && p_treeNode->level < m_maxDepth)
 	{
 		std::array<AABB, 8> octants;
 		SubdivideOctant(p_treeNode->octant, octants);
@@ -1106,7 +1132,7 @@ void Octree::TryMerge(const std::unique_ptr<TreeNode> &p_treeNode)
 			{
 				uniqueNodes.push_back(node);
 
-				if (uniqueNodes.size() > C_MERGE_THRESHOLD)
+				if (uniqueNodes.size() > m_mergeThreshold)
 				{
 					exceedsThreshold = true;
 					return;
@@ -1145,7 +1171,7 @@ void Octree::TryMerge(const std::unique_ptr<TreeNode> &p_treeNode)
 	}
 		
 	// Too many unique nodes remain, keep the subdivision
-	if (uniqueNodes.size() > C_MERGE_THRESHOLD)
+	if (uniqueNodes.size() > m_mergeThreshold)
 	{
 		return;
 	}
@@ -1248,33 +1274,39 @@ std::string Octree::BoundingBoxToGraphviz(const Droplet::Math::AABB &p_aabb, con
 	return toReturn;
 }
 	
-void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode)
+void Octree::RenderOctant(const std::unique_ptr<TreeNode>& p_treeNode, const bool p_renderOctants, const bool p_renderNodes)
 {
 	if (p_treeNode == nullptr)
 	{
 		return;
 	}
 		
-	Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
-		
-	for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
+	if (p_renderOctants)
 	{
-		auto nodePtr = node.lock();
-		if (nodePtr != nullptr)
+		Graphics::Debug::DebugDraw::DrawBox(p_treeNode->octant, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), true, true);
+	}
+		
+	if (p_renderNodes)
+	{
+		for (const std::weak_ptr<Node> &node : p_treeNode->nodes)
 		{
-			OBB obb = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
-			Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
-				
-			if (m_placements.contains(nodePtr.get()))
+			auto nodePtr = node.lock();
+			if (nodePtr != nullptr)
 			{
-				Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()].fatBounds, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				OBB obb = nodePtr->GetBounds()->GetTransformedOBB(nodePtr->GetTransform().GetMatrix(Transform::Space::World));
+				Graphics::Debug::DebugDraw::DrawBox(obb, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), true, true);
+				
+				if (m_placements.contains(nodePtr.get()))
+				{
+					Graphics::Debug::DebugDraw::DrawBox(m_placements[nodePtr.get()].fatBounds, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), true, true);
+				}
 			}
 		}
 	}
 		
 	for (const std::unique_ptr<TreeNode> &treeNode : p_treeNode->children)
 	{
-		RenderOctant(treeNode);
+		RenderOctant(treeNode, p_renderOctants, p_renderNodes);
 	}
 }
 

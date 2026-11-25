@@ -1,6 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
-#include <math/bounds/Plane.hpp>
+#include <Math/Bounds/Plane.hpp>
 
 namespace Droplet::Math
 {

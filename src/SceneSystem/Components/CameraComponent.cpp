@@ -2,28 +2,20 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <SceneSystem/Node.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGui/imgui.h>
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
 
 using namespace Droplet::Scene;
+using namespace Droplet::Common;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
 void CameraComponent::StartImpl()
 {
-	using namespace Graphics::Vulkan;
-	IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
-	m_target = instance.CreateRenderTarget(m_resolution.x, m_resolution.y);
-
-#ifdef _EDITOR
-	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
-	{
-		m_texture = instance.CreateImGuiTexture(
-			m_target
-		);
-	}
-#endif
+	// store target id case meshes refer to it
+	if (m_target.id == C_INVALID_GUID)
+		m_target.id = GuidUtils::Generate();
+	m_target.extent = { static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) };
 }
 
 void CameraComponent::LateUpdateImpl()
@@ -40,15 +32,8 @@ void CameraComponent::QueueRenderImpl()
 {
 	if (m_dirty)
 	{
-		// TODO
-
-#ifdef _EDITOR
-		Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-			m_target, m_texture,
-			m_resolution.x, m_resolution.y
-		);
-#endif
-
+		// same id, new size: the renderer replaces the image
+		m_target.extent = { static_cast<std::uint32_t>(m_resolution.x), static_cast<std::uint32_t>(m_resolution.y) };
 		m_dirty = false;
 	}
 
@@ -100,7 +85,7 @@ void CameraComponent::RenderUIImpl()
 
 	m_uiSelected = true;
 
-	DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
+	Common::DrawLayerUtility::SetLayerMaskUI("Draw Layers", m_drawLayerMask);
 
 	InputInt("Priority", &m_priority);
 
@@ -139,7 +124,7 @@ void CameraComponent::RenderUIImpl()
 
 	if (TreeNode("Preview"))
 	{
-		ImTextureRef camViewTexture = m_texture.Get();
+		ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(m_target.id));
 		SliderFloat("Zoom", &m_uiScale, 0.0f, 2.0f);
 
 		float availWidth = GetContentRegionAvail().x;
@@ -151,6 +136,7 @@ void CameraComponent::RenderUIImpl()
 
 		TreePop();
 	}
+
 #endif
 }
 
@@ -202,7 +188,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 	CameraRenderData renderData{ };
 	renderData.camera = m_camera;
 	renderData.priority = m_priority;
-	renderData.renderTarget = m_target;
+	renderData.target = m_target;
 	renderData.renderData = m_renderData;
 	renderData.debug = m_debugDraw;
 	renderData.clearColor = m_clearColor;
@@ -228,6 +214,8 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["autoRender"] = m_autoRender;
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
 	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
+	compJson["debugDraw"] = m_debugDraw;
+	compJson["targetId"] = m_target.id; // if a mesh uses the output as a texture
 
 	return compJson;
 }
@@ -258,7 +246,7 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 
 	if (p_compJson.contains("drawLayerMask"))
 	{
-		m_drawLayerMask = static_cast<Graphics::DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
+		m_drawLayerMask = static_cast<DrawLayer>(p_compJson["drawLayerMask"].get<std::uint32_t>());
 	}
 
 	if (p_compJson.contains("priority"))
@@ -292,6 +280,16 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 			m_clearColor.b = color[2].get<float>();
 			m_clearColor.a = color[3].get<float>();
 		}
+	}
+
+	if (p_compJson.contains("debugDraw"))
+	{
+		m_debugDraw = p_compJson["debugDraw"].get<bool>();
+	}
+
+	if (p_compJson.contains("targetId"))
+	{
+		m_target.id = p_compJson["targetId"].get<GUID>();
 	}
 
 	m_dirty = true;

@@ -1,7 +1,7 @@
 #include "SceneViewWindow.hpp"
-#include <Editor/ViewOverlayUI.hpp> // TODO: Clean whatever this mess is
-#include <math/bounds/Intersection.hpp>
-#include <math/bounds/Conversion.hpp>
+#include <Editor/ViewOverlayUI.hpp> // TODO: (BEYOND OUR PAY GRADE) Clean whatever this mess is
+#include <Math/Bounds/Intersection.hpp>
+#include <Math/Bounds/Conversion.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <ImGuizmo/ImGuizmo.h>
 #include <tracy/public/tracy/Tracy.hpp>
@@ -14,22 +14,24 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-#include <Graphics/DebugDraw.hpp>
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
-using namespace Droplet::Graphics::Vulkan;
+using namespace Droplet::Common;
 using namespace Droplet::Graphics::Debug;
 
 namespace
 {
+	static int s_rollingFrameTimeQueueCount = 250;
+	static std::vector<float> s_rollingFrameTimeQueue;
+	static std::vector<float> s_frameTimes;
+
 	float GetFPSDisplayNum()
 	{
-		static std::vector<float> s_frameTimes;
 		static float s_frameTimeCollectTimer = 0.0f;
 		static float s_frameTimeCollectInterval = 0.2f;
 		static float s_lastFPSAvg = 0.0f;
@@ -52,6 +54,12 @@ namespace
 			s_lastFPSAvg = s_frameTimes.empty() ? 0.0f : ((float)s_frameTimes.size() / frameTimeSum);
 			s_frameTimes.clear();
 		}
+
+		if (s_rollingFrameTimeQueue.size() > (s_rollingFrameTimeQueueCount - 1))
+		{
+			s_rollingFrameTimeQueue.erase(s_rollingFrameTimeQueue.begin());
+		}
+		s_rollingFrameTimeQueue.push_back(dT);
 
 		return s_lastFPSAvg;
 	}
@@ -226,22 +234,14 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	// TODO: 
-	//     Move this to the renderer and camera class. 
-	//     The camera should request the renderer to create a render target.
-	using namespace Graphics::Vulkan;
-
-	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
-	
-	m_editorContext->GetEditorCamera().SetTarget(instance.CreateRenderTarget(720, 720));
-	m_editorContext->GetEditorCamera().SetTexture(instance.CreateImGuiTexture(
-		m_editorContext->GetEditorCamera().GetTarget())
-	);
+	// a new id; the renderer creates the image when it first sees it
+	m_editorContext->GetEditorCamera().SetTarget(RenderTargetDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
 	m_cameraPivotRadius = EditorConfig::LoadFloat("Editor.CameraPivotRadius", 8.0f);
 	m_cameraPivot = camera.GetPosition() + camera.GetForward() * m_cameraPivotRadius;
+	m_useEditorCameraInPlayMode = EditorConfig::LoadBool("Editor.UseEditorCameraInPlayMode", false);
 	
 	Engine& engine = m_editorContext->GetEngine();
 	engine.AddEventListener([&](SDL_Event &event)
@@ -370,6 +370,11 @@ void SceneViewWindow::RenderToolbar()
 
 	if (ImGui::BeginMenu("View"))
 	{
+		if (ImGui::Checkbox("Use Editor Camera in Play Mode", &m_useEditorCameraInPlayMode))
+		{
+			EditorConfig::StoreBool("Editor.UseEditorCameraInPlayMode", m_useEditorCameraInPlayMode);
+		}
+
 		ImGui::Text(
 			"Info:\n"
 			"    Editor Camera rotates & zooms relative to a pivot point\n"
@@ -423,9 +428,58 @@ void SceneViewWindow::RenderToolbar()
 	ImGui::Separator();
 
 	float fpsDisplayNum = GetFPSDisplayNum();
+	static bool s_showFPSGraph = false;
 
 	std::string fpsDisplayText = std::format("{:.0f}", fpsDisplayNum);
 	ImGui::Text("FPS: %s", fpsDisplayText.c_str());
+
+	// On click, open the FPS graph window
+	if (ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()))
+	{
+		// Draw a highlight around the FPS text to indicate it's clickable
+		ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 100), 0.0f, 0, 1.0f);
+
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
+		{
+			s_showFPSGraph = !s_showFPSGraph;
+		}
+	}
+
+	if (s_showFPSGraph)
+	{
+		if (ImGui::Begin("FPS Graph", &s_showFPSGraph, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar))
+		{
+			float maxFPS = 0.0f;
+			for (size_t i = 0; i < s_rollingFrameTimeQueue.size(); i++)
+			{
+				float fps = 1.0f / s_rollingFrameTimeQueue[i];
+				if (fps > maxFPS)
+				{
+					maxFPS = fps;
+				}
+			}
+
+			char buffer[32];
+			ImFormatString(buffer, sizeof(buffer), "Max: %.2f", maxFPS);
+
+			ImGui::PlotLines("##Frame Times",
+				[](void *data, int idx) -> float {
+					const std::vector<float> *frameTimes = static_cast<std::vector<float> *>(data);
+					if (idx < 0 || idx >= frameTimes->size())
+						return 0.0f;
+					return 1.0f / (*frameTimes)[idx];
+				},
+				static_cast<void *>(&s_rollingFrameTimeQueue),
+				s_rollingFrameTimeQueue.size(),
+				0,
+				buffer,
+				0.0f,
+				maxFPS * 1.2f,
+				ImVec2(0, 80)
+			);
+		}
+		ImGui::End();
+	}
 }
 
 void SceneViewWindow::RenderImpl()
@@ -448,7 +502,7 @@ void SceneViewWindow::RenderImpl()
 	
 	m_renderingGameView = false;
 
-	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode) && !m_useEditorCameraInPlayMode)
 	{
 		RemovePrefabPreview();
 		RenderGameView();
@@ -492,7 +546,7 @@ void SceneViewWindow::RenderEditorView()
 	};
 
 	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().GetExtent();
+	const Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().extent;
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -536,7 +590,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = m_editorContext->GetEditorCamera().GetTexture().Get();
+	ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(m_editorContext->GetEditorCamera().GetTarget().id));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1019,34 +1073,7 @@ void SceneViewWindow::RenderEditorView()
 
 	RenderImGuizmo(camViewRectMin, camViewRectMax);
 
-	// Render play button
-	{
-		ImVec2 buttonSize = ImVec2(30, 30);
-		ImVec2 buttonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
-			camViewRectMin.y + 10
-		);
-		ImVec2 stopButtonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
-			camViewRectMin.y + 10
-		);
-
-		// Make green
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-		ImGui::SetCursorScreenPos(buttonPos);
-		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
-		{
-			m_editorContext->EnterPlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		m_hoveringPlayButton = ImGui::IsItemHovered();
-	}
+	RenderPlayControls(camViewRectMin, camSize);
 
 	RenderOverlayQueue();
 
@@ -1146,7 +1173,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = camera->GetTexture().Get();
+			ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(camera->GetTarget().id));
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1183,72 +1210,87 @@ void SceneViewWindow::RenderGameView()
 		}
 	}
 
-	// Render pause/stop buttons
-	{
-		ImVec2 buttonSize = ImVec2(30, 30);
-		ImVec2 buttonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x - 10,
-			camViewRectMin.y + 10
-		);
-		ImVec2 stopButtonPos = ImVec2(
-			camViewRectMin.x + camSize.x * 0.5f - buttonSize.x + 30,
-			camViewRectMin.y + 10
-		);
-
-		ImGui::BeginGroup();
-
-		std::string icon = "";
-		if (m_editorContext->IsPaused())
-		{
-			// Make green
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			icon = ICON_LC_PLAY;
-		}
-		else
-		{
-			// Make orange
-			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-			icon = ICON_LC_PAUSE;
-		}
-
-		ImGui::SetCursorScreenPos(buttonPos);
-		if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
-		{
-			m_editorContext->PausePlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		// Make red
-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
-
-		ImGui::SetCursorScreenPos(stopButtonPos);
-		if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
-		{
-			m_editorContext->ExitPlayMode();
-		}
-
-		ImGui::PopStyleColor(4);
-
-		ImGui::EndGroup();
-
-		m_hoveringPlayButton = ImGui::IsItemHovered();
-	}
+	RenderPlayControls(camViewRectMin, camSize);
 
 	RenderOverlayQueue();
 
 	ImGui::EndChild();
+}
+
+void SceneViewWindow::RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewSize)
+{
+	ImVec2 buttonSize = ImVec2(30, 30);
+	ImVec2 buttonPos = ImVec2(
+		p_sceneViewMin.x + p_sceneViewSize.x * 0.5f - buttonSize.x - 10,
+		p_sceneViewMin.y + 10
+	);
+	ImVec2 stopButtonPos = ImVec2(
+		p_sceneViewMin.x + p_sceneViewSize.x * 0.5f - buttonSize.x + 30,
+		p_sceneViewMin.y + 10
+	);
+
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+		ImGui::SetCursorScreenPos(buttonPos);
+		if (ImGui::Button(ICON_LC_PLAY "##PlayButton", buttonSize))
+		{
+			m_editorContext->EnterPlayMode();
+		}
+
+		ImGui::PopStyleColor(4);
+		m_hoveringPlayButton = ImGui::IsItemHovered();
+		return;
+	}
+
+	ImGui::BeginGroup();
+
+	std::string icon = "";
+	if (m_editorContext->IsPaused())
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		icon = ICON_LC_PLAY;
+	}
+	else
+	{
+		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.8f, 0.48f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.7f, 0.42f, 0.0f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.49f, 0.34f, 0.31f, 1.0f));
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+		icon = ICON_LC_PAUSE;
+	}
+
+	ImGui::SetCursorScreenPos(buttonPos);
+	if (ImGui::Button((icon + "##PauseButton").c_str(), buttonSize))
+	{
+		m_editorContext->PausePlayMode();
+	}
+
+	ImGui::PopStyleColor(4);
+
+	ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.0f, 0.0f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.6f, 0.2f, 0.2f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.5f, 0.3f, 0.3f, 1.0f));
+	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	ImGui::SetCursorScreenPos(stopButtonPos);
+	if (ImGui::Button(ICON_LC_SQUARE_X "##StopButton", buttonSize))
+	{
+		m_editorContext->ExitPlayMode();
+	}
+
+	ImGui::PopStyleColor(4);
+
+	ImGui::EndGroup();
+
+	m_hoveringPlayButton = ImGui::IsItemHovered();
 }
 
 void SceneViewWindow::RenderImGuizmo(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewMax)
@@ -1641,7 +1683,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	if (m_cameraDrag == CameraDrag::Orbit && m_skipMouseDeltas == 0)
 	{
 		// Rotate around the pivot, keeping the distance to it
-		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: Make configurable
+		constexpr float C_ORBIT_SENSITIVITY = 0.15f; // TODO: (EDITOR) Make configurable
 
 		camera.Rotate(
 			-input.GetDeltaMouseX() * C_ORBIT_SENSITIVITY, 
@@ -1654,7 +1696,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_cameraDrag == CameraDrag::Pan)
 	{
-		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: Make configurable
+		constexpr float C_PAN_SENSITIVITY = 1.0f; // TODO: (EDITOR) Make configurable
 
 		// Pan in the plane perpendicular to the camera's forward direction
 		if (p_viewWidth > 0.0f && m_skipMouseDeltas == 0)
@@ -1670,7 +1712,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	}
 	else if (m_hoveringSceneView && io.MouseWheel != 0.0f)
 	{
-		constexpr float C_SCROLL_STEP = 0.1f; // TODO: Make configurable
+		constexpr float C_SCROLL_STEP = 0.1f; // TODO: (EDITOR) Make configurable
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{
@@ -1773,9 +1815,8 @@ void SceneViewWindow::FocusCameraOnSelection()
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-		m_editorContext->GetEditorCamera().GetTarget(), 
-		m_editorContext->GetEditorCamera().GetTexture(), 
-		width, height
-	);
+	// same id, new size: the renderer replaces the image on the next frame
+	RenderTargetDesc target = m_editorContext->GetEditorCamera().GetTarget();
+	target.extent = { width, height };
+	m_editorContext->GetEditorCamera().SetTarget(target);
 }

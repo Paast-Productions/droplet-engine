@@ -68,8 +68,8 @@ void NodeInspectorWindow::RenderImpl()
 		m_currentNode.lock()->SetActiveSelf(active);
 	}
 
-	Graphics::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
-	if (Graphics::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
+	Common::DrawLayer drawLayer = m_currentNode.lock()->GetDrawLayer();
+	if (Common::DrawLayerUtility::SetLayerUI("Draw Layer", drawLayer))
 	{
 		m_currentNode.lock()->SetDrawLayer(drawLayer);
 	}
@@ -161,7 +161,7 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		// HACK: Resetting rotation to zero doesn't consistently undo all rotation. 
+		// HACK: (EDITOR) Resetting rotation to zero doesn't consistently undo all rotation. 
 		// Added a right-click context menu to reset rotation to alleviate issue.
 
 		if (ImGui::BeginPopupContextItem("Rotation Context Menu"))
@@ -214,7 +214,7 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonMargin = buttonWidth * 0.2f;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: Make weak pointer
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: (SCENE) Make weak pointer
 
 	for (std::size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex)
 	{
@@ -244,7 +244,29 @@ void NodeInspectorWindow::RenderImpl()
 				headerLabel = scriptName + " (script)";
 			}
 		}
+
+		if (component->GetTypeName() == "AudioEmitterComponent")
+		{
+			Droplet::Scene::AudioEmitterComponent *emitterComp = dynamic_cast<Droplet::Scene::AudioEmitterComponent *>(component.get());
+			std::string name = emitterComp->GetName();
+
+			if (!name.empty())
+			{
+				headerLabel = name + " (audio emitter)";
+			}
+		}
 		
+		if (component->GetTypeName() == "AudioPlayerComponent")
+		{
+			Droplet::Scene::AudioPlayerComponent *audioplayer = dynamic_cast<Droplet::Scene::AudioPlayerComponent *>(component.get());
+			std::string name = audioplayer->GetName();
+
+			if (!name.empty())
+			{
+				headerLabel = name + " (audio player)";
+			}
+		}
+
 		if (headerLabel.empty())
 		{
 			headerLabel = component->GetTypeName().data();

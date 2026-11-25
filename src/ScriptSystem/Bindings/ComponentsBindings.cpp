@@ -32,27 +32,27 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Graphics::Camera>(
+	p_luaState.new_usertype<Common::Camera>(
 		"Camera",
-		"Move", &Graphics::Camera::Move,
-		"Rotate", &Graphics::Camera::Rotate,
-		"GetPosition", &Graphics::Camera::GetPosition,
-		"GetForward", &Graphics::Camera::GetForward,
-		"GetRight", &Graphics::Camera::GetRight,
-		"GetUp", &Graphics::Camera::GetUp,
-		"GetViewMatrix", &Graphics::Camera::GetViewMatrix,
-		"GetProjectionMatrix", &Graphics::Camera::GetProjectionMatrix,
-		"GetFOV", &Graphics::Camera::GetFOV,
-		"GetAspect", &Graphics::Camera::GetAspect,
-		"GetPlanes", &Graphics::Camera::GetPlanes,
-		"SetPosition", &Graphics::Camera::SetPosition,
-		"SetFOV", &Graphics::Camera::SetFOV
+		"Move", &Common::Camera::Move,
+		"Rotate", &Common::Camera::Rotate,
+		"GetPosition", &Common::Camera::GetPosition,
+		"GetForward", &Common::Camera::GetForward,
+		"GetRight", &Common::Camera::GetRight,
+		"GetUp", &Common::Camera::GetUp,
+		"GetViewMatrix", &Common::Camera::GetViewMatrix,
+		"GetProjectionMatrix", &Common::Camera::GetProjectionMatrix,
+		"GetFOV", &Common::Camera::GetFOV,
+		"GetAspect", &Common::Camera::GetAspect,
+		"GetPlanes", &Common::Camera::GetPlanes,
+		"SetPosition", &Common::Camera::SetPosition,
+		"SetFOV", &Common::Camera::SetFOV
 	);
 
 	p_luaState.new_usertype<Scene::CameraComponent>(
 		"CameraComponent",
 		"GetCamera",
-        [](Scene::CameraComponent &p_component) -> Graphics::Camera &
+        [](Scene::CameraComponent &p_component) -> Common::Camera &
         {
             return p_component.GetCamera();
         },
@@ -73,7 +73,10 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 
 		"IsAutoRenderEnabled", &Scene::CameraComponent::IsAutoRenderEnabled,
 		"SetAutoRender", &Scene::CameraComponent::SetAutoRender,
-		"TriggerRender", &Scene::CameraComponent::TriggerRender
+		"TriggerRender", &Scene::CameraComponent::TriggerRender,
+
+		"GetTarget", &Scene::CameraComponent::GetTarget,
+		"SetTarget", &Scene::CameraComponent::SetTarget
 	);
 
     LuaClassDefinition classDef;
@@ -710,13 +713,38 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
 void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
 {
+    p_luaState.new_enum<dalia::AttenuationCurve>(
+        "AttenuationCurve",
+        {
+            {"InverseSquare", dalia::AttenuationCurve::InverseSquare},
+            {"Linear", dalia::AttenuationCurve::Linear},
+            {"Quadratic", dalia::AttenuationCurve::Quadratic}
+        }
+    );
+
     p_luaState.new_usertype<AudioEmitterComponent>(
         "AudioEmitterComponent",
         "Play", &AudioEmitterComponent::Play,
         "Pause", &AudioEmitterComponent::Pause,
         "Resume", &AudioEmitterComponent::Resume,
-        "Stop", &AudioEmitterComponent::Stop
+        "Stop", &AudioEmitterComponent::Stop,
+        "IsPlaying", &AudioEmitterComponent::IsPlaying,
+        "SetStartTimeSeconds", &AudioEmitterComponent::SetStartTimeSeconds,
+        "SetVolumeDb", &AudioEmitterComponent::SetVolumeDb,
+        "SetPitch", &AudioEmitterComponent::SetPitch,
+        "SetLooping", &AudioEmitterComponent::SetLooping,
+        "SetMinMaxDistance", &AudioEmitterComponent::SetMinMaxDistance,
+        "SetAttenuationCurve", &AudioEmitterComponent::SetAttenuationCurve,
+        "GetStartTimeSeconds", &AudioEmitterComponent::GetStartTimeSeconds,
+        "GetVolumeDb", &AudioEmitterComponent::GetVolumeDb,
+        "GetPitch", &AudioEmitterComponent::GetPitch,
+        "IsLooping", &AudioEmitterComponent::IsLooping,
+        "GetMinDistance", &AudioEmitterComponent::GetMinDistance,
+        "GetMaxDistance", &AudioEmitterComponent::GetMaxDistance,
+        "GetAttenuationCurve", &AudioEmitterComponent::GetAttenuationCurve
     );
+
+
 
     LuaClassDefinition classDef;
     classDef.name = "AudioEmitterComponent";
@@ -727,7 +755,20 @@ void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
         {"Pause", "void", {}},
         {"Resume", "void", {}},
         {"Stop", "void", {}},
-        
+        {"IsPlaying", "bool", {}},
+        {"SetStartTimeSeconds", "void", {{"startTime","double"}}},
+        {"SetVolumeDb", "void", {{"volume", "float"}}},
+        {"SetPitch", "void", {{"pitch", "float"}} },
+        {"SetLooping", "void", {{"isLooping", "bool"}}},
+        {"SetMinMaxDistance", "void",{} },
+        {"SetAttenuationCurve", "void", {{"daliaAttenuationcurve", "daliaattenuationCurve"}} },
+        {"GetStartTimeSeconds", "double", {}},
+        {"GetVolumeDb", "float", {}},
+        {"GetPitch", "float", {}},
+        {"IsLooping", "bool", {}},
+        {"GetMinDistance", "float", {}},
+        {"GetMaxDistance", "float", {}},
+        {"GetAttenuationCurve", "daliaattenuationCurve",{}},
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -740,7 +781,18 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         "Play", &AudioPlayerComponent::Play,
         "Pause", &AudioPlayerComponent::Pause,
         "Resume", &AudioPlayerComponent::Resume,
-        "Stop", &AudioPlayerComponent::Stop
+        "Stop", &AudioPlayerComponent::Stop,
+        "IsPlaying", &AudioPlayerComponent::IsPlaying,
+        "SetStartTimeSeconds", &AudioPlayerComponent::SetStartTimeSeconds,
+        "SetVolumeDb", &AudioPlayerComponent::SetVolumeDb,
+        "SetStereoPan", &AudioPlayerComponent::SetStereoPan,
+        "SetPitch", &AudioPlayerComponent::SetPitch,
+        "SetLooping", &AudioPlayerComponent::SetLooping,
+        "GetStartTimeSeconds", &AudioPlayerComponent::GetStartTimeSeconds,
+        "GetVolumeDb", &AudioPlayerComponent::GetVolumeDb,
+        "GetPitch", &AudioPlayerComponent::GetPitch,
+        "IsLooping", &AudioPlayerComponent::IsLooping,
+        "GetStereoPan", &AudioPlayerComponent::GetStereoPan
     );
 
     LuaClassDefinition classDef;
@@ -752,6 +804,16 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         {"Pause", "void", {}},
         {"Resume", "void", {}},
         {"Stop", "void", {}},
+        {"IsPlaying", "bool", {}},
+        {"SetStartTimeSeconds", "void", {{"Seconds", "float"}}},
+        {"SetVolumeDb", "void", {{"volume", "float"}}},
+        {"SetPitch", "void", {{"pitch", "float"}}},
+        {"SetLooping", "void", {{"islooping", "bool"}}},
+        {"GetStartTimeseconds", "float", {}},
+        {"GetVolumeDb", "float", {}},
+        {"GetPitch", "float",{}},
+        {"IsLooping", "bool", {}},
+        {"GetStereoPan", "float", {}},
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);

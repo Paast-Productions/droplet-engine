@@ -8,7 +8,6 @@ namespace Droplet::Scene
 	class AudioListenerComponent : public Component
 	{
 	public:
-	    AudioListenerComponent();
 	    ~AudioListenerComponent() override;
 	    
 		[[nodiscard]] std::string_view GetTypeName() const override { return "AudioListenerComponent"; }

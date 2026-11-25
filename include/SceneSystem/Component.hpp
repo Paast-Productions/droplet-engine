@@ -3,13 +3,15 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <SceneSystem/bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
+#include <SceneSystem/Bounds/NodeBounds.hpp>
+#include <Common/RenderData.hpp>
 
 namespace Droplet::Scene
 {
     // Forward declaration
+    class Scene;
     class Node;
+    class Transform;
     class SerializationContext;
 
     /// @brief Base class for components that can be attached to a Node.
@@ -76,7 +78,7 @@ namespace Droplet::Scene
 
 		/// @brief Retrieves any resources needed for rendering the component.
 		/// @return A RenderData object containing the component's rendering data.
-        [[nodiscard]] Droplet::Graphics::RenderData GetRenderData();
+        [[nodiscard]] Droplet::Common::RenderData GetRenderData();
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -86,7 +88,7 @@ namespace Droplet::Scene
         /// @brief Gets the Node that owns this component.
         /// @return A shared pointer to the owning Node, or nullptr if the
         /// owner no longer exists.
-        [[nodiscard]] std::shared_ptr<Node> GetOwner() const; // TODO: Make weak pointer
+        [[nodiscard]] std::shared_ptr<Node> GetOwner() const; // TODO: (SCENE) Make weak pointer
     
 		/// @brief Serializes the component to a JSON object.
 		/// @return A JSON object representing the component's state.
@@ -153,7 +155,11 @@ namespace Droplet::Scene
         /// created node/component can be set as a target and more easily referenced
         /// 
         /// @param p_context The context that holds the mapping of newly deserialized nodes and components
-        virtual void ResolveReferences([[maybe_unused]]SerializationContext &p_context);
+        virtual void ResolveReferences([[maybe_unused]] SerializationContext &p_context);
+
+        Transform &GetTransform();
+
+        std::shared_ptr<Scene> GetScene() const;
 
     protected:
 
@@ -172,10 +178,10 @@ namespace Droplet::Scene
     	virtual void ActiveChangedImpl(const bool p_active) {}
 
         virtual void QueueRenderImpl() {}
-
+        
 		virtual void DestroyImpl() {}
 
-        [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
+        [[nodiscard]] virtual Droplet::Common::RenderData GetRenderDataImpl() { return {}; }
 
 		/// @brief Internal rendering function for the component's UI.
         /// 
@@ -214,6 +220,6 @@ namespace Droplet::Scene
         /// the component is added to a Node.
         ///
         /// @param p_owner Node that will own the component.
-        void SetOwner(std::shared_ptr<Node> p_owner); // TODO: Make weak pointer
+        void SetOwner(std::shared_ptr<Node> p_owner); // TODO: (SCENE) Make weak pointer
     };
 }

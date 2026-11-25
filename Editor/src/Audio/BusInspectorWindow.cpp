@@ -92,7 +92,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 
 	ImVec2 available = ImGui::GetContentRegionAvail();
 
-	ImGui::BeginChild(ICON_LC_SETTINGS_2 " Effect Controls ", ImVec2(available.x - slotPanelWidth - spacing, 0.0f), ImGuiChildFlags_None);
+
 
 	const auto& effects = m_currentBus->GetAllEffects();
 
@@ -128,6 +128,24 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 			ImGui::EndDragDropSource();
 		}
 
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload(PAYLOAD_AUDIO_EFFECT.data()))
+			{
+				if (payload->DataSize == sizeof(EffectDragDropData))
+				{
+					EffectDragDropData dragged;
+					std::memcpy(&dragged, payload->Data, sizeof(dragged));
+
+					if (payload->IsDelivery())
+					{
+						m_currentBus->MoveEffect(dragged.slot, effect->GetSlot());
+					}
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
+
 		if (ImGui::BeginPopupContextItem("popup"))
 		{
 			if (ImGui::MenuItem("Remove Effect"))
@@ -153,7 +171,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 	ImGui::Dummy(ImVec2(0, 18));
 
 	ImGui::Indent(buttonMargin);
-	//TODO Make this button only show when we don't have a full array of effects
+	//TODO: (AUDIO) Make this button only show when we don't have a full array of effects
 	if (ImGui::Button(ICON_LC_SPARKLES " Add Effect " ICON_LC_SPARKLES, ImVec2(buttonWidth - 2.0f * buttonMargin, buttonHeight)))
 	{
 		OpenEffectList();
@@ -165,24 +183,6 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 		//auto newEffect = Droplet::Audio::EffectFactory::CreateEffect(selectedComponentName);
 		m_currentBus->AttachEffect(selectedComponentName);
 	}
-
-	ImGui::EndChild();
-
-	//Right Side Effectslots
-	ImGui::SameLine();
-	{
-		ImGui::BeginChild("EffectSlots", ImVec2(slotPanelWidth, 0.0f), ImGuiChildFlags_None);
-
-		ImGui::TextUnformatted(ICON_LC_BETWEEN_HORIZONAL_START " Effect Slots " );
-		ImGui::Separator();
-
-		for (uint32_t slot = 0; slot < Audio::MAX_EFFECTS; ++slot)
-		{
-			RenderEffectSlotDropTarget(*m_currentBus, slot);
-			ImGui::Dummy(ImVec2(0.0, 5.0f));
-		}
-		ImGui::EndChild();
-	}
-
+	
 	ImGui::PopID();
 }

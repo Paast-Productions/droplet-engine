@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <SceneSystem/bounds/MeshNodeBounds.hpp>
+#include <SceneSystem/Bounds/MeshNodeBounds.hpp>
 #include <resource/StaticResourceHandle.hpp>
 #include <resource/types/MaterialResource.hpp>
 #include <resource/types/MeshResource.hpp>
@@ -46,7 +46,11 @@ namespace Droplet::Scene
 
         /// @brief Gets the GUID of the assigned 2D texture resource.
         /// @return GUID of the assigned texture resource, or the invalid GUID if none is assigned.
-        [[nodiscard]] GUID GetTextureGUID() const { return m_2dTexture.GetGUID(); }
+        [[nodiscard]] GUID GetTextureGUID() const { return m_textureIsTarget ? m_textureTarget : m_2dTexture.GetGUID(); }
+
+        /// @brief Shows a camera's output (its target id) instead of a texture resource
+        void SetTextureTarget(GUID p_targetId, const std::string &p_displayName);
+        [[nodiscard]] bool IsTextureRenderTarget() const { return m_textureIsTarget; }
         
         void SetVSGUID(GUID p_guid);
         [[nodiscard]] GUID GetVSGUID() const { return m_shaderData.vs.GetGUID(); }
@@ -76,7 +80,7 @@ namespace Droplet::Scene
         void UpdateImpl() override;
 		void QueueRenderImpl() override;
         void RenderUIImpl() override;
-        [[nodiscard]] Droplet::Graphics::RenderData GetRenderDataImpl() override;
+        [[nodiscard]] Droplet::Common::RenderData GetRenderDataImpl() override;
 
         nlohmann::json SerializeImpl() override;
         void DeserializeImpl(nlohmann::json p_compJson) override;
@@ -87,9 +91,13 @@ namespace Droplet::Scene
 
         // Resource handles
         StaticResourceHandle<MeshResource> m_mesh {};
-        StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: Until Material class is implemented
+        // A texture that is not a resource
+        GUID m_textureTarget = C_INVALID_GUID; ///< a camera's target id, when m_textureIsTarget
+        bool m_textureIsTarget = false;
 
-        // TODO: REWRITE AS MATERIAL
+        StaticResourceHandle<Texture2DResource> m_2dTexture {}; // HACK: (RENDERING) Until Material class is implemented
+
+        // TODO: (RENDERING) REWRITE AS MATERIAL
         struct ShaderResources
         {
             StaticResourceHandle<ShaderResource> vs {};

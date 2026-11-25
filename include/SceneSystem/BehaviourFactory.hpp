@@ -7,7 +7,7 @@ namespace Droplet::Scene
 	// forward declaration
 	class Behaviour;
 
-	// TODO: Hide the behaviour constructor and add this class as a friend class, such that this class is the only way to create behaviours.
+	// TODO: (BEHAVIOR) Hide the behaviour constructor and add this class as a friend class, such that this class is the only way to create behaviours.
 	class BehaviourFactory
 	{
 	public:

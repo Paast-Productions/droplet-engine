@@ -3,13 +3,13 @@
 #include <Transform.hpp>
 #include <Components/ScriptComponent.hpp>
 #include <Time.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Math;
 
-// TODO: Ideally this check would be performed irrespective of FixedUpdates in Update, with a timer to trigger at certain intervals.
+// TODO: (COMPONENT) Ideally this check would be performed irrespective of FixedUpdates in Update, with a timer to trigger at certain intervals.
 // That way, each trigger could be offset by a different amount of time, to avoid having to update all triggers in the same frame. 
 // Overuse of FixedUpdate is a common cause of stuttering.
 void TriggerComponent::FixedUpdateImpl()
@@ -36,7 +36,8 @@ void TriggerComponent::FixedUpdateImpl()
     {
         scene->GetNodesInShape(obb.obb, insideNodes, m_collisionLayerMask);
     }
-    
+    //1.460
+    //0.848
     for (const TriggerSphere &sphere : m_spheres)
     {
         scene->GetNodesInShape(sphere.sphere, insideNodes, m_collisionLayerMask);
@@ -274,7 +275,7 @@ void TriggerComponent::DeserializeImpl(const nlohmann::json p_compJson)
     m_OBBs.resize(p_compJson["numObb"]);
     m_spheres.resize(p_compJson["numSphere"]);
     
-    glm::vec3 pos = GetOwner()->GetTransform().GetPosition();
+    glm::vec3 pos = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
     for (int i = 0; i < m_AABBs.size(); i++)
     {
         std::string idx = std::to_string(i);

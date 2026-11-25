@@ -1,6 +1,6 @@
 #pragma once
 #include <resource/IStaticResource.hpp>
-#include <math/bounds/MeshBVH.hpp>
+#include <Math/Bounds/MeshBVH.hpp>
 
 #include <string>
 #include <vector>

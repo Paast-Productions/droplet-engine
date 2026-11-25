@@ -8,7 +8,7 @@
 #include <tracy/public/tracy/Tracy.hpp>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Common/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
@@ -89,7 +89,7 @@ void SceneManager::ActivateScene(const std::string &p_name)
 
     if (scene->IsActive())
     {
-        throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is already active.");
+		return; // Scene is already active
     }
 
     scene->SetActive(true);
@@ -116,7 +116,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
 
     if (!scene->IsActive())
     {
-        throw std::runtime_error("Cannot deactivate Scene '" + p_name + "': Scene is already inactive.");
+		return; // Scene is already inactive
     }
 
     scene->SetActive(false);
@@ -141,7 +141,7 @@ void SceneManager::DeactivateScene(const std::string &p_name)
     m_activeScenes.end());
 }
 
-std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: Make weak pointer
+std::shared_ptr<Scene> SceneManager::GetScene(const std::string &p_name) const // TODO: (SCENE) Make weak pointer
 {
     auto it = m_scenes.find(p_name);
 
@@ -284,11 +284,12 @@ void SceneManager::PrepareRender()
     }
 }
 
-std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
+std::vector<Droplet::Common::CameraRenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
 
 	using namespace Droplet::Graphics;
+using namespace Droplet::Common;
 
     std::vector<CameraRenderData> renderViews{};
     

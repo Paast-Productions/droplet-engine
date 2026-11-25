@@ -78,6 +78,10 @@ namespace Droplet
 			RGBA32_Uint,
 			RGBA32_Sint,
 
+			// sRGB formats
+			RGB8_Srgb,
+			RGBA8_Srgb,
+
 			// Depth formats
 			D24S8,
 			D32,
@@ -90,6 +94,9 @@ namespace Droplet
 			BC5,
 			BC6H,
 			BC7,
+			BC1_Srgb,
+			BC3_Srgb,
+			BC7_Srgb,
 
 			// Add more formats as needed...
 		};
@@ -124,6 +131,14 @@ namespace Droplet
 		/// @return The number of mipmap levels in the texture.
 		[[nodiscard]] int GetMipLevels() const;
 
+		/// @brief Sets whether missing mipmap levels should be generated when the texture is uploaded to the GPU.
+		/// @param p_generateMipmaps True to generate mipmaps.
+		void SetGenerateMipmaps(bool p_generateMipmaps);
+
+		/// @brief Gets whether missing mipmap levels should be generated when the texture is uploaded to the GPU.
+		/// @return True if mipmaps should be generated.
+		[[nodiscard]] bool GetGenerateMipmaps() const;
+
 		/// @brief Gets the pixel data for the texture.
 		/// @return A vector of bytes representing the pixel data for the texture.
 		[[nodiscard]] const std::vector<std::byte> &GetPixelData() const;
@@ -131,6 +146,7 @@ namespace Droplet
 	private:
 		TextureFormat	m_format = TextureFormat::Unknown;	// The format of the texture data
 		int				m_mipLevels = 1;					// The number of mipmap levels in the texture
+		bool			m_generateMipmaps = false;			// Whether missing mip levels are generated on upload
 		int				m_bytesPerPixel = 0;				// The number of bytes per pixel in the texture data (invalid for compressed formats)
 
 		std::vector<std::byte> m_pixelData{};				// Pixel data for the texture

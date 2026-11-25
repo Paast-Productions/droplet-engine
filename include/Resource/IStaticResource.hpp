@@ -27,6 +27,6 @@ namespace Droplet
 
     private:
 
-        // TODO: Declare
+        // TODO: (RESOURCES) Declare
     };
 }

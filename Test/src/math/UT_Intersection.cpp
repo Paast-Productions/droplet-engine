@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include <math/bounds/Intersection.hpp>
+#include <Math/Bounds/Intersection.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtx/quaternion.hpp>
 

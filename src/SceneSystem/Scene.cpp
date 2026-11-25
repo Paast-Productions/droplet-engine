@@ -51,7 +51,7 @@ void Scene::Load()
             "Cannot load Scene '" + m_name + "': Scene is already loaded.");
     }
 
-    // TODO: Implement scene loading
+    // TODO: (SCENE) Implement scene loading
     m_octree.Initialize(glm::vec3(0.0f), glm::vec3(100.0f));
 
     m_loaded = true;
@@ -86,7 +86,7 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -98,7 +98,7 @@ void Scene::Update()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -123,7 +123,7 @@ void Scene::LateUpdate()
     {
         for (const auto &root : m_roots)
         {
-            if (root == nullptr)
+            if (root == nullptr || !this->IsActive())
             {
                 continue;
             }
@@ -159,7 +159,7 @@ void Scene::FixedUpdate()
 
     for (const auto &root : m_roots)
     {
-        if (root == nullptr)
+        if (root == nullptr || !this->IsActive())
         {
             continue;
         }
@@ -185,7 +185,7 @@ void Scene::PrepareRender()
         root->QueueRender();
     }
 
-    // TODO: Frustum Culling, etc.
+    // TODO: (SCENE) Frustum Culling, etc.
 
 	// for each renderer
 	for (auto &renderer : m_renderers)
@@ -217,7 +217,7 @@ void Scene::PostRender()
     m_renderers.clear();
 }
 
-std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make weak pointer
+std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: (SCENE) Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -237,7 +237,7 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: Make we
     return node;
 }
 
-void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TODO: Make weak pointer
+void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TODO: (SCENE) Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -267,7 +267,7 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TOD
     m_roots.push_back(p_node);
 }
    
-void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak pointer
+void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: (SCENE) Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -284,6 +284,7 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: Make weak p
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
+    p_node->SetActiveSelf(false);
     m_roots.erase(it);
 }
 
@@ -312,7 +313,7 @@ void Scene::OnDestructNode(const Node *p_node)
 	}
 }
 
-const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const // TODO: Make weak pointer
+const std::vector<std::shared_ptr<Node>> &Scene::GetRoots() const // TODO: (SCENE) Make weak pointer
 {
     return m_roots;
 }
@@ -403,6 +404,16 @@ void Scene::RebuildOctree()
     }
 }
 
+Octree &Scene::GetOctree()
+{
+    return m_octree;
+}
+
+void Scene::RenderOctree(const bool p_renderOctants, const bool p_renderNodes)
+{
+    m_octree.Render(p_renderOctants, p_renderNodes);
+}
+
 void Scene::PrintOctree()
 {
     std::cout << m_octree.ToGraphviz();
@@ -464,6 +475,7 @@ void Scene::InitializePhysics(const Physics::Initializer p_initializer)
 
 std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 {
+    if (m_physics == nullptr) return {};
     return std::weak_ptr<Droplet::Physics>(m_physics);
 }
 

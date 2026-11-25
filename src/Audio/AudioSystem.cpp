@@ -3,6 +3,7 @@
 #include "Effects/ReverbEffect.hpp"
 #include "Effects/LowPassEffect.hpp"
 #include "Effects/HighPassEffect.hpp"
+#include "Effects/BandPassEffect.hpp"
 #include "SceneSystem/Components/AudioListenerComponent.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include "SceneSystem/Components/AudioPlayerComponent.hpp"
@@ -178,6 +179,96 @@ double AudioSystem::GetSoundLenghtInSeconds(SoundResource *sound) const
     double lenghtInSeconds = 0.0;
     m_daliaEngine->GetSoundLength(sound->GetHandle(), lenghtInSeconds);
     return lenghtInSeconds;
+}
+
+PlaybackID AudioSystem::Play2D(SoundResource *p_sound, const PlaybackConfig &p_config)
+{
+    if (!p_sound || m_isGamePaused) return C_INVALID_PLAYBACK_ID;
+
+    PlaybackID newId = m_nextPlaybackId++;
+    dalia::PlaybackHandle daliaHandle = dalia::INVALID_PLAYBACK_HANDLE;
+
+    auto exitCallback = [this, newId](dalia::PlaybackHandle, dalia::PlaybackExitCondition)
+    {
+        m_finishedPlaybacks.push_back(newId);
+    };
+
+    dalia::Result res = m_daliaEngine->CreatePlayback(daliaHandle, p_sound->GetHandle(), exitCallback);
+    if (res != dalia::Result::Ok)
+    {
+        LogDaliaError("AudioSystem: Failed to play 2D sound.", res);
+        return C_INVALID_PLAYBACK_ID;
+    }
+
+    m_daliaEngine->SetPlaybackSpatial(daliaHandle, false);
+
+    const char* bus = m_mixer.HasAudioBusWithName(p_config.busName) ? p_config.busName.c_str() : "Master";
+    res = m_daliaEngine->RoutePlayback(daliaHandle, bus);
+    if (res != dalia::Result::Ok) LogDaliaError("AudioSystem: Failed to route 2D playback.", res);
+
+    if (p_config.startTimeSeconds > 0.001) m_daliaEngine->SeekPlayback(daliaHandle, p_config.startTimeSeconds);
+    m_daliaEngine->SetPlaybackVolumeDb(daliaHandle, std::clamp(p_config.volumeDb, C_VOLUME_DECIBEL_MIN, C_VOLUME_DECIBEL_MAX));
+    m_daliaEngine->SetPlaybackStereoPan(daliaHandle, std::clamp(p_config.stereoPan, C_STEREO_PAN_LEFT, C_STEREO_PAN_RIGHT));
+    m_daliaEngine->SetPlaybackRate(daliaHandle, std::clamp(p_config.pitch, C_PITCH_MIN, C_PITCH_MAX));
+    m_daliaEngine->SetPlaybackLooping(daliaHandle, p_config.looping);
+
+    m_daliaEngine->PlayPlayback(daliaHandle);
+    m_playbacks[newId] = { .handle = daliaHandle, .state = PlaybackState::Playing };
+    return newId;
+}
+
+void AudioSystem::SetPlaybackVolumeDb(PlaybackID p_id, float p_volumeDb)
+{
+    auto it = m_playbacks.find(p_id);
+    if (it != m_playbacks.end())
+    {
+        float clamped = std::clamp(p_volumeDb, C_VOLUME_DECIBEL_MIN, C_VOLUME_DECIBEL_MAX);
+        m_daliaEngine->SetPlaybackVolumeDb(it->second.handle, clamped);
+    }
+}
+
+void AudioSystem::SetPlaybackPitch(PlaybackID p_id, float p_pitch)
+{
+    auto it = m_playbacks.find(p_id);
+    if (it != m_playbacks.end())
+    {
+        float clamped = std::clamp(p_pitch, C_PITCH_MIN, C_PITCH_MAX);
+        m_daliaEngine->SetPlaybackRate(it->second.handle, clamped);
+    }
+}
+
+void AudioSystem::SetPlaybackStereoPan(PlaybackID p_id, float p_pan)
+{
+    auto it = m_playbacks.find(p_id);
+    if (it != m_playbacks.end())
+    {
+        float clamped = std::clamp(p_pan, C_STEREO_PAN_LEFT, C_STEREO_PAN_RIGHT);
+        m_daliaEngine->SetPlaybackStereoPan(it->second.handle, clamped);
+    }
+}
+
+void AudioSystem::SetPlaybackLooping(PlaybackID p_id, bool p_looping)
+{
+    auto it = m_playbacks.find(p_id);
+    if (it != m_playbacks.end())
+    {
+        m_daliaEngine->SetPlaybackLooping(it->second.handle, p_looping);
+    }
+}
+
+bool AudioSystem::RoutePlayback(PlaybackID p_id, const std::string& p_busName)
+{
+    auto it = m_playbacks.find(p_id);
+    if (it == m_playbacks.end()) return false;
+
+    const char* bus = m_mixer.HasAudioBusWithName(p_busName) ? p_busName.c_str() : "Master";
+    dalia::Result res = m_daliaEngine->RoutePlayback(it->second.handle, bus);
+    if (res != dalia::Result::Ok)
+    {
+        LogDaliaError("AudioSystem: Failed to route playback.", res);
+        return false;
+    }
+    return true;
 }
 
 void AudioSystem::RegisterPlayerComponent(Scene::AudioPlayerComponent *player)
@@ -429,7 +520,7 @@ void AudioSystem::SetMode(bool p_isGameMode)
     for (auto* emitter : m_emitterComponents) emitter->OnPlaybackFinished();
     
     // Activate/deactivate listeners based on mode
-        m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !p_isGameMode);
+    m_daliaEngine->SetListenerActive(C_EDITOR_LISTENER_ID, !p_isGameMode);
     for (uint32_t i = 1; i < 4; i++)
     {
         if (m_listeners[i].taken && m_listeners[i].active != false)
@@ -557,8 +648,9 @@ bool Droplet::Audio::AudioSystem::ChangeEffectSetting(dalia::EffectHandle &p_eff
 
 void Droplet::Audio::AudioSystem::RegisterEffects()
 {
-    //TODO Every effect type that we create in droplet gets registered here to be used later
+    //TODO: (AUDIO) Every effect type that we create in droplet gets registered here to be used later
     //EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
     EffectRegistry::RegisterEffect("LowPassEffect", []() {return std::make_unique<LowPassEffect>();});
     EffectRegistry::RegisterEffect("HighPassEffect", []() {return std::make_unique<HighPassEffect>();});
+    EffectRegistry::RegisterEffect("BandPassEffect", []() {return std::make_unique<BandPassEffect>();});
 }

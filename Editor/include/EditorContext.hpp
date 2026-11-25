@@ -1,6 +1,7 @@
 #pragma once
 #include "InteractionState.hpp"
 #include "SceneSystem/Scene.hpp"
+#include <Common/Camera.hpp>
 #include <Scene/EditorCamera.hpp>
 #include <Scene/EditorCameraController.hpp>
 #include <Engine/Engine.hpp>
@@ -87,8 +88,8 @@ namespace Droplet::Editor
 		/// @return A weak pointer to the CameraComponent that is currently set as the game camera.
 		[[nodiscard]] std::weak_ptr<Droplet::Scene::CameraComponent> GetGameCamera() { return m_gameCamera; }
 
-		void QueueEditorCamera(const Graphics::CameraRenderData &p_camRenderData) { m_camsToRender.push_back(p_camRenderData); }
-		[[nodiscard]] const std::vector<Graphics::CameraRenderData> &GetQueuedEditorCameras() const { return m_camsToRender; }
+		void QueueEditorCamera(const Common::CameraRenderData &p_camRenderData) { m_camsToRender.push_back(p_camRenderData); }
+		[[nodiscard]] const std::vector<Common::CameraRenderData> &GetQueuedEditorCameras() const { return m_camsToRender; }
 		void ClearQueuedEditorCameras() { m_camsToRender.clear(); }
 
 		void SetNodeScrollFocus(const std::weak_ptr<Droplet::Scene::Node> &p_node) { m_scrollFocusNode = p_node; }
@@ -114,7 +115,7 @@ namespace Droplet::Editor
 
 		std::weak_ptr<Droplet::Scene::CameraComponent> m_gameCamera{};
 
-		std::vector<Graphics::CameraRenderData> m_camsToRender;
+		std::vector<Common::CameraRenderData> m_camsToRender;
 
 		std::weak_ptr<Droplet::Scene::Node> m_scrollFocusNode;
 		bool m_focusCameraOnSelection{ false };

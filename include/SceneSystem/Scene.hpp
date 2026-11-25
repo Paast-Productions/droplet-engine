@@ -7,7 +7,7 @@
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
 
@@ -127,12 +127,12 @@ namespace Droplet::Scene
         /// @param p_name Name of the Node to create.
         ///
         /// @return A shared pointer to the created Node.
-        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: Make weak pointer
+        std::shared_ptr<Node> AddNode(const std::string &p_name); // TODO: (SCENE) Make weak pointer
 
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
 		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
-		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: Make weak pointer
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: (SCENE) Make weak pointer
 
         /// @brief Removes a root Node from the Scene.
         ///
@@ -158,7 +158,7 @@ namespace Droplet::Scene
         /// contain any number of root Nodes.
         ///
         /// @return A constant reference to the Scene's root Nodes.
-        const std::vector<std::shared_ptr<Node>> &GetRoots() const; // TODO: Make weak pointer
+        const std::vector<std::shared_ptr<Node>> &GetRoots() const; // TODO: (SCENE) Make weak pointer
 
         /// @brief Gets the Scene's name.
         ///
@@ -204,6 +204,13 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    	
+    	Octree &GetOctree();
+    
+		/// @brief Render octree
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+    	void RenderOctree(const bool p_renderOctants, const bool p_renderNodes);
     	
         /// @brief Prints graphviz code for visualizing the octree top-down
         void PrintOctree();
@@ -274,7 +281,7 @@ namespace Droplet::Scene
             return nullptr;
         }
 
-        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: Make weak pointer
+        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
 
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 

@@ -6,8 +6,8 @@
 #include <vector>
 #include <array>
 #include <string>
-#include <math/bounds/AABB.hpp>
-#include <math/bounds/Frustum.hpp>
+#include <Math/Bounds/AABB.hpp>
+#include <Math/Bounds/Frustum.hpp>
 #include <SceneSystem/Node.hpp>
 #include <Resource/GuidUtils.hpp>
 
@@ -79,6 +79,24 @@ namespace Droplet::Scene
     	/// @param[out] p_nodes The out vector containing nodes inside the shape
 		void GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::weak_ptr<Node>> &p_nodes, CollisionLayer p_layerMask = CollisionLayer::All);
 		
+		float GetExtentLength() const;
+		
+		/// @brief Get max nodes in an octant
+		/// @return The max number of nodes in an octant
+		std::uint8_t GetMaxNodes() const;
+		
+		/// @brief Get max depth in the octree
+		/// @return The max depth of the octree
+		std::uint8_t GetMaxDepth() const;
+		
+		/// @brief Set max nodes in an octant
+		/// @param p_maxNodes Number of max nodes
+		void SetMaxNodes(const std::uint8_t p_maxNodes);
+		
+		/// @brief Set max depth in the octree
+		/// @param p_maxDepth Number of max depth
+		void SetMaxDepth(const std::uint8_t p_maxDepth);
+		
 		/// @brief Generates graphviz code for visualizing the octree from top down (xz-projected)
 		/// @note It is recommended to use nop/nop2 graphviz engine for this
 		/// @return The string of graphviz code generated
@@ -90,7 +108,9 @@ namespace Droplet::Scene
 		std::string ToGraphvizTree();
 		
 		/// @brief Render the octree octants and nodes 
-		void Render();
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+		void Render(const bool p_renderOctants, const bool p_renderNodes);
 		
 		/// @brief Clear outs the octree so that the scene can rebuild it from scratch
 		void Clear();
@@ -209,12 +229,14 @@ namespace Droplet::Scene
 		
 		/// @brief Helper function for rendering every octant and node
 		/// @param p_treeNode The TreeNode to be rendered
-		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode);
+		/// @param p_renderOctants True to render octants
+		/// @param p_renderNodes True to render nodes
+		void RenderOctant(const std::unique_ptr<TreeNode> &p_treeNode, const bool p_renderOctants, const bool p_renderNodes);
 
-		static constexpr std::uint8_t C_MAX_NODES = 32;
-		static constexpr std::uint8_t C_MAX_DEPTH = 6;
-		static constexpr std::uint8_t C_MERGE_THRESHOLD = 16;
-		static constexpr float C_FAT_AABB_MARGIN = 0.5f;
+		std::uint8_t m_maxNodes = 32;
+		std::uint8_t m_maxDepth = 6;
+		std::uint8_t m_mergeThreshold = 16;
+		float m_fatAabbMargin = 0.5f;
 
 		struct TreeNode
 		{

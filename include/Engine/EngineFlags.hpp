@@ -19,7 +19,7 @@ namespace Droplet
 		// Add more flags as needed
 
 		EditorFlags = InEditor | SkipAutoRender | SkipNodeLogic | SkipBehaviourLogic | SkipScriptLogic,
-		PlayModeFlags = InEditor | InPlayMode,
+		PlayModeFlags = InEditor | InPlayMode | SkipHotReloadScripts,
 		GameFlags = SkipHotReloadScripts,
 		DefaultFlags = None
 	}; 

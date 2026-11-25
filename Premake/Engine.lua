@@ -10,6 +10,7 @@ project "Engine"
 		"TRACY_MEMORY",
         "GLM_ENABLE_EXPERIMENTAL",
 		"IMGUI_DEFINE_MATH_OPERATORS",
+        "VULKAN_HPP_NO_CONSTRUCTORS",
         "ROOT_PATH=" .. AddQuotation("../../../..")
     }
 
@@ -55,6 +56,8 @@ project "Engine"
         "VulkanMemoryAllocator",
         "Jolt",
         "Assimp",
+        "SDL",
+        "GLM",
         "Stb",
         "Gli",
         "bvh",

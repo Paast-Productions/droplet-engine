@@ -4,14 +4,7 @@
 #include "SceneSystem/Components/PhysicsComponent.hpp"
 #include <ImGui/imgui.h>
 
-Droplet::Scene::AudioListenerComponent::AudioListenerComponent()
-{
-}
-
-Droplet::Scene::AudioListenerComponent::~AudioListenerComponent()
-{
-    Audio::AudioSystem::GetInstance().UnregisterListenerComponent(this); // Just to be safe
-}
+Droplet::Scene::AudioListenerComponent::~AudioListenerComponent() {}
 
 glm::vec3 Droplet::Scene::AudioListenerComponent::GetWorldPosition() const
 {
@@ -64,7 +57,9 @@ glm::vec3 Droplet::Scene::AudioListenerComponent::GetVelocity() const
 
 void Droplet::Scene::AudioListenerComponent::RenderUIImpl()
 {
+#ifdef _EDITOR
     ImGui::Text("This is a listener");
+#endif
 }
 
 void Droplet::Scene::AudioListenerComponent::ActiveChangedImpl(const bool p_active)

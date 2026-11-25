@@ -1,6 +1,6 @@
 #include "SlangFormat.hpp"
 
-#include <Graphics/Vulkan/ShaderCompiler.hpp>
+#include <Resource/IO/ShaderCompiler.hpp>
 #include <Resource/Meta/MetaUtils.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 
@@ -16,7 +16,7 @@ namespace Droplet::IO::SlangFormat
         
         try
         {
-            thread_local Graphics::ShaderCompiler s_compiler;
+            thread_local ShaderCompiler s_compiler;
             return std::make_unique<ShaderResource>(type, s_compiler.CompileShader(p_shaderPath));
         }
         catch (const std::exception&)

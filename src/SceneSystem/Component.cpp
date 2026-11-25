@@ -1,4 +1,5 @@
 #include "Component.hpp"
+#include <Scene.hpp>
 #include <Node.hpp>
 #include <ImGui/imgui.h>
 #include <stdexcept>
@@ -113,14 +114,14 @@ void Component::QueueRender()
 	QueueRenderImpl();
 }
 
-Droplet::Graphics::RenderData Component::GetRenderData()
+Droplet::Common::RenderData Component::GetRenderData()
 {
 	if (!IsActiveSelf() || !m_started)
 	{
 		return {};
 	}
 
-	Droplet::Graphics::RenderData rData = GetRenderDataImpl();
+	Droplet::Common::RenderData rData = GetRenderDataImpl();
 	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
 
 	return rData;
@@ -154,23 +155,26 @@ void Component::RenderUI()
 
 void Droplet::Scene::Component::Destroy()
 {
-	if (!IsActiveSelf() || !m_started)
+    // NOTE: Make sure you do not call GetOwner() anywhere in this function or within DestroyImpl as the shared pointer
+    // it returns will have 0 references and the lock will fail. This is due to nodes using shared pointers instead
+    // of unique pointers (which should hopefully get fixed at some point) /Arvid
+    
+	if (!m_started)
 	{
 		return;
 	}
 
 	ZoneScoped;
 	ZoneText(GetTypeName().data(), GetTypeName().size());
-
 	DestroyImpl();
 }
 
-std::shared_ptr<Node> Component::GetOwner() const // TODO: Make weak pointer
+std::shared_ptr<Node> Component::GetOwner() const // TODO: (COMPONENT Make weak pointer
 {
     return m_owner.lock();
 }
 
-void Component::SetOwner(std::shared_ptr<Node> p_owner) // TODO: Make weak pointer
+void Component::SetOwner(std::shared_ptr<Node> p_owner) // TODO: (COMPONENT) Make weak pointer
 {
     m_owner = p_owner;
 }
@@ -218,7 +222,7 @@ nlohmann::json Component::Serialize()
 
 	nlohmann::json compJson;
 
-    // TODO: Insert component type name.
+    // TODO: (COMPONENT) Insert component type name.
 	// This is how we know what type of component to create when deserializing.
     // Must be an exact match to the type name used in the ComponentRegistry.
     compJson["type"] = GetTypeName(); 
@@ -248,6 +252,27 @@ void Component::Deserialize(const nlohmann::json p_compJson)
 	DeserializeImpl(dataJson);
 }
 
-void Component::ResolveReferences([[maybe_unused]] SerializationContext &p_context)
+void Component::ResolveReferences(SerializationContext &p_context)
 {
+
+}
+
+Transform &Component::GetTransform()
+{
+	auto owner = m_owner.lock();
+	if (!owner)
+	{
+		throw std::runtime_error("Component has no owner.");
+	}
+	return owner->GetTransform();
+}
+
+std::shared_ptr<Scene> Component::GetScene() const
+{
+	auto owner = m_owner.lock();
+	if (!owner)
+	{
+		throw std::runtime_error("Component has no owner.");
+	}
+	return owner->GetScene();
 }

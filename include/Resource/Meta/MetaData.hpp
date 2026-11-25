@@ -88,7 +88,7 @@ namespace Droplet
         };
         
         // --- Texture Settings ---
-        inline constexpr Setting<bool> C_GENERATE_MIPMAPS = { "generate_mipmaps", "Generate Mipmaps", false };
+        inline constexpr Setting<bool> C_GENERATE_MIPMAPS = { "generate_mipmaps", "Generate Mipmaps", true };
         
         // --- Mesh Settings ---
         inline constexpr Setting<bool> C_GENERATE_NORMALS = { "generate_normals", "Generate Normals", true };

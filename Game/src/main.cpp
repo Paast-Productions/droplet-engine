@@ -9,7 +9,7 @@ const glm::vec2 C_INITSIZE = { 1280, 720 };
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
-    // TODO: Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
+    // TODO: (DEBUG) Check if Tracy is enabled and if so, sleep for a few seconds to allow the profiler to connect before starting the engine
     ZoneScopedN("Game"); // NOTE: Scoped Tracy calls should almost always be on the first line of their scope
 
     glm::vec2 windowSize = C_INITSIZE;
@@ -37,6 +37,10 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
     engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
+
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 
@@ -56,7 +60,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
         break;
     }
 
-    Droplet::EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::GameFlags);
+    Droplet::EngineFlagsOwner::SetUpdateFlags(Droplet::UpdateFlags::GameFlags | Droplet::UpdateFlags::PlayModeFlags);
 
     bool mouseLock = true;
     bool fullscreen = true;

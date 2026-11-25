@@ -9,7 +9,7 @@
 #include <EditorCameraController.hpp>
 #include <InteractionState.hpp>
 #include <EditorContext.hpp>
-#include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Common/RenderDesc.hpp>
 #include <Engine.hpp>
 
 namespace Droplet::Editor::Scene
@@ -37,6 +37,7 @@ namespace Droplet::Editor::Scene
 
 	private:
 		bool m_renderingGameView = false;
+		bool m_useEditorCameraInPlayMode = false;
 
 		/// @brief Variable that controls to lock the camera or not
 		bool m_cameraLookToggled = false;
@@ -56,7 +57,7 @@ namespace Droplet::Editor::Scene
 		glm::mat4 m_gizmoRawMatrix = glm::mat4(1.0f);
 		
 		/// @brief Bool indicating whether the SDL Window has been resized
-		bool m_hasBeenResized = false;
+		bool m_hasBeenResized = true;
 
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };
@@ -75,6 +76,8 @@ namespace Droplet::Editor::Scene
 		void RenderEditorView();
 
 		void RenderGameView();
+
+		void RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneViewSize);
 
 		void RemovePrefabPreview();
 
