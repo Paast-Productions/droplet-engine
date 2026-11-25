@@ -21,12 +21,15 @@ ScriptSystem::~ScriptSystem()
 void ScriptSystem::Initialize(Scene::SceneManager &p_sceneManager)
 {
 	ZoneScoped;
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
 	Bindings::LuaBindings::RegisterBindings(m_luaStateHandler.GetState(), p_sceneManager);
 }
 
 void ScriptSystem::Shutdown()
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
 	if (m_isShutdown)
 	{
 		return;
@@ -39,16 +42,19 @@ void ScriptSystem::Shutdown()
 
 void ScriptSystem::StartComponent(Droplet::Scene::Component *p_scriptComponent)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.StartComponent(p_scriptComponent);
 }
 
 void ScriptSystem::StartBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.StartBehaviour(p_scriptBehaviour);
 }
 
 void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.UpdateComponent(p_scriptComponent, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
@@ -60,6 +66,7 @@ void ScriptSystem::UpdateComponent(Droplet::Scene::Component *p_scriptComponent,
 
 void ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, float p_deltaTime)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.UpdateBehaviour(p_scriptBehaviour, p_deltaTime);
 
 	// Check for script file changes and reload if necessary, unless the SkipHotReloadScripts flag is set
@@ -71,28 +78,32 @@ void ScriptSystem::UpdateBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour,
 
 std::string Droplet::Script::ScriptSystem::SerializeComponent(Droplet::Scene::Component *p_scriptComponent)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	return m_scriptManager.SerializeComponent(p_scriptComponent);
 }
 
 void Droplet::Script::ScriptSystem::DeserializeComponent(Droplet::Scene::Component *p_scriptComponent, const std::string &p_data)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.DeserializeComponent(p_scriptComponent, p_data);
 }
 
 std::string Droplet::Script::ScriptSystem::SerializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	return m_scriptManager.SerializeBehaviour(p_scriptBehaviour);
 }
 
 void Droplet::Script::ScriptSystem::DeserializeBehaviour(Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string &p_data)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.DeserializeBehaviour(p_scriptBehaviour, p_data);
 }
 
 void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode )
 {
 	//if(p_component.AlreadyTriggered) return
-
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);	
 	m_scriptManager.TriggerComponentScript(p_scriptComponent, p_deltaTime, p_otherNode);
 	
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::SkipHotReloadScripts))
@@ -104,6 +115,7 @@ void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptCom
 void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, const std::string &p_scriptFile)
 {
 	ZoneScoped;
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
 	if (p_scriptFile.empty())
@@ -117,6 +129,7 @@ void ScriptSystem::CreateComponentScript(Scene::Component *p_sciptComponent, con
 void ScriptSystem::CreateBehaviourScript(Scene::Behaviour *p_scriptBehaviour, const std::string &p_scriptFile)
 {
 	ZoneScoped;
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
 	if (p_scriptFile.empty())
@@ -129,12 +142,15 @@ void ScriptSystem::CreateBehaviourScript(Scene::Behaviour *p_scriptBehaviour, co
 
 void Droplet::Script::ScriptSystem::DeleteComponentScript(Droplet::Scene::Component *p_scriptComponent)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
 	m_scriptManager.DestoryComponentScript(p_scriptComponent);
 }
 
 void ScriptSystem::LoadScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
 	m_scriptManager.LoadScript(p_scriptFile);
@@ -143,6 +159,7 @@ void ScriptSystem::LoadScript(const std::string &p_scriptFile)
 void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 {
 	ZoneScoped;
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	ZoneText(p_scriptFile.c_str(), p_scriptFile.size());
 
 	m_scriptManager.UnloadScript(p_scriptFile);
@@ -150,25 +167,30 @@ void ScriptSystem::UnloadScript(const std::string &p_scriptFile)
 
 void ScriptSystem::DetachComponentScript(Scene::Component *p_scriptComponent)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.DetachComponentScript(p_scriptComponent);
 }
 
 void ScriptSystem::DetachBehaviourScript(Scene::Behaviour *p_scriptBehaviour)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.DetachBehaviourScript(p_scriptBehaviour);
 }
 
 void ScriptSystem::SetScriptPath(const std::string &p_directoryPath)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.SetScriptDirectory(p_directoryPath);
 }
 
 std::string ScriptSystem::GetScriptPath()
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	return m_scriptManager.GetScriptDirectory();
 }
 
 void ScriptSystem::DetachAllInstancesToScript(const std::string &p_scriptPath)
 {
+	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 	m_scriptManager.DetachAllInstancesToScript(p_scriptPath);
 }
