@@ -52,7 +52,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 91,
+            "id": 178,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -119,7 +119,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 93,
+                    "id": 180,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -169,7 +169,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 94,
+                    "id": 181,
                     "name": "Lantern",
                     "transform": {
                         "position": [
@@ -247,7 +247,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 92,
+            "id": 179,
             "name": "Player",
             "transform": {
                 "position": [
@@ -322,7 +322,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 96,
+                    "id": 183,
                     "name": "Pod Exterior",
                     "transform": {
                         "position": [
@@ -347,7 +347,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 97,
+                    "id": 184,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -375,7 +375,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 8,
-                    "id": 106,
+                    "id": 193,
                     "name": "Interaction Button",
                     "transform": {
                         "position": [
@@ -448,7 +448,7 @@
                         {
                             "active": true,
                             "data": {
-                                "data": "{\"closedAngle\":0,\"curvePower\":0.75,\"state\":true,\"openAngle\":140.72099304199}",
+                                "data": "{\"state\":true,\"closedAngle\":0,\"curvePower\":0.75,\"openAngle\":140.72099304199}",
                                 "filepath": "PodDoor.lua"
                             },
                             "id": 3,
@@ -456,7 +456,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 107,
+                    "id": 194,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -484,10 +484,10 @@
                     "active": true,
                     "data": {
                         "bufferTime": 0.5,
-                        "button": 106,
-                        "door": 107,
+                        "button": 193,
+                        "door": 194,
                         "hasTransitionPeriod": true,
-                        "player": 92,
+                        "player": 179,
                         "reach": 1.0,
                         "targetSceneName": "Internlevel",
                         "timeToCloseDoor": 0.5,
@@ -498,7 +498,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 95,
+            "id": 182,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -551,7 +551,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 109,
+                    "id": 196,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -601,7 +601,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 110,
+                    "id": 197,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -651,7 +651,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 111,
+                    "id": 198,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -701,7 +701,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 112,
+                    "id": 199,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -751,7 +751,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 113,
+                    "id": 200,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -801,7 +801,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 114,
+                    "id": 201,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -851,7 +851,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 115,
+                    "id": 202,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -901,7 +901,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 116,
+                    "id": 203,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -951,7 +951,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 117,
+                    "id": 204,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1001,7 +1001,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 118,
+                    "id": 205,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1051,7 +1051,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 119,
+                    "id": 206,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1101,7 +1101,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 120,
+                    "id": 207,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1151,7 +1151,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 121,
+                    "id": 208,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1201,7 +1201,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 122,
+                    "id": 209,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1251,7 +1251,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 123,
+                    "id": 210,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1301,7 +1301,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 124,
+                    "id": 211,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1351,7 +1351,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 125,
+                    "id": 212,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1401,7 +1401,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 126,
+                    "id": 213,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1451,7 +1451,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 127,
+                    "id": 214,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1501,7 +1501,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 128,
+                    "id": 215,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1551,7 +1551,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 129,
+                    "id": 216,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1601,7 +1601,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 130,
+                    "id": 217,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1651,7 +1651,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 131,
+                    "id": 218,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1701,7 +1701,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 132,
+                    "id": 219,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1751,7 +1751,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 133,
+                    "id": 220,
                     "name": "Mesh Node",
                     "transform": {
                         "position": [
@@ -1802,7 +1802,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 134,
+                    "id": 221,
                     "name": "SeaAmbiance",
                     "transform": {
                         "position": [
@@ -1827,7 +1827,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 108,
+            "id": 195,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1880,7 +1880,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 136,
+                    "id": 223,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -1905,7 +1905,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 135,
+            "id": 222,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -1980,14 +1980,14 @@
                         "pitch": 1.0,
                         "soundGuid": 16400736593281290847,
                         "startTimeSeconds": 0.0,
-                        "volumeDb": 0.0
+                        "volumeDb": -5.0
                     },
                     "id": 4,
                     "type": "AudioEmitterComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 137,
+            "id": 224,
             "name": "Portrait",
             "transform": {
                 "position": [
@@ -2037,7 +2037,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 138,
+            "id": 225,
             "name": "Crane",
             "transform": {
                 "position": [
@@ -2072,6 +2072,20 @@
                 {
                     "active": true,
                     "data": {
+                        "busName": "Master",
+                        "looping": false,
+                        "pitch": 1.0,
+                        "soundGuid": 16874356715363899019,
+                        "startTimeSeconds": 0.0,
+                        "stereoPan": 0.0,
+                        "volumeDb": -10.0
+                    },
+                    "id": 4,
+                    "type": "AudioPlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "data": "",
                         "filepath": "ladder.lua"
                     },
@@ -2088,8 +2102,8 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 139,
-            "name": "Empty Node",
+            "id": 226,
+            "name": "HatchInteractable",
             "transform": {
                 "position": [
                     -0.5962095260620117,
@@ -2141,7 +2155,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 141,
+                    "id": 228,
                     "name": "Postit",
                     "transform": {
                         "position": [
@@ -2184,7 +2198,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 142,
+                    "id": 229,
                     "name": "New Node",
                     "transform": {
                         "position": [
@@ -2254,7 +2268,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 140,
+            "id": 227,
             "name": "repair bench",
             "transform": {
                 "position": [
@@ -2304,7 +2318,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 143,
+            "id": 230,
             "name": "Invisible Wall",
             "transform": {
                 "position": [
@@ -2354,7 +2368,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 144,
+            "id": 231,
             "name": "Invisible Wall",
             "transform": {
                 "position": [
@@ -2379,7 +2393,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 145,
+            "id": 232,
             "name": "RonnyCutoutWide",
             "prefab": "GameData\\Prefabs\\RonnyCutoutWide.json",
             "transform": {
@@ -2433,7 +2447,7 @@
                         }
                     ],
                     "drawLayer": 64,
-                    "id": 154,
+                    "id": 241,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -2458,7 +2472,7 @@
             "collisionLayerMask": 33,
             "components": [],
             "drawLayer": 1,
-            "id": 153,
+            "id": 240,
             "name": "Drone",
             "transform": {
                 "position": [
