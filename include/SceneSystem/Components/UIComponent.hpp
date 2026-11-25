@@ -1,6 +1,5 @@
 #pragma once
 #include <SceneSystem/Component.hpp>
-#include "GameInput.hpp"
 
 namespace Droplet::Scene
 {
@@ -20,6 +19,9 @@ namespace Droplet::Scene
 		nlohmann::json SerializeImpl() override;
 
 	private:
-		//DOTO if variabels is needed.
+		bool m_hover;
+		bool m_pressed;
+		bool m_held;
+
 	};
 }
