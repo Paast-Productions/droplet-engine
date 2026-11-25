@@ -6,6 +6,7 @@
 
 #include <Graphics/Vulkan/ShaderModule.hpp> 
 #include <Graphics/Vulkan/RenderTarget.hpp>
+#include <Graphics/Vulkan/TextureFormatUtils.hpp>
 #include <Graphics/Vulkan/ImGuiTexture.hpp>
 #include <Graphics/RenderData.hpp>
 #include <Resource/DynamicResourceHandle.hpp>
@@ -612,10 +613,12 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
         texRes.Get()->GetPixelData().size(),
         texRes.Get()->GetWidth(),
         texRes.Get()->GetHeight(),
-        vk::Format::eR8G8B8A8Unorm,
+        TextureFormatUtils::ToVkFormat(texRes.Get()->GetFormat()),
         vk::ImageTiling::eOptimal,
         vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-        vk::MemoryPropertyFlagBits::eDeviceLocal
+        vk::MemoryPropertyFlagBits::eDeviceLocal,
+        static_cast<std::uint32_t>(texRes.Get()->GetMipLevels()),
+        texRes.Get()->GetGenerateMipmaps()
     );
     
     std::uint32_t destIndex = static_cast<std::uint32_t>(m_viewMap.size());
@@ -623,8 +626,9 @@ std::uint32_t IntermediaryStorage::GetTextureID(RenderData p_renderData, Command
     m_viewMap.emplace_back(
         m_context->GetDevice(),
         m_imageMap.back().Get(),
-        vk::Format::eR8G8B8A8Unorm,
-        vk::ImageAspectFlagBits::eColor
+        m_imageMap.back().GetFormat(),
+        vk::ImageAspectFlagBits::eColor,
+        m_imageMap.back().GetMipLevels()
     );
 
     const std::uint32_t descriptorSetIndex { m_descriptorSetIndexMap.at(vk::DescriptorType::eCombinedImageSampler) };
@@ -707,10 +711,12 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
             texRes.Get()->GetPixelData().size(),
             texRes.Get()->GetWidth(),
             texRes.Get()->GetHeight(),
-            vk::Format::eR8G8B8A8Unorm,
+            TextureFormatUtils::ToVkFormat(texRes.Get()->GetFormat()),
             vk::ImageTiling::eOptimal,
             vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-            vk::MemoryPropertyFlagBits::eDeviceLocal)
+            vk::MemoryPropertyFlagBits::eDeviceLocal,
+            static_cast<std::uint32_t>(texRes.Get()->GetMipLevels()),
+            texRes.Get()->GetGenerateMipmaps())
     };
     
     GUID imageGuid { GuidUtils::Generate() };
@@ -724,8 +730,9 @@ Droplet::Graphics::ImGuiTexture IntermediaryStorage::CreateImGuiTexture(GUID p_g
         .resource = std::make_unique<ImageView>(
             m_context->GetDevice(),
             imGuiImageHandle->Get(),
-            vk::Format::eR8G8B8A8Unorm,
-            vk::ImageAspectFlagBits::eColor)
+            imGuiImageHandle->GetFormat(),
+            vk::ImageAspectFlagBits::eColor,
+            imGuiImageHandle->GetMipLevels())
     };
     
     GUID imageViewGuid { GuidUtils::Generate() };

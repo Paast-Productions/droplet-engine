@@ -39,6 +39,16 @@ namespace Droplet
         return m_mipLevels;
     }
 
+    void TextureResource::SetGenerateMipmaps(bool p_generateMipmaps)
+    {
+        m_generateMipmaps = p_generateMipmaps;
+    }
+
+    bool TextureResource::GetGenerateMipmaps() const
+    {
+        return m_generateMipmaps;
+    }
+
     const std::vector<std::byte> & TextureResource::GetPixelData() const
     {
         return m_pixelData;
