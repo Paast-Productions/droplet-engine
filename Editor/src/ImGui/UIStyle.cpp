@@ -124,7 +124,7 @@ void UIStyle::SaveLayout(const std::string &name)
 	}
 	catch ([[maybe_unused]] const std::exception &e)
 	{
-		// TODO
+		// TODO: (LOGGING?)
 	}
 }
 
@@ -246,7 +246,7 @@ void UIStyle::SaveStyle(const std::string &name)
 	}
 	catch ([[maybe_unused]] const std::exception &e)
 	{
-		// TODO
+		// TODO: (LOGGING?)
 	}
 
 	EditorConfig::StoreString("Editor.Style", name);
@@ -352,7 +352,7 @@ void UIStyle::LoadStyle(const std::string &name)
 		}
 		catch ([[maybe_unused]] const std::exception &e)
 		{
-			// TODO
+			// TODO: (LOGGING?)
 		}
 	}
 
@@ -589,7 +589,7 @@ void UIStyle::LoadStyle(const std::string &name)
 			style.Colors[i] = ToVec4(doc.at("Colors").at(i));
 		}
 
-		// TODO: Load font
+		// TODO: (UI) Load font
 		if (doc.contains("FontName"))
 			std::string fontName = doc.at("FontName").get<std::string>();
 

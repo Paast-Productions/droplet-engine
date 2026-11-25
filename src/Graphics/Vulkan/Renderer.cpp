@@ -36,24 +36,29 @@ Renderer::Renderer(SDL_Window *p_window) :
 	Vulkan::IntermediaryStorage::GetInstance().Initialise(m_context, m_commandPool);
 	m_swapchain = { m_context.GetDevice(), m_context.GetPhysicalDevice(), m_window, m_context.GetSurface() };
 	
-	// TODO: <REFACTOR>
+	// TODO: (RENDERING) <REFACTOR>
 	
 	// - - - - - - - - - - //
 	//         Debug       //
 	// - - - - - - - - - - //
 	
-	vk::DescriptorPoolSize poolSize
-	{
-		.type = vk::DescriptorType::eUniformBuffer,
-		.descriptorCount = 2
-	};
+	std::array<vk::DescriptorPoolSize, 2> poolSizes {{
+		{
+			.type = vk::DescriptorType::eUniformBuffer,
+			.descriptorCount = 2
+		},
+		{
+			.type = vk::DescriptorType::eCombinedImageSampler,
+			.descriptorCount = 256
+		}
+	}};
 	
 	vk::DescriptorPoolCreateInfo debugPoolInfo
 	{ 
 		.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-		.maxSets = 3,
-		.poolSizeCount = 1,
-		.pPoolSizes = &poolSize 
+		.maxSets = 258,
+		.poolSizeCount = static_cast<std::uint32_t>(poolSizes.size()),
+		.pPoolSizes = poolSizes.data()
 	};
 	
 	m_debugDescriptorPool = vk::raii::DescriptorPool(m_context.GetDevice(), debugPoolInfo);
@@ -63,12 +68,15 @@ Renderer::Renderer(SDL_Window *p_window) :
 		m_context.GetPhysicalDevice(),
 		m_context.GetDevice(),
 		Vulkan::IntermediaryStorage::GetInstance().GetAllocator(),
+		m_context,
 		m_context.GetQueue(),
-		m_commandPool.Get(),
+		m_commandPool,
 		m_debugDescriptorPool,
 		m_swapchain.GetSurfaceFormat().format,
 		m_swapchain.GetDepthFormat(),
-		MAX_FRAMES_IN_FLIGHT);
+		MAX_FRAMES_IN_FLIGHT,
+		m_context.SupportsRectangularSmooth() ? vk::LineRasterizationMode::eRectangularSmooth : vk::LineRasterizationMode::eBresenham
+	);
 
 	constexpr Vulkan::ViewProjectionBuffer vpb
 	{
@@ -79,6 +87,15 @@ Renderer::Renderer(SDL_Window *p_window) :
 	m_vpBufferIndex = Vulkan::IntermediaryStorage::GetInstance().CreateBufferResource<Vulkan::ViewProjectionBuffer>(vpb, vk::DescriptorType::eUniformBuffer);
 
 	CreateSyncObjects();
+
+#ifdef TRACY_ENABLE
+	m_tracyVkContext = TracyVkContext(
+		*m_context.GetPhysicalDevice(),
+		*m_context.GetDevice(),
+		*m_context.GetQueue(),
+		*m_commandPool.GetBufferAt(0));
+	TracyVkContextName(m_tracyVkContext, "Vulkan GPU", 11);
+#endif
 
 	// - - - - - - - - - - //
 	//         ImGui       //
@@ -138,6 +155,10 @@ Renderer::~Renderer()
 	ZoneScoped;
 	
 	m_context.GetDevice().waitIdle();
+#ifdef TRACY_ENABLE
+	TracyVkDestroy(m_tracyVkContext);
+	m_tracyVkContext = nullptr;
+#endif
 	Debug::DebugDraw::Get().Shutdown();
 	Vulkan::IntermediaryStorage::GetInstance().Shutdown();
 
@@ -211,11 +232,12 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	std::sort(p_renderData.begin(), p_renderData.end());
 
 	auto &commandBuffer = /*p_commandBuffer;*/m_commandPool.GetBufferAt(m_frameIndex);
+	TracyVkZone(m_tracyVkContext, *commandBuffer, "Render Target");
 
 	//commandBuffer.begin({});
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: Only the rendertarget should be used here, expected to be fixed once copying to the swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) Only the rendertarget should be used here, expected to be fixed once copying to the swapchain is solved
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
@@ -233,7 +255,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		m_swapchain.GetDepthImage(),
 #endif
 #ifdef _EDITOR
@@ -254,7 +276,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo colorAttachmentInfo
 	{
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		.imageView = m_swapchain.GetPresentImageView(),
 #endif
 #ifdef _EDITOR
@@ -268,7 +290,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 
 	vk::RenderingAttachmentInfo depthAttachmentInfo
 	{
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		.imageView = m_swapchain.GetDepthImageView(),
 #endif
 #ifdef _EDITOR
@@ -288,7 +310,7 @@ void Renderer::RecordRenderTargetCommandBuffer(
 				.x = 0,
 				.y = 0
 			},
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 			.extent = m_swapchain.GetExtent(),
 #endif
 #ifdef _EDITOR
@@ -326,9 +348,11 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	commandBuffer.beginRendering(renderingInfo);
 	commandBuffer.setViewport(0, vk::Viewport(0.0f, static_cast<float>(renderingInfo.renderArea.extent.height), static_cast<float>(renderingInfo.renderArea.extent.width), -static_cast<float>(renderingInfo.renderArea.extent.height), 0.0f, 1.0f));
 	commandBuffer.setScissor(0, vk::Rect2D(vk::Offset2D(0, 0), renderingInfo.renderArea.extent));
-	
+
 	for (std::size_t i {0}; i < meshes.size(); ++i)
 	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Draw Mesh");
+
 		Vulkan::Mesh mesh { meshes[i] };
 		Vulkan::Pipeline *pipeline { pipelines[i] };
 		std::uint32_t texID { textureIDs[i] };
@@ -361,11 +385,14 @@ void Renderer::RecordRenderTargetCommandBuffer(
 	}
 
 	if (p_debug)
+	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Debug Draw");
 		Debug::DebugDraw::Get().RenderToCamera(p_camera, commandBuffer, renderingInfo.renderArea.extent, m_frameIndex);
+	}
 	commandBuffer.endRendering();
 
 	TransitionImageLayout(
-#ifdef _GAME //HACK: To be removed once copying to swapchain is solved
+#ifdef _GAME //HACK: (RENDERING) To be removed once copying to swapchain is solved
 		m_swapchain.GetPresentImage(),
 #endif
 #ifdef _EDITOR
@@ -390,6 +417,7 @@ void Renderer::RecordImGuiCommandBuffer(
 	uint32_t p_imageIndex)
 {
 	ZoneScoped;
+	TracyVkZone(m_tracyVkContext, *p_commandBuffer, "ImGui");
 
 	auto &commandBuffer = p_commandBuffer;
 	TransitionImageLayout(
@@ -463,7 +491,7 @@ void Renderer::GetImGuiInitInfo(ImGui_ImplVulkan_InitInfo &p_initInfo)
 {
 	ZoneScoped;
 
-	//TODO: CREATE PIPELINE CACHE
+	//TODO: (RENDERING) CREATE PIPELINE CACHE
 	p_initInfo.Instance = *m_context.GetInstance();
 	p_initInfo.PhysicalDevice = *m_context.GetPhysicalDevice();
 	p_initInfo.Device = *m_context.GetDevice();
@@ -565,6 +593,8 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 	// Render all cameras
 	for (auto &camRenderData : p_renderData)
 	{
+		TracyVkZone(m_tracyVkContext, *commandBuffer, "Render Camera");
+
 		Camera &cam = camRenderData.camera;
 		std::vector<RenderData> &drawList = camRenderData.renderData;
 
@@ -604,6 +634,7 @@ void Renderer::Draw(std::vector<CameraRenderData> p_renderData)
 
 	Debug::DebugDraw::Get().ClearDrawCommands();
 
+	TracyVkCollect(m_tracyVkContext, *commandBuffer);
 	commandBuffer.end();
 
 	vk::PipelineStageFlags waitDestinationStageMask(vk::PipelineStageFlagBits::eAllCommands);

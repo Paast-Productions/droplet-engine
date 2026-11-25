@@ -106,10 +106,7 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-		"GetParent", [](Scene::Node& node) -> std::shared_ptr<Scene::Node>
-		{
-			return node.GetParent().lock();
-		},
+		"GetParent", &Scene::Node::GetParent,
 		"GetChildren", [](Scene::Node &node)
 		{
 			auto childrenShared = node.GetChildren();
@@ -122,6 +119,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			}
 			return sol::as_table(std::move(children));
 		},
+		"IsActive", &Scene::Node::IsActive,
+		"IsActiveSelf", &Scene::Node::IsActiveSelf,
 		"SetActiveSelf", &Scene::Node::SetActiveSelf,
 		"GetScene",
 		[](Scene::Node &p_node) -> Scene::Scene *
@@ -217,6 +216,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetName", "string", {} },
 		{"GetID", "integer", {} },
 		{"GetTransform", "Transform", {} },
+		{"IsActive", "bool", {} },
+		{"IsActiveSelf", "bool", {} },
 		{"SetActiveSelf", "void", {{ "state", "bool" }} },
 		{"GetParent", "Node", {} },
 		{"GetChildren", "table", {} },

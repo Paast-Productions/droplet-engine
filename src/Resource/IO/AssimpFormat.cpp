@@ -36,7 +36,7 @@ namespace
 		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
 		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
 		{
-			// TODO: Make not hardcoded
+			// TODO: (BOUNDS) Make not hardcoded
 
 			// Manually add the vertex data based of the defined vertex layout, one vertex per p_vertexByteSize stride
 			const float attributes[8] = {

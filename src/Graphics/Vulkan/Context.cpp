@@ -130,6 +130,7 @@ void Context::CreateLogicalDevice()
 			},	
 			{	// vk::PhysicalDeviceVulkan14Features
 				.bresenhamLines = true,
+				.smoothLines = SupportsRectangularSmooth(),
 				//.dynamicRenderingLocalRead = true
 			},
 			{	// vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT
@@ -187,6 +188,16 @@ bool Context::IsDeviceSuitable(vk::raii::PhysicalDevice const &p_physicalDevice)
 
 	// Return true if the physicalDevice meets all the criteria
 	return supportsVulkan1_4 && supportsGraphicsAndPresent && supportsAllRequiredExtensions && supportsRequiredFeatures;
+}
+
+bool Context::SupportsRectangularSmooth()
+{
+	auto features = m_physicalDevice.template getFeatures2<
+		vk::PhysicalDeviceFeatures2,
+		vk::PhysicalDeviceLineRasterizationFeaturesEXT>();
+
+	return features.template get<
+		vk::PhysicalDeviceLineRasterizationFeaturesEXT>().smoothLines;
 }
 
 //Fetches required SDL instance extensions

@@ -34,7 +34,7 @@ namespace Droplet::Graphics
 
 namespace Droplet::Graphics::Vulkan
 {
-    // TODO: <REFACTOR>
+    // TODO: (RENDERING) <REFACTOR>
     // Should probably not be in the Droplet::Graphics::VK namespace without an enum or something
     constexpr std::uint32_t C_INVALID_INDEX { std::numeric_limits<std::uint32_t>::max() };
     // TODO: </REFACTOR>
@@ -206,6 +206,10 @@ namespace Droplet::Graphics::Vulkan
         
         /// @brief Destroy Vulkan objects in destruction queue when it is safe to do so
         void DestroyUnusedResources();
+
+        /// @brief Invalidates all cached pipelines that use a shader resource.
+        /// @param p_shaderGuid The GUID of the reloaded shader.
+        void InvalidatePipelinesUsingShader(GUID p_shaderGuid);
         
         /// @brief Creates Vulkan buffer with the inputted resource type
         /// @param p_data Data to store in the buffer
@@ -301,7 +305,7 @@ namespace Droplet::Graphics::Vulkan
         /// @note Use carefully as misuse will result in memory leaks or crashes
         [[nodiscard]] const vma::raii::Allocator &GetAllocator() const { return m_allocator.Get(); }
         
-        // TODO: <REFACTOR>
+        // TODO: (RENDERING) <REFACTOR>
         // --   Should return vk::raii::Pipeline instead
         //      New function for vk::raii::PipelineLayout needs to be created
         // --   Refactor Get functions to have similar handling of invalid GUIDs
@@ -351,6 +355,7 @@ namespace Droplet::Graphics::Vulkan
         
         // Stored buffers etc
         std::unordered_map<PipelineKey, Pipeline, PipelineHasher> m_pipelineMap {};
+        std::queue<Pipeline> m_pipelineDestroyQueue {};
         std::unordered_map<MeshKey, VertexBuffer, MeshHasher> m_vertexMap {};
         std::unordered_map<MeshKey, IndexBuffer, MeshHasher> m_indexMap {};
         std::unordered_map<std::uint32_t, UniformBuffer> m_worldMap {};
@@ -358,13 +363,13 @@ namespace Droplet::Graphics::Vulkan
         // Currently loading Shaders
         std::unordered_map<std::uint64_t, StaticResourceHandle<ShaderResource>> m_loading {};
 
-        // TODO: Remove?
+        // TODO: (RENDERING) Remove?
         std::vector<Image> m_imageMap {};
         std::vector<ImageView> m_viewMap {};
         std::vector<PresentTarget> m_presentTargets {};
         std::vector<UniformBuffer> m_uniformBuffers {};
         
-        // TODO: Remove?
+        // TODO: (RENDERING) Remove?
         Sampler m_textureSampler {};
 
         std::map<std::uint64_t, std::uint32_t> m_textureGuidMap {};

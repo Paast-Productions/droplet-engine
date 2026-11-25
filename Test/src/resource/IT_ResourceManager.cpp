@@ -509,7 +509,7 @@ TEST_F(ResourceManagerTest, HotReload_EvictsAndReloads)
     EXPECT_EQ(resourceManager.GetState(textureGuid), ResourceState::Ready);
     
     // Trigger Hot Reload (Simulates user clicking "Apply" in Editor)
-    resourceManager.HotReload(textureGuid);
+    resourceManager.ReloadResource(textureGuid);
     
     // Verify it transitioned to LoadingAsync and handle is safe
     EXPECT_EQ(resourceManager.GetState(textureGuid), ResourceState::LoadingAsync);

@@ -63,21 +63,6 @@ std::size_t Droplet::Graphics::Vulkan::CommandPool::Allocate(const vk::raii::Dev
 	return m_commandBuffers.size() - 1;
 }
 
-/*std::vector<Droplet::Graphics::VK::CommandBufferId> Droplet::Graphics::VK::CommandPool::Allocate(uint32_t p_count,
-	vk::CommandBufferLevel p_level)
-{
-		TODO: Perhaps there should be a better way of creating multiple CommandBuffer instances. Right now,
-		the CommandBuffer constructor creates one single instance, which leads to the following implementation.
-		
-	std::vector<CommandBufferId> ids;
-	for (uint32_t i = 0; i < p_count; ++i)
-	{
-		m_commandBuffers.push_back(CommandBuffer{m_device, m_commandPool, p_level});
-		ids.push_back(CommandBufferId{ .Index = m_commandBuffers.size() - 1 });
-	}
-	return ids;
-}*/
-
 vk::raii::CommandBuffer &CommandPool::GetBufferAt(const std::size_t p_id)
 {
 	assert(p_id < m_commandBuffers.size());

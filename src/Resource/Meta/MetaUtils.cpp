@@ -18,7 +18,7 @@ namespace Droplet::MetaUtils
         std::ifstream file(p_metaFilePath);
         if (!file.is_open())
         {
-            // TODO: Log file open error
+            // TODO: (LOGGING) Log file open error
             return false;
         }
 
@@ -46,7 +46,7 @@ namespace Droplet::MetaUtils
         }
         catch (const std::exception&)
         {
-            // TODO: Log exception
+            // TODO: (LOGGING) Log exception
             return false;
         }
 
@@ -60,7 +60,7 @@ namespace Droplet::MetaUtils
         std::ofstream file(p_metaFilePath);
         if (!file.is_open())
         {
-            // TODO: Log file open error
+            // TODO: (LOGGING) Log file open error
             return false;
         }
         

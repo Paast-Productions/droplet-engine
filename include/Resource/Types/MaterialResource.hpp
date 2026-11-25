@@ -6,7 +6,7 @@ namespace Droplet
     /// @brief Class for material resources.
     class MaterialResource : public IStaticResource
     {
-        // TODO
+        // TODO: (RESOURCES)
 
     public:
 

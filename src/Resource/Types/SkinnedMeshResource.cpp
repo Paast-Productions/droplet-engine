@@ -84,7 +84,7 @@ std::unique_ptr<SkinnedMeshResource> SkinnedMeshResource::CreateFallback()
     }
     catch (...)
     {
-        // TODO: Log error (this should never be possible though)
+        // TODO: (LOGGING) Log error (this should never be possible though)
     }
     
     return fallback;

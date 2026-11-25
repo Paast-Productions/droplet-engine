@@ -85,12 +85,12 @@ Engine::Engine(EngineConfig p_config) : m_updateFlagsSetter(p_config.UpdateFlags
     // --- Setup Resource Manager ---
     std::filesystem::path assetDir = std::filesystem::path(ROOT_PATH "/Assets");
 
-	// HACK: DON'T DO THIS
+	// HACK: (RESOURCES) DON'T DO THIS
     ResourceManager &resManInstance = ResourceManager::GetInstance();
 	resManInstance.Initialize(assetDir);
 
     // Register scanners
-    // TODO: Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
+    // TODO: (RESOURCES) Don't hardcode accepted extensions in Engine constructor (Why wouldn't we? This is where we define what assets the engine supports)
     resManInstance.RegisterAssetScanner({".fbx", ".glb", ".gltf", ".obj"}, IO::AssimpFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
