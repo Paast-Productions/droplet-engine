@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Engine_core_base",
+            "guid": 5790963320270409106,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Engine_core_base",
+            "type": 1
+        }
+    ]
+}

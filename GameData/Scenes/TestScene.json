@@ -5,9 +5,81 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 78,
+            "id": 97,
             "name": "RonnyCutout",
             "prefab": "GameData\\Prefabs\\RonnyCutout.json",
+            "transform": {
+                "position": [
+                    1.650599718093872,
+                    0.6770452260971069,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.0009999999310821295,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 15104664662864096133,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 4.76837158203125e-07,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 105,
+            "name": "Mesh Node",
             "transform": {
                 "position": [
                     0.0,
@@ -21,8 +93,34 @@
                     0.0
                 ],
                 "scale": [
-                    0.9999999403953552,
-                    0.9999999403953552,
+                    5.785999774932861,
+                    0.10000000149011612,
+                    9.14799976348877
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 106,
+            "name": "BasePlayer",
+            "prefab": "GameData\\Prefabs\\BasePlayer.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    1.3277966976165771,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
                     1.0
                 ]
             }

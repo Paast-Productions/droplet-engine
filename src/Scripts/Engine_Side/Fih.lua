@@ -2,6 +2,7 @@
 --
 -- Member Variables
 --
+local suctionSystem = require("SuctionSystem")
 
 local trans = nil
 local ffi = require("ffi")
@@ -232,6 +233,9 @@ function OnStart()
     jit.flush()
     
 	print("New Fih")
+
+    suctionSystem.RegisterCollectible(self)
+
 	trans = self:GetTransform()
 	orbitPoint = trans:GetPosition(TransformSpace.World)
 	NewTargetPoint()
@@ -340,4 +344,8 @@ function RenderUI()
     end
 
     tracy.ZoneEnd()
+end
+
+function OnDestroy()
+    suctionSystem.UnregisterCollectible(self)
 end

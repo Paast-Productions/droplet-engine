@@ -4,12 +4,13 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "BaseFish",
@@ -20,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "BaseFish",
                         "textureGUID": 7280437410301382172,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -28,7 +30,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 105,
+            "id": 3383,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -50,10 +52,22 @@
             }
         }
     ],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
             "data": {
+                "amount": 0,
+                "collectibleType": 0,
+                "itemId": 1
+            },
+            "id": 2,
+            "type": "CollectibleTypeComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
                 "filepath": "Engine_Side/Fih.lua"
             },
             "id": 1,
@@ -61,13 +75,13 @@
         }
     ],
     "drawLayer": 1,
-    "id": 104,
+    "id": 3382,
     "name": "Fish",
     "transform": {
         "position": [
-            0.0,
-            -1.22043459782617e-07,
-            0.0
+            27.49258804321289,
+            8.807391166687012,
+            -4.987681865692139
         ],
         "rotation": [
             1.9861630562445498e-08,

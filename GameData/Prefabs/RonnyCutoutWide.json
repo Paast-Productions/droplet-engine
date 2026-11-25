@@ -1,0 +1,389 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 10065599574837318982,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "Ronny",
+                                "textureGUID": 3067039457033091561,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 70,
+                    "name": "RonnyFront",
+                    "transform": {
+                        "position": [
+                            -0.00032329559326171875,
+                            1.0153965950012207,
+                            -3.039836883544922e-06
+                        ],
+                        "rotation": [
+                            0.49999988079071045,
+                            0.49999964237213135,
+                            -0.5000000596046448,
+                            0.5000004768371582
+                        ],
+                        "scale": [
+                            0.6669996976852417,
+                            0.9999977350234985,
+                            2.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 10241900047444207644,
+                                "fsName": "PlayerView.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Plane",
+                                "meshGUID": 10065599574837318982,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "RonnyBackside",
+                                "textureGUID": 2454655921093875874,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 71,
+                    "name": "RonnyBehind",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            0.5000002384185791,
+                            0.5,
+                            0.5000000596046448,
+                            -0.49999988079071045
+                        ],
+                        "scale": [
+                            0.6670001149177551,
+                            1.0,
+                            2.000000238418579
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 69,
+            "name": "Cardboard",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.9990482330322266,
+                    -5.199825459101248e-09,
+                    1.1909581587588036e-07,
+                    -0.04361938685178757
+                ],
+                "scale": [
+                    0.9999995827674866,
+                    0.9999995827674866,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 72,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.38895294070243835,
+                    0.4202125668525696,
+                    1.21773112482515e-07
+                ],
+                "rotation": [
+                    0.6630614995956421,
+                    -0.6630656123161316,
+                    -0.24565905332565308,
+                    0.24565231800079346
+                ],
+                "scale": [
+                    0.17521019279956818,
+                    0.999962568283081,
+                    0.7979685664176941
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 73,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.3877449929714203,
+                    0.4196755588054657,
+                    -7.612327124206786e-08
+                ],
+                "rotation": [
+                    0.6630629897117615,
+                    0.6630637645721436,
+                    0.24565617740154266,
+                    0.24565622210502625
+                ],
+                "scale": [
+                    0.18101181089878082,
+                    0.9999630451202393,
+                    0.7979629635810852
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 74,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.15854798257350922,
+                    1.0541478395462036,
+                    2.9332265967241256e-06
+                ],
+                "rotation": [
+                    0.7063279151916504,
+                    0.7063454389572144,
+                    -0.0329933799803257,
+                    -0.032991014420986176
+                ],
+                "scale": [
+                    0.12723763287067413,
+                    1.00017511844635,
+                    0.7984101176261902
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 10241900047444207644,
+                        "fsName": "PlayerView.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Plane",
+                        "meshGUID": 10065599574837318982,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "CardboardColor",
+                        "textureGUID": 4663506845627021730,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 75,
+            "name": "Cardboard Stand",
+            "transform": {
+                "position": [
+                    0.15921321511268616,
+                    1.0519905090332031,
+                    -4.52655331173446e-06
+                ],
+                "rotation": [
+                    0.7063238620758057,
+                    -0.7063491344451904,
+                    0.03299713879823685,
+                    -0.03299468010663986
+                ],
+                "scale": [
+                    0.12903928756713867,
+                    1.0001211166381836,
+                    0.7948580980300903
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 1,
+    "components": [
+        {
+            "active": true,
+            "data": null,
+            "id": 1,
+            "type": "InteractableComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "attenuationCurve": 0,
+                "busName": "Master",
+                "doppler": false,
+                "looping": false,
+                "maxDistance": 100.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "soundGuid": 6745322223797168933,
+                "startTimeSeconds": 0.0,
+                "volumeDb": -18.0
+            },
+            "id": 4,
+            "type": "AudioEmitterComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "Ronny.lua"
+            },
+            "id": 2,
+            "type": "ScriptComponent"
+        }
+    ],
+    "drawLayer": 1,
+    "id": 68,
+    "name": "RonnyCutoutWide",
+    "transform": {
+        "position": [
+            -0.5531712174415588,
+            0.7977753281593323,
+            -3.9880690574645996
+        ],
+        "rotation": [
+            0.45302292704582214,
+            -0.006810933351516724,
+            0.8913720846176147,
+            0.013401276431977749
+        ],
+        "scale": [
+            0.27287963032722473,
+            0.44320911169052124,
+            3.3146209716796875
+        ]
+    }
+}

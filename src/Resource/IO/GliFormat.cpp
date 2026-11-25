@@ -114,10 +114,10 @@ namespace Droplet::IO::GliFormat
         std::memcpy(texture2D.data(), data, width * height * 4);
         stbi_image_free(data);
 
+        // HACK
         /*if (!gli::save(texture2D, p_outputPath.generic_string()))
         {
             // TODO: (LOGGING) Use logger to log error
-            std::cout << "Could not save KTX file" << std::endl;
         }*/
         
         return texture2D;

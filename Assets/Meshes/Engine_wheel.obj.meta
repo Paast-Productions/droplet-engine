@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Enginewheel",
+            "guid": 15157891947836158343,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Enginewheel",
+            "type": 3
+        }
+    ]
+}

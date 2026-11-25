@@ -1,0 +1,178 @@
+{
+    "active": true,
+    "children": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1814,
+            "name": "BottomMesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1815,
+            "name": "MiddleMesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    2.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "kelp",
+                        "meshGUID": 10162919735263167665,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "kelp_base",
+                        "textureGUID": 14395557324987730134,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1816,
+            "name": "TopMesh",
+            "transform": {
+                "position": [
+                    0.0,
+                    4.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "collisionLayerMask": 1,
+    "components": [],
+    "drawLayer": 1,
+    "id": 1813,
+    "name": "Kelp",
+    "transform": {
+        "position": [
+            -4.624301910400391,
+            -0.15012741088867188,
+            -2.3218536376953125
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.5,
+            1.5,
+            1.5
+        ]
+    }
+}

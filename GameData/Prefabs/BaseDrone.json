@@ -121,7 +121,7 @@
         {
             "active": true,
             "data": {
-                "filepath": "Engine_Side/DroneControl2.lua"
+                "filepath": "DroneControl.lua"
             },
             "id": 3,
             "type": "ScriptComponent"

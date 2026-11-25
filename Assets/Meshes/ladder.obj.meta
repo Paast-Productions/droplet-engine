@@ -1,0 +1,88 @@
+{
+    "resources": [
+        {
+            "displayName": "Cube",
+            "guid": 15128312894908120276,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.001",
+            "guid": 7756068123604669903,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.001",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.002",
+            "guid": 9974923480756127311,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.002",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.003",
+            "guid": 4521454953379813279,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.003",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.004",
+            "guid": 1930522149877155753,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.004",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.005",
+            "guid": 9603280238878028363,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.005",
+            "type": 3
+        },
+        {
+            "displayName": "Cube.006",
+            "guid": 3946214456144754969,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Cube.006",
+            "type": 3
+        }
+    ]
+}
