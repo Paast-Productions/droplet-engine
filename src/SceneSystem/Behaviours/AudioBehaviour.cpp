@@ -27,6 +27,7 @@ namespace
 
 namespace Droplet::Scene
 {
+
     void AudioBehaviour::PlayTrack(const std::string &p_name, float p_fadeSeconds)
     {
         auto& audio = Audio::AudioSystem::GetInstance();
@@ -168,6 +169,9 @@ namespace Droplet::Scene
     {
 #ifdef _EDITOR
         ImGui::PushID(this);
+    	
+    	// --- Name ---
+    	ImGui::InputText("Name", &m_name);
         
         // --- Bus Drag & Drop ---
         const std::string preview = m_busName.empty() ? "Drop Audio Bus Here" : m_busName;
@@ -310,6 +314,7 @@ namespace Droplet::Scene
     {
         nlohmann::json json;
 
+    	json["name"] = m_name; 
         json["busName"] = m_busName;
 
         nlohmann::json tracksJson = nlohmann::json::array();
@@ -334,7 +339,11 @@ namespace Droplet::Scene
     {
         StopTracks(0.0f);
         m_tracks.clear();
-
+    	
+    	if (p_behJson.contains("name"))
+    	{
+    		m_name = p_behJson["name"].get<std::string>();
+    	}
         if (p_behJson.contains("busName"))
         {
             m_busName = p_behJson["busName"].get<std::string>();

@@ -153,9 +153,24 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			return nullptr;
 		},
 		"GetAudioBehaviour",
-		[](Scene::Node &node)
+		[](Scene::Node &node, const std::string &p_name) -> Scene::AudioBehaviour*
 		{
-		    return node.GetScene()->GetBehaviour<Scene::AudioBehaviour>();
+			// Retrieve an audio behaviour by name
+			
+			auto scene = node.GetScene();
+			if (!scene) return nullptr;
+			
+		    const auto& behaviours = scene->GetBehaviours();
+		    for (const auto& behaviour : behaviours)
+		    {
+		    	if (behaviour && behaviour->GetTypeName() == "AudioBehaviour")
+		    	{
+		    		auto* audioBehaviour = static_cast<Scene::AudioBehaviour*>(behaviour.get());
+		    		if (audioBehaviour->GetName() == p_name) return audioBehaviour;
+		    	}
+		    }
+			
+			return nullptr;
 		},
 		"GetAudioEmitter",
 		[](Scene::Node &node, const std::string& p_name)

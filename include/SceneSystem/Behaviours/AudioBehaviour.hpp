@@ -26,7 +26,10 @@ namespace Droplet::Scene
     {
     public:
         std::string_view GetTypeName() override { return "AudioBehaviour"; }
-        bool IsSingleton() override { return true; }
+        bool IsSingleton() override { return false; }
+        
+        void SetName(const std::string &p_name) { m_name = p_name; }
+        const std::string &GetName() const { return m_name; }
         
         void PlayTrack(const std::string& p_name, float p_fadeSeconds = 0.0f);
         void StopTracks(float p_fadeSeconds = 0.0f);
@@ -46,6 +49,8 @@ namespace Droplet::Scene
         
     private:
         AudioTrack* FindTrack(const std::string& p_name);
+        
+        std::string m_name{};
         
         std::vector<AudioTrack> m_tracks;
         std::string m_currentTrackName;

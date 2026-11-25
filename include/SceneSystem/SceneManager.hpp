@@ -20,6 +20,7 @@ namespace Droplet::Scene
 {
     class Scene;
     class Behaviour;
+    class AudioBehaviour;
     class Node;
 	class CameraComponent;
     
