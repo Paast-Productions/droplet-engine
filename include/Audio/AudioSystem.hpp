@@ -7,6 +7,7 @@
 
 #include <unordered_map>
 #include <functional>
+#include <mutex>
 #include <vector>
 #include <filesystem>
 
@@ -148,5 +149,10 @@ namespace Droplet::Audio
 	    
 	    // Scene Specific
 	    std::unordered_map<Scene::Scene*, dalia::ListenerMask> m_sceneListenerMasks;
+	    
+	    // Guards all state above. Public methods may be called from worker threads during async scene loading.
+	    mutable std::recursive_mutex m_mutex;
+	    // Guards m_finishedPlaybacks, which dalia exit callbacks push to from its own thread.
+	    std::mutex m_finishedMutex;
 	};
 }

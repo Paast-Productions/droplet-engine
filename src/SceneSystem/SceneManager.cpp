@@ -173,7 +173,9 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(behaviourPreUpdateZone, "Behaviour Pre-Update", tracy::Color::Green, true);
 
-        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+        // Iterate a snapshot so behaviours can be started or shut down during the update
+        std::vector<std::shared_ptr<Behaviour>> behaviours = GetBehaviours();
+        for (auto it = behaviours.begin(); it != behaviours.end(); )
         {
             auto &behaviour = *it;
 
@@ -248,7 +250,8 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(behaviourPostUpdateZone, "Behaviour Post-Update", tracy::Color::Red, true);
 
-        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+        std::vector<std::shared_ptr<Behaviour>> behaviours = GetBehaviours();
+        for (auto it = behaviours.begin(); it != behaviours.end(); )
         {
             auto &behaviour = *it;
 
@@ -518,7 +521,10 @@ std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behav
 	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
 
     behaviour->SetSceneManager(this);
-    m_behaviours.push_back(behaviour);
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
+        m_behaviours.push_back(behaviour);
+    }
 
     behaviour->Start();
 
@@ -533,11 +539,18 @@ void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
 		return;
     }
 
+    std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
     auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
     if (it != m_behaviours.end())
     {
         m_behaviours.erase(it);
 	}
+}
+
+std::vector<std::shared_ptr<Behaviour>> SceneManager::GetBehaviours() const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
+    return m_behaviours;
 }
 
 std::weak_ptr<CameraComponent> SceneManager::GetMainCamera() const

@@ -3,6 +3,7 @@
 #include <atomic>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -149,7 +150,8 @@ namespace Droplet::Scene
 
 		/// @brief Gets the list of registered behaviours.
 		/// @return A constant reference to the list of registered behaviours.
-		const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_behaviours; } // TODO: (SCENE) Make weak pointer
+		/// @brief Get a snapshot of the active Behaviours. Safe to call from any thread.
+		[[nodiscard]] std::vector<std::shared_ptr<Behaviour>> GetBehaviours() const;
 
 		/// @brief Starts a behaviour of the specified type.
         /// @param p_behaviourTypeName The type name of the behaviour to start.
@@ -176,6 +178,7 @@ namespace Droplet::Scene
         std::vector<std::weak_ptr<Scene>> m_activeScenes;
         const Droplet::Game::ItemRegistry *m_itemRegistry = nullptr;
 
+		mutable std::recursive_mutex m_behavioursMutex;
 		std::vector<std::shared_ptr<Behaviour>> m_behaviours;
         
         struct AsyncSceneLoadResult

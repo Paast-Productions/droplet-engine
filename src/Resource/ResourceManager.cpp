@@ -38,6 +38,13 @@ namespace Droplet
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         
+        // User callbacks are collected under the lock and invoked after it is released.
+        std::vector<std::function<void()>> deferredCallbacks;
+#ifdef _EDITOR
+        std::vector<GUID> editorChanged;
+#endif
+        std::unique_lock<std::recursive_mutex> lock(m_mutex);
+
         // A possible performance improvement for this function could be to limit the number of processed load and register
         // operations per call.
         
@@ -57,7 +64,10 @@ namespace Droplet
             
             if (regRes.onCompleteCallback)
             {
-                regRes.onCompleteCallback(regRes.succeeded, newMetaData);
+                deferredCallbacks.emplace_back([callback = regRes.onCompleteCallback, succeeded = regRes.succeeded, newMetaData]()
+                {
+                    callback(succeeded, newMetaData);
+                });
             }
                 
             // Push metafile write operation to worker thread
@@ -99,7 +109,7 @@ namespace Droplet
                 callbacksToInvoke.swap(liveResource.loadCallbacks);
                 for (auto &callback : callbacksToInvoke)
                 {
-                    callback();
+                    deferredCallbacks.push_back(std::move(callback));
                 }
                 
                 continue;
@@ -114,7 +124,7 @@ namespace Droplet
             // Invoke all callbacks registered for the resource
             for (auto &callback : callbacksToInvoke)
             {
-                callback();
+                deferredCallbacks.push_back(std::move(callback));
             }
         }
 
@@ -151,9 +161,23 @@ namespace Droplet
                 if (knownTime->second != writeTime)
                 {
                     knownTime->second = writeTime;
-                    ReloadResource(guid);
+                    editorChanged.push_back(guid);
                 }
             }
+        }
+#endif
+
+        lock.unlock();
+
+        for (auto &callback : deferredCallbacks)
+        {
+            callback();
+        }
+
+#ifdef _EDITOR
+        for (const GUID guid : editorChanged)
+        {
+            ReloadResource(guid);
         }
 #endif
     }
@@ -215,16 +239,19 @@ namespace Droplet
     
     std::vector<const MetaEntry *> ResourceManager::GetRegisteredResources(StaticResourceType p_type) const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         return m_registry.GetEntries(p_type);
     }
 
     bool ResourceManager::GetResourceMetaEntry(const GUID p_guid, MetaEntry &p_metaEntry) const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         return m_registry.GetResourceMetaData(p_guid, p_metaEntry);
     }
     
     bool ResourceManager::GetResourceMetaEntry(const std::string &p_resourceName, MetaEntry &p_metaEntry) const
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         return m_registry.GetResourceMetaData(p_resourceName, p_metaEntry);
     }
 
@@ -239,6 +266,8 @@ namespace Droplet
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         
+        std::unique_lock<std::recursive_mutex> lock(m_mutex);
+
         // Safety check to not change meta while a worker thread could be reading from it
         ResourceState state = GetState(p_guid);
         if (state == ResourceState::LoadingAsync || state == ResourceState::Queued || state == ResourceState::Uploading)
@@ -286,6 +315,7 @@ namespace Droplet
            MetaUtils::Write(metaPath, metaData); 
         });
         
+        lock.unlock();
         if (hotReload)
         {
             ReloadResource(p_guid);
@@ -297,6 +327,7 @@ namespace Droplet
     void ResourceManager::IncrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
@@ -308,6 +339,7 @@ namespace Droplet
     void ResourceManager::DecrementRef(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
         
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
@@ -330,6 +362,7 @@ namespace Droplet
     std::uint32_t ResourceManager::GetRef(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
@@ -345,6 +378,7 @@ namespace Droplet
     ResourceState ResourceManager::GetState(GUID p_guid)
     {
         assert(m_isInitialized && "Resource manager is not initialized.");
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
             
         auto it = m_liveResources.find(p_guid);
         if (it != m_liveResources.end())
@@ -384,6 +418,16 @@ namespace Droplet
 
         assert(m_isInitialized && "Resource manager is not initialized.");
         
+        std::unique_lock<std::recursive_mutex> lock(m_mutex);
+        std::vector<std::function<void(GUID)>> reloadCallbacks;
+        auto notifyReload = [&]()
+        {
+            for (const auto &callback : reloadCallbacks)
+            {
+                callback(p_guid);
+            }
+        };
+        
         auto it = m_liveResources.find(p_guid);
         if (it == m_liveResources.end())
         {
@@ -401,16 +445,15 @@ namespace Droplet
         live.resource.reset(); // Clear RAM
         live.state = ResourceState::LoadingAsync;
 
-        for (const auto &callback : m_reloadCallbacks)
-        {
-            callback(p_guid);
-        }
+        reloadCallbacks = m_reloadCallbacks;
         
         MetaEntry metaEntry; 
         if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
         {
             // TODO: Log error (resource with p_guid was not found)
             live.state = ResourceState::Failed;
+            lock.unlock();
+            notifyReload();
             return;
         }
 
@@ -435,6 +478,9 @@ namespace Droplet
             // TODO: Log error (type is not registered)
             live.state = ResourceState::Failed;
         }
+
+        lock.unlock();
+        notifyReload();
     }
 
     void ResourceManager::RegisterReloadCallback(std::function<void(GUID)> p_onReload)
@@ -447,6 +493,7 @@ namespace Droplet
 
     void ResourceManager::RemoveResourceMeta(const GUID p_guid, bool p_forceRemove)
     {
+        std::lock_guard<std::recursive_mutex> lock(m_mutex);
 #ifdef _EDITOR
         m_editorFileTimes.erase(p_guid);
 #endif

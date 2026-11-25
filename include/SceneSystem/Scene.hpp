@@ -301,7 +301,7 @@ namespace Droplet::Scene
             return nullptr;
         }
 
-        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
+        std::vector<std::shared_ptr<Behaviour>> GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
 
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
