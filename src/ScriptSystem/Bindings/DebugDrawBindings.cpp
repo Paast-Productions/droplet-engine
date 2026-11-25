@@ -1,5 +1,5 @@
 #include "ScriptSystem/Bindings/DebugDrawBindings.hpp"
-#include "Graphics/DebugDraw.hpp"
+#include "Graphics/Debug/DebugDraw.hpp"
 #include <glm/glm.hpp>
 #include <Math/Bounds/Intersection.hpp>
 #include <tracy/public/tracy/Tracy.hpp>

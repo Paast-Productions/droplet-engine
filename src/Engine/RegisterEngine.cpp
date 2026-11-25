@@ -10,6 +10,7 @@
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/ParticleEmitterComponent.hpp>
+#include <SceneSystem/Components/TestDynamicMeshComponent.hpp>
 #include <SceneSystem/Components/UIComponent.hpp>
 
 
@@ -31,6 +32,7 @@ namespace Droplet
 		Droplet::Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Droplet::Scene::SkeletonComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("ParticleEmitterComponent", []() { return std::make_unique<Droplet::Scene::ParticleEmitterComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("UIComponent", []() {return std::make_unique<Droplet::Scene::UIComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("TestDynamicMeshComponent", []() { return std::make_unique<Droplet::Scene::TestDynamicMeshComponent>(); }); // test only: remove with the component
 	}
 
 	void RegisterEngineBehaviours()

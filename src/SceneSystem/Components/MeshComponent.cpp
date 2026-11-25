@@ -2,13 +2,17 @@
 
 #include <SceneSystem/Scene.hpp>
 #include <Resource/ResourceManager.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <Engine/Engine.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <Editor/DragDropFields.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <string>
+#include <SceneSystem/Components/CameraComponent.hpp>
+
+#include <algorithm>
 #include <chrono>
+#include <vector>
 
 #ifdef _EDITOR
 #include <Editor/ShaderOverride.hpp>
@@ -18,6 +22,40 @@
 
 using namespace Droplet;
 using namespace Droplet::Scene;
+
+#ifdef _EDITOR
+namespace
+{
+    /// @brief Target of every camera in the scene as a texture choice
+    std::vector<ResourceSlotChoice> CameraChoices(const std::vector<std::shared_ptr<Node>> &p_roots) 
+    {
+        std::vector<ResourceSlotChoice> choices;
+        const auto addCameras = [&choices](const std::shared_ptr<Node> &p_node) 
+        {
+            for (const auto &camera : p_node->GetComponents<CameraComponent>())
+            {
+                if (camera->GetTarget().id != C_INVALID_GUID)
+                {
+                    choices.push_back( {"Camera: " + p_node->GetName(), camera->GetTarget().id});
+                }
+            }
+        };
+
+        for (const auto &root : p_roots) 
+        {
+            if (!root)
+                continue;
+            addCameras(root);
+            for (const auto &child : root->GetChildren(true))
+            {
+                addCameras(child);
+            }
+        }
+        return choices;
+    }
+}
+#endif
+
 
 MeshComponent::MeshComponent() : m_bounds(this)
 {
@@ -70,20 +108,20 @@ void MeshComponent::QueueRenderImpl()
 	GetOwner()->GetScene()->QueueRenderable(shared_from_this());
 }
 
-Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
+Droplet::Common::RenderData MeshComponent::GetRenderDataImpl()
 {
-	Droplet::Graphics::RenderData renderData{};
-	renderData.fsData.GUID = m_shaderData.fs.GetGUID();
-	renderData.tcsData.GUID = m_shaderData.tcs.GetGUID();
-	renderData.tesData.GUID = m_shaderData.tes.GetGUID();
-	renderData.gsData.GUID = m_shaderData.gs.GetGUID();
-	renderData.vsData.GUID = m_shaderData.vs.GetGUID();
+	Droplet::Common::RenderData renderData{};
+	renderData.fsData.guid = m_shaderData.fs.GetGUID();
+	renderData.tcsData.guid = m_shaderData.tcs.GetGUID();
+	renderData.tesData.guid = m_shaderData.tes.GetGUID();
+	renderData.gsData.guid = m_shaderData.gs.GetGUID();
+	renderData.vsData.guid = m_shaderData.vs.GetGUID();
 	
 #ifdef _EDITOR
 
 	if (Droplet::Editor::Graphics::ShaderOverride::GetVertexFlag() == Droplet::Editor::Graphics::VertexFlag::Basic)
 	{
-		renderData.vsData.GUID = 7809030845991192100;
+		renderData.vsData.guid = 7809030845991192100;
 	}
 
 	switch (Droplet::Editor::Graphics::ShaderOverride::GetFragmentFlag())
@@ -91,22 +129,23 @@ Droplet::Graphics::RenderData MeshComponent::GetRenderDataImpl()
 	default:
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Basic:
-		renderData.fsData.GUID = 13680123319807966343;
+		renderData.fsData.guid = 13680123319807966343;
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Color:
-		renderData.fsData.GUID = 1781302864085332600;
+		renderData.fsData.guid = 1781302864085332600;
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Normal:
-		renderData.fsData.GUID = 6544072074583339891;
+		renderData.fsData.guid = 6544072074583339891;
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::UV:
-		renderData.fsData.GUID = 12244945915070321057;
+		renderData.fsData.guid = 12244945915070321057;
 		break;
 	}
 #endif
 
 	renderData.meshData.GUID = m_mesh.GetGUID();
-	renderData.texData.GUID = m_2dTexture.GetGUID();
+	renderData.texData.GUID = GetTextureGUID();
+	renderData.texData.isRenderTarget = m_textureIsTarget;
 
 	renderData.transparent = m_transparent;
 
@@ -148,15 +187,34 @@ void MeshComponent::RenderUIImpl()
 		newGUID = C_INVALID_GUID;
 		newName.clear();
 
+		const auto scene = GetOwner()->GetScene();
+		const std::vector<ResourceSlotChoice> cameraChoices = scene
+			? CameraChoices(scene->GetRoots())
+			: std::vector<ResourceSlotChoice>{};
+
         if (ResourceSlot(
             "Texture",
-            m_2dTexture.GetGUID(),
+            GetTextureGUID(),
             m_textureDisplayName,
             newGUID,
             newName,
-            Droplet::StaticResourceType::Texture2D))
+            Droplet::StaticResourceType::Texture2D,
+            Droplet::ShaderResource::ShaderType::Vertex,
+            cameraChoices))
         {
-            SetTextureGUID(newGUID);
+            const bool isCamera = newGUID != C_INVALID_GUID &&
+                std::ranges::any_of(cameraChoices, [newGUID](const ResourceSlotChoice &p_choice)
+                {
+                    return p_choice.guid == newGUID;
+                });
+            if (isCamera)
+            {
+                SetTextureTarget(newGUID, newName);
+            }
+            else
+            {
+                SetTextureGUID(newGUID);
+            }
 			m_textureDisplayName = newName;
 		}
 		
@@ -253,6 +311,7 @@ nlohmann::json MeshComponent::SerializeImpl()
 
 	json["meshGUID"] = GetMeshGUID();
 	json["textureGUID"] = GetTextureGUID();
+	json["textureIsRenderTarget"] = m_textureIsTarget;
 
 	// Shaders GUIDS
 	json["vs"] = GetVSGUID();
@@ -291,7 +350,15 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 
 	if (p_compJson.contains("textureGUID"))
 	{
-		SetTextureGUID(p_compJson["textureGUID"].get<GUID>());
+		const GUID textureGUID = p_compJson["textureGUID"].get<GUID>();
+		if (p_compJson.value("textureIsRenderTarget", false))
+		{
+			SetTextureTarget(textureGUID, p_compJson.value("textureDisplayName", std::string{}));
+		}
+		else
+		{
+			SetTextureGUID(textureGUID);
+		}
 	}
 
 	// Shader GUIDS
@@ -377,8 +444,19 @@ void MeshComponent::SetMeshGUID(GUID p_guid)
 	}
 }
 
+void MeshComponent::SetTextureTarget(GUID p_targetId, const std::string& p_displayName)
+{
+    m_2dTexture = {};
+    m_textureTarget = p_targetId;
+    m_textureIsTarget = p_targetId != C_INVALID_GUID;
+    m_textureDisplayName = p_displayName;
+}
+
+
 void MeshComponent::SetTextureGUID(GUID p_guid)
 {
+	m_textureIsTarget = false;
+	m_textureTarget = C_INVALID_GUID;
 	m_2dTexture = ResourceManager::GetInstance().LoadResource<Texture2DResource>(p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{

@@ -7,7 +7,7 @@
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
 
@@ -204,6 +204,8 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    	
+    	Octree &GetOctree();
     
 		/// @brief Render octree
 		/// @param p_renderOctants True to render octants

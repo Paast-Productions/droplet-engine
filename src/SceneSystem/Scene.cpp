@@ -404,6 +404,11 @@ void Scene::RebuildOctree()
     }
 }
 
+Octree &Scene::GetOctree()
+{
+    return m_octree;
+}
+
 void Scene::RenderOctree(const bool p_renderOctants, const bool p_renderNodes)
 {
     m_octree.Render(p_renderOctants, p_renderNodes);

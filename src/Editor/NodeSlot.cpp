@@ -191,7 +191,7 @@ bool Droplet::Editor::NodeListSlot(
 		std::vector<int> selectedNodes;
 		bool deleteSelected = isFocused && (IsKeyPressed(ImGuiKey_Delete) || IsKeyPressed(ImGuiKey_Backspace));
 
-		for (size_t i = 0; i < p_nodes.size(); i++)
+		for (int i = 0; i < p_nodes.size(); i++)
 		{
 			PushID(i);
 
@@ -276,7 +276,7 @@ bool Droplet::Editor::NodeListSlot(
 			}
 			else
 			{
-				PushID(p_nodes.size() - 1);
+				PushID((int)p_nodes.size() - 1);
 				storage->SetBool(GetID("NodeListSlotSelected"), false);
 				PopID();
 				p_nodes.pop_back();

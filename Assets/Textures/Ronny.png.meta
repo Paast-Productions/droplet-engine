@@ -5,7 +5,7 @@
             "guid": 3067039457033091561,
             "loadFlags": 3,
             "loadSettings": {
-                "generate_mipmaps": false
+                "generate_mipmaps": true
             },
             "sourceName": "Ronny",
             "type": 1

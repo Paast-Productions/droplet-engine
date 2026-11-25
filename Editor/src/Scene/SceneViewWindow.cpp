@@ -14,15 +14,14 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-#include <Graphics/DebugDraw.hpp>
-#include <Graphics/Vulkan/IntermediaryStorage.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
 using namespace Droplet::Editor::Scene;
-using namespace Droplet::Graphics::Vulkan;
+using namespace Droplet::Common;
 using namespace Droplet::Graphics::Debug;
 
 namespace
@@ -235,14 +234,8 @@ void SceneViewWindow::InitImpl()
 	SetName("Editor View"); 
 	ToggleToolbar(true);
 	
-	using namespace Graphics::Vulkan;
-
-	IntermediaryStorage& instance = IntermediaryStorage::GetInstance(); 
-	
-	m_editorContext->GetEditorCamera().SetTarget(instance.CreateRenderTarget(720, 720));
-	m_editorContext->GetEditorCamera().SetTexture(instance.CreateImGuiTexture(
-		m_editorContext->GetEditorCamera().GetTarget())
-	);
+	// a new id; the renderer creates the image when it first sees it
+	m_editorContext->GetEditorCamera().SetTarget(RenderTargetDesc{ .id = GuidUtils::Generate(), .extent = { 720, 720 } });
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 
@@ -553,7 +546,7 @@ void SceneViewWindow::RenderEditorView()
 	};
 
 	float contentAspect = contentRegion.x / contentRegion.y;
-	vk::Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().GetExtent();
+	const Extent2D extent = m_editorContext->GetEditorCamera().GetTarget().extent;
 
 	uint32_t width = static_cast<uint32_t>(contentRegion.x);
 	uint32_t height = static_cast<uint32_t>(contentRegion.y);
@@ -597,7 +590,7 @@ void SceneViewWindow::RenderEditorView()
 		EditorShortcuts::GetInstance().ProcessSceneViewKeyShortcuts(*m_editorContext);
 	}
 
-	ImTextureRef camViewTexture = m_editorContext->GetEditorCamera().GetTexture().Get();
+	ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(m_editorContext->GetEditorCamera().GetTarget().id));
 
 	// Render the camera view texture to the scene view window
 	ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1180,7 +1173,7 @@ void SceneViewWindow::RenderGameView()
 		ImGui::SetCursorPos(camViewPos);
 		ImGui::BeginChild("CameraViewChild", camSize, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
 		{
-			ImTextureRef camViewTexture = camera->GetTexture().Get();
+			ImTextureRef camViewTexture = ImTextureRef(Common::ImGuiTextureId(camera->GetTarget().id));
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
@@ -1822,9 +1815,8 @@ void SceneViewWindow::FocusCameraOnSelection()
 
 void SceneViewWindow::UpdateRenderTarget(uint32_t width, uint32_t height) const
 {
-	Graphics::Vulkan::IntermediaryStorage::GetInstance().UpdateImGuiRenderTarget(
-		m_editorContext->GetEditorCamera().GetTarget(), 
-		m_editorContext->GetEditorCamera().GetTexture(), 
-		width, height
-	);
+	// same id, new size: the renderer replaces the image on the next frame
+	RenderTargetDesc target = m_editorContext->GetEditorCamera().GetTarget();
+	target.extent = { width, height };
+	m_editorContext->GetEditorCamera().SetTarget(target);
 }

@@ -5,7 +5,7 @@
 #include "SceneSystem/Component.hpp"
 #include "SceneSystem/ComponentFactory.hpp"
 #include "SceneSystem/ComponentRegistry.hpp"
-#include "Time.hpp"
+#include "Core/Time.hpp"
 
 using namespace Droplet::Scene;
 
