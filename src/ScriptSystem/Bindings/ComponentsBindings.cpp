@@ -9,12 +9,10 @@
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
+#include <SceneSystem/Components/UIComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
-
-#include "ItemRegistry.hpp"
-
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;

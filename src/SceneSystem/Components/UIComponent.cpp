@@ -1,31 +1,32 @@
 #include <UIComponent.hpp>
+#include "ImGui/imgui.h"
 
-using namespace Droplet;
-
-void UpdateImpl()
+namespace Droplet::Scene
 {
-	//DOTO
-}
+    void UIComponent::UpdateImpl()
+    {
+        // TODO
+    }
 
-void RenderUIImpl()
-{
+    void UIComponent::RenderUIImpl()
+    {
 #ifdef _EDITOR
-	//DOTO
-#endif 
+        //GameInput::Get().ProcessEvent(m_renderer.Event);
+        
+        float cursor[2] = {
+            GameInput::Get().GetCursorX(),
+            GameInput::Get().GetCursorY()
+        };
+
+        ImGui::InputFloat2("Cursor pos", cursor, "%.1f");
+#endif
+    }
+
+    nlohmann::json UIComponent::SerializeImpl()
+    {
+        return {};
+    }
 }
-
-nlohmann::json SerializeImpl()
-{
-	//DOTO
-}
-
-void DeserializeImpl()
-{
-	//DOTO
-}
-
-
-
 //ui
 //
 //rendera en bild av sepbastain

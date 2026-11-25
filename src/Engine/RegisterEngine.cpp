@@ -10,6 +10,8 @@
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 #include <SceneSystem/Components/ParticleEmitterComponent.hpp>
+#include <SceneSystem/Components/UIComponent.hpp>
+
 
 #include <SceneSystem/BehaviourRegistry.hpp>
 #include <SceneSystem/Behaviours/ScriptBehaviour.hpp>
@@ -21,13 +23,14 @@ namespace Droplet
 	{
 		Droplet::Scene::ComponentRegistry::RegisterComponent("MeshComponent", []() { return std::make_unique<Droplet::Scene::MeshComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("ScriptComponent", []() { return std::make_unique<Droplet::Scene::ScriptComponent>(); });
-		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioPlayerComponent", []() { return std::make_unique<Droplet::Scene::AudioPlayerComponent>();});
-		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Droplet::Scene::AudioEmitterComponent>();});
-		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Droplet::Scene::AudioListenerComponent>();});
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioPlayerComponent", []() { return std::make_unique<Droplet::Scene::AudioPlayerComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioEmitterComponent", []() { return std::make_unique<Droplet::Scene::AudioEmitterComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("AudioListenerComponent", []() { return std::make_unique<Droplet::Scene::AudioListenerComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("PhysicsComponent", []() { return std::make_unique<Droplet::Scene::PhysicsComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("CameraComponent", []() { return std::make_unique<Droplet::Scene::CameraComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("SkeletonComponent", []() { return std::make_unique<Droplet::Scene::SkeletonComponent>(); });
 		Droplet::Scene::ComponentRegistry::RegisterComponent("ParticleEmitterComponent", []() { return std::make_unique<Droplet::Scene::ParticleEmitterComponent>(); });
+		Droplet::Scene::ComponentRegistry::RegisterComponent("UIComponent", []() {return std::make_unique<Droplet::Scene::UIComponent>(); });
 	}
 
 	void RegisterEngineBehaviours()
