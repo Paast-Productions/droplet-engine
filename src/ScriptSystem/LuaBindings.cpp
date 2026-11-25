@@ -106,7 +106,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerComponent", &Scene::Node::GetPlayerComponent,
 		"GetID", &Scene::Node::GetID,
 		"GetTransform", static_cast<Scene::Transform & (Scene::Node:: *)()>(&Scene::Node::GetTransform),
-		"GetParent", &Scene::Node::GetParent,
+		"GetParent", [](Scene::Node &node) -> std::shared_ptr<Scene::Node>
+		{
+			return node.GetParent().lock();
+		},
 		"GetChildren", [](Scene::Node &node)
 		{
 			auto childrenShared = node.GetChildren();
