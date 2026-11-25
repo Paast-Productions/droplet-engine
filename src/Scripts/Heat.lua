@@ -1,38 +1,69 @@
 
-local hazardComp = nil
-local heatDamage = nil
-local damageNormal = 20.0
-local damageResistant = 10.0
+local json = require("../Include/json")
 
+-- Heat configuration
+local outsideTemp = 150
+
+local damageScaling = 5.0
+
+-- Temperature configuration
+local temperatureChangeRate = 2.0
+local temperatureScaling = 0.05
+
+-- Particle system
 local particleSystem = nil
 local isActive = false
+
+-- Timing configuration
+local useRandomTiming = true
+
 local activeTime = 5.0
 local inactiveTime = 15.0
-local timer = 0
 
+local activeTimeMin = 4.0
+local activeTimeMax = 7.0
+
+local inactiveTimeMin = 12.0
+local inactiveTimeMax = 20.0
+
+local timer = 0.0
+
+-- Audio
 local audioEmitter = nil
 local isPlayingSound = false
 
+-- Heat overlay
 local heatOverlay = nil
 local timeSinceTrigger = math.huge
 local overlayGracePeriod = 0.1
 
-local temperatureChangeRate = 2.0       
+-- Temperature configuration
+local temperatureChangeRate = 2.0
 local temperatureScaling = 0.05
 
-function OnStart()
-    hazardComp = self:GetHazardComponent()
+local function RandomRange(min, max)
+    return min + math.random() * (max - min)
+end
 
-    if hazardComp == nil then
-        print("ERROR: HazardComponent missing!")
-        return
+local function GetActiveDuration()
+    if useRandomTiming then
+        return RandomRange(activeTimeMin, activeTimeMax)
     end
 
-    heatDamage = hazardComp:GetDamage()
-    newDamage = heatDamage
+    return activeTime
+end
 
+local function GetInactiveDuration()
+    if useRandomTiming then
+        return RandomRange(inactiveTimeMin, inactiveTimeMax)
+    end
+
+    return inactiveTime
+end
+
+function OnStart()
     isActive = false
-    timer = inactiveTime
+    timer = GetInactiveDuration()
 
     audioEmitter = self:GetAudioEmitter("Thermal-vents")
 
@@ -59,13 +90,13 @@ function OnUpdate(dt)
     -- Update activation timer.
     timer = timer - dt
 
-    if timer <= 0 then
+    if timer <= 0.0 then
         isActive = not isActive
 
         if isActive then
-            timer = activeTime
+            timer = GetActiveDuration()
         else
-            timer = inactiveTime
+            timer = GetInactiveDuration()
         end
     end
 
@@ -99,7 +130,7 @@ end
 
 
 function OnTrigger(dt, node)
-    if node == nil or hazardComp == nil or not isActive then
+    if node == nil or not isActive then
         return
     end
 
@@ -126,7 +157,6 @@ function OnTrigger(dt, node)
     end
 
     local droneTemp = pb:GetDroneTemp()
-    local outsideTemp = 100.0 * heatDamage
 
     pb:SetOutsideTemp(outsideTemp)
 
@@ -172,24 +202,208 @@ function OnTrigger(dt, node)
         local heatSeverity = math.min(heatDifference / 50.0, 1.0)
 
         -- Apply progressively increasing damage.
-        local damagePerSecond = damageNormal * heatSeverity
+        local damagePerSecond = 1.0 +
+            damageScaling * heatSeverity * heatSeverity
 
-        health:TakeDamage(damagePerSecond * heatDamage * dt)
+        health:TakeDamage(damagePerSecond * dt)
     end
 end
-
-
 
 function RenderUI()
     ImGui.Text("Heat Hazard Active: " .. tostring(isActive))
     ImGui.Text("Timer: " .. tostring(timer))
+
     
-	if hazardComp ~= nil then
-		local hasChanged = false
-		hasChanged, newDamage = ImGui.DragFloat("Damage", newDamage, 0.1, 0.0)
-		hazardComp:SetDamage(newDamage)
-		if hasChanged then
-			heatDamage = newDamage
-		end
-	end
+    ImGui.Separator()
+    ImGui.Text("Heat Settings")
+
+    changed, outsideTemp = ImGui.DragFloat(
+        "Outside Temperature",
+        outsideTemp,
+        1.0
+    )
+
+    changed, damageScaling = ImGui.DragFloat(
+        "Damage Scaling",
+        damageScaling,
+        0.1,
+        0.0
+    )
+
+    ImGui.Separator()
+    ImGui.Text("Temperature Settings")
+
+    changed, temperatureChangeRate = ImGui.DragFloat(
+        "Temperature Change Rate",
+        temperatureChangeRate,
+        0.1,
+        0.0
+    )
+
+    changed, temperatureScaling = ImGui.DragFloat(
+        "Temperature Scaling",
+        temperatureScaling,
+        0.01,
+        0.0
+    )
+
+    ImGui.Separator()
+    ImGui.Text("Timing Settings")
+
+    changed, useRandomTiming = ImGui.Checkbox(
+        "Use Random Timing",
+        useRandomTiming
+    )
+
+    if useRandomTiming then
+        ImGui.Text("Active Duration")
+
+        changed, activeTimeMin = ImGui.DragFloat(
+            "Active Minimum",
+            activeTimeMin,
+            0.1,
+            0.1
+        )
+
+        changed, activeTimeMax = ImGui.DragFloat(
+            "Active Maximum",
+            activeTimeMax,
+            0.1,
+            0.1
+        )
+
+        ImGui.Text("Inactive Duration")
+
+        changed, inactiveTimeMin = ImGui.DragFloat(
+            "Inactive Minimum",
+            inactiveTimeMin,
+            0.1,
+            0.1
+        )
+
+        changed, inactiveTimeMax = ImGui.DragFloat(
+            "Inactive Maximum",
+            inactiveTimeMax,
+            0.1,
+            0.1
+        )
+
+        -- Ensure minimum values do not exceed maximum values.
+        activeTimeMax = math.max(activeTimeMax, activeTimeMin)
+        inactiveTimeMax = math.max(inactiveTimeMax, inactiveTimeMin)
+    else
+        changed, activeTime = ImGui.DragFloat(
+            "Active Duration",
+            activeTime,
+            0.1,
+            0.1
+        )
+
+        changed, inactiveTime = ImGui.DragFloat(
+            "Inactive Duration",
+            inactiveTime,
+            0.1,
+            0.1
+        )
+    end
+
+    ImGui.Separator()
+    ImGui.Text("Visual Settings")
+
+    changed, overlayGracePeriod = ImGui.DragFloat(
+        "Overlay Duration",
+        overlayGracePeriod,
+        0.01,
+        0.0
+    )
+
+
+end
+
+function Serialize()
+    local data = {
+        -- Heat configuration
+        outsideTemp = outsideTemp,
+        damageScaling = damageScaling,
+
+        -- Temperature configuration
+        temperatureChangeRate = temperatureChangeRate,
+        temperatureScaling = temperatureScaling,
+
+        -- Timing
+        useRandomTiming = useRandomTiming,
+        activeTime = activeTime,
+        inactiveTime = inactiveTime,
+        activeTimeMin = activeTimeMin,
+        activeTimeMax = activeTimeMax,
+        inactiveTimeMin = inactiveTimeMin,
+        inactiveTimeMax = inactiveTimeMax,
+
+        -- Visual
+        overlayGracePeriod = overlayGracePeriod
+    }
+
+    return json.encode(data)
+end
+
+function Deserialize(data)
+    if data == nil or data == "" then
+        return
+    end
+
+    local decoded = json.decode(data)
+
+    if decoded == nil then
+        return
+    end
+
+    -- Timing
+    if decoded.useRandomTiming ~= nil then
+        useRandomTiming = decoded.useRandomTiming
+    end
+
+    if decoded.activeTime ~= nil then
+        activeTime = decoded.activeTime
+    end
+
+    if decoded.inactiveTime ~= nil then
+        inactiveTime = decoded.inactiveTime
+    end
+
+    if decoded.activeTimeMin ~= nil then
+        activeTimeMin = decoded.activeTimeMin
+    end
+
+    if decoded.activeTimeMax ~= nil then
+        activeTimeMax = decoded.activeTimeMax
+    end
+
+    if decoded.inactiveTimeMin ~= nil then
+        inactiveTimeMin = decoded.inactiveTimeMin
+    end
+
+    if decoded.inactiveTimeMax ~= nil then
+        inactiveTimeMax = decoded.inactiveTimeMax
+    end
+
+    -- Visual
+    if decoded.overlayGracePeriod ~= nil then
+        overlayGracePeriod = decoded.overlayGracePeriod
+    end
+
+    if decoded.outsideTemp ~= nil then
+    outsideTemp = decoded.outsideTemp
+    end
+
+    if decoded.damageScaling ~= nil then
+        damageScaling = decoded.damageScaling
+    end
+
+    if decoded.temperatureChangeRate ~= nil then
+        temperatureChangeRate = decoded.temperatureChangeRate
+    end
+
+    if decoded.temperatureScaling ~= nil then
+        temperatureScaling = decoded.temperatureScaling
+    end
 end
