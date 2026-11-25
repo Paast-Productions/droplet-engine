@@ -1,5 +1,4 @@
 local audioEmitter = nil
-local audioBehaviour = nil;
 local transform = nil
 local playing = false
 
@@ -20,12 +19,6 @@ function OnStart()
         return
     end
 
-    audioBehaviour = self:GetAudioBehaviour()
-    if audioBehaviour == nil then  
-        print("Unable to find audio behaviour")
-        return
-    end
-
     playing = false;
 end
 
@@ -33,7 +26,6 @@ end
 function OnUpdate(dt)
     if playing == false then
         audioEmitter:Play()
-        audioBehaviour:PlayTrack("The big blue intro", 5.0)
         playing = true;
     end
 
