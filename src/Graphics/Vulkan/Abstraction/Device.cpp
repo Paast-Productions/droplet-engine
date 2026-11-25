@@ -127,6 +127,7 @@ namespace
             features.get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters
             && supportsTextureArray && (!Droplet::Graphics::Vulkan::USE_BINDLESS || supportsBindless)
             && features.get<vk::PhysicalDeviceVulkan12Features>().timelineSemaphore
+            && features.get<vk::PhysicalDeviceVulkan12Features>().hostQueryReset
             && features.get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering
             && features.get<vk::PhysicalDeviceVulkan13Features>().synchronization2
             && features.get<vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>().extendedDynamicState;
@@ -227,6 +228,7 @@ namespace Droplet::Graphics::Vulkan
                 .descriptorBindingPartiallyBound = vk::True,
                 .descriptorBindingVariableDescriptorCount = vk::True,
                 .runtimeDescriptorArray = vk::True,
+                .hostQueryReset = vk::True, // Tracy on-demand mode resets query pools from the host
                 .timelineSemaphore = vk::True
             }, // vk::PhysicalDeviceVulkan12Features
             {

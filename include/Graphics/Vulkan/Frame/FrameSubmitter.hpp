@@ -8,12 +8,14 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <span>
 #include <vector>
 
 #include <vulkan/vulkan_raii.hpp>
 
 #include "Core/Timeline.hpp"
+#include "Graphics/Vulkan/Core/GpuProfiler.hpp"
 #include "Graphics/Vulkan/Core/QueueTimelineValues.hpp"
 #include "Graphics/Vulkan/Abstraction/Semaphore.hpp"
 #include "Graphics/RenderGraph/RenderGraph.hpp"
@@ -57,10 +59,11 @@ namespace Droplet::Graphics::Vulkan
          * @param device         the device; must outlive the submitter
          * @param queues         physical queue per logical queue; the graphics entry is required
          * @param framesInFlight number of frame slots
+         * @param gpuProfiler    Tracy GPU zones for each submission; must outlive the submitter
          * @throws std::invalid_argument if there is no graphics queue
          */
         FrameSubmitter(const vk::raii::Device& device, std::array<QueueSlot, RenderGraph::QUEUE_COUNT> queues,
-                       std::uint32_t framesInFlight);
+                       std::uint32_t framesInFlight, const GpuProfiler& gpuProfiler);
         ~FrameSubmitter() = default;
 
         // no copy, no move
@@ -102,7 +105,7 @@ namespace Droplet::Graphics::Vulkan
         void Barriers(PassContext& context, std::span<const RenderGraph::Barrier> barriers) const;
 
         /// @brief Closes the command buffer and submits it with the waits and signals `submission` describes.
-        void End(const PassContext& context, const RenderGraph::Submission& submission) const;
+        void End(const PassContext& context, const RenderGraph::Submission& submission);
 
         /**
          * @brief Ends the frame: the values Prepare reserved become what BeginFrame waits for next time this slot is
@@ -136,6 +139,8 @@ namespace Droplet::Graphics::Vulkan
         };
 
         const vk::raii::Device* m_device;
+        const GpuProfiler* m_gpuProfiler;
+        std::optional<GpuZone> m_submissionZone; ///< Open from Begin to End
         std::array<QueueSlot, RenderGraph::QUEUE_COUNT> m_queues;
         std::array<Semaphore, RenderGraph::QUEUE_COUNT> m_timelines; ///< Type::Timeline
         std::vector<FrameSlot> m_slots;                              ///< one per frame in flight
