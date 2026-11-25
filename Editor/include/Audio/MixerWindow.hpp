@@ -10,7 +10,7 @@ namespace Droplet
 		/// @brief The Mixer Window, This window gives the same controls as the AudioMixer, 
 		/// it controls the bus hierarchy, adding removing and routing buses, Also making buses dragable to other locations such as components
 		/// 
-		/// TODO: Future implementation would be to implement switching between different pre determined bus hierarchys, similiar to loading scenes
+		/// TODO: (AUDIO) Future implementation would be to implement switching between different pre determined bus hierarchys, similiar to loading scenes
 		/// 
 		/// 
 		class MixerWindow : public EditorWindow

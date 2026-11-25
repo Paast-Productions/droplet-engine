@@ -16,7 +16,7 @@ namespace Droplet::IO::GliFormat
 	/// @throws std::runtime_error If the texture cannot be found or loaded.
 	[[nodiscard]] std::unique_ptr<Texture2DResource> LoadTexture2D(const std::filesystem::path &p_assetPath, const nlohmann::json &p_loadSettings);
     
-    // TODO: Implement
+    // TODO: (RESOURCES) Implement
     // [[nodiscard]] std::unique_ptr<Texture3DResource> LoadTexture3D(const std::filesystem::path &p_assetPath); 
 
     /// @brief Lists the resources in a texture file. This function is just a formality as texture files only contain

@@ -62,8 +62,6 @@ void ScriptInstance::OnStart()
 
 void ScriptInstance::OnUpdate(float deltatime)
 {
-	ZoneScoped;
-
 	if (m_onUpdate.valid())
 	{
 		sol::protected_function_result result = m_onUpdate(deltatime);
@@ -79,6 +77,7 @@ void ScriptInstance::OnUpdate(float deltatime)
 void Droplet::Script::ScriptInstance::OnDestroy()
 {
 	ZoneScoped;
+
 	if (m_onDestroy.valid())
 	{
 		sol::protected_function_result result = m_onDestroy();
@@ -98,7 +97,6 @@ void Droplet::Script::ScriptInstance::OnDestroy()
 
 void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode)
 {
-	ZoneScoped;
 	if (m_onTrigger.valid())
 	{
 		sol::protected_function_result result = m_onTrigger(deltatime, p_otherNode);
@@ -112,7 +110,6 @@ void ScriptInstance::OnTrigger(float deltatime, const std::shared_ptr<Droplet::S
 
 std::string ScriptInstance::OnSerialize()
 {
-	ZoneScoped;
 	sol::protected_function serializeFunction = m_environment["Serialize"];
 	if (!serializeFunction.valid())
 	{
@@ -131,7 +128,6 @@ std::string ScriptInstance::OnSerialize()
 
 void ScriptInstance::OnDeserialize(const std::string &p_data)
 {
-	ZoneScoped;
 	sol::protected_function deserializeFunction = m_environment["Deserialize"];
 	if (!deserializeFunction.valid())
 	{
@@ -178,8 +174,6 @@ bool ScriptInstance::Reload(sol::load_result &p_script)
 
 void ScriptInstance::RenderInternalUI() 
 {
-	ZoneScoped;
-
 	sol::protected_function renderUI = m_environment["RenderUI"];
 
 	if (!renderUI.valid())

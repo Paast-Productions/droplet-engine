@@ -60,7 +60,7 @@ namespace Droplet
 		/// @return An SDL window handle
 		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
 
-		//HACK: This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
+		//HACK: (RENDERER) This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
 		Graphics::Renderer &GetRenderer() { return m_renderer; }
 		
 	private:
@@ -90,7 +90,7 @@ namespace Droplet
 		Graphics::Renderer m_renderer;
 				
 		/// @brief Registry containing the game's registered item definitions.
-		Droplet::Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
+		Droplet::Game::ItemRegistry m_itemRegistry; // HACK: (ENGINE) Game systems do not go in Engine, this would work as a behaviour
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;

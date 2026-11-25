@@ -19,11 +19,11 @@ bool LuaApiGenerator::Generate(const std::filesystem::path &p_outputPath,
 	if (!file.is_open()) 
 	{
 		std::print("Failed to create Lua API definition file: {}\n", p_outputPath.string());
-		//TODO : send to logging manager
+		//TODO: (LOGGING) send to logging manager
 		return false;
 	}
 
-	// TODO : Call self from actual node/component
+	// TODO: (LUA) Call self from actual node/component
 	file << "---@type Node\n";
 	file << "self = nil\n\n";
 

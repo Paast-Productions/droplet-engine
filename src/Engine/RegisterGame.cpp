@@ -11,6 +11,7 @@
 #include <SceneSystem/Components/PodComponent.hpp>
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Components/CollectibleTypeComponent.hpp>
+#include <SceneSystem/Components/TrackerComponent.hpp>
 
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Behaviours/PodBehaviour.hpp>
@@ -29,6 +30,7 @@ namespace Droplet::Game
 		Scene::ComponentRegistry::RegisterComponent("PodComponent", []() { return std::make_unique<Scene::PodComponent>(); });
 		Scene::ComponentRegistry::RegisterComponent("LadderComponent", []() { return std::make_unique<Droplet::Scene::LadderComponent>(); });
 		Scene::ComponentRegistry::RegisterComponent("CollectibleTypeComponent", []() { return std::make_unique<Scene::CollectibleTypeComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("TrackerComponent", []() { return std::make_unique<Scene::TrackerComponent>(); });
 	}
 
 	void RegisterGameBehaviours()

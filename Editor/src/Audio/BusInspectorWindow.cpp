@@ -171,7 +171,7 @@ void Droplet::Editor::BusInspectorWindow::RenderImpl()
 	ImGui::Dummy(ImVec2(0, 18));
 
 	ImGui::Indent(buttonMargin);
-	//TODO Make this button only show when we don't have a full array of effects
+	//TODO: (AUDIO) Make this button only show when we don't have a full array of effects
 	if (ImGui::Button(ICON_LC_SPARKLES " Add Effect " ICON_LC_SPARKLES, ImVec2(buttonWidth - 2.0f * buttonMargin, buttonHeight)))
 	{
 		OpenEffectList();

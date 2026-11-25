@@ -9,7 +9,7 @@
 using namespace Droplet::Scene;
 using namespace Droplet::Math;
 
-// TODO: Ideally this check would be performed irrespective of FixedUpdates in Update, with a timer to trigger at certain intervals.
+// TODO: (COMPONENT) Ideally this check would be performed irrespective of FixedUpdates in Update, with a timer to trigger at certain intervals.
 // That way, each trigger could be offset by a different amount of time, to avoid having to update all triggers in the same frame. 
 // Overuse of FixedUpdate is a common cause of stuttering.
 void TriggerComponent::FixedUpdateImpl()

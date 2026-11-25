@@ -20,7 +20,7 @@ void OBB::GetCorners(glm::vec3 p_corners[8]) const
 	p_corners[7] = center + orientation * glm::vec3(-extents.x, extents.y, extents.z);
 }
 
-// HACK: No idea if this function works. Tests must be written to verify it.
+// HACK: (BOUNDS) No idea if this function works. Tests must be written to verify it.
 OBB OBB::FromPoints(const std::vector<glm::vec3> &p_points)
 {
 	ZoneScoped;

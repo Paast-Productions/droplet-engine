@@ -70,7 +70,12 @@ namespace Droplet
     template <typename T>
     bool StaticResourceHandle<T>::IsValid() const
     {
-        return ResourceHandle<T>::m_guid != C_INVALID_GUID && m_resourceManager;
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID || !m_resourceManager)
+        {
+            return false;
+        }
+
+        return m_resourceManager->GetState(ResourceHandle<T>::m_guid) == ResourceState::Ready;
     }
 
     template <typename T>
@@ -87,7 +92,7 @@ namespace Droplet
     template <typename T>
     bool StaticResourceHandle<T>::IsLoading() const
     {
-        if (!IsValid)
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID || !m_resourceManager)
         {
             return false;
         }
@@ -98,7 +103,7 @@ namespace Droplet
     template <typename T>
     bool StaticResourceHandle<T>::IsReady() const
     {
-        if (!IsValid())
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID || !m_resourceManager)
         {
             return false;
         }
@@ -109,7 +114,7 @@ namespace Droplet
     template <typename T>
     bool StaticResourceHandle<T>::HasFailed() const
     {
-        if (!IsValid())
+        if (ResourceHandle<T>::m_guid == C_INVALID_GUID || !m_resourceManager)
         {
             return false;
         }
@@ -130,7 +135,7 @@ namespace Droplet
     template <typename T>
     void StaticResourceHandle<T>::IncrementRef()
     {
-        if (IsValid())
+        if (ResourceHandle<T>::m_guid != C_INVALID_GUID && m_resourceManager)
         {
             m_resourceManager->IncrementRef(ResourceHandle<T>::m_guid);
         }
@@ -139,7 +144,7 @@ namespace Droplet
     template <typename T>
     void StaticResourceHandle<T>::DecrementRef()
     {
-        if (IsValid())
+        if (ResourceHandle<T>::m_guid != C_INVALID_GUID && m_resourceManager)
         {
             m_resourceManager->DecrementRef(ResourceHandle<T>::m_guid);
         }
@@ -148,7 +153,7 @@ namespace Droplet
     template <typename T>
     std::uint32_t StaticResourceHandle<T>::GetRef() const
     {
-        if (IsValid())
+        if (ResourceHandle<T>::m_guid != C_INVALID_GUID && m_resourceManager)
         {
             return m_resourceManager->GetRef(ResourceHandle<T>::m_guid);
         }

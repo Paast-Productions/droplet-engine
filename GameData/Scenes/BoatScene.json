@@ -95,9 +95,10 @@
                                 "clearColor": [
                                     0.0,
                                     0.0,
-                                    0.30000001192092896,
+                                    0.0117647061124444,
                                     1.0
                                 ],
+                                "debugDraw": false,
                                 "drawLayerMask": 65535,
                                 "priority": 0,
                                 "resolution": [
@@ -756,7 +757,7 @@
                     "transform": {
                         "position": [
                             0.0,
-                            -0.09361433982849121,
+                            0.0,
                             -1.0
                         ],
                         "rotation": [
@@ -1771,6 +1772,57 @@
                             1.0
                         ]
                     }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "busName": "Master",
+                                "looping": false,
+                                "pitch": 1.0,
+                                "soundGuid": 15367218493954547915,
+                                "startTimeSeconds": 0.0,
+                                "stereoPan": 0.0,
+                                "volumeDb": -5.0
+                            },
+                            "id": 3,
+                            "type": "AudioPlayerComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "data": "",
+                                "filepath": "seaAmbiance.lua"
+                            },
+                            "id": 4,
+                            "type": "ScriptComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 1746,
+                    "name": "SeaAmbiance",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
                 }
             ],
             "collisionLayerMask": 1,
@@ -1929,7 +1981,7 @@
                         "pitch": 1.0,
                         "soundGuid": 16400736593281290847,
                         "startTimeSeconds": 0.0,
-                        "volumeDb": 0.0
+                        "volumeDb": -5.0
                     },
                     "id": 4,
                     "type": "AudioEmitterComponent"
@@ -2021,6 +2073,20 @@
                 {
                     "active": true,
                     "data": {
+                        "busName": "Master",
+                        "looping": false,
+                        "pitch": 1.0,
+                        "soundGuid": 16874356715363899019,
+                        "startTimeSeconds": 0.0,
+                        "stereoPan": 0.0,
+                        "volumeDb": -10.0
+                    },
+                    "id": 4,
+                    "type": "AudioPlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "data": "",
                         "filepath": "ladder.lua"
                     },
@@ -2038,7 +2104,7 @@
             ],
             "drawLayer": 1,
             "id": 140,
-            "name": "Empty Node",
+            "name": "HatchInteractable",
             "transform": {
                 "position": [
                     -0.5962095260620117,
@@ -2425,6 +2491,70 @@
                     0.5779991745948792,
                     0.5780001878738403,
                     0.5780001878738403
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 64,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13112886787923826438,
+                        "fsName": "Transparent.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Skybox",
+                        "meshGUID": 17708890864794196341,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Skybox",
+                        "textureGUID": 6240586937985701558,
+                        "transparent": true,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "target": 1704,
+                        "trackPosX": true,
+                        "trackPosY": true,
+                        "trackPosZ": true,
+                        "trackRotX": false,
+                        "trackRotY": false,
+                        "trackRotZ": false
+                    },
+                    "id": 2,
+                    "type": "TrackerComponent"
+                }
+            ],
+            "drawLayer": 2,
+            "id": 1767,
+            "name": "Skybox",
+            "transform": {
+                "position": [
+                    0.0,
+                    1.2585127353668213,
+                    1.0785971879959106
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    100.0,
+                    100.0,
+                    100.0
                 ]
             }
         },
