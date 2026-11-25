@@ -2,10 +2,20 @@
 
 struct PushConstants
 {
-    float4x4 viewProj;   // projection * view of the camera being rendered
-    float4x4 model;      // object to world
+    float4x4 world;
+    float4 cameraDir;
+    float4 cameraPos;
+    float time;
+    uint textureID; // index into textureArr
 };
-[[vk::push_constant]] ConstantBuffer<PushConstants> pc;
+[[vk::push_constant]] PushConstants pc;
+
+struct ViewProjection
+{
+    float4x4 view;
+    float4x4 proj;
+};
+[[vk::binding(0, 0)]] ConstantBuffer<ViewProjection> viewProjection;
 
 struct VertexInput
 {
@@ -23,7 +33,7 @@ struct VertexOutput
 VertexOutput vMain(VertexInput input)
 {
     VertexOutput output;
-    output.position = mul(pc.viewProj, mul(pc.model, float4(input.position, 1.0)));
+    output.position = mul(viewProjection.proj, mul(viewProjection.view, mul(pc.world, float4(input.position, 1.0))));
     output.color = input.color;
     return output;
 }

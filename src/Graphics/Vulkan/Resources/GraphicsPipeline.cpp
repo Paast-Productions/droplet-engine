@@ -6,6 +6,7 @@
 #include "Graphics/Vulkan/Abstraction/Shader.hpp"
 
 #include <array>
+#include <bit>
 #include <functional>
 #include <stdexcept>
 
@@ -87,6 +88,7 @@ namespace Droplet::Graphics::Vulkan
         HashCombine(seed, static_cast<std::uint64_t>(raster.polygonMode));
         HashCombine(seed, F(raster.cullMode));
         HashCombine(seed, static_cast<std::uint64_t>(raster.frontFace));
+        HashCombine(seed, std::bit_cast<std::uint32_t>(raster.lineWidth));
         HashCombine(seed, depth.testEnable ? 1u : 0u);
         HashCombine(seed, depth.writeEnable ? 1u : 0u);
         HashCombine(seed, static_cast<std::uint64_t>(depth.compareOp));
@@ -150,7 +152,7 @@ namespace Droplet::Graphics::Vulkan
             .polygonMode = desc.raster.polygonMode,
             .cullMode = desc.raster.cullMode,
             .frontFace = desc.raster.frontFace,
-            .lineWidth = 1.0f
+            .lineWidth = desc.raster.lineWidth
         };
 
         const vk::PipelineMultisampleStateCreateInfo multisampleInfo{

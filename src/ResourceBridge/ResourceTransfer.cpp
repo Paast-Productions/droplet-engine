@@ -20,26 +20,28 @@ namespace Droplet::Bridge
                 ids.push_back(id);
         }
 
-        /// @brief Adds the texture `image` refers to; a render target is not an asset
-        void AddRequiredTexture(RequiredResources& required, const Common::ImageRef& image)
+        /// @brief Adds the texture an object shows; a render target is not an asset
+        void AddRequiredTexture(Bridge::RequiredResources& required, const Common::TextureData& texture)
         {
-            if (image.kind == Common::ImageRef::Kind::Texture)
-                AddUniqueId(required.textures, image.id);
+            if (!texture.isRenderTarget)
+                AddUniqueId(required.textures, texture.GUID);
         }
     }
 
     RequiredResources RequiredResourcesOf(const Graphics::Render::RenderWorld& world, std::span<const GUID> images)
     {
-        RequiredResources required;
-        AddUniqueId(required.shaders, Graphics::Render::DEFAULT_SCENE_SHADER);
+        Bridge::RequiredResources required;
+        AddUniqueId(required.shaders, world.defaultVertexShader);
+        AddUniqueId(required.shaders, world.defaultFragmentShader);
 
         for (const Common::CameraRenderData& camera : world.cameras)
         {
             for (const Common::RenderData& object : camera.renderData)
         {
                 AddUniqueId(required.meshes, object.meshData.GUID);
-                AddRequiredTexture(required, Graphics::Render::ImageOf(object.texData));
-                AddUniqueId(required.shaders, Graphics::Render::ShaderOf(object));
+                AddRequiredTexture(required, object.texData);
+                AddUniqueId(required.shaders, object.vsData.guid);
+                AddUniqueId(required.shaders, object.fsData.guid);
             }
         }
         for (const GUID image : images)

@@ -17,6 +17,8 @@
 #endif
 
 #include <Common/RenderData.hpp>
+#include <Resource/StaticResourceHandle.hpp>
+#include <Resource/Types/ShaderResource.hpp>
 #include <Engine/EngineFlags.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
@@ -102,6 +104,8 @@ namespace Droplet
 		Graphics::Debug::ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
 #endif
 		Graphics::Vulkan::Renderer m_renderer;
+		StaticResourceHandle<ShaderResource> m_defaultVertexShader;   ///< Base.VS, kept loaded
+		StaticResourceHandle<ShaderResource> m_defaultFragmentShader; ///< Base.FS, kept loaded
 
        /// @brief Registry containing the game's registered item definitions.
        Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour

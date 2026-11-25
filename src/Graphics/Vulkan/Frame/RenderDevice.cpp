@@ -44,7 +44,8 @@ using namespace Droplet::Graphics::Vulkan;
 
 RenderDevice::RenderDevice(const Context& context, std::uint32_t framesInFlight)
     : m_frameSubmitter(context.GetDevice(), MakeQueueSlots(context), framesInFlight),
-      m_resources(context, m_deletionQueue),
+      m_textureTable(context, framesInFlight),
+      m_resources(context, m_deletionQueue, m_textureTable),
       m_shaders(context.GetDevice())
 {
 }
@@ -88,7 +89,7 @@ void RenderDevice::Upload(const Bridge::ResourceUploads& uploads)
     }
     for (const Bridge::ShaderUpload& shader : uploads.shaders)
     {
-        m_shaders.GetOrCreate(shader.id, shader.shader, shader.revision); // reported once if it does not compile
+        m_shaders.Upload(shader); // reported once if it cannot be used
     }
 }
 

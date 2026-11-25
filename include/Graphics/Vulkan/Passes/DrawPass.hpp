@@ -4,39 +4,25 @@
 #include <vulkan/vulkan_raii.hpp>
 
 #include <cstdint>
-#include <unordered_map>
+#include <vector>
 
 #include "Core/Guid.hpp"
 #include "Common/RenderData.hpp"
+#include "Graphics/Render/PreparedFrame.hpp"
+#include "Graphics/Vulkan/Abstraction/Buffer.hpp"
 #include "Graphics/Render/RenderWorld.hpp"
 #include "Graphics/Vulkan/Resources/DeletionQueue.hpp"
 #include "Graphics/Vulkan/Resources/GpuResourceManager.hpp"
 #include "Graphics/Vulkan/Resources/GraphicsPipeline.hpp"
 #include "Graphics/Vulkan/Resources/PipelineLibrary.hpp"
-#include "Graphics/Render/PreparedFrame.hpp"
+#include "Graphics/Vulkan/Resources/TextureTable.hpp"
 
 namespace Droplet::Graphics::Vulkan
 {
     class Context;
     class RenderDevice;
 
-    /// Per-draw shader data, sent as push constants (vertex stage). 128 bytes is the push-constant size every Vulkan
-    /// device guarantees, so no limit query is needed.
-    struct ScenePushConstants
-    {
-        glm::mat4 viewProj; ///< projection * view of the camera being rendered
-        glm::mat4 model;    ///< object to world
-    };
-    static_assert(sizeof(ScenePushConstants) == 128, "must fit the guaranteed 128 bytes of push constants");
-
-    /// Per-view shader data at set 1 binding 0 (vertex and fragment stages)
-    struct SceneViewUniforms
-    {
-        glm::vec4 cameraPosition{ 0.0f }; ///< world space; w unused
-        glm::vec4 cameraForward{ 0.0f };  ///< world space, unit length; w unused
-        float time = 0.0f;                ///< seconds
-        float padding[3]{};
-    };
+    static_assert(sizeof(Common::PushConstantData) == 104, "the push constants game shaders declare");
 
     enum class DrawFilter
     {
@@ -48,13 +34,15 @@ namespace Droplet::Graphics::Vulkan
 
     struct DrawPassCreateInfo
     {
-        std::uint32_t maxMaterials = 64; ///< descriptor pool size: distinct textures and targets drawn with at once
         std::uint32_t framesInFlight = 2; ///< one per-view uniform buffer per frame slot
     };
 
-    /// @brief The scene material interface (vertex layout P3N3UV2, set 0 binding 0 base colour, set 1 binding 0
-    ///        SceneViewUniforms, ScenePushConstants) and the draw loop. Material sets are cached per texture and target; an unresolved or stale binding draws
-    ///        the placeholder texture.
+    /**
+     * @brief The scene shader interface and the draw loop
+     * @details Push constants: Graphics::PushConstantData (vertex and fragment). Set 0: the view's
+     *          Graphics::Vulkan::ViewProjectionBuffer. Set 1: reserved. Set 2: the texture table, indexed by
+     *          PushConstantData::textureID
+     */
     class DrawPass
     {
     public:
@@ -70,15 +58,25 @@ namespace Droplet::Graphics::Vulkan
         static constexpr GUID VERTEX_COLOR_SHADER = GuidFromName("shader/built-in-vertex-color");
         [[nodiscard]] static Common::ShaderDesc VertexColorShaderAsset();
 
-        /// @brief Creates the layouts and the descriptor pool, and retires the sets of released textures and targets
-        ///        whenever the device releases resources.
-        /// @param context must outlive the pass
-        /// @param device  must outlive the pass
+        /**
+         * @brief Creates the pipeline layout and the per-view uniform buffers
+         * @param context Must outlive the pass
+         * @param device Its resources and texture table; must outlive the pass
+         * @param info The number of frame slots
+         */
         DrawPass(const Context& context, RenderDevice& device, const DrawPassCreateInfo& info);
 
-        /// @brief The pipeline description for drawing with `shader` into the given attachment formats.
-        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
-            GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
+        /**
+         * @brief The pipeline description for objects drawn with the scene layout
+         * @param vertexShader The vertex stage's shader GUID
+         * @param fragmentShader The fragment stage's shader GUID
+         * @param colorFormat The view's colour format
+         * @param depthFormat The view's depth format
+         * @param transparent Alpha blended without depth writes
+         * @returns A description for PipelineLibrary::GetOrCreate
+         */
+        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+            vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
 
         /**
          * @brief The built-in shader interface a mesh's vertex layout fits
@@ -89,7 +87,8 @@ namespace Droplet::Graphics::Vulkan
 
         /**
          * @brief The pipeline description for a dynamic mesh: its own vertex layout, topology and depth test
-         * @param shader The shader it draws with (VERTEX_COLOR_SHADER for MeshInterface::VertexColor)
+         * @param vertexShader The vertex stage's shader GUID
+         * @param fragmentShader The fragment stage's shader GUID
          * @param mesh A mesh whose interface is not None
          * @param colorFormat The view's colour format
          * @param depthFormat The view's depth format
@@ -97,10 +96,10 @@ namespace Droplet::Graphics::Vulkan
          * @returns A description for PipelineLibrary::GetOrCreate
          */
         [[nodiscard]] GraphicsPipelineDesc MakeMeshPipelineDesc(
-            GUID shader, const Common::DynamicMeshData& mesh,
+            GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent) const;
 
-        /// @brief Writes every view's SceneViewUniforms and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame
+        /// @brief Writes every view's ViewProjectionBuffer and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame
         void BeginFrame(std::uint32_t frameSlot, const Render::PreparedFrame& frame);
 
         /// @brief Records `view`'s draws inside an open dynamic-rendering scope; sets viewport (Y flipped) and scissor.
@@ -113,22 +112,16 @@ namespace Droplet::Graphics::Vulkan
             const PipelineLibrary& pipelines,
             DrawFilter filter = DrawFilter::All);
 
-        /// @brief Moves the cached sets of evicted textures and targets into the deletion queue.
-        /// @param frameRetireValues timeline values after which this frame is done (its draws may use them)
-        void RetireDeadMaterials(DeletionQueue& deletionQueue, const QueueTimelineValues& frameRetireValues);
-
-        /// @brief Forgets every cached set. @pre the GPU is idle
-        void ClearMaterialCache();
-
     private:
-        vk::DescriptorSet MaterialSet(const Render::ImageBinding& binding);
-        vk::raii::DescriptorSet CreateSet(vk::ImageView view, vk::Sampler sampler) const;
+        /// @brief The texture table index a draw samples; the placeholder's for a stale handle
+        [[nodiscard]] std::uint32_t TextureIndexOf(const Render::ImageBinding& binding) const;
 
         const Context* m_context; ///< Not owned, outlives this.
         GpuResourceManager* m_gpu; ///< the device's; not owned
+        TextureTable* m_textures;  ///< the device's; not owned
 
-        vk::raii::DescriptorSetLayout m_setLayout{nullptr};
         vk::raii::DescriptorSetLayout m_viewSetLayout{nullptr};
+        vk::raii::DescriptorSetLayout m_reservedSetLayout{nullptr}; ///< set 1: empty for now
         vk::raii::PipelineLayout m_pipelineLayout{nullptr};
 
         // == Per-view uniforms == a buffer and a set per frame slot; the pool is declared before the sets
@@ -139,12 +132,8 @@ namespace Droplet::Graphics::Vulkan
         // == Dynamic geometry == rewritten every frame, a vertex and an index buffer per frame slot
         std::vector<Buffer> m_dynamicVertexBuffers;
         std::vector<Buffer> m_dynamicIndexBuffers;
-        vk::DeviceSize m_viewUniformStride = 0; ///< sizeof(SceneViewUniforms), aligned for dynamic offsets
+        vk::DeviceSize m_viewUniformStride = 0; ///< sizeof(ViewProjectionBuffer), aligned for dynamic offsets
         std::uint32_t m_frameSlot = 0;
-
-        // The pool is declared before the sets so the sets are destroyed first.
-        vk::raii::DescriptorPool m_pool{nullptr};
-        std::unordered_map<std::uint64_t, vk::raii::DescriptorSet> m_textureSets;
-        std::unordered_map<std::uint64_t, vk::raii::DescriptorSet> m_targetSets;
+        float m_time = 0.0f; ///< the frame's PreparedFrame::time
     };
 }

@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <string>
 #include <vector>
 
 #include "Common/RenderDesc.hpp"
@@ -42,12 +43,21 @@ namespace Droplet::Bridge
         Common::TextureSampling sampling{};
     };
 
-    /// @brief A scene shader to compile (a small description, copied).
+    /// @brief A shader stage a shader asset holds
+    enum class ShaderStage : std::uint8_t
+    {
+        Vertex,
+        Fragment
+    };
+
+    /// @brief One compiled shader stage
     struct ShaderUpload
     {
-        GUID id{C_INVALID_GUID};
-        std::uint64_t revision{0}; ///< the rscMan's revision the asset is from
-        Common::ShaderDesc shader;
+        GUID id{ C_INVALID_GUID };
+        std::uint64_t revision{ 0 };       ///< the storage's revision the asset is from
+        ShaderStage stage{ ShaderStage::Vertex };
+        std::span<const std::byte> spirv;  ///< SPIR-V; valid until Renderer::Upload returns
+        std::string entryPoint = "main";
     };
 
     /// @brief Asset data handed to the renderer for one frame.

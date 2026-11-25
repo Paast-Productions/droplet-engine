@@ -28,10 +28,21 @@ namespace Droplet::IO
 
 namespace Droplet::Graphics::Vulkan
 {
-    /// Owns every Shader on the GPU. Keyed by asset GUID and stage; compiles shader descriptions (Common::ShaderDesc) on demand.
-    /// @details Resolve hands out a compiled shader or the default one. A shader is compiled once: a newer revision
-    ///          of a compiled shader is reported and ignored (no hot reload yet); a newer revision of one that failed
-    ///          is compiled again (when it is uploaded).
+    /// @brief A vertex and a fragment stage drawn together
+    struct ShaderPair
+    {
+        GUID vertex{ C_INVALID_GUID };
+        GUID fragment{ C_INVALID_GUID };
+
+        [[nodiscard]] bool IsValid() const noexcept { return vertex != C_INVALID_GUID && fragment != C_INVALID_GUID; }
+    };
+
+    /**
+     * @brief Owns every Shader, keyed by GUID and stage
+     * @details Uploaded shaders arrive as one compiled stage each; the renderer's built-in shaders are compiled from
+     *          source, both stages under one GUID. A shader is created once: a newer revision of a created one is
+     *          reported and ignored (no hot reload yet); a newer revision of one that failed is tried again
+     */
     class ShaderLibrary
     {
     public:
@@ -41,39 +52,49 @@ namespace Droplet::Graphics::Vulkan
         ShaderLibrary(const ShaderLibrary&) = delete;
         ShaderLibrary& operator=(const ShaderLibrary&) = delete;
 
-        /// @brief Compiles the asset's vertex and fragment stages under `id` the first time it is seen.
-        /// @param revision the asset storage's revision; a failed shader is compiled again for a newer one
-        /// @return false if it does not compile (reported once; later calls return false without compiling again)
-        bool GetOrCreate(GUID id, const Common::ShaderDesc& asset, std::uint64_t revision = 0);
+        /**
+         * @brief Creates an uploaded stage the first time it is seen
+         * @param upload One compiled stage
+         * @returns false if it is not valid SPIR-V (reported once per revision)
+         */
+        bool Upload(const Bridge::ShaderUpload& upload);
 
-        /// @brief The default scene shader: the asset storage's override under `overrideId` once it has arrived, else
-        ///        `builtIn` (compiled under `builtInId` on first use).
-        void SetDefault(GUID overrideId, GUID builtInId, Common::ShaderDesc builtIn);
+        /**
+         * @brief Compiles a built-in shader's vertex and fragment stages under `id` the first time it is seen
+         * @param id The built-in shader's GUID
+         * @param asset The Slang module and its entry points
+         * @returns false if it does not compile (reported once)
+         */
+        bool GetOrCreate(GUID id, const Common::ShaderDesc& asset);
 
-        /// @brief The default shader to draw with this frame: the override (the asset storage's shader under the
-        ///        default's GUID, which the uploader sends) once it is compiled, else the built-in one. Invalid if not
-        ///        even the built-in one compiles.
-        [[nodiscard]] GUID ResolveDefault();
+        /// @brief The renderer's own default, compiled on first use: drawn with when not even production's default is ready
+        void SetBuiltInDefault(GUID builtInId, Common::ShaderDesc builtIn);
 
-        /// @brief `id` if it is compiled, else `fallback` (also for an invalid `id`).
-        [[nodiscard]] GUID Resolve(GUID id, GUID fallback);
+        /**
+         * @brief The default pair to draw with this frame
+         * @param defaultShaders The pair production names (RenderWorld)
+         * @returns It once both stages are created, else the built-in default; invalid if not even that compiles
+         */
+        [[nodiscard]] ShaderPair ResolveDefault(ShaderPair defaultShaders);
 
-        /// @brief Adds the compiled shaders and the failed ones, with their revisions, to `resident`.
+        /// @brief `shaders` if both stages are created, else `fallback`
+        [[nodiscard]] ShaderPair Resolve(ShaderPair shaders, ShaderPair fallback) const;
+
+        /// @brief Adds the created shaders and the failed ones, with their revisions, to `resident`.
         void AppendResident(Bridge::ResidentResources& resident) const;
 
         /// Adds or replaces (hot reload) the shader for this GUID and stage.
         const Shader& Set(GUID id, const ShaderCreateInfo& info);
 
-        /// @brief True if both stages of `id` are compiled.
-        [[nodiscard]] bool IsReady(GUID id) const;
-        /// @brief True if `id` was given to GetOrCreate and did not compile (retried only for a newer revision).
+        /// @brief True if `id` has `stage` created
+        [[nodiscard]] bool IsReady(GUID id, vk::ShaderStageFlagBits stage) const { return Find(id, stage) != nullptr; }
+        /// @brief True if `id` was tried and failed (tried again only for a newer revision)
         [[nodiscard]] bool HasFailed(GUID id) const { return m_failed.contains(id); }
-
         [[nodiscard]] const Shader* Find(GUID id, vk::ShaderStageFlagBits stage) const;
         [[nodiscard]] const Shader& Get(GUID id, vk::ShaderStageFlagBits stage) const; ///< throws if missing
 
         /// The Slang compiler, for shaders outside the library (the compositor's).
-        [[nodiscard]] const IO::ShaderCompiler& Compiler() const { return *m_compiler; }
+        [[nodiscard]] const Droplet::IO::ShaderCompiler& Compiler() const { return *m_compiler; }
 
     private:
         struct StageKeyHash
@@ -91,7 +112,6 @@ namespace Droplet::Graphics::Vulkan
         std::unordered_map<GUID, std::uint64_t> m_revisions; ///< revision each compiled asset was compiled from
         std::unordered_map<GUID, std::uint64_t> m_ignored; ///< newest ignored revision per asset (reported once)
 
-        GUID m_defaultOverride{ C_INVALID_GUID }; ///< the asset storage's default shader (Render::DEFAULT_SCENE_SHADER)
         GUID m_builtInDefault{ C_INVALID_GUID }; ///< the renderer's own default shader
         Common::ShaderDesc m_builtInResource;
     };

@@ -60,13 +60,13 @@ std::vector<ViewPlan> PlanViews(const RenderWorld& world)
         const GUID ownTarget = world.cameras[cameraIndex].target.id;
         for (const Common::RenderData& object : world.cameras[cameraIndex].renderData)
         {
-            const Common::ImageRef image = ImageOf(object.texData);
-            if (image.kind != Common::ImageRef::Kind::RenderTarget || !viewOfTarget.contains(image.id))
+            const GUID target = object.texData.GUID;
+            if (!object.texData.isRenderTarget || !viewOfTarget.contains(target))
                 continue;
-            if (image.id == ownTarget)
+            if (target == ownTarget)
                 plan.needsHistory = true; // sees its own output
-            else if (std::ranges::find(plan.readIds, image.id) == plan.readIds.end())
-                plan.readIds.push_back(image.id);
+            else if (std::ranges::find(plan.readIds, target) == plan.readIds.end())
+                plan.readIds.push_back(target);
         }
     }
 

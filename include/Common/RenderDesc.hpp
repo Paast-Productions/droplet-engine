@@ -25,26 +25,6 @@ namespace Droplet::Common
         RGBA8_UNORM
     };
 
-    /// "An image" as seen from the scene: either a loaded texture asset or a declared render target
-    struct ImageRef
-    {
-        /// @brief flag of the kind of image this is treated as
-        enum class Kind 
-        {
-            None,
-            Texture,
-            RenderTarget
-        };
-
-        Kind kind = Kind::None;
-        GUID id{ C_INVALID_GUID };
-
-        /// create as Texture
-        static constexpr ImageRef FromTexture(GUID id) { return { Kind::Texture, id }; }
-        /// create as RenderTarget
-        static constexpr ImageRef FromTarget(GUID id) { return { Kind::RenderTarget, id }; }
-    };
-
     // == Post-processing ==
 
     /// @brief A post-process effect applied to a camera's output after rendering but before GUI
@@ -119,7 +99,7 @@ namespace Droplet::Common
     };
 
     /// A scene shader: a Slang module with a vertex and a fragment entry point. It must follow the scene material
-    /// interface (Vulkan::DrawPass): vertex layout Common::MeshVertex, set 0 binding 0 base colour, ScenePushConstants.
+    /// interface (Vulkan::DrawPass): vertex layout Common::MeshVertex, Graphics::PushConstantData, set 0 the view, set 2 the textures.
     struct ShaderDesc
     {
         std::string moduleName;               ///< Slang module name

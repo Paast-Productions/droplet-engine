@@ -28,6 +28,7 @@ namespace Droplet::Graphics::Vulkan
         vk::PolygonMode polygonMode = vk::PolygonMode::eFill;
         vk::CullModeFlags cullMode = vk::CullModeFlagBits::eBack;
         vk::FrontFace frontFace = vk::FrontFace::eCounterClockwise;
+        float lineWidth = 1.0f; ///< above 1 only on a device with wide lines
 
         friend bool operator==(const RasterState&, const RasterState&) = default;
     };

@@ -12,12 +12,6 @@
 
 namespace Droplet::Graphics::Render
 {
-    /**
-     * @brief GUID of the default scene shader, for objects without a working shader
-     * @details A shader asset under this GUID replaces the renderer's built-in one (Shaders/scene.slang)
-     */
-    inline constexpr GUID DEFAULT_SCENE_SHADER = GuidFromName("shader/scene");
-
     /// @brief Half the edge of the placeholder cube drawn for a mesh the GPU does not have
     inline constexpr float PLACEHOLDER_CUBE_HALF_EXTENT = 0.5f;
 
@@ -35,30 +29,8 @@ namespace Droplet::Graphics::Render
         std::vector<Common::CameraRenderData> cameras; ///< each with the objects it sees, culled
         std::vector<ViewSettings> viewSettings; ///< optional; a view without one is named after its target
         GUID presentedId{ C_INVALID_GUID }; ///< the target the window shows outside the editor
+        GUID defaultVertexShader{ C_INVALID_GUID };   ///< for objects without working shaders
+        GUID defaultFragmentShader{ C_INVALID_GUID }; ///< for objects without working shaders
         float time = 0.0f; ///< seconds, for shaders
     };
-
-    // TODO:: convert RenderData's shader slots to one shader module, until pipelines are built per stage combination
-    /**
-     * @brief The shader module an object draws with
-     * @param object An object a camera sees
-     * @returns The module in both the vertex and fragment slot; invalid (the default scene shader) otherwise
-     */
-    constexpr GUID ShaderOf(const Common::RenderData& object) noexcept
-    {
-        return object.vsData.guid == object.fsData.guid ? object.vsData.guid : C_INVALID_GUID;
-    }
-
-    // TODO: convert RenderData's texture to the renderer's image reference
-    /**
-     * @brief The image an object shows
-     * @param texture An object's texture data
-     * @returns A render target, a texture or no image
-     */
-    constexpr Common::ImageRef ImageOf(const Common::TextureData& texture) noexcept
-    {
-        if (texture.GUID == Droplet::C_INVALID_GUID)
-            return {};
-        return texture.isRenderTarget ? Common::ImageRef::FromTarget(texture.GUID) : Common::ImageRef::FromTexture(texture.GUID);
-    }
 }

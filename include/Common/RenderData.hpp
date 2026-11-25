@@ -21,6 +21,13 @@ namespace Droplet::Common
         std::uint32_t textureID{0};
     };
 
+    /// @brief The view's matrices at set 0, binding 0 of the scene shaders
+    struct ViewProjectionBuffer
+    {
+        glm::mat4 view{};
+        glm::mat4 proj{};
+    };
+
     struct ShaderData
     {
         std::uint64_t guid{0};

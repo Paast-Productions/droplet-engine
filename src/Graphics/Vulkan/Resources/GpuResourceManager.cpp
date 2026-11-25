@@ -132,9 +132,10 @@ namespace Droplet::Graphics::Vulkan
     }
 
     GpuResourceManager::GpuResourceManager(
-        const Context& context, DeletionQueue& deletionQueue, std::uint32_t idleFramesBeforeEviction)
+        const Context& context, DeletionQueue& deletionQueue, TextureTable& textureTable, std::uint32_t idleFramesBeforeEviction)
         : m_context(&context),
           m_deletionQueue(&deletionQueue),
+          m_textureTable(&textureTable),
           m_uploader(context),
           m_idleFramesBeforeEviction(idleFramesBeforeEviction)
     {
@@ -273,6 +274,7 @@ namespace Droplet::Graphics::Vulkan
             });
         // Stays Undefined: the render graph's first pass that touches it transitions it.
         // Sampling it before it has ever been rendered is invalid, so the graph must order producer first.
+        gpu.slot = m_textureTable->Add(gpu.target.GetImageView(), DefaultSampler());
         return m_targets.Add(std::move(gpu));
     }
 
@@ -379,6 +381,7 @@ namespace Droplet::Graphics::Vulkan
                                            .aspectMask = vk::ImageAspectFlagBits::eColor,
                                            .levelCount = gpu.image.MipLevels()});
         gpu.sampler = GetOrCreateSampler(sampling);
+        gpu.slot = m_textureTable->Add(gpu.view.Get(), gpu.sampler);
         return m_textures.Add(std::move(gpu));
     }
 

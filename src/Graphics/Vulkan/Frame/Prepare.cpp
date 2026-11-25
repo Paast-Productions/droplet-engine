@@ -29,27 +29,34 @@ namespace
         return targetIt != targetHandles.end() ? targetIt->second : Render::TargetHandle{};
     }
 
-    /// @brief The image an object shows. What is missing becomes the placeholder texture; no image at
-    ///        all is the white texture.
+    /// @brief The image an object shows: missing is the placeholder, none at all is white
     Render::ImageBinding ResolveImage(
-        const Common::ImageRef& image,
+        const Common::TextureData& texture,
         Vulkan::GpuResourceManager& gpu,
         const std::unordered_map<GUID, Render::TargetHandle>& targetHandles)
     {
-        switch (image.kind)
-        {
-        case Common::ImageRef::Kind::Texture:
-            return gpu.ResolveTexture(image.id);
-        case Common::ImageRef::Kind::RenderTarget:
-            if (const Render::TargetHandle target = ResolveTarget(image.id, targetHandles); target.IsValid())
-                return target;
-            if (const Render::TargetHandle idle = gpu.FindTarget(image.id); idle.IsValid())
-                return idle; // its last image
-            return gpu.PlaceholderTexture(); // never rendered
-        case Common::ImageRef::Kind::None:
-            break;
-        }
-        return gpu.WhiteTexture(); // no texture on purpose: not a missing one
+        if (texture.GUID == C_INVALID_GUID)
+            return gpu.WhiteTexture(); // no texture on purpose: not a missing one
+        if (!texture.isRenderTarget)
+            return gpu.ResolveTexture(texture.GUID);
+        if (const Render::TargetHandle target = ResolveTarget(texture.GUID, targetHandles); target.IsValid())
+            return target;
+        if (const Render::TargetHandle idle = gpu.FindTarget(texture.GUID); idle.IsValid())
+            return idle; // its last image
+        return gpu.PlaceholderTexture(); // never rendered
+    }
+
+    /**
+     * @brief Whether an object uses a tessellation or geometry stage, which the renderer does not support
+     * @param object The object to check
+     * @returns The first such stage's GUID, or C_INVALID_GUID
+     */
+    GUID UnsupportedStageOf(const Common::RenderData& object)
+    {
+        for (const GUID stage : { object.tcsData.guid, object.tesData.guid, object.gsData.guid })
+            if (stage != C_INVALID_GUID)
+                return stage;
+        return C_INVALID_GUID;
     }
 
     /// @brief What is drawn for an object's GUIDs; mesh and base colour are always valid
@@ -57,7 +64,7 @@ namespace
     {
         Render::MeshHandle mesh;
         Render::ImageBinding baseColor;
-        GUID shader{ Droplet::C_INVALID_GUID }; ///< a compiled shader; invalid: not even the default compiled
+        Vulkan::ShaderPair shaders; ///< compiled stages; invalid: not even the default compiled
     };
 
     /// @brief A target that a view samples as its history (last frame's copy) instead.
@@ -205,8 +212,8 @@ Render::PreparedFrame Vulkan::Prepare(
     
     GpuResourceManager& gpu = context.gpu;
 
-    // the default shader: the asset storage's override once it has arrived, else the built-in one
-    const GUID defaultShader = context.shaders.ResolveDefault();
+    // the default shaders: the world's once they have arrived, else the built-in ones
+    const ShaderPair defaultShaders = context.shaders.ResolveDefault({ world.defaultVertexShader, world.defaultFragmentShader });
 
     // 1. render targets: one per drawn camera
     std::unordered_map<GUID, Render::TargetHandle> targetHandles;
@@ -257,7 +264,8 @@ Render::PreparedFrame Vulkan::Prepare(
         const auto settings = std::ranges::find(world.viewSettings, camera.target.id, &Render::ViewSettings::targetId);
         Render::DrawList list{
             .name = settings != world.viewSettings.end() ? settings->name : std::format("Camera {:016x}", camera.target.id),
-            .viewProj = proj * view,
+            .view = view,
+            .proj = proj,
             .clearColor = camera.clearColor,
             .cameraPosition = camera.camera.GetPosition(),
             .cameraForward = glm::normalize(camera.camera.GetForward()),
@@ -297,7 +305,7 @@ Render::PreparedFrame Vulkan::Prepare(
         // an object's texture: a target the view draws into, or reads across a loop, is sampled as its history
         const auto materialOf = [&](const Common::TextureData& texture)
         {
-            Render::ImageBinding material = ResolveImage(Render::ImageOf(texture), gpu, targetHandles);
+            Render::ImageBinding material = ResolveImage(texture, gpu, targetHandles);
             if (const Render::TargetHandle* sampledTarget = std::get_if<Render::TargetHandle>(&material))
             {
                 const auto substitute = std::ranges::find(substitutes, *sampledTarget, &HistorySubstitute::target);
@@ -322,6 +330,15 @@ Render::PreparedFrame Vulkan::Prepare(
         std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
         for (const Common::RenderData& source : camera.renderData)
         {
+            if (const GUID unsupported = UnsupportedStageOf(source); unsupported != C_INVALID_GUID)
+            {
+                if (context.reportedMeshes.insert(unsupported).second)
+                    std::println("Prepare: shader {:016x} is a tessellation or geometry stage, which is not supported. "
+                                 "Objects using it are not drawn", unsupported);
+                continue;
+            }
+            const ShaderPair objectShaders{ source.vsData.guid, source.fsData.guid };
+
             if (source.dynamicMesh)
             {
                 const Common::DynamicMeshData& mesh = *source.dynamicMesh;
@@ -337,14 +354,15 @@ Render::PreparedFrame Vulkan::Prepare(
                 const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
                 if (vertexColor && !vertexColorReady)
                     continue;
-                const GUID shader = vertexColor ? DrawPass::VERTEX_COLOR_SHADER
-                                                         : context.shaders.Resolve(Render::ShaderOf(source), defaultShader);
-                if (shader == C_INVALID_GUID)
+                const ShaderPair shaders = vertexColor
+                    ? ShaderPair{ DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER }
+                    : context.shaders.Resolve(objectShaders, defaultShaders);
+                if (!shaders.IsValid())
                     continue;
 
                 const Render::ImageBinding material = vertexColor ? Render::ImageBinding{ gpu.WhiteTexture() } : materialOf(source.texData);
                 const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
-                    shader, mesh, colorFormat, context.depthFormat, source.transparent));
+                    shaders.vertex, shaders.fragment, mesh, colorFormat, context.depthFormat, source.transparent));
                 const bool blended = vertexColor || source.transparent;
 
                 if (mesh.id != C_INVALID_GUID)
@@ -390,16 +408,16 @@ Render::PreparedFrame Vulkan::Prepare(
                 .mesh = gpu.ResolveMesh(source.meshData.GUID),
                 .baseColor = materialOf(source.texData),
                 // a shader that has not arrived or does not compile is replaced by the default
-                .shader = context.shaders.Resolve(Render::ShaderOf(source), defaultShader)
+                .shaders = context.shaders.Resolve(objectShaders, defaultShaders)
             };
-            if (object.shader == C_INVALID_GUID)
+            if (!object.shaders.IsValid())
                 continue; // no pipeline to draw it with
 
             const Render::ImageBinding material = object.baseColor;
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
-                    object.shader, colorFormat, context.depthFormat, source.transparent)),
+                    object.shaders.vertex, object.shaders.fragment, colorFormat, context.depthFormat, source.transparent)),
                 .mesh = object.mesh,
                 .material = material
             };

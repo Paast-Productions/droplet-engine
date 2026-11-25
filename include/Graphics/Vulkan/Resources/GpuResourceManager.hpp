@@ -15,6 +15,7 @@
 #include "Graphics/Vulkan/Resources/DeletionQueue.hpp"
 #include "Graphics/Vulkan/Resources/Uploader.hpp"
 #include "Graphics/Vulkan/Resources/RenderTarget.hpp"
+#include "Graphics/Vulkan/Resources/TextureTable.hpp"
 
 namespace Droplet::Common
 {
@@ -53,7 +54,7 @@ namespace Droplet::Graphics::Vulkan
         vk::Extent2D extent{};
         vk::Sampler sampler{}; ///< from the texture asset's sampling settings; owned by the GpuResourceManager
         Residency residency;
-        // With bindless, handle.index will double as the slot in the texture descriptor array
+        TextureSlot slot; ///< its index in the texture table (PushConstantData::textureID)
     };
 
     /// @brief A render target (or a target's history) on the GPU.
@@ -64,6 +65,7 @@ namespace Droplet::Graphics::Vulkan
         bool clearedOnCreation{false};
         Common::RenderTargetDesc desc;
         Residency residency;
+        TextureSlot slot; ///< its index in the texture table, sampled with the default sampler
     };
 
     /// @brief How many resources one frame released: evicted by EndFrame, or replaced by a newer revision.
@@ -92,7 +94,8 @@ namespace Droplet::Graphics::Vulkan
 
         /// @brief Creates the default sampler and the placeholder cube, placeholder texture and white texture.
         /// @param deletionQueue receives evicted and replaced resources; must outlive the manager
-        GpuResourceManager(const Context& context, DeletionQueue& deletionQueue,
+        /// @param textureTable gives textures, targets and histories their index; must outlive the deletion queue
+        GpuResourceManager(const Context& context, DeletionQueue& deletionQueue, TextureTable& textureTable,
                                     std::uint32_t idleFramesBeforeEviction = DEFAULT_IDLE_FRAMES_BEFORE_EVICTION);
 
         /// @brief Starts a frame: Resolve*, Find* and GetOrCreate* calls from here on count as used in this frame.
@@ -179,6 +182,7 @@ namespace Droplet::Graphics::Vulkan
 
         const Context* m_context;       ///< Not owned; outlives this.
         DeletionQueue* m_deletionQueue; ///< Not owned; outlives this.
+        TextureTable* m_textureTable;   ///< Not owned; outlives this.
         Uploader m_uploader;
         /// One per distinct sampling setting; the first is DefaultSampler().
         struct CachedSampler

@@ -11,6 +11,13 @@
 
 namespace Droplet::Graphics::Vulkan
 {
+    /**
+     * @brief Bindless textures: one texture array, updated at any time (update-after-bind)
+     * @details false: a texture array per frame slot, written before the frame (any GPU with descriptor indexing,
+     *          Pascal included). true: the GPU must support update-after-bind for sampled images. Shaders are the same
+     */
+    inline constexpr bool USE_BINDLESS = false;
+
     class Instance;
     class Surface;
 
@@ -134,6 +141,9 @@ namespace Droplet::Graphics::Vulkan
         /// @brief Highest sampler anisotropy the device was created for; 1 if the GPU has no anisotropic filtering
         [[nodiscard]] float GetMaxSamplerAnisotropy() const noexcept { return m_maxSamplerAnisotropy; }
 
+        /// @brief Widest line the device was created for; 1 if the GPU has no wide lines
+        [[nodiscard]] float GetMaxLineWidth() const noexcept { return m_maxLineWidth; }
+
         /// @brief Family index of GetGraphicsQueue()
         [[nodiscard]] std::uint32_t GetGraphicsPresentQueueFamily() const noexcept
         {
@@ -163,5 +173,6 @@ namespace Droplet::Graphics::Vulkan
         vk::raii::Queue m_transferQueue{nullptr}; ///< null without a transfer-only family
         QueueInfo m_queueInfo{}; ///< Set by CreateLogicalDevice
         float m_maxSamplerAnisotropy{1.0f}; ///< Set by CreateLogicalDevice
+        float m_maxLineWidth{1.0f}; ///< Set by CreateLogicalDevice
     };
 }

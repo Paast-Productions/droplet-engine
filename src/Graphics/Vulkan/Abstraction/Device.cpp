@@ -116,8 +116,16 @@ namespace
             vk::PhysicalDeviceVulkan13Features,
             vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>();
 
+        // the texture array (set 2): an unsized array, entries left unwritten, grown by allocating a larger count
+        const vk::PhysicalDeviceVulkan12Features& vulkan12 = features.get<vk::PhysicalDeviceVulkan12Features>();
+        const bool supportsTextureArray = vulkan12.runtimeDescriptorArray && vulkan12.descriptorBindingPartiallyBound
+            && vulkan12.descriptorBindingVariableDescriptorCount;
+        const bool supportsBindless = vulkan12.descriptorBindingSampledImageUpdateAfterBind
+            && vulkan12.descriptorBindingUpdateUnusedWhilePending;
+
         const bool supportsRequiredFeatures =
             features.get<vk::PhysicalDeviceVulkan11Features>().shaderDrawParameters
+            && supportsTextureArray && (!Droplet::Graphics::Vulkan::USE_BINDLESS || supportsBindless)
             && features.get<vk::PhysicalDeviceVulkan12Features>().timelineSemaphore
             && features.get<vk::PhysicalDeviceVulkan13Features>().dynamicRendering
             && features.get<vk::PhysicalDeviceVulkan13Features>().synchronization2
@@ -199,6 +207,10 @@ namespace Droplet::Graphics::Vulkan
                                      ? m_physicalDevice.getProperties().limits.maxSamplerAnisotropy
                                      : 1.0f;
 
+        // wide lines are optional too (debug drawing uses them)
+        const bool hasWideLines = m_physicalDevice.getFeatures().wideLines == vk::True;
+        m_maxLineWidth = hasWideLines ? m_physicalDevice.getProperties().limits.lineWidthRange[1] : 1.0f;
+
         // features to enable, checked by IsDeviceSuitable
         const vk::StructureChain<
             vk::PhysicalDeviceFeatures2,
@@ -206,9 +218,17 @@ namespace Droplet::Graphics::Vulkan
             vk::PhysicalDeviceVulkan12Features,
             vk::PhysicalDeviceVulkan13Features,
             vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT> featureChain{
-            {.features = {.samplerAnisotropy = hasSamplerAnisotropy ? vk::True : vk::False}}, // Features2
+            {.features = {.wideLines = hasWideLines ? vk::True : vk::False,
+                          .samplerAnisotropy = hasSamplerAnisotropy ? vk::True : vk::False}}, // Features2
             {.shaderDrawParameters = vk::True}, // vk::PhysicalDeviceVulkan11Features
-            {.timelineSemaphore = vk::True}, // vk::PhysicalDeviceVulkan12Features
+            {
+                .descriptorBindingSampledImageUpdateAfterBind = Droplet::Graphics::Vulkan::USE_BINDLESS ? vk::True : vk::False,
+                .descriptorBindingUpdateUnusedWhilePending = Droplet::Graphics::Vulkan::USE_BINDLESS ? vk::True : vk::False,
+                .descriptorBindingPartiallyBound = vk::True,
+                .descriptorBindingVariableDescriptorCount = vk::True,
+                .runtimeDescriptorArray = vk::True,
+                .timelineSemaphore = vk::True
+            }, // vk::PhysicalDeviceVulkan12Features
             {
                 .synchronization2 = vk::True,
                 .dynamicRendering = vk::True

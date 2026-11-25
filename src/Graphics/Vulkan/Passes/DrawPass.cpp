@@ -1,5 +1,5 @@
 /// @file
-/// @brief Vulkan::DrawPass: the scene material interface, material descriptor sets and the draw loop.
+/// @brief Vulkan::DrawPass: the scene shader interface and the draw loop.
 
 #include "Graphics/Vulkan/Passes/DrawPass.hpp"
 
@@ -47,54 +47,34 @@ namespace
 
 namespace Droplet::Graphics::Vulkan
 {
-    DrawPass::DrawPass(
-        const Context& context,
-        RenderDevice& device,
-        const DrawPassCreateInfo& info)
-        : m_context(&context), 
-    m_gpu(&device.Resources())
+	DrawPass::DrawPass(
+		const Context& context,
+		RenderDevice& device,
+		const DrawPassCreateInfo& info)
+		: m_context(&context),
+		  m_gpu(&device.Resources()),
+		  m_textures(&device.Textures())
 	{
-        // the sets of evicted or replaced textures and targets go once the GPU is past this frame
-        device.OnResourcesReleased([this, &device](const QueueTimelineValues& frameRetireValues)
-            {
-                RetireDeadMaterials(device.Deletions(), frameRetireValues);
-            });
-
-		// set 0 = the object's texture; push constants = view-projection and model matrices
-		constexpr vk::DescriptorSetLayoutBinding textureBinding{
-			.binding = 0,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.descriptorCount = 1,
-			.stageFlags = vk::ShaderStageFlagBits::eFragment };
-
-		m_setLayout = vk::raii::DescriptorSetLayout(
-			context.GetDevice(),
-			vk::DescriptorSetLayoutCreateInfo{
-				.bindingCount = 1,
-				.pBindings = &textureBinding
-			});
-
-		// set 1 = the view's uniforms, one dynamic offset per view
+		// set 0 = the view's ViewProjectionBuffer, one dynamic offset per view
 		constexpr vk::DescriptorSetLayoutBinding viewBinding{
 			.binding = 0,
 			.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
 			.descriptorCount = 1,
 			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment };
-
 		m_viewSetLayout = vk::raii::DescriptorSetLayout(
 			context.GetDevice(),
 			vk::DescriptorSetLayoutCreateInfo{
 				.bindingCount = 1,
 				.pBindings = &viewBinding
 			});
+		m_reservedSetLayout = vk::raii::DescriptorSetLayout(context.GetDevice(), vk::DescriptorSetLayoutCreateInfo{});
 
-		const std::array setLayouts{ *m_setLayout, *m_viewSetLayout };
+		const std::array setLayouts{ *m_viewSetLayout, *m_reservedSetLayout, m_textures->Layout() };
 		constexpr vk::PushConstantRange pushRange{
-			.stageFlags = vk::ShaderStageFlagBits::eVertex,
+			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 			.offset = 0,
-			.size = sizeof(ScenePushConstants)
+			.size = sizeof(Common::PushConstantData)
 		};
-
 		m_pipelineLayout = vk::raii::PipelineLayout(
 			context.GetDevice(),
 			vk::PipelineLayoutCreateInfo{
@@ -104,23 +84,9 @@ namespace Droplet::Graphics::Vulkan
 				.pPushConstantRanges = &pushRange
 			});
 
-		// eFreeDescriptorSet: the raii descriptor sets free themselves back to the pool.
-		const vk::DescriptorPoolSize poolSize{
-			.type = vk::DescriptorType::eCombinedImageSampler,
-			.descriptorCount = info.maxMaterials
-		};
-		m_pool = vk::raii::DescriptorPool(
-			context.GetDevice(),
-			vk::DescriptorPoolCreateInfo{
-				.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
-				.maxSets = info.maxMaterials,
-				.poolSizeCount = 1,
-				.pPoolSizes = &poolSize
-			});
-
 		// the view sets point at their slot's buffer once it exists (BeginFrame)
 		const vk::DeviceSize alignment = context.GetPhysicalDevice().getProperties().limits.minUniformBufferOffsetAlignment;
-		m_viewUniformStride = (sizeof(SceneViewUniforms) + alignment - 1) / alignment * alignment;
+		m_viewUniformStride = (sizeof(Common::ViewProjectionBuffer) + alignment - 1) / alignment * alignment;
 
 		const vk::DescriptorPoolSize viewPoolSize{
 			.type = vk::DescriptorType::eUniformBufferDynamic,
@@ -147,10 +113,9 @@ namespace Droplet::Graphics::Vulkan
 
 	Common::ShaderDesc DrawPass::VertexColorShaderAsset()
 	{
-    	static constexpr auto SOURCE_PATH = ROOT_PATH "/Assets/Shaders/vertex_color.slang";
 		return Common::ShaderDesc{
 			.moduleName = "vertex_color",
-			.sourcePath = SOURCE_PATH,
+			.sourcePath = ROOT_PATH "/Assets/Shaders/vertex_color.slang",
 			.vertexEntry = "vMain",
 			.fragmentEntry = "fMain"
 		};
@@ -158,8 +123,9 @@ namespace Droplet::Graphics::Vulkan
 
 	void DrawPass::BeginFrame(std::uint32_t frameSlot, const Render::PreparedFrame& frame)
 	{
-    	ZoneScoped
+		ZoneScoped
 		m_frameSlot = frameSlot;
+		m_time = frame.time;
 
 		// the slot's buffer is not in use any more: grow it in place, and point the slot's set at the new one
 		Buffer& buffer = m_viewBuffers[frameSlot];
@@ -167,12 +133,12 @@ namespace Droplet::Graphics::Vulkan
 		if (!buffer || buffer.GetSize() < needed)
 		{
 			buffer = Buffer::Create(m_context->GetAllocator(),
-			                        BufferCreateOptions::Uniform(std::max(needed * 2, 8 * m_viewUniformStride)));
+									BufferCreateOptions::Uniform(std::max(needed * 2, 8 * m_viewUniformStride)));
 
 			const vk::DescriptorBufferInfo bufferInfo{
 				.buffer = buffer.Get(),
 				.offset = 0,
-				.range = sizeof(SceneViewUniforms)
+				.range = sizeof(Common::ViewProjectionBuffer)
 			};
 			m_context->GetDevice().updateDescriptorSets(vk::WriteDescriptorSet{
 				.dstSet = *m_viewSets[frameSlot],
@@ -200,33 +166,29 @@ namespace Droplet::Graphics::Vulkan
 		};
 		writeStream(m_dynamicVertexBuffers[frameSlot], frame.dynamicVertexData.data(), frame.dynamicVertexData.size(), false);
 		writeStream(m_dynamicIndexBuffers[frameSlot], frame.dynamicIndices.data(),
-		            frame.dynamicIndices.size() * sizeof(std::uint32_t), true);
+					frame.dynamicIndices.size() * sizeof(std::uint32_t), true);
 
 		for (std::size_t viewIndex = 0; viewIndex < frame.views.size(); ++viewIndex)
 		{
 			const Render::DrawList& view = frame.views[viewIndex];
-			const SceneViewUniforms uniforms{
-				.cameraPosition = glm::vec4(view.cameraPosition, 1.0f),
-				.cameraForward = glm::vec4(view.cameraForward, 0.0f),
-				.time = frame.time
-			};
+			const Common::ViewProjectionBuffer uniforms{ .view = view.view, .proj = view.proj };
 			buffer.Write(&uniforms, sizeof(uniforms), viewIndex * m_viewUniformStride);
 		}
 	}
 
-	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
-		GUID shader, vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
+	GraphicsPipelineDesc DrawPass::MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
-    	ZoneScoped
+		ZoneScoped
 		constexpr auto binding = Vertex::P3N3UV2::GetBindingDescription();
 		constexpr auto attributes = Vertex::P3N3UV2::GetAttributeDescription();
 
-		// Depth range 0..1 (glm::perspectiveRH_ZO), cleared to 1.0, so "less" keeps the nearest fragment
+		// Depth range 0..1, cleared to 1.0, so "less" keeps the nearest fragment
 		const bool hasDepth = depthFormat != vk::Format::eUndefined;
 
 		return GraphicsPipelineDesc{
-			.vertexShader = shader,
-			.fragmentShader = shader,
+			.vertexShader = vertexShader,
+			.fragmentShader = fragmentShader,
 			.hasFragmentShader = true,
 			.layout = *m_pipelineLayout,
 			.vertexLayout = VertexLayout{
@@ -254,8 +216,8 @@ namespace Droplet::Graphics::Vulkan
 
 	DrawPass::MeshInterface DrawPass::InterfaceOf(const Common::DynamicMeshData& mesh)
 	{
-    	ZoneScoped
-		using Common::VertexFormat;
+		ZoneScoped
+		using Droplet::Common::VertexFormat;
 		const auto formatAt = [&mesh](std::uint32_t location) -> std::optional<VertexFormat>
 		{
 			const auto attribute = std::ranges::find(mesh.attributes, location, &Common::VertexAttribute::location);
@@ -275,12 +237,12 @@ namespace Droplet::Graphics::Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakeMeshPipelineDesc(
-		GUID shader, const Common::DynamicMeshData& mesh,
+		GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
-    	ZoneScoped
+		ZoneScoped
 		const bool vertexColor = InterfaceOf(mesh) == MeshInterface::VertexColor;
-		GraphicsPipelineDesc desc = MakePipelineDesc(shader, colorFormat, depthFormat, transparent || vertexColor);
+		GraphicsPipelineDesc desc = MakePipelineDesc(vertexShader, fragmentShader, colorFormat, depthFormat, transparent || vertexColor);
 
 		desc.vertexLayout.bindings = { vk::VertexInputBindingDescription{
 			.binding = 0, .stride = mesh.vertexStride, .inputRate = vk::VertexInputRate::eVertex } };
@@ -291,7 +253,12 @@ namespace Droplet::Graphics::Vulkan
 				.location = attribute.location, .binding = 0, .format = ToVk(attribute.format), .offset = attribute.offset });
 		}
 		if (mesh.topology == Common::MeshTopology::Lines)
+		{
+			// as wide as production's debug lines were, where the device allows
+			constexpr float DEBUG_LINE_WIDTH = 1.5f;
 			desc.topology = vk::PrimitiveTopology::eLineList;
+			desc.raster.lineWidth = std::min(DEBUG_LINE_WIDTH, m_context->GetMaxLineWidth());
+		}
 		if (vertexColor)
 		{
 			// as production's debug drawing: both faces, depth written where tested, equal depths pass
@@ -307,77 +274,20 @@ namespace Droplet::Graphics::Vulkan
 		return desc;
 	}
 
-	vk::raii::DescriptorSet DrawPass::CreateSet(vk::ImageView view, vk::Sampler sampler) const
+	std::uint32_t DrawPass::TextureIndexOf(const Render::ImageBinding& binding) const
 	{
-    	ZoneScoped
-		const vk::DescriptorSetLayout layout = *m_setLayout;
-		const vk::DescriptorSetAllocateInfo allocInfo{
-			.descriptorPool = *m_pool,
-			.descriptorSetCount = 1,
-			.pSetLayouts = &layout
-		};
-		vk::raii::DescriptorSets sets(m_context->GetDevice(), allocInfo);
-		vk::raii::DescriptorSet set = std::move(sets.front());
-
-		// Written once, before the set is ever bound, so no in-flight command buffer can be using it.
-		const vk::DescriptorImageInfo imageInfo{
-			.sampler = sampler,
-			.imageView = view,
-			.imageLayout = vk::ImageLayout::eShaderReadOnlyOptimal
-		};
-
-		const vk::WriteDescriptorSet write{
-			.dstSet = *set,
-			.dstBinding = 0,
-			.dstArrayElement = 0,
-			.descriptorCount = 1,
-			.descriptorType = vk::DescriptorType::eCombinedImageSampler,
-			.pImageInfo = &imageInfo
-		};
-
-		m_context->GetDevice().updateDescriptorSets(write, {});
-		return set;
-	}
-
-	vk::DescriptorSet DrawPass::MaterialSet(const Render::ImageBinding& binding)
-	{
-    	ZoneScoped
-		auto* cache = &m_textureSets;
-		std::uint64_t key = 0;
-		vk::ImageView view{};
-		vk::Sampler sampler = m_gpu->DefaultSampler(); // render targets: one level, default filtering
-
 		if (const Render::TextureHandle* textureHandle = std::get_if<Render::TextureHandle>(&binding))
 		{
 			if (const GpuTexture* texture = m_gpu->Find(*textureHandle))
-			{
-				view = texture->view.Get();
-				sampler = texture->sampler;
-				key = textureHandle->Key();
-			}
+				return texture->slot.Index();
 		}
 		else if (const Render::TargetHandle* targetHandle = std::get_if<Render::TargetHandle>(&binding))
 		{
 			if (const GpuRenderTarget* target = m_gpu->Find(*targetHandle))
-			{
-				view = target->target.GetImageView();
-				key = targetHandle->Key();
-				cache = &m_targetSets;
-			}
+				return target->slot.Index();
 		}
-        if (!view) // stale handle (see Record): draw the placeholder texture, so the missing image is obvious
-        {
-            const Render::TextureHandle placeholder = m_gpu->PlaceholderTexture();
-            const GpuTexture* texture = m_gpu->Find(placeholder);
-            view = texture->view.Get();
-            sampler = texture->sampler;
-            key = placeholder.Key();
-			cache = &m_textureSets;
-		}
-
-		if (const auto cachedSet = cache->find(key); cachedSet != cache->end())
-			return *cachedSet->second;
-		return *cache->emplace(key, CreateSet(view, sampler)).first->second;
+		// stale handle (see Record): the placeholder texture, so the missing image is obvious
+		return m_gpu->Find(m_gpu->PlaceholderTexture())->slot.Index();
 	}
 
 	void DrawPass::Record(
@@ -388,7 +298,7 @@ namespace Droplet::Graphics::Vulkan
 		const PipelineLibrary& pipelines,
 		DrawFilter filter)
 	{
-    	ZoneScoped
+		ZoneScoped
 		// Same Y flip as the existing scene pass: negative height with the origin moved to the bottom.
 		const vk::Viewport viewport{
 			.x = 0.0f,
@@ -408,131 +318,95 @@ namespace Droplet::Graphics::Vulkan
 		cmd.setViewport(0, viewport);
 		cmd.setScissor(0, scissor);
 
-		// the view's uniforms stay bound across the material binds of set 0 (same pipeline layout)
+		// the view's uniforms and the texture table stay bound for every draw (one pipeline layout)
 		const std::uint32_t viewOffset = static_cast<std::uint32_t>(viewIndex * m_viewUniformStride);
-		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 1, *m_viewSets[m_frameSlot], viewOffset);
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_viewSets[m_frameSlot], viewOffset);
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 2, m_textures->Set(m_frameSlot), {});
 
-		// every scene pipeline shares m_pipelineLayout, so bound descriptor sets stay valid across pipeline binds
+		// what every draw of the view pushes besides its world matrix and texture
+		Common::PushConstantData pushConstants{
+			.cameraDir = { list.cameraForward.x, list.cameraForward.y, list.cameraForward.z, 0.0f },
+			.cameraPos = { list.cameraPosition.x, list.cameraPosition.y, list.cameraPosition.z, 1.0f },
+			.time = m_time
+		};
+		const auto push = [&](const glm::mat4& world, const Render::ImageBinding& material)
+		{
+			pushConstants.world = world;
+			pushConstants.textureID = TextureIndexOf(material);
+			cmd.pushConstants<Common::PushConstantData>(
+				*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pushConstants);
+		};
+
 		Render::PipelineHandle boundPipeline{};
-		vk::DescriptorSet bound{};
+		const auto bindPipeline = [&](Render::PipelineHandle handle)
+		{
+			if (handle == boundPipeline)
+				return true;
+			const GraphicsPipeline* pipeline = pipelines.Find(handle);
+			if (!pipeline)
+				return false;
+			pipeline->Bind(cmd);
+			boundPipeline = handle;
+			return true;
+		};
+
 		// objects and kept dynamic meshes: their own vertex and index buffers
 		const auto drawItems = [&](const std::vector<Render::DrawItem>& items)
 		{
 			for (const Render::DrawItem& item : items)
-		{
-			if (filter == DrawFilter::SkipRenderTargetTextures
-				&& std::holds_alternative<Render::TargetHandle>(item.material))
-				continue;
-
-			// Prepare resolved every handle this frame, so these lookups only fail for a list kept past its frame
-			// (a stale handle): skip rather than crash, or draw with a pipeline whose attachment formats need not match
-			const GpuMesh* mesh = m_gpu->Find(item.mesh);
-			if (!mesh)
-				continue;
-			if (item.pipeline != boundPipeline)
 			{
-				const GraphicsPipeline* pipeline = pipelines.Find(item.pipeline);
-				if (!pipeline)
+				if (filter == DrawFilter::SkipRenderTargetTextures
+					&& std::holds_alternative<Render::TargetHandle>(item.material))
 					continue;
-				pipeline->Bind(cmd);
-				boundPipeline = item.pipeline;
-			}
 
-			const vk::DescriptorSet set = MaterialSet(item.material);
-			if (set != bound)
-			{
-				cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, set, {});
-				bound = set;
-			}
+				// Prepare resolved every handle this frame, so these lookups only fail for a list kept past its frame
+				// (a stale handle): skip rather than crash, or draw with a pipeline whose attachment formats need not match
+				const GpuMesh* mesh = m_gpu->Find(item.mesh);
+				if (!mesh || !bindPipeline(item.pipeline))
+					continue;
+				push(item.model, item.material);
 
-			const ScenePushConstants pushConstants{list.viewProj, item.model};
-			cmd.pushConstants<ScenePushConstants>(
-				*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, pushConstants);
-
-			cmd.bindVertexBuffers(0, mesh->vertexBuffer.Get(), vk::DeviceSize{ 0 });
+				cmd.bindVertexBuffers(0, mesh->vertexBuffer.Get(), vk::DeviceSize{ 0 });
 				if (mesh->indexCount == 0)
 				{
 					cmd.draw(mesh->vertexCount, 1, 0, 0); // drawn in vertex order
 					continue;
 				}
-			cmd.bindIndexBuffer(mesh->indexBuffer.Get(), 0, mesh->indexType);
-			cmd.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
-		}
+				cmd.bindIndexBuffer(mesh->indexBuffer.Get(), 0, mesh->indexType);
+				cmd.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
+			}
 		};
 		drawItems(list.items);
 
 		// dynamic geometry, from this frame's stream buffers (BeginFrame)
 		if (!list.dynamicItems.empty())
 		{
-		const Buffer& vertexStream = m_dynamicVertexBuffers[m_frameSlot];
-		const Buffer& indexStream = m_dynamicIndexBuffers[m_frameSlot];
-		if (indexStream)
-			cmd.bindIndexBuffer(indexStream.Get(), 0, vk::IndexType::eUint32);
-		std::uint32_t boundVertexOffset = ~0u;
-		for (const Render::DynamicDrawItem& item : list.dynamicItems)
-		{
-			if (!vertexStream || (item.indexed && !indexStream))
-				break; // nothing was written this frame: a list kept past its frame
-			if (item.pipeline != boundPipeline)
+			const Buffer& vertexStream = m_dynamicVertexBuffers[m_frameSlot];
+			const Buffer& indexStream = m_dynamicIndexBuffers[m_frameSlot];
+			if (indexStream)
+				cmd.bindIndexBuffer(indexStream.Get(), 0, vk::IndexType::eUint32);
+			std::uint32_t boundVertexOffset = ~0u;
+			for (const Render::DynamicDrawItem& item : list.dynamicItems)
 			{
-				const GraphicsPipeline* pipeline = pipelines.Find(item.pipeline);
-				if (!pipeline)
+				if (!vertexStream || (item.indexed && !indexStream))
+					break; // nothing was written this frame: a list kept past its frame
+				if (!bindPipeline(item.pipeline))
 					continue;
-				pipeline->Bind(cmd);
-				boundPipeline = item.pipeline;
-			}
+				push(item.model, item.material);
 
-			const vk::DescriptorSet set = MaterialSet(item.material);
-			if (set != bound)
-			{
-				cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, set, {});
-				bound = set;
+				if (item.vertexByteOffset != boundVertexOffset)
+				{
+					cmd.bindVertexBuffers(0, vertexStream.Get(), vk::DeviceSize{ item.vertexByteOffset });
+					boundVertexOffset = item.vertexByteOffset;
+				}
+				if (item.indexed)
+					cmd.drawIndexed(item.count, 1, item.first, 0, 0);
+				else
+					cmd.draw(item.count, 1, item.first, 0);
 			}
-
-			const ScenePushConstants pushConstants{list.viewProj, item.model};
-			cmd.pushConstants<ScenePushConstants>(
-				*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, pushConstants);
-
-			if (item.vertexByteOffset != boundVertexOffset)
-			{
-				cmd.bindVertexBuffers(0, vertexStream.Get(), vk::DeviceSize{ item.vertexByteOffset });
-				boundVertexOffset = item.vertexByteOffset;
-			}
-			if (item.indexed)
-				cmd.drawIndexed(item.count, 1, item.first, 0, 0);
-			else
-				cmd.draw(item.count, 1, item.first, 0);
 		}
-	}
 
 		// kept dynamic meshes without depth test, over everything
 		drawItems(list.lateItems);
-	}
-
-	void DrawPass::RetireDeadMaterials(
-		DeletionQueue& deletionQueue, const QueueTimelineValues& frameRetireValues)
-	{
-    	ZoneScoped
-		// a set may be bound by this frame's command buffers, so it lives until the GPU is past the frame
-		std::erase_if(m_textureSets, [&](auto& entry)
-			{
-				if (m_gpu->Find(Render::TextureHandle::FromKey(entry.first)))
-					return false;
-				deletionQueue.Retire(std::move(entry.second), frameRetireValues);
-				return true;
-			});
-		std::erase_if(m_targetSets, [&](auto& entry)
-			{
-				if (m_gpu->Find(Render::TargetHandle::FromKey(entry.first)))
-					return false;
-				deletionQueue.Retire(std::move(entry.second), frameRetireValues);
-				return true;
-			});
-	}
-
-	void DrawPass::ClearMaterialCache()
-	{
-		m_textureSets.clear();
-		m_targetSets.clear();
 	}
 }

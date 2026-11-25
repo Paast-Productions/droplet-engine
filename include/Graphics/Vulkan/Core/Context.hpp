@@ -90,6 +90,9 @@ namespace Droplet::Graphics::Vulkan
         /// @brief Highest sampler anisotropy the device supports; 1 if none.
         [[nodiscard]] float GetMaxSamplerAnisotropy() const noexcept { return m_device.GetMaxSamplerAnisotropy(); }
 
+        /// @brief Widest line the device supports; 1 if none.
+        [[nodiscard]] float GetMaxLineWidth() const noexcept { return m_device.GetMaxLineWidth(); }
+
         /// @brief The VMA allocator.
         [[nodiscard]] const vma::raii::Allocator& GetAllocator() const noexcept { return m_allocator; }
 

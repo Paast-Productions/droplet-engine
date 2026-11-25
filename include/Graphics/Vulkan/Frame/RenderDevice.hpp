@@ -89,10 +89,13 @@ namespace Droplet::Graphics::Vulkan
         [[nodiscard]] ShaderLibrary& Shaders() noexcept { return m_shaders; }
         /// @brief Evicted resources until the GPU is past their last use (for listeners that retire their own objects).
         [[nodiscard]] DeletionQueue& Deletions() noexcept { return m_deletionQueue; }
+        /// @brief The texture array (set 2) every texture, render target and history has an index in
+        [[nodiscard]] TextureTable& Textures() noexcept { return m_textureTable; }
 
     private:
         // dependency order top to bottom
         FrameSubmitter m_frameSubmitter;  ///< Command buffers and submits per graph submission, timeline per queue
+        TextureTable m_textureTable;      ///< Outlives the deletion queue, which frees retired slots into it
         DeletionQueue m_deletionQueue;    ///< Destroyed after the resources that retire into it
         GpuResourceManager m_resources;   ///< Retires evicted and replaced resources into m_deletionQueue
         ShaderLibrary m_shaders;          ///< Scene shaders; owns the Slang compiler

@@ -131,15 +131,38 @@ namespace
     }
 
     /// @brief Adds the default scene shader; production's own shaders need bindless
-    void AddShader(Bridge::ResourceUploads& uploads, GUID id)
+    void AddShader(ResourceManager& resMan, Bridge::ResourceUploads& uploads, GUID id)
     {
-        static constexpr auto SOURCE_PATH = ROOT_PATH "/Assets/Shaders/droplet_base.slang";
-        if (id != Graphics::Render::DEFAULT_SCENE_SHADER)
+        // not loaded yet: asked for again next frame (GetResource would hand over the fallback shader)
+        if (resMan.GetState(id) != ResourceState::Ready)
+        {
             return;
+        }
+        const auto* shader = resMan.GetResource<ShaderResource>(id);
+        if (!shader)
+        {
+            return;
+        }
+
+        // the renderer reports other stages once (tessellation and geometry are not supported)
+        const ShaderResource::ShaderType type = shader->GetType();
+        if (type != ShaderResource::ShaderType::Vertex && type != ShaderResource::ShaderType::Fragment)
+        {
+            return;
+        }
+
+        // no byte code (released from RAM): uploaded empty, the renderer reports it and draws with the defaults
+        const Slang::ComPtr<slang::IBlob> byteCode = shader->GetByteCode();
+        const std::span<const std::byte> spirv = byteCode
+            ? std::span(static_cast<const std::byte*>(byteCode->getBufferPointer()), byteCode->getBufferSize())
+            : std::span<const std::byte>{};
+
         uploads.shaders.push_back({
             .id = id,
-            .revision = 1,
-            .shader = ::Common::ShaderDesc{.moduleName = "droplet_base", .sourcePath = SOURCE_PATH}
+            .revision = 0, // no revisions yet
+            .stage = type == ShaderResource::ShaderType::Vertex ? Bridge::ShaderStage::Vertex : Bridge::ShaderStage::Fragment,
+            .spirv = spirv,
+            .entryPoint = "main"
         });
     }
 
@@ -163,12 +186,31 @@ namespace
         for (const GUID id : required.shaders)
         {
             if (!Find(resident.shaders, id) && !Find(resident.failedShaders, id))
-                AddShader(uploads, id);
+                AddShader(resMan, uploads, id);
         }
         return uploads;
     }
 
     // -- World --
+
+    /**
+     * @brief Loads a shader by its display name, once it is registered
+     * @param p_handle The handle to load into; left as it is once valid
+     * @param p_name The shader's display name
+     */
+    void LoadDefaultShader(StaticResourceHandle<ShaderResource>& p_handle, const char* p_name)
+    {
+        if (p_handle.IsValid())
+        {
+            return;
+        }
+        ResourceManager& resMan = ResourceManager::GetInstance();
+        MetaEntry entry;
+        if (resMan.GetResourceMetaEntry(std::string(p_name), entry))
+        {
+            p_handle = resMan.LoadResource<ShaderResource>(entry.guid);
+        }
+    }
 }
 
 Engine::Engine(EngineConfig p_config)
@@ -351,8 +393,14 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
     ZoneScopedC(tracy::Color::SkyBlue1)
 
     // the scene's cameras and the editor's. // TODO: check post-process
+    // what an object without loaded shaders is drawn with
+    LoadDefaultShader(m_defaultVertexShader, "Base.VS");
+    LoadDefaultShader(m_defaultFragmentShader, "Base.FS");
+
     Render::RenderWorld world{
         .cameras = m_sceneManager.GetRenderData(),
+        .defaultVertexShader = m_defaultVertexShader.GetGUID(),
+        .defaultFragmentShader = m_defaultFragmentShader.GetGUID(),
         .time = Time::Get().GetRuntime() // seconds since start, for shaders
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());

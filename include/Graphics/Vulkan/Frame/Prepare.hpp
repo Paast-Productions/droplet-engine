@@ -25,7 +25,7 @@ namespace Droplet::Graphics::Vulkan
         PipelineLibrary& pipelines;
         const DrawPass& scenePass; ///< scene material interface (MakePipelineDesc)
         vk::Format depthFormat;    ///< of the views' depth transients
-        std::unordered_set<std::uint64_t>& reportedMeshes; ///< dynamic meshes already reported as not drawable
+        std::unordered_set<std::uint64_t>& reportedMeshes; ///< dynamic meshes and shaders already reported as not drawable
     };
 
     /**

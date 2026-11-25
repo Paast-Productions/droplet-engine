@@ -49,7 +49,8 @@ namespace Droplet::Graphics::Render
     struct DrawList
     {
         std::string name;        ///< the view's name, for graph and debug names
-        glm::mat4 viewProj{1.0f}; ///< projection * view of the camera
+        glm::mat4 view{1.0f};    ///< the camera's view matrix
+        glm::mat4 proj{1.0f};    ///< the camera's projection matrix
         glm::vec4 clearColor{0.05f, 0.05f, 0.08f, 1.0f}; ///< the target's colour before the draws
         glm::vec3 cameraPosition{0.0f};                  ///< world space
         glm::vec3 cameraForward{0.0f, 0.0f, -1.0f};      ///< world space, unit length

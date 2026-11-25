@@ -38,11 +38,9 @@ namespace
     constexpr auto EFFECT_SHADER_PATH = ROOT_PATH "/Assets/Shaders/postprocess.cs.slang"; ///< post-process compute shader
     constexpr auto SCENE_SHADER_PATH = ROOT_PATH "/Assets/Shaders/scene.slang"; ///< scene vertex + fragment shader
 
-    /// The renderer's own default scene shader, under its own GUID: objects without a shader (or with one that is
-    /// missing or broken) use it until the asset storage's override (Render::DEFAULT_SCENE_SHADER) has arrived, if
-    /// there is one. Compiled on the first frame.
+    /// The renderer's own default scene shader, drawn with until the default pair production names is ready
     constexpr GUID BUILT_IN_SCENE_SHADER = GuidFromName("shader/built-in-scene");
-    const Common::ShaderDesc DEFAULT_SCENE_SHADER_ASSET{
+    const Common::ShaderDesc BUILT_IN_SCENE_SHADER_ASSET{
         .moduleName = "scene",
         .sourcePath = SCENE_SHADER_PATH,
         .vertexEntry = "vMain",
@@ -83,7 +81,7 @@ Renderer::Renderer(const ISurfaceProvider& surfaceProvider)
       m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{.framesInFlight = WSI::FramesInFlight()}),
       m_pipelineLibrary(m_vulkanContext.GetDevice(), m_device.Shaders())
 {
-    m_device.Shaders().SetDefault(Render::DEFAULT_SCENE_SHADER, BUILT_IN_SCENE_SHADER, DEFAULT_SCENE_SHADER_ASSET);
+    m_device.Shaders().SetBuiltInDefault(BUILT_IN_SCENE_SHADER, BUILT_IN_SCENE_SHADER_ASSET);
     CompileShaders();
 }
 
@@ -154,6 +152,8 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
     // the slot's descriptor pools are free now (the submitter waited for the slot on every queue)
     m_compositor.BeginFrame(frame->frameSlot);
     m_effectPass.BeginFrame(frame->frameSlot);
+    // the texture array this frame binds holds every texture and target Prepare gave an index
+    m_device.Textures().BeginFrame(frame->frameSlot, m_device.Deletions(), m_device.Submitter().FrameRetireValues());
     m_drawPass.BeginFrame(frame->frameSlot, m_preparedFrame);
 
 #ifdef _EDITOR
@@ -189,7 +189,7 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
 void Renderer::CompileShaders()
 {
-    const IO::ShaderCompiler& shaderCompiler = m_device.Shaders().Compiler();
+    const Droplet::IO::ShaderCompiler& shaderCompiler = m_device.Shaders().Compiler();
 
     // fullscreen pipelines for fragment effects, effect-chain resolves and the composite (one per target format,
     // built on first use)
