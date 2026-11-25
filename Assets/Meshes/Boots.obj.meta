@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Boots",
+            "guid": 629579768406539087,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Boots",
+            "type": 3
+        }
+    ]
+}

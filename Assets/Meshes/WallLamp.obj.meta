@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Wall_Lamp",
+            "guid": 16838197134552661534,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Wall_Lamp",
+            "type": 3
+        }
+    ]
+}

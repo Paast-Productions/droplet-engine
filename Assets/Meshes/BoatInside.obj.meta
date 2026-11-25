@@ -2,7 +2,7 @@
     "resources": [
         {
             "displayName": "BoatInside",
-            "guid": 16344741396283457377,
+            "guid": 1053927326992866355,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,

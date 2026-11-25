@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Pipes",
+            "guid": 13663974122301667307,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Pipes",
+            "type": 1
+        }
+    ]
+}

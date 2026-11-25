@@ -1,15 +1,15 @@
 {
     "resources": [
         {
-            "displayName": "BoatInside",
-            "guid": 17758690221985874523,
+            "displayName": "Desk",
+            "guid": 2129345334786731083,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
                 "join_identical_vertices": true,
                 "triangulate": true
             },
-            "sourceName": "BoatInside",
+            "sourceName": "Desk",
             "type": 3
         }
     ]

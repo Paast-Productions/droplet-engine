@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "BoatInside",
+            "guid": 899488814168474272,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "BoatInside",
+            "type": 1
+        }
+    ]
+}

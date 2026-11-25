@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Bed",
+            "guid": 4192439387417472288,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Bed",
+            "type": 3
+        }
+    ]
+}

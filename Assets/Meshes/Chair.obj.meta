@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Chair",
+            "guid": 7974878789599105423,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Chair",
+            "type": 3
+        }
+    ]
+}
