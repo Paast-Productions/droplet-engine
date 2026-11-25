@@ -1,11 +1,14 @@
 {
     "name": "TestScene",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
     "roots": [
         {
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 78,
+            "id": 1,
             "name": "RonnyCutout",
             "prefab": "GameData\\Prefabs\\RonnyCutout.json",
             "transform": {
@@ -23,6 +26,43 @@
                 "scale": [
                     0.9999999403953552,
                     0.9999999403953552,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "mode": 0,
+                        "textureGUID": 0
+                    },
+                    "id": 1,
+                    "type": "TestDynamicMeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 9,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    3.756258964538574,
+                    1.1143498420715332,
+                    -2.6362791061401367
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
                     1.0
                 ]
             }
