@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "TestBrineLake",
+            "guid": 18225382335867298609,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "TestBrineLake",
+            "type": 3
+        }
+    ]
+}
