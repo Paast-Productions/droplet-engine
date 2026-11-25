@@ -249,7 +249,19 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(std::weak_ptr<Scene> p_s
 			continue;
 		}
 
-		if (podComponentShared->GetOwner()->GetScene() == sceneShared)
+		auto owner = podComponentShared->GetOwner();
+		if (!owner)
+		{
+			continue;
+		}
+
+		auto scene = owner->GetScene();
+		if (!scene)
+		{
+			continue;
+		}
+
+		if (scene == sceneShared)
 		{
 			return podComponent;
 		}
@@ -268,7 +280,19 @@ std::weak_ptr<PodComponent> PodBehaviour::GetPodInScene(const std::string &p_sce
 			continue;
 		}
 
-		if (podComponentShared->GetOwner()->GetScene()->GetName() == p_sceneName)
+		auto owner = podComponentShared->GetOwner();
+		if (!owner)
+		{
+			continue;
+		}
+
+		auto scene = owner->GetScene();
+		if (!scene)
+		{
+			continue;
+		}
+
+		if (scene->GetName() == p_sceneName)
 		{
 			return podComponent;
 		}
