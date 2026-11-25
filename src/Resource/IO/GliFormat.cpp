@@ -96,6 +96,7 @@ namespace Droplet::IO::GliFormat
     [[nodiscard]] static gli::texture ConvertPNGToKTX(const fs::path &p_inputPath, const fs::path &p_outputPath)
     {
         ZoneScoped;
+        ZoneText(p_inputPath.generic_string().c_str(), p_inputPath.generic_string().size());
 
         int width = 0;
         int height = 0;
@@ -126,6 +127,7 @@ namespace Droplet::IO::GliFormat
 	std::unique_ptr<Texture2DResource> LoadTexture2D(const fs::path &p_assetPath, const nlohmann::json &p_loadSettings)
 	{
         ZoneScoped;
+        ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
         const bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
 
@@ -192,6 +194,7 @@ namespace Droplet::IO::GliFormat
         const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;
+        ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
         std::vector<std::pair<StaticResourceType, std::string>> resources{};
         

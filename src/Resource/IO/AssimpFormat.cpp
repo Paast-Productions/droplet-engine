@@ -32,6 +32,8 @@ namespace
 	/// @return A vector of the vertex buffer per byte.
 	[[nodiscard]] static std::vector<std::byte> BuildVertexData(const aiScene * &p_meshData, const std::size_t & p_vertexByteSize)
 	{
+		ZoneScoped;
+
 		aiMesh *mesh = p_meshData->mMeshes[0];
 		std::vector<std::byte> vertexData(mesh->mNumVertices * p_vertexByteSize);
 		for (std::uint32_t i = 0; i < mesh->mNumVertices; i++)
@@ -69,6 +71,8 @@ namespace
 	/// @return A vector of the index buffer.
 	[[nodiscard]] static std::vector<std::uint32_t> BuildIndexData(const aiScene * &p_meshData)
 	{
+		ZoneScoped;
+
 		aiMesh *mesh = p_meshData->mMeshes[0];
 		std::vector<std::uint32_t> indices{};
 		indices.reserve(static_cast<std::size_t>(mesh->mNumFaces * 3)); // Assuming the mesh is triangulated
@@ -116,6 +120,7 @@ namespace
 std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 {
 	ZoneScoped;
+	ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
 	thread_local Assimp::Importer s_importer;
 
@@ -168,6 +173,7 @@ std::unique_ptr<MeshResource> Droplet::IO::AssimpFormat::LoadMesh(const std::fil
 std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(const std::filesystem::path &p_assetPath, const json &p_loadSettings)
 {
 	ZoneScoped;
+	ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
 	thread_local Assimp::Importer s_importer;
 
@@ -310,6 +316,7 @@ std::unique_ptr<SkinnedMeshResource> Droplet::IO::AssimpFormat::LoadSkinnedMesh(
 std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(const std::filesystem::path &p_assetPath, const std::string &p_animName, const nlohmann::json &p_loadSettings)
 {
 	ZoneScoped;
+	ZoneTextF("%s:%s", p_assetPath.generic_string().c_str(), p_animName.c_str());
 
 	thread_local Assimp::Importer s_importer;
 
@@ -475,6 +482,7 @@ std::unique_ptr<AnimationResource> Droplet::IO::AssimpFormat::LoadAnimation(cons
 std::vector<std::pair<StaticResourceType, std::string>> Droplet::IO::AssimpFormat::ScanAssetResources(const std::filesystem::path &p_assetPath)
 {
 	ZoneScoped;
+	ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
     thread_local Assimp::Importer s_importer;
         
