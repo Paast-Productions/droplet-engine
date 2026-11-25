@@ -17,30 +17,37 @@ local heatOverlay = nil
 local timeSinceTrigger = math.huge
 local overlayGracePeriod = 0.1
 
+local temperatureChangeRate = 2.0       
+local temperatureScaling = 0.05
+
 function OnStart()
     hazardComp = self:GetHazardComponent()
+
+    if hazardComp == nil then
+        print("ERROR: HazardComponent missing!")
+        return
+    end
+
     heatDamage = hazardComp:GetDamage()
     newDamage = heatDamage
 
-    isActive = true
-    isPlayingSound = false
-    timer = math.random() * inactiveTime
+    isActive = false
+    timer = inactiveTime
 
     audioEmitter = self:GetAudioEmitter("Thermal-vents")
-    if audioEmitter == nil then  
+
+    if audioEmitter == nil then
         print("Unable to find emitter (Heat.lua)")
-        return
     end
 end
 
 function OnUpdate(dt)
+    -- Find particle system.
     if particleSystem == nil then
         local parent = self:GetParent()
 
         if parent ~= nil then
-            local children = parent:GetChildren()
-
-            for i, child in ipairs(children) do
+            for _, child in ipairs(parent:GetChildren()) do
                 if child:GetName() == "Heat ParticleSystem" then
                     particleSystem = child
                     break
@@ -48,36 +55,40 @@ function OnUpdate(dt)
             end
         end
     end
-    
+
+    -- Update activation timer.
     timer = timer - dt
+
     if timer <= 0 then
+        isActive = not isActive
+
         if isActive then
-            isActive = false
-            timer = timer + inactiveTime
+            timer = activeTime
         else
-            isActive = true
-            timer = timer + activeTime
-        end
-
-        if particleSystem ~= nil then
-            particleSystem:SetActiveSelf(isActive)
+            timer = inactiveTime
         end
     end
 
-    if isActive then
-        if isPlayingSound == false then
+    -- Synchronize particles.
+    if particleSystem ~= nil then
+        particleSystem:SetActiveSelf(isActive)
+    end
+
+    -- Synchronize audio.
+    if audioEmitter ~= nil then
+        if isActive and not isPlayingSound then
             audioEmitter:Play()
-            isPlayingSound = true;
-        end
-    elseif !isActive then
-        if isPlayingSound == true then
+            isPlayingSound = true
+        elseif not isActive and isPlayingSound then
             audioEmitter:Stop()
-            isPlayingSound = false;
+            isPlayingSound = false
         end
     end
 
+    -- Handle heat overlay.
     if heatOverlay ~= nil then
         timeSinceTrigger = timeSinceTrigger + dt
+
         if timeSinceTrigger >= overlayGracePeriod then
             heatOverlay:SetActiveSelf(false)
             heatOverlay = nil
@@ -85,11 +96,14 @@ function OnUpdate(dt)
     end
 end
 
+
+
 function OnTrigger(dt, node)
-    if node == nil or node:GetPlayerComponent() == nil then
+    if node == nil or hazardComp == nil or not isActive then
         return
     end
 
+    -- Find and activate heat overlay.
     for _, child in ipairs(node:GetChildren()) do
         if child:GetName() == "HeatOverlay" then
             heatOverlay = child
@@ -98,47 +112,73 @@ function OnTrigger(dt, node)
         end
     end
 
-    if not isActive then
-        return
-    end
-
-    tracy.ZoneBeginN("HeatHazard OnTrigger")
-
-    if node == nil then
-        tracy.ZoneEnd()
-        return
-    end
-
     local health = node:GetHealthComponent()
     local player = node:GetPlayerComponent()
 
     if health == nil or player == nil then
-        tracy.ZoneEnd()
         return
     end
 
     local pb = player:GetPlayerBehaviour()
 
     if pb == nil then
-        tracy.ZoneEnd()
         return
     end
-    
-    -- Increase heat while inside the hazard.
-    pb:SetHeatLevel(100)
 
-    -- Determine damage based on heat resistance.
-    local damagePerSecond = damageNormal
+    local droneTemp = pb:GetDroneTemp()
+    local outsideTemp = 100.0 * heatDamage
 
-    if pb:GetHeatResistance() >= 100 then
-        damagePerSecond = damageResistant
+    pb:SetOutsideTemp(outsideTemp)
+
+    local heatResistance = pb:GetHeatResistance()
+
+    -- Calculate how far outside temperature exceeds resistance.
+    local outsideHeatDifference = math.max(
+        0.0,
+        outsideTemp - heatResistance
+    )
+
+    -- Scale temperature increase based on resistance difference.
+    local temperatureMultiplier = 1.0 +
+        outsideHeatDifference * temperatureScaling
+
+    local currentTemperatureRate =
+        temperatureChangeRate * temperatureMultiplier
+
+    -- Gradually move drone temperature towards outside temperature.
+    local temperatureDifference = outsideTemp - droneTemp
+
+    local temperatureChange = math.min(
+        math.abs(temperatureDifference),
+        currentTemperatureRate * dt
+    )
+
+    if temperatureDifference > 0.0 then
+        droneTemp = droneTemp + temperatureChange
+    else
+        droneTemp = droneTemp - temperatureChange
     end
 
-    -- Apply frame-rate independent damage.
-    health:TakeDamage(damagePerSecond * heatDamage * dt)
+    pb:SetDroneTemp(droneTemp)
 
-    tracy.ZoneEnd()
+    -- Calculate how far above heat resistance the drone is.
+    local heatDifference = math.max(
+        0.0,
+        droneTemp - heatResistance
+    )
+
+    if heatDifference > 0.0 then
+        -- Normalize temperature difference.
+        local heatSeverity = math.min(heatDifference / 50.0, 1.0)
+
+        -- Apply progressively increasing damage.
+        local damagePerSecond = damageNormal * heatSeverity
+
+        health:TakeDamage(damagePerSecond * heatDamage * dt)
+    end
 end
+
+
 
 function RenderUI()
     ImGui.Text("Heat Hazard Active: " .. tostring(isActive))
