@@ -36,11 +36,6 @@ void Droplet::Scene::TextComponent::SetFontGUID(GUID p_guid)
 	m_textIsDirty = true;
 }
 
-std::optional<Droplet::Math::AABB> Droplet::Scene::TextComponent::GetLocalRenderBounds() const
-{
-	return m_localRenderBounds;
-}
-
 void Droplet::Scene::TextComponent::StartImpl()
 {
 	SetRenderable();
@@ -57,6 +52,8 @@ void Droplet::Scene::TextComponent::UpdateImpl()
 		return;
 	
 	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
+	
+	UpdateBounds(layout.instances.empty(), layout.minBounds, layout.maxBounds);
 	
 	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
 	
@@ -81,29 +78,11 @@ void Droplet::Scene::TextComponent::EditorUpdateImpl()
 	
 	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
 	
-	if (!layout.instances.empty())
-	{
-		constexpr float thickness = 0.001f;
-		
-		const glm::vec3 minBounds {
-			layout.minBounds,
-			-thickness
-		};
-		
-		const glm::vec3 maxBounds {
-			layout.maxBounds,
-			thickness
-		};
-		
-		m_localRenderBounds = Math::AABB::FromMinMax(
-			minBounds,
-			maxBounds
-		);
-	}
-	
+	UpdateBounds(layout.instances.empty(), layout.minBounds, layout.maxBounds);
 	
 	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
 	
+	GetOwner()->GetTransform().MakeDirty();
 	m_textIsDirty = false;
 }
 
@@ -256,5 +235,32 @@ void Droplet::Scene::TextComponent::DeserializeImpl(const nlohmann::json p_compJ
 	}
 	
 	m_textIsDirty = true;
+}
+
+void Droplet::Scene::TextComponent::UpdateBounds(bool p_hasGlyphs, const glm::vec2& p_min, const glm::vec2& p_max)
+{
+	if (!p_hasGlyphs)
+	{
+		constexpr float thickness = 0.001f;
+
+		const glm::vec2 center =
+			(p_min + p_max) * 0.5f;
+
+		const glm::vec2 extents =
+			(p_max - p_min) * 0.5f;
+
+		m_bounds = DefaultNodeBounds{
+			glm::vec3(center, 0.0f),
+			glm::vec3(extents, thickness)
+		};
+	}
+	else
+	{
+		// No drawable text.
+		m_bounds = DefaultNodeBounds{
+			glm::vec3(0.0f),
+			glm::vec3(0.001f)
+		};
+	}
 }
 

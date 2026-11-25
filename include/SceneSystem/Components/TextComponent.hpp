@@ -7,6 +7,7 @@
 #include <string_view>
 
 #include "TextLayout.hpp"
+#include "SceneSystem/DefaultNodeBounds.hpp"
 
 namespace Droplet::Scene
 {
@@ -30,9 +31,14 @@ namespace Droplet::Scene
 		
 		[[nodiscard]] GUID GetFontGUID() const { return m_font.GetGUID(); }
 		
-		/// @brief Gets the local-space bounds of the rendered text.
-		/// @return The text bounds, or std::nullopt if no drawable glyphs exist.
-		[[nodiscard]] std::optional<Math::AABB> GetLocalRenderBounds() const;
+		
+		/// @brief Determines whether the component provides custom bounds.
+		/// @return True if the component provides custom bounds, otherwise false.
+		[[nodiscard]] bool HasBoundsOverride() const override { return true; }
+
+		/// @brief Gets the custom bounds provided by the component.
+		/// @return The bounding box provided by the component.
+		[[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 		
 	protected:
 		void StartImpl() override;
@@ -46,6 +52,8 @@ namespace Droplet::Scene
 		void DeserializeImpl(const nlohmann::json p_compJson) override;
 		
 	private:
+		void UpdateBounds(bool p_hasGlyphs, const glm::vec2& p_min, const glm::vec2& p_max);
+		
 		std::string m_fontDisplayName;
 		
 		StaticResourceHandle<FontResource> m_font{};
@@ -56,6 +64,6 @@ namespace Droplet::Scene
 		std::string m_text = "Text";
 		
 		std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> m_glyphInstances;
-		std::optional<Math::AABB> m_localRenderBounds;
+		DefaultNodeBounds m_bounds{glm::vec3(0.0f), glm::vec3(0.5f) };
 	};
 }
