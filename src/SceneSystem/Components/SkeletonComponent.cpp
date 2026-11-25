@@ -1,7 +1,7 @@
 #include <SceneSystem/Components/SkeletonComponent.hpp>
 
 #include <Editor/ResourceSlot.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <SceneSystem/Scene.hpp>
 #include <resource/ResourceManager.hpp>
 

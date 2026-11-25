@@ -36,4 +36,4 @@
 #endif
 
 // Engine
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
