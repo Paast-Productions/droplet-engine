@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "hatch-interact",
+            "guid": 16874356715363899019,
+            "loadFlags": 1,
+            "loadSettings": {
+                "sound_type": 0
+            },
+            "sourceName": "hatch-interact",
+            "type": 8
+        }
+    ]
+}

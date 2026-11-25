@@ -17,7 +17,6 @@ project "Game"
 		"TRACY_ON_DEMAND",
 		"TRACY_FIBERS",
 		"TRACY_MEMORY",
-		"TRACY_CALLSTACK",
         "GLM_ENABLE_EXPERIMENTAL",
         "ROOT_PATH=" .. AddQuotation(rootPath)
 	}
