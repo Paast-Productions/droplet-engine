@@ -12,7 +12,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <GameInput.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 

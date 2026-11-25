@@ -16,7 +16,7 @@
 #include <SceneSystem/Physics/MeshColliderManager.hpp>
 #include <resource/GuidUtils.hpp>
 #include <Editor/ResourceSlot.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics::Debug;

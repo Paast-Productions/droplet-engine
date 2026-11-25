@@ -13,10 +13,10 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include <Transform.hpp>
+#include <Core/Transform.hpp>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
-#include <Graphics/DrawLayer.hpp>
+#include <Common/RenderData.hpp>
+#include <Common/DrawLayer.hpp>
 #include <SceneSystem/Physics/CollisionLayer.hpp>
 
 #include <SceneSystem/Components/HealthComponent.hpp>
@@ -27,7 +27,6 @@
 
 namespace Droplet::Scene
 {
-
 	// TODO: (SCENE) Refactor after Material implementation
 	struct NodeData
 	{
@@ -108,13 +107,13 @@ namespace Droplet::Scene
 		/// Components will be rendered in.
 		///
 		/// @return The draw layer the Node belongs to.
-		[[nodiscard]] Graphics::DrawLayer GetDrawLayer() const
+		[[nodiscard]] Common::DrawLayer GetDrawLayer() const
 		{
 			return m_drawLayer;
 		}
 
 		/// @brief Sets the Node's draw layer.
-		void SetDrawLayer(Graphics::DrawLayer p_drawLayer)
+		void SetDrawLayer(Common::DrawLayer p_drawLayer)
 		{
 			assert(
 				Core::LayerUtility::IsSingleLayer(p_drawLayer) &&
@@ -454,7 +453,7 @@ namespace Droplet::Scene
 		///
 		/// The draw layer mask determines which draw layers the Node and its
 		/// Components will be rendered in.
-		Graphics::DrawLayer m_drawLayer = Graphics::DrawLayer::Layer1;
+		Common::DrawLayer m_drawLayer = Common::DrawLayer::Layer1;
 
 		/// @brief Collision layer mask for the Node.
 		///

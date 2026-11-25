@@ -11,7 +11,7 @@
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
 
