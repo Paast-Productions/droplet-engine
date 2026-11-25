@@ -98,6 +98,7 @@
                                     0.30000001192092896,
                                     1.0
                                 ],
+                                "debugDraw": false,
                                 "drawLayerMask": 65535,
                                 "priority": 0,
                                 "resolution": [
@@ -193,6 +194,20 @@
             ],
             "collisionLayerMask": 1,
             "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "busName": "Master",
+                        "looping": false,
+                        "pitch": 1.0,
+                        "soundGuid": 10509046783078981096,
+                        "startTimeSeconds": 0.0,
+                        "stereoPan": 0.0,
+                        "volumeDb": 0.0
+                    },
+                    "id": 10,
+                    "type": "AudioPlayerComponent"
+                },
                 {
                     "active": true,
                     "data": {
@@ -448,7 +463,7 @@
                         {
                             "active": true,
                             "data": {
-                                "data": "{\"state\":true,\"closedAngle\":0,\"curvePower\":0.75,\"openAngle\":140.72099304199}",
+                                "data": "{\"closedAngle\":0,\"curvePower\":0.75,\"state\":true,\"openAngle\":140.72099304199}",
                                 "filepath": "PodDoor.lua"
                             },
                             "id": 3,
@@ -465,9 +480,9 @@
                             -1.25
                         ],
                         "rotation": [
-                            0.3361009955406189,
+                            0.3361010253429413,
                             0.0,
-                            0.9418259263038635,
+                            0.9418260455131531,
                             0.0
                         ],
                         "scale": [
