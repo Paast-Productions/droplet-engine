@@ -68,6 +68,22 @@ namespace Droplet::Scene
         /// does not exist.
         void UnloadScene(const std::string &p_name);
 
+        /// @brief Unloads a Scene asynchronously.
+        ///
+        /// The Scene is deactivated, unloaded and removed from the SceneManager on the calling
+        /// thread, so its name can be reused immediately. Destroying the Scene and its nodes and
+        /// components is done on the thread pool. p_onUnloaded is invoked on the main thread
+        /// during the next call to Update() once destruction has finished.
+        ///
+        /// @param p_name Name of the Scene to unload.
+        /// @param p_onUnloaded Optional callback invoked on the main thread when unloading finishes
+        ///
+        /// @throws std::runtime_error if a Scene with the specified name does not exist.
+        void UnloadSceneAsync(const std::string &p_name, std::function<void()> p_onUnloaded = nullptr);
+
+        /// @return True if any Scene unloaded with UnloadSceneAsync has not yet been destroyed and reported.
+        [[nodiscard]] bool HasPendingAsyncUnloads() const;
+
         /// @brief Activates a loaded Scene.
         ///
         /// An active Scene is updated and rendered by the SceneManager.
@@ -195,8 +211,19 @@ namespace Droplet::Scene
         /// @brief Registers the Scenes for all completed asynchronous loads. Must run on the main thread.
         void FinalizeAsyncSceneLoads();
 
+        struct AsyncSceneUnloadResult
+        {
+            std::function<void()> onUnloaded;
+        };
+
+        /// @brief Invokes the callbacks of all completed asynchronous unloads. Must run on the main thread.
+        void FinalizeAsyncSceneUnloads();
+
         ThreadSafeQueue<AsyncSceneLoadResult> m_asyncSceneReadResults;
         std::atomic<std::size_t> m_pendingAsyncSceneLoads = 0;
+
+        ThreadSafeQueue<AsyncSceneUnloadResult> m_asyncSceneUnloadResults;
+        std::atomic<std::size_t> m_pendingAsyncSceneUnloads = 0;
 
         /// @brief Prepares all active Scenes for rendering.
         void PrepareRender();
