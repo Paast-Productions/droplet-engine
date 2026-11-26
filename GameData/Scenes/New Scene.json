@@ -1,0 +1,82 @@
+{
+    "name": "New Scene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "SeafloorCave",
+                        "meshGUID": 16937296202268335800,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 162,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    -0.9390332102775574,
+                    3.2897682189941406,
+                    0.9048120975494385
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 163,
+            "name": "BaseDrone",
+            "prefab": "GameData\\Prefabs\\BaseDrone.json",
+            "transform": {
+                "position": [
+                    -33.07468795776367,
+                    111.66069030761719,
+                    109.67279815673828
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

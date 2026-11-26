@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "SeafloorCave",
+            "guid": 16937296202268335800,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "SeafloorCave",
+            "type": 3
+        }
+    ]
+}

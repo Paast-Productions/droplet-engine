@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Divesite1Seafloor_base",
+            "guid": 17823568432856794152,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "Divesite1Seafloor_base",
+            "type": 1
+        }
+    ]
+}
