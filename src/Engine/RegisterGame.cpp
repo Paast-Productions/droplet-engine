@@ -12,10 +12,12 @@
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 #include <SceneSystem/Components/TrackerComponent.hpp>
+#include <SceneSystem/Components/TransitionComponent.hpp>
 
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <SceneSystem/Behaviours/PodBehaviour.hpp>
 #include <SceneSystem/Behaviours/LadderBehaviour.hpp>
+#include <SceneSystem/Behaviours/TransitionBehaviour.hpp>
 
 namespace Droplet::Game
 {
@@ -31,6 +33,7 @@ namespace Droplet::Game
 		Scene::ComponentRegistry::RegisterComponent("LadderComponent", []() { return std::make_unique<Droplet::Scene::LadderComponent>(); });
 		Scene::ComponentRegistry::RegisterComponent("CollectibleTypeComponent", []() { return std::make_unique<Scene::CollectibleTypeComponent>(); });
 		Scene::ComponentRegistry::RegisterComponent("TrackerComponent", []() { return std::make_unique<Scene::TrackerComponent>(); });
+		Scene::ComponentRegistry::RegisterComponent("TransitionComponent", []() { return std::make_unique<Scene::TransitionComponent>(); });
 	}
 
 	void RegisterGameBehaviours()
@@ -38,6 +41,7 @@ namespace Droplet::Game
 		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("PlayerBehaviour", []() { return std::make_unique<Droplet::Scene::PlayerBehaviour>(); });
 		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("PodBehaviour", []() { return std::make_unique<Droplet::Scene::PodBehaviour>(); });
 		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("LadderBehaviour", []() { return std::make_unique<Droplet::Scene::LadderBehaviour>(); });
+		Droplet::Scene::BehaviourRegistry::RegisterBehaviour("TransitionBehaviour", []() { return std::make_unique<Droplet::Scene::TransitionBehaviour>(); });
 	}
 }
  
