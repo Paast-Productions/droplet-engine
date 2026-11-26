@@ -66,7 +66,10 @@ namespace Droplet::Scene
     	void FixedUpdate();
 
 		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
-        ///
+        /// 
+		/// NOTE: REGARDLESS OF WETHER IN PLAY MODE OR NOT. Using this to call UpdateImpl will cause
+		/// update to run twice per frame in play mode.
+        /// 
         /// Called once per update for components attached to active Nodes.
     	void EditorUpdate();
 
@@ -160,6 +163,10 @@ namespace Droplet::Scene
         Transform &GetTransform();
 
         std::shared_ptr<Scene> GetScene() const;
+
+        /// @brief Gets the Scene of the owning Node without throwing.
+        /// @return The Scene, or nullptr if the component has no owner yet.
+        std::shared_ptr<Scene> TryGetScene() const;
 
     protected:
 

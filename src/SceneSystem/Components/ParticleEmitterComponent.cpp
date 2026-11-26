@@ -4,6 +4,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <Time.hpp>
 #include <resource/ResourceManager.hpp>
+#include <SceneSystem/SceneResourceLoad.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <Editor/ImGuiCurve.hpp>
 #include <Graphics/Debug/DebugDraw.hpp>
@@ -23,6 +24,38 @@ using namespace Droplet::Common;
 ParticleEmitterComponent::ParticleEmitterComponent()
 {
 	m_particles.reserve(m_maxParticles);
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::EditorFlags))
+	{
+		// Set default resources
+
+		ResourceManager &rsMan = ResourceManager::GetInstance();
+		MetaEntry entry;
+
+		// Texture
+		if (rsMan.GetResourceMetaEntry("White", entry))
+		{
+			SetTextureGUID(entry.guid);
+		}
+
+		// Vertex Shader
+		if (rsMan.GetResourceMetaEntry("Particle.VS", entry))
+		{
+			SetVSGUID(entry.guid);
+		}
+
+		// Geometry Shader
+		if (rsMan.GetResourceMetaEntry("Particle.GS", entry))
+		{
+			SetGSGUID(entry.guid);
+		}
+
+		// Fragment Shader
+		if (rsMan.GetResourceMetaEntry("Particle.FS", entry))
+		{
+			SetFSGUID(entry.guid);
+		}
+	}
 }
 
 ParticleEmitterComponent::ScalarCurve ParticleEmitterComponent::MakeDefaultCurve(float value)
@@ -119,9 +152,43 @@ void ParticleEmitterComponent::ClearBursts()
 	m_bursts.clear();
 }
 
+namespace
+{
+	/// @brief The shader a particle stage uses when none is chosen: the renderer's particle shaders by display name
+	GUID ParticleShaderOrDefault(GUID p_chosen, const char *p_defaultName)
+	{
+		if (p_chosen != C_INVALID_GUID)
+			return p_chosen;
+		if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(std::string(p_defaultName), entry))
+			return entry.guid;
+		return C_INVALID_GUID;
+	}
+}
+
+void ParticleEmitterComponent::SetVSGUID(GUID guid)
+{
+	m_vs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_vsDisplayName = entry.displayName;
+}
+
+void ParticleEmitterComponent::SetGSGUID(GUID guid)
+{
+	m_gs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_gsDisplayName = entry.displayName;
+}
+
+void ParticleEmitterComponent::SetFSGUID(GUID guid)
+{
+	m_fs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_fsDisplayName = entry.displayName;
+}
+
 void ParticleEmitterComponent::SetTextureGUID(GUID guid)
 {
-	m_texture = ResourceManager::GetInstance().LoadResource<Texture2DResource>(guid);
+	m_texture = LoadTrackedResource<Texture2DResource>(TryGetScene(), guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
 		m_textureDisplayName = entry.displayName;
 }
@@ -357,6 +424,8 @@ void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 		}
 	}
 	m_particles.resize(writeIndex);
+
+	GenerateParticleMesh();
 }
 
 void ParticleEmitterComponent::ResetBurstTriggers()
@@ -530,8 +599,12 @@ void ParticleEmitterComponent::QueueRenderImpl()
 
 RenderData ParticleEmitterComponent::GetRenderDataImpl()
 {
-	RenderData renderData{};
+	Common::RenderData renderData{};
+	renderData.dynamicMesh = m_particleMesh;
 	renderData.texData.GUID = m_texture.GetGUID();
+	renderData.vsData.guid = ParticleShaderOrDefault(m_vs.GetGUID(), "Particle.VS");
+	renderData.gsData.guid = ParticleShaderOrDefault(m_gs.GetGUID(), "Particle.GS");
+	renderData.fsData.guid = ParticleShaderOrDefault(m_fs.GetGUID(), "Particle.FS");
 	renderData.transparent = m_transparent;
 	return renderData;
 }
@@ -581,6 +654,20 @@ void ParticleEmitterComponent::DeserializeCurve(const nlohmann::json &json, cons
 		curve = MakeDefaultCurve(1.0f);
 }
 
+void ParticleEmitterComponent::UpdateBounds(glm::vec3 p_min, glm::vec3 p_max)
+{
+	// Clamp the min and max values to ensure they are valid
+	p_min = glm::min(p_min, p_max);
+
+	OBB obb{};
+
+	obb.center = (p_min + p_max) * 0.5f;
+	obb.extents = (p_max - p_min) * 0.5f;
+
+	m_bounds.SetOBB(obb);
+	GetTransform().MakePhysicsDirty();
+}
+
 nlohmann::json ParticleEmitterComponent::SerializeImpl()
 {
 	nlohmann::json json;
@@ -601,6 +688,12 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	json["debugDraw"] = m_debugDraw;
 	json["textureGUID"] = GetTextureGUID();
 	json["textureDisplayName"] = m_textureDisplayName;
+	json["vsGUID"] = m_vs.GetGUID();
+	json["vsDisplayName"] = m_vsDisplayName;
+	json["gsGUID"] = m_gs.GetGUID();
+	json["gsDisplayName"] = m_gsDisplayName;
+	json["fsGUID"] = m_fs.GetGUID();
+	json["fsDisplayName"] = m_fsDisplayName;
 
 	json["lifetimeRange"] = { m_lifetimeRange.min, m_lifetimeRange.max };
 	json["speedRange"] = { m_speedRange.min, m_speedRange.max };
@@ -648,6 +741,12 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	if (p_compJson.contains("debugDraw")) SetDebugDraw(p_compJson["debugDraw"].get<bool>());
 	if (p_compJson.contains("textureGUID")) SetTextureGUID(p_compJson["textureGUID"].get<GUID>());
 	if (p_compJson.contains("textureDisplayName")) m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+	if (p_compJson.contains("vsGUID")) SetVSGUID(p_compJson["vsGUID"].get<GUID>());
+	if (p_compJson.contains("vsDisplayName")) m_vsDisplayName = p_compJson["vsDisplayName"].get<std::string>();
+	if (p_compJson.contains("gsGUID")) SetGSGUID(p_compJson["gsGUID"].get<GUID>());
+	if (p_compJson.contains("gsDisplayName")) m_gsDisplayName = p_compJson["gsDisplayName"].get<std::string>();
+	if (p_compJson.contains("fsGUID")) SetFSGUID(p_compJson["fsGUID"].get<GUID>());
+	if (p_compJson.contains("fsDisplayName")) m_fsDisplayName = p_compJson["fsDisplayName"].get<std::string>();
 
 	if (p_compJson.contains("lifetimeRange"))
 	{
@@ -785,6 +884,21 @@ void ParticleEmitterComponent::RenderUIImpl()
 		TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 		if (ResourceSlot("Texture", m_texture.GetGUID(), m_textureDisplayName, newGUID, newName, StaticResourceType::Texture2D))
 			SetTextureGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Vertex Shader", m_vs.GetGUID(), m_vsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Vertex))
+			SetVSGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Geometry Shader", m_gs.GetGUID(), m_gsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Geometry))
+			SetGSGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Fragment Shader", m_fs.GetGUID(), m_fsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Fragment))
+			SetFSGUID(newGUID);
 		EndTable();
 	}
 
@@ -878,33 +992,69 @@ void ParticleEmitterComponent::RenderUIImpl()
 }
 
 
-void ParticleEmitterComponent::GenerateParticleMesh(std::vector<ParticleVertex> &outVertices)
+void ParticleEmitterComponent::GenerateParticleMesh()
 {
 	ZoneScoped;
 
-	outVertices.clear();
-	outVertices.reserve(m_particles.size());
+	struct ParticleVertex
+	{
+		glm::vec3 position;
+		glm::vec4 color;
+		float size;
+		float rotation;
+	};
+	
+	std::vector<ParticleVertex> vertices;
+	std::vector<std::uint32_t> indices;
+	vertices.reserve(m_particles.size());
+	indices.reserve(m_particles.size());
 
+	glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+	glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+
+	std::uint32_t index = 0;
 	for (const Particle &p : m_particles)
 	{
 		glm::vec3 pos = p.position;
 		float size = p.size;
 		float rot = p.rotation;
 
-		if (m_simulationSpace == SimulationSpace::Local)
+		if (m_simulationSpace == SimulationSpace::World)
 		{
 			Transform &transform = GetTransform();
 			glm::mat4 worldMatrix = transform.GetMatrix(Transform::Space::World);
+			glm::mat4 invWorldMatrix = glm::inverse(worldMatrix);
 
-			// Transform the particle position to world space
-			pos = glm::vec3(worldMatrix * glm::vec4(pos, 1.0f));
+			// Undo the world transform to get the local position for rendering
+			pos = glm::vec3(invWorldMatrix * glm::vec4(pos, 1.0f));
 		}
 
-		outVertices.emplace_back(
+		min = glm::min(min, pos - glm::vec3(size * 0.5f));
+		max = glm::max(max, pos + glm::vec3(size * 0.5f));
+
+		vertices.emplace_back(
 			pos,
 			p.color,
 			size,
 			rot
 		);
+		indices.emplace_back(index++);
 	}
+
+	const std::span<const std::byte> bytes = std::as_bytes(std::span<const ParticleVertex>(vertices));
+
+	m_particleMesh = std::make_shared<const Common::DynamicMeshData>(Common::DynamicMeshData{
+		.vertexStride = sizeof(ParticleVertex),
+		.attributes = {
+			{.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(ParticleVertex, position)},
+			{.location = 1, .format = Common::VertexFormat::Float4, .offset = offsetof(ParticleVertex, color)},
+			{.location = 2, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, size)},
+			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)}
+		},
+		.vertexData = { bytes.begin(), bytes.end() },
+		.indices = std::move(indices),
+		.topology = Common::MeshTopology::Points
+	}); 
+	
+	UpdateBounds(min, max);
 }

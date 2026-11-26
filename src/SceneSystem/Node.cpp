@@ -2,7 +2,7 @@
 #include "Scene.hpp"
 #include "Component.hpp"
 #include "ComponentFactory.hpp"
-#include <SceneSystem/DefaultNodeBounds.hpp>
+#include <SceneSystem/Bounds/DefaultNodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>

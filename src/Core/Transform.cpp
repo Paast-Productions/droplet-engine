@@ -466,9 +466,14 @@ void Transform::MakeDirty()
 	}
 }
 
-void Transform::MakePhysicsDirty()
+void Transform::MakePhysicsDirty(bool p_thisOnly)
 {
 	m_physicsDirty = true;
+
+	if (p_thisOnly)
+	{
+		return;
+	}
 	
 	// Recursively mark children as dirty
 	for (const auto &child : m_owner->GetChildren())

@@ -145,6 +145,12 @@ namespace Droplet::Graphics::Vulkan
         /// @brief Widest line the device was created for; 1 if the GPU has no wide lines
         [[nodiscard]] float GetMaxLineWidth() const noexcept { return m_maxLineWidth; }
 
+        /// @brief Whether the device was created with the geometry stage (required by geometry shaders)
+        [[nodiscard]] bool HasGeometryShader() const noexcept { return m_hasGeometryShader; }
+
+        /// @brief Whether the device was created with the tessellation stages
+        [[nodiscard]] bool HasTessellationShader() const noexcept { return m_hasTessellationShader; }
+
         /// @brief 
         [[nodiscard]] bool HasCalibratedTimestamps()const { return m_calibratedTimestamps; }
         
@@ -179,5 +185,7 @@ namespace Droplet::Graphics::Vulkan
         float m_maxSamplerAnisotropy{1.0f}; ///< Set by CreateLogicalDevice
         float m_maxLineWidth{1.0f};         ///< Set by CreateLogicalDevice
         bool m_calibratedTimestamps{false}; ///< Set by CreateLogicalDevice
+        bool m_hasGeometryShader{false}; ///< Set by CreateLogicalDevice
+        bool m_hasTessellationShader{false}; ///< Set by CreateLogicalDevice
     };
 }

@@ -71,7 +71,8 @@ namespace Droplet::Common
     enum class MeshTopology : std::uint8_t
     {
         Triangles,
-        Lines
+        Lines,
+        Points
     };
 
     /// @brief One attribute of a vertex: where the shader reads it and where it sits in the vertex
