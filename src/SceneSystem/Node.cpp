@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "UIComponent.hpp"
+
 
 using namespace Droplet::Scene;
 

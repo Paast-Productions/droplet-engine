@@ -6,16 +6,44 @@
     "roots": [
         {
             "active": true,
+            "children": [],
             "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "mode": 0,
+                        "textureGUID": 0
+                    },
+                    "id": 1,
+                    "type": "TestDynamicMeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "pressed": false
+                    },
+                    "id": 3,
+                    "type": "UIComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": ""
+                    },
+                    "id": 2,
+                    "type": "ScriptComponent"
+                }
+            ],
             "drawLayer": 1,
-            "id": 1,
-            "name": "RonnyCutout",
-            "prefab": "GameData\\Prefabs\\RonnyCutout.json",
+            "id": 3,
+            "name": "Empty Node",
             "transform": {
                 "position": [
                     0.0,
                     0.0,
-                    0.0
+                    -7.999000072479248
                 ],
                 "rotation": [
                     1.0,
@@ -24,8 +52,8 @@
                     0.0
                 ],
                 "scale": [
-                    0.9999999403953552,
-                    0.9999999403953552,
+                    0.25,
+                    0.25,
                     1.0
                 ]
             }
@@ -38,21 +66,41 @@
                 {
                     "active": true,
                     "data": {
-                        "mode": 0,
-                        "textureGUID": 0
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "debugDraw": false,
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ],
+                        "targetId": 536558258345133385
                     },
                     "id": 1,
-                    "type": "TestDynamicMeshComponent"
+                    "type": "CameraComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 9,
-            "name": "Empty Node",
+            "id": 4,
+            "name": "Camera Node",
             "transform": {
                 "position": [
-                    3.756258964538574,
-                    1.1143498420715332,
-                    -2.6362791061401367
+                    0.0,
+                    0.0,
+                    -8.0
                 ],
                 "rotation": [
                     1.0,

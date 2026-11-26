@@ -24,6 +24,8 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/UIComponent.hpp>
+
 
 namespace Droplet::Scene
 {
@@ -419,6 +421,14 @@ namespace Droplet::Scene
 		[[nodiscard]] std::shared_ptr<DamageComponent> GetDamageComponent()
 		{
 			const auto components = GetComponents<DamageComponent>();
+			return components.empty() ? nullptr : components.front();
+		}
+
+		/// @brief Gets the UIComponent attached to this Node.
+		/// @return The UIComponent, or nullptr if none is attached.
+		[[nodiscard]] std::shared_ptr<UIComponent> GetUIComponent()
+		{
+			const auto components = GetComponents<UIComponent>();
 			return components.empty() ? nullptr : components.front();
 		}
 

@@ -26,6 +26,8 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterDamageComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
     RegisterAudioEmitterComponent(p_luaState);
+    RegisterUIComponent(p_luaState);
+
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -812,6 +814,29 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         {"GetPitch", "float",{}},
         {"IsLooping", "bool", {}},
         {"GetStereoPan", "float", {}},
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterUIComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<UIComponent>(
+		"UIComponent",
+        "IsPointInsideTriangle", &UIComponent::IsPointInsideTriangle,
+        "IsPointInsideRectangle", &UIComponent::IsPointInsideRectangle,
+        "IsPointInsideCircle", &UIComponent::IsPointInsideCircle
+
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "UIComponent";
+
+    classDef.functions =
+    {
+        {"IsPointInsideTriangle", "bool", {{ "cornerA", "ImVec2"},{ "cornerB", "ImVec2"},{ "cornerC", "ImVec2"}} },
+        {"IsPointInsideRectangle", "bool", {{ "position", "ImVec2"},{ "p_size", "ImVec2"}} },
+        {"IsPointInsideCircle", "bool", {{ "position", "ImVec2"},{ "radius", "float"}} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
