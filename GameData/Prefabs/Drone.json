@@ -30,7 +30,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 1810,
+            "id": 1807,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -89,7 +89,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1811,
+            "id": 1808,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -139,7 +139,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1812,
+            "id": 1809,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -212,7 +212,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1813,
+            "id": 1810,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
@@ -285,7 +285,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1814,
+            "id": 1811,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -358,7 +358,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1815,
+            "id": 1812,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -431,7 +431,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1816,
+            "id": 1813,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -504,7 +504,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1817,
+            "id": 1814,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -527,241 +527,219 @@
         },
         {
             "active": true,
-            "children": [
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": false,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "debugDraw": true,
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ]
+                    },
+                    "id": 2,
+                    "type": "CameraComponent"
+                },
                 {
                     "active": true,
-                    "children": [],
-                    "collisionLayerMask": 1,
-                    "components": [
-                        {
-                            "active": true,
-                            "data": {
-                                "fs": 13680123319807966343,
-                                "fsName": "Base.FS",
-                                "gs": 0,
-                                "gsName": "",
-                                "meshDisplayName": "Cube",
-                                "meshGUID": 15104664662864096133,
-                                "tcs": 0,
-                                "tcsName": "",
-                                "tes": 0,
-                                "tesName": "",
-                                "textureDisplayName": "White",
-                                "textureGUID": 13855953862202670664,
-                                "transparent": false,
-                                "vs": 7809030845991192100,
-                                "vsName": "Base.VS"
-                            },
-                            "id": 1,
-                            "type": "MeshComponent"
+                    "data": {
+                        "angularVelocityRange": [
+                            0.0,
+                            0.0
+                        ],
+                        "bursts": [],
+                        "coneAngle": 25.0,
+                        "debugDraw": true,
+                        "duration": 5.0,
+                        "emissionRate": 10.0,
+                        "emissionShape": 4,
+                        "gravityModifier": 0.0,
+                        "lifetimeRange": [
+                            1.0,
+                            2.0
+                        ],
+                        "looping": true,
+                        "maxParticles": 1000,
+                        "playOnAwake": true,
+                        "rotationOverLifetime": {
+                            "points": [
+                                {
+                                    "controlPoint1": [
+                                        0.0,
+                                        0.0
+                                    ],
+                                    "controlPoint2": [
+                                        0.0,
+                                        0.0
+                                    ],
+                                    "position": [
+                                        0.0,
+                                        0.0
+                                    ]
+                                },
+                                {
+                                    "controlPoint1": [
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "controlPoint2": [
+                                        1.0,
+                                        0.0
+                                    ],
+                                    "position": [
+                                        1.0,
+                                        0.0
+                                    ]
+                                }
+                            ],
+                            "type": 0
                         },
-                        {
-                            "active": true,
-                            "data": {
-                                "angularVelocityRange": [
-                                    0.0,
-                                    0.0
-                                ],
-                                "bursts": [],
-                                "coneAngle": 25.0,
-                                "debugDraw": false,
-                                "duration": 5.0,
-                                "emissionRate": 10.0,
-                                "emissionShape": 0,
-                                "gravityModifier": 0.0,
-                                "lifetimeRange": [
-                                    1.0,
-                                    2.0
-                                ],
-                                "looping": true,
-                                "maxParticles": 1000,
-                                "playOnAwake": true,
-                                "rotationOverLifetime": {
-                                    "points": [
-                                        {
-                                            "controlPoint1": [
-                                                0.0,
-                                                0.0
-                                            ],
-                                            "controlPoint2": [
-                                                0.0,
-                                                0.0
-                                            ],
-                                            "position": [
-                                                0.0,
-                                                0.0
-                                            ]
-                                        },
-                                        {
-                                            "controlPoint1": [
-                                                1.0,
-                                                0.0
-                                            ],
-                                            "controlPoint2": [
-                                                1.0,
-                                                0.0
-                                            ],
-                                            "position": [
-                                                1.0,
-                                                0.0
-                                            ]
-                                        }
+                        "rotationRange": [
+                            0.0,
+                            360.0
+                        ],
+                        "shapeBoxSize": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ],
+                        "shapeRadius": 1.0,
+                        "simulationSpace": 1,
+                        "sizeOverLifetime": {
+                            "points": [
+                                {
+                                    "controlPoint1": [
+                                        0.0,
+                                        1.0
                                     ],
-                                    "type": 0
-                                },
-                                "rotationRange": [
-                                    0.0,
-                                    360.0
-                                ],
-                                "shapeBoxSize": [
-                                    1.0,
-                                    1.0,
-                                    1.0
-                                ],
-                                "shapeRadius": 1.0,
-                                "simulationSpace": 1,
-                                "sizeOverLifetime": {
-                                    "points": [
-                                        {
-                                            "controlPoint1": [
-                                                0.0,
-                                                1.0
-                                            ],
-                                            "controlPoint2": [
-                                                0.0,
-                                                1.0
-                                            ],
-                                            "position": [
-                                                0.0,
-                                                1.0
-                                            ]
-                                        },
-                                        {
-                                            "controlPoint1": [
-                                                1.0,
-                                                1.0
-                                            ],
-                                            "controlPoint2": [
-                                                1.0,
-                                                1.0
-                                            ],
-                                            "position": [
-                                                1.0,
-                                                1.0
-                                            ]
-                                        }
+                                    "controlPoint2": [
+                                        0.0,
+                                        1.0
                                     ],
-                                    "type": 0
+                                    "position": [
+                                        0.0,
+                                        1.0
+                                    ]
                                 },
-                                "sizeRange": [
-                                    0.10000000149011612,
-                                    0.10000000149011612
-                                ],
-                                "speedRange": [
-                                    5.0,
-                                    5.0
-                                ],
-                                "startColorMode": 1,
-                                "startColorRange": [
-                                    [
-                                        1.0,
-                                        1.0,
+                                {
+                                    "controlPoint1": [
                                         1.0,
                                         1.0
                                     ],
-                                    [
+                                    "controlPoint2": [
                                         1.0,
-                                        1.0,
+                                        1.0
+                                    ],
+                                    "position": [
                                         1.0,
                                         1.0
                                     ]
-                                ],
-                                "startDelay": 0.0,
-                                "textureDisplayName": "None",
-                                "textureGUID": 0,
-                                "transparent": true,
-                                "velocityOverLifetime": {
-                                    "points": [
-                                        {
-                                            "controlPoint1": [
-                                                0.0,
-                                                1.0
-                                            ],
-                                            "controlPoint2": [
-                                                0.0,
-                                                1.0
-                                            ],
-                                            "position": [
-                                                0.0,
-                                                1.0
-                                            ]
-                                        },
-                                        {
-                                            "controlPoint1": [
-                                                1.0,
-                                                1.0
-                                            ],
-                                            "controlPoint2": [
-                                                1.0,
-                                                1.0
-                                            ],
-                                            "position": [
-                                                1.0,
-                                                1.0
-                                            ]
-                                        }
-                                    ],
-                                    "type": 0
                                 }
-                            },
-                            "id": 2,
-                            "type": "ParticleEmitterComponent"
+                            ],
+                            "type": 0
+                        },
+                        "sizeRange": [
+                            0.10000000149011612,
+                            0.10000000149011612
+                        ],
+                        "speedRange": [
+                            5.0,
+                            5.0
+                        ],
+                        "startColorMode": 1,
+                        "startColorRange": [
+                            [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ],
+                            [
+                                1.0,
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        ],
+                        "startDelay": 0.0,
+                        "textureDisplayName": "None",
+                        "textureGUID": 0,
+                        "transparent": true,
+                        "velocityOverLifetime": {
+                            "points": [
+                                {
+                                    "controlPoint1": [
+                                        0.0,
+                                        1.0
+                                    ],
+                                    "controlPoint2": [
+                                        0.0,
+                                        1.0
+                                    ],
+                                    "position": [
+                                        0.0,
+                                        1.0
+                                    ]
+                                },
+                                {
+                                    "controlPoint1": [
+                                        1.0,
+                                        1.0
+                                    ],
+                                    "controlPoint2": [
+                                        1.0,
+                                        1.0
+                                    ],
+                                    "position": [
+                                        1.0,
+                                        1.0
+                                    ]
+                                }
+                            ],
+                            "type": 0
                         }
-                    ],
-                    "drawLayer": 1,
-                    "id": 1819,
-                    "name": "New Node",
-                    "transform": {
-                        "position": [
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "rotation": [
-                            1.0,
-                            0.0,
-                            0.0,
-                            0.0
-                        ],
-                        "scale": [
-                            0.05999999865889549,
-                            0.05999999865889549,
-                            0.05999999865889549
-                        ]
-                    }
+                    },
+                    "id": 1,
+                    "type": "ParticleEmitterComponent"
                 }
             ],
-            "collisionLayerMask": 1,
-            "components": [],
             "drawLayer": 1,
-            "id": 1818,
+            "id": 1815,
             "name": "Suction Particles",
             "transform": {
                 "position": [
-                    0.002079010009765625,
+                    0.003200531005859375,
                     -9.5367431640625e-07,
-                    2.1141510009765625
+                    3.8878002166748047
                 ],
                 "rotation": [
-                    1.0,
-                    -1.0849922848187032e-14,
-                    -5.6605106379947756e-08,
+                    -0.0034828048665076494,
+                    0.0,
+                    0.9999939203262329,
                     0.0
                 ],
                 "scale": [
+                    1.0000104904174805,
                     1.0,
-                    0.9999960064888,
-                    0.9999960660934448
+                    1.0000133514404297
                 ]
             }
         }
@@ -835,168 +813,6 @@
             "data": {},
             "id": 5,
             "type": "PlayerComponent"
-        },
-        {
-            "active": true,
-            "data": {
-                "angularVelocityRange": [
-                    0.0,
-                    0.0
-                ],
-                "bursts": [],
-                "coneAngle": 25.0,
-                "debugDraw": true,
-                "duration": 5.0,
-                "emissionRate": 10.0,
-                "emissionShape": 0,
-                "gravityModifier": 0.0,
-                "lifetimeRange": [
-                    1.0,
-                    2.0
-                ],
-                "looping": true,
-                "maxParticles": 1000,
-                "playOnAwake": true,
-                "rotationOverLifetime": {
-                    "points": [
-                        {
-                            "controlPoint1": [
-                                0.0,
-                                0.0
-                            ],
-                            "controlPoint2": [
-                                0.0,
-                                0.0
-                            ],
-                            "position": [
-                                0.0,
-                                0.0
-                            ]
-                        },
-                        {
-                            "controlPoint1": [
-                                1.0,
-                                0.0
-                            ],
-                            "controlPoint2": [
-                                1.0,
-                                0.0
-                            ],
-                            "position": [
-                                1.0,
-                                0.0
-                            ]
-                        }
-                    ],
-                    "type": 0
-                },
-                "rotationRange": [
-                    0.0,
-                    360.0
-                ],
-                "shapeBoxSize": [
-                    1.0,
-                    1.0,
-                    1.0
-                ],
-                "shapeRadius": 1.0,
-                "simulationSpace": 1,
-                "sizeOverLifetime": {
-                    "points": [
-                        {
-                            "controlPoint1": [
-                                0.0,
-                                1.0
-                            ],
-                            "controlPoint2": [
-                                0.0,
-                                1.0
-                            ],
-                            "position": [
-                                0.0,
-                                1.0
-                            ]
-                        },
-                        {
-                            "controlPoint1": [
-                                1.0,
-                                1.0
-                            ],
-                            "controlPoint2": [
-                                1.0,
-                                1.0
-                            ],
-                            "position": [
-                                1.0,
-                                1.0
-                            ]
-                        }
-                    ],
-                    "type": 0
-                },
-                "sizeRange": [
-                    0.10000000149011612,
-                    0.10000000149011612
-                ],
-                "speedRange": [
-                    5.0,
-                    5.0
-                ],
-                "startColorMode": 1,
-                "startColorRange": [
-                    [
-                        1.0,
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    [
-                        1.0,
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                ],
-                "startDelay": 0.0,
-                "textureDisplayName": "None",
-                "textureGUID": 0,
-                "transparent": true,
-                "velocityOverLifetime": {
-                    "points": [
-                        {
-                            "controlPoint1": [
-                                0.0,
-                                1.0
-                            ],
-                            "controlPoint2": [
-                                0.0,
-                                1.0
-                            ],
-                            "position": [
-                                0.0,
-                                1.0
-                            ]
-                        },
-                        {
-                            "controlPoint1": [
-                                1.0,
-                                1.0
-                            ],
-                            "controlPoint2": [
-                                1.0,
-                                1.0
-                            ],
-                            "position": [
-                                1.0,
-                                1.0
-                            ]
-                        }
-                    ],
-                    "type": 0
-                }
-            },
-            "id": 21,
-            "type": "ParticleEmitterComponent"
         },
         {
             "active": true,
@@ -1120,7 +936,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 1809,
+    "id": 1806,
     "name": "Drone",
     "transform": {
         "position": [

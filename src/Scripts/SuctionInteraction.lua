@@ -209,13 +209,11 @@ function SuctionCancel()
     end
     
     activeTargets = {}
-    print("We stop all succ")
 end
 
 function UpdateSuctionSound()
     
    if Input:KeyHeld(Key.E) then
-        print("Mouse succ")
         if not playingSucction then
             audioplayerSucction:Play()
             playingSucction = true
@@ -268,8 +266,12 @@ function OnStart()
         return
     end
 
-    local particleEmitter = self:GetParticleEmitterComponent()
-    suctionParticles.Start(particleEmitter)
+     for _, child in ipairs(self:GetChildren()) do
+        if child:GetName() == "Suction Particles" then
+            SuctionParticles.Initialize(child)
+            break
+        end
+    end
 
 end
 

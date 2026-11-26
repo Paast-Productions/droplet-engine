@@ -231,8 +231,6 @@ function OnStart()
     tracy.ZoneBeginN("Fih OnStart")
     jit.on()
     jit.flush()
-    
-	print("New Fih")
 
     suctionSystem.RegisterCollectible(self)
 
