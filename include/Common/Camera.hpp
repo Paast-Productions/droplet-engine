@@ -7,6 +7,13 @@
 
 namespace Droplet::Common
 {
+	/// Projection type for a camera
+	enum class Projection
+	{
+		Perspective,
+		Orthographic 
+	};
+	
 	/// @brief This class handles view and projection of the rendering
 	class Camera
 	{
@@ -83,6 +90,12 @@ namespace Droplet::Common
 		[[nodiscard]] glm::vec2 GetPlanes() const { return m_planes; }
 
 		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
+		
+		[[nodiscard]] Projection GetProjection() const { return m_projection; }
+		
+		[[nodiscard]] float GetOrthographicHeight() const { return m_orthographicHeight; }
+		
+		void SetProjection(Projection p_projection) { m_projection = p_projection; }
 
 		/// @brief Sets the position of the camera in world space.
 		/// @param p_position Position in world space to set
@@ -114,6 +127,10 @@ namespace Droplet::Common
 		/// @param p_aspect Camera aspect ratio
 		void SetAspect(float p_aspect) { m_aspect = p_aspect; }
 
+		/// @brief Sets the height of the orthographic projection
+		/// @param p_height The new height
+		void SetOrthographicHeight(float p_height) { m_orthographicHeight = p_height; }
+		
 		// TODO: (RENDERING) <REFACTOR>
 		// The constructor takes a glm::vec2. Therefore either the ctor or this function should be changed
 		
@@ -160,6 +177,8 @@ namespace Droplet::Common
 
 		float m_fov { 45.0f };		// horizontal field of view in degrees
 		float m_aspect { 1.0f };		// width / height
+		Projection m_projection { Projection::Perspective };
+		float m_orthographicHeight { 10.0f }; ///< in world units
 		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 		/// @brief Updates the cameras direction vectors
