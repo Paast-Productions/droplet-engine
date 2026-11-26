@@ -28,37 +28,6 @@ namespace Droplet::IO
 
 namespace Droplet::Graphics::Vulkan
 {
-	/// @brief A group of shaders for a pipeline
-    struct ShaderGroup
-    {
-		struct ShaderVariant
-		{
-            GUID id{ C_INVALID_GUID };
-			bool used = false;
-
-            [[nodiscard]] bool IsValid() const noexcept { return !used || (used && id != C_INVALID_GUID); }
-		};
-
-        ShaderVariant vertex{ C_INVALID_GUID, true };
-		ShaderVariant tessCtrl{ C_INVALID_GUID, false };
-		ShaderVariant tessEval{ C_INVALID_GUID, false };
-        ShaderVariant geometry{ C_INVALID_GUID, false };
-        ShaderVariant fragment{ C_INVALID_GUID, true };
-
-		ShaderGroup() = default;
-        ShaderGroup(GUID vertexId, GUID fragmentId = C_INVALID_GUID, GUID geometryId = C_INVALID_GUID, GUID tessCtrlId = C_INVALID_GUID, GUID tessEvalId = C_INVALID_GUID)
-            : vertex{ vertexId, vertexId != C_INVALID_GUID },
-            tessCtrl{ tessCtrlId, tessCtrlId != C_INVALID_GUID },
-            tessEval{ tessEvalId, tessEvalId != C_INVALID_GUID },
-            geometry{ geometryId, geometryId != C_INVALID_GUID },
-            fragment{ fragmentId, fragmentId != C_INVALID_GUID } {}
-
-        [[nodiscard]] bool IsValid() const noexcept 
-        {
-            return vertex.IsValid() && tessCtrl.IsValid() && tessEval.IsValid() && fragment.IsValid() && geometry.IsValid();
-        }
-    };
-
     /**
      * @brief Owns every Shader, keyed by GUID and stage
      * @details Uploaded shaders arrive as one compiled stage each; the renderer's built-in shaders are compiled from
@@ -97,10 +66,10 @@ namespace Droplet::Graphics::Vulkan
          * @param defaultShaders The group production names (RenderWorld)
          * @returns It once all stages are created, else the built-in default; invalid if not even that compiles
          */
-        [[nodiscard]] ShaderGroup ResolveDefault(ShaderGroup defaultShaders);
+        [[nodiscard]] ShaderGroup ResolveDefault(const ShaderGroup &defaultShaders);
 
         /// @brief `shaders` if all stages are created, else `fallback`
-        [[nodiscard]] ShaderGroup Resolve(ShaderGroup shaders, ShaderGroup fallback) const;
+        [[nodiscard]] ShaderGroup Resolve(const ShaderGroup &shaders, const ShaderGroup &fallback) const;
 
         /// @brief Adds the created shaders and the failed ones, with their revisions, to `resident`.
         void AppendResident(Bridge::ResidentResources& resident) const;

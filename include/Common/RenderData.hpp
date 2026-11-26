@@ -129,6 +129,7 @@ namespace Droplet::Common
         std::int32_t priority{};
         std::vector<RenderData> renderData{};
         glm::vec4 clearColor{glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)};
+        std::vector<PostEffectDesc> postEffects{}; ///< the renderer's built-in effects, applied to the image in order
 
         // DEBUG
         bool debug = false;

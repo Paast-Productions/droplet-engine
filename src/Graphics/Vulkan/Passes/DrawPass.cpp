@@ -188,8 +188,10 @@ namespace Droplet::Graphics::Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
-		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
-		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
+		const ShaderGroup &shaders,
+		vk::Format colorFormat, 
+		vk::Format depthFormat, 
+		bool transparent) const
 	{
 		ZoneScoped
 		constexpr auto binding = Vertex::P3N3UV2::GetBindingDescription();
@@ -197,25 +199,15 @@ namespace Droplet::Graphics::Vulkan
 
 		// Depth range 0..1, cleared to 1.0, so "less" keeps the nearest fragment
 		const bool hasDepth = depthFormat != vk::Format::eUndefined;
-		// tessellation draws patches, not triangles
-		const bool tessellation = tessCtrlShader != C_INVALID_GUID || tessEvalShader != C_INVALID_GUID;
-
 		return GraphicsPipelineDesc{
-			.vertexShader = vertexShader,
-			.fragmentShader = fragmentShader,
-			.tessCtrlShader = tessCtrlShader,
-			.tessEvalShader = tessEvalShader,
-			.geometryShader = geometryShader,
-			.hasFragmentShader = true,
-			.hasTessCtrlShader = tessCtrlShader != C_INVALID_GUID,
-			.hasTessEvalShader = tessEvalShader != C_INVALID_GUID,
-			.hasGeometryShader = geometryShader != C_INVALID_GUID,
+			.shaders = shaders,
 			.layout = *m_pipelineLayout,
 			.vertexLayout = VertexLayout{
 				.bindings = {binding},
 				.attributes = {attributes.begin(), attributes.end()}
 			},
-			.topology = tessellation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList,
+			// tessellation draws patches, not triangles
+			.topology = shaders.HasTessellation() ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList,
 			.raster = RasterState{
 				.polygonMode = vk::PolygonMode::eFill,
 				.cullMode = vk::CullModeFlagBits::eBack,
@@ -261,7 +253,7 @@ namespace Droplet::Graphics::Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakeMeshPipelineDesc(
-		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+		const ShaderGroup &shaders,
 		const Common::DynamicMeshData& mesh,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
@@ -270,19 +262,25 @@ namespace Droplet::Graphics::Vulkan
 		const bool vertexColor = meshInterface == MeshInterface::VertexColor;
 		const bool particle = meshInterface == MeshInterface::Particle;
 		GraphicsPipelineDesc desc = MakePipelineDesc(
-			vertexShader, fragmentShader, tessCtrlShader, tessEvalShader, geometryShader, colorFormat, depthFormat,
+			shaders, colorFormat, depthFormat,
 			transparent || vertexColor || particle);
 
 		desc.vertexLayout.bindings = { vk::VertexInputBindingDescription{
-			.binding = 0, .stride = mesh.vertexStride, .inputRate = vk::VertexInputRate::eVertex } };
+			.binding = 0, 
+			.stride = mesh.vertexStride, 
+			.inputRate = vk::VertexInputRate::eVertex } 
+		};
 		desc.vertexLayout.attributes.clear();
+		
 		for (const Common::VertexAttribute& attribute : mesh.attributes)
 		{
 			desc.vertexLayout.attributes.push_back({
 				.location = attribute.location, .binding = 0, .format = ToVk(attribute.format), .offset = attribute.offset });
 		}
 		if (mesh.topology == Common::MeshTopology::Points)
+		{
 			desc.topology = vk::PrimitiveTopology::ePointList;
+		}
 		if (particle)
 		{
 			// the geometry shader expands each point into a quad facing the view: both faces are visible
