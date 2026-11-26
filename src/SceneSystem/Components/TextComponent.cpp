@@ -43,21 +43,13 @@ void Droplet::Scene::TextComponent::StartImpl()
 
 void Droplet::Scene::TextComponent::UpdateImpl()
 {
-	if (!m_textIsDirty || !m_font.IsReady())
+	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 		return;
 	
-	const FontResource* font = m_font.Get();
-	
-	if (!font)
+	if (!IsActive())
 		return;
 	
-	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
-	
-	UpdateBounds(layout.instances.empty(), layout.minBounds, layout.maxBounds);
-	
-	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
-	
-	m_textIsDirty = false;
+	RebuildText();
 }
 
 void Droplet::Scene::TextComponent::EditorUpdateImpl()
@@ -68,22 +60,7 @@ void Droplet::Scene::TextComponent::EditorUpdateImpl()
 	if (!IsActive())
 		return;
 	
-	if (!m_textIsDirty || !m_font.IsReady())
-		return;
-	
-	const FontResource* font = m_font.Get();
-	
-	if (!font)
-		return;
-	
-	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
-	
-	UpdateBounds(layout.instances.empty(), layout.minBounds, layout.maxBounds);
-	
-	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
-	
-	GetOwner()->GetTransform().MakeDirty();
-	m_textIsDirty = false;
+	RebuildText();
 }
 
 void Droplet::Scene::TextComponent::QueueRenderImpl()
@@ -262,5 +239,26 @@ void Droplet::Scene::TextComponent::UpdateBounds(bool p_hasGlyphs, const glm::ve
 			glm::vec3(0.001f)
 		};
 	}
+}
+
+void Droplet::Scene::TextComponent::RebuildText()
+{
+	if (!m_textIsDirty || !m_font.IsReady())
+		return;
+	
+	const FontResource* font = m_font.Get();
+	
+	if (!font)
+		return;
+	
+	auto layout = Graphics::Text::BuildTextLayout(*font, m_text, m_emSize);
+	
+	bool hasGlyphs = !layout.instances.empty();
+	UpdateBounds(hasGlyphs, layout.minBounds, layout.maxBounds);
+	
+	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
+	
+	GetOwner()->GetTransform().MakeDirty();
+	m_textIsDirty = false;
 }
 

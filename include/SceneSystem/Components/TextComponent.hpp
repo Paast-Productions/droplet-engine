@@ -54,6 +54,9 @@ namespace Droplet::Scene
 	private:
 		void UpdateBounds(bool p_hasGlyphs, const glm::vec2& p_min, const glm::vec2& p_max);
 		
+		/// @brief Checks if the text is in need of being updated, and rebuilds if that is the case.
+		void RebuildText();
+		
 		std::string m_fontDisplayName;
 		
 		StaticResourceHandle<FontResource> m_font{};
