@@ -107,6 +107,9 @@ namespace Droplet::Graphics::Vulkan
         const GraphicsPipelineDesc& desc,
         const Shader& vertex,
         const Shader* fragment,
+        const Shader* tessCtrl,
+        const Shader* tessEval,
+        const Shader* geometry,
         const vk::raii::PipelineCache* cache)
         : m_layout(desc.layout)
     {
@@ -114,15 +117,27 @@ namespace Droplet::Graphics::Vulkan
             throw std::invalid_argument("GraphicsPipeline: vertex shader has wrong stage");
         if (fragment && fragment->Stage() != vk::ShaderStageFlagBits::eFragment)
             throw std::invalid_argument("GraphicsPipeline: fragment shader has wrong stage");
+        if (tessCtrl && tessCtrl->Stage() != vk::ShaderStageFlagBits::eTessellationControl)
+            throw std::invalid_argument("GraphicsPipeline: tessellation control shader has wrong stage");
+        if (tessEval && tessEval->Stage() != vk::ShaderStageFlagBits::eTessellationEvaluation)
+            throw std::invalid_argument("GraphicsPipeline: tessellation evaluation shader has wrong stage");
+        if (geometry && geometry->Stage() != vk::ShaderStageFlagBits::eGeometry)
+            throw std::invalid_argument("GraphicsPipeline: geometry shader has wrong stage");
         if (!desc.layout)
             throw std::invalid_argument("GraphicsPipeline: pipeline layout is null");
         if (desc.colorBlend.size() != desc.colorFormats.size())
             throw std::invalid_argument("GraphicsPipeline: colorBlend and colorFormats size mismatch");
 
-        std::array<vk::PipelineShaderStageCreateInfo, 2> stages{vertex.StageInfo()};
+        std::array<vk::PipelineShaderStageCreateInfo, 5> stages{vertex.StageInfo()};
         std::uint32_t stageCount = 1;
         if (fragment)
             stages[stageCount++] = fragment->StageInfo();
+        if (tessCtrl)
+            stages[stageCount++] = tessCtrl->StageInfo();
+        if (tessEval)
+            stages[stageCount++] = tessEval->StageInfo();
+        if (geometry)
+            stages[stageCount++] = geometry->StageInfo();
 
         constexpr std::array dynamicStates{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
         const vk::PipelineDynamicStateCreateInfo dynamicInfo{

@@ -357,6 +357,8 @@ void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 		}
 	}
 	m_particles.resize(writeIndex);
+
+	GenerateParticleMesh();
 }
 
 void ParticleEmitterComponent::ResetBurstTriggers()
@@ -530,8 +532,12 @@ void ParticleEmitterComponent::QueueRenderImpl()
 
 RenderData ParticleEmitterComponent::GetRenderDataImpl()
 {
-	RenderData renderData{};
+	Common::RenderData renderData{};
+	renderData.dynamicMesh = m_particleMesh;
 	renderData.texData.GUID = m_texture.GetGUID();
+	renderData.vsData.guid = m_vs.GetGUID();
+	renderData.gsData.guid = m_gs.GetGUID();
+	renderData.fsData.guid = m_fs.GetGUID();
 	renderData.transparent = m_transparent;
 	return renderData;
 }
@@ -579,6 +585,20 @@ void ParticleEmitterComponent::DeserializeCurve(const nlohmann::json &json, cons
 	}
 	if (curve.points.empty())
 		curve = MakeDefaultCurve(1.0f);
+}
+
+void ParticleEmitterComponent::UpdateBounds(glm::vec3 p_min, glm::vec3 p_max)
+{
+	// Clamp the min and max values to ensure they are valid
+	p_min = glm::min(p_min, p_max);
+
+	OBB obb{};
+
+	obb.center = (p_min + p_max) * 0.5f;
+	obb.extents = (p_max - p_min) * 0.5f;
+
+	m_bounds.SetOBB(obb);
+	GetTransform().MakePhysicsDirty();
 }
 
 nlohmann::json ParticleEmitterComponent::SerializeImpl()
@@ -878,33 +898,69 @@ void ParticleEmitterComponent::RenderUIImpl()
 }
 
 
-void ParticleEmitterComponent::GenerateParticleMesh(std::vector<ParticleVertex> &outVertices)
+void ParticleEmitterComponent::GenerateParticleMesh()
 {
 	ZoneScoped;
 
-	outVertices.clear();
-	outVertices.reserve(m_particles.size());
+	struct ParticleVertex
+	{
+		glm::vec3 position;
+		glm::vec4 color;
+		float size;
+		float rotation;
+	};
+	
+	std::vector<ParticleVertex> vertices;
+	std::vector<std::uint32_t> indices;
+	vertices.reserve(m_particles.size());
+	indices.reserve(m_particles.size());
 
+	glm::vec3 min = glm::vec3(std::numeric_limits<float>::max());
+	glm::vec3 max = glm::vec3(std::numeric_limits<float>::lowest());
+
+	std::uint32_t index = 0;
 	for (const Particle &p : m_particles)
 	{
 		glm::vec3 pos = p.position;
 		float size = p.size;
 		float rot = p.rotation;
 
-		if (m_simulationSpace == SimulationSpace::Local)
+		if (m_simulationSpace == SimulationSpace::World)
 		{
 			Transform &transform = GetTransform();
 			glm::mat4 worldMatrix = transform.GetMatrix(Transform::Space::World);
+			glm::mat4 invWorldMatrix = glm::inverse(worldMatrix);
 
-			// Transform the particle position to world space
-			pos = glm::vec3(worldMatrix * glm::vec4(pos, 1.0f));
+			// Undo the world transform to get the local position for rendering
+			pos = glm::vec3(invWorldMatrix * glm::vec4(pos, 1.0f));
 		}
 
-		outVertices.emplace_back(
+		min = glm::min(min, pos - glm::vec3(size * 0.5f));
+		max = glm::max(max, pos + glm::vec3(size * 0.5f));
+
+		vertices.emplace_back(
 			pos,
 			p.color,
 			size,
 			rot
 		);
+		indices.emplace_back(index++);
 	}
+
+	const std::span<const std::byte> bytes = std::as_bytes(std::span<const ParticleVertex>(vertices));
+
+	m_particleMesh = std::make_shared<const Common::DynamicMeshData>(Common::DynamicMeshData{
+		.vertexStride = sizeof(ParticleVertex),
+		.attributes = {
+			{.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(ParticleVertex, position)},
+			{.location = 1, .format = Common::VertexFormat::UNorm8x4, .offset = offsetof(ParticleVertex, color)},
+			{.location = 2, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, size)},
+			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)}
+		},
+		.vertexData = { bytes.begin(), bytes.end() },
+		.indices = std::move(indices),
+		.topology = Common::MeshTopology::Points
+	}); 
+	
+	UpdateBounds(min, max);
 }

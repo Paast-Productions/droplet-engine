@@ -66,7 +66,10 @@ namespace Droplet::Scene
     	void FixedUpdate();
 
 		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
-        ///
+        /// 
+		/// NOTE: REGARDLESS OF WETHER IN PLAY MODE OR NOT. Using this to call UpdateImpl will cause
+		/// update to run twice per frame in play mode.
+        /// 
         /// Called once per update for components attached to active Nodes.
     	void EditorUpdate();
 

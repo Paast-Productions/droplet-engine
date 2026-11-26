@@ -75,7 +75,8 @@ namespace Droplet::Graphics::Vulkan
          * @param transparent Alpha blended without depth writes
          * @returns A description for PipelineLibrary::GetOrCreate
          */
-        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
+			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
 
         /**
@@ -96,7 +97,8 @@ namespace Droplet::Graphics::Vulkan
          * @returns A description for PipelineLibrary::GetOrCreate
          */
         [[nodiscard]] GraphicsPipelineDesc MakeMeshPipelineDesc(
-            GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
+			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+            const Common::DynamicMeshData& mesh,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent) const;
 
         /// @brief Writes every view's ViewProjectionBuffer and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame

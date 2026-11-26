@@ -176,7 +176,8 @@ namespace Droplet::Graphics::Vulkan
 		}
 	}
 
-	GraphicsPipelineDesc DrawPass::MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
+		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
 		ZoneScoped
@@ -189,6 +190,9 @@ namespace Droplet::Graphics::Vulkan
 		return GraphicsPipelineDesc{
 			.vertexShader = vertexShader,
 			.fragmentShader = fragmentShader,
+			.tessCtrlShader = tessCtrlShader,
+			.tessEvalShader = tessEvalShader,
+			.geometryShader = geometryShader,
 			.hasFragmentShader = true,
 			.layout = *m_pipelineLayout,
 			.vertexLayout = VertexLayout{
@@ -237,12 +241,14 @@ namespace Droplet::Graphics::Vulkan
 	}
 
 	GraphicsPipelineDesc DrawPass::MakeMeshPipelineDesc(
-		GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
+		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+		const Common::DynamicMeshData& mesh,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
 		ZoneScoped
 		const bool vertexColor = InterfaceOf(mesh) == MeshInterface::VertexColor;
-		GraphicsPipelineDesc desc = MakePipelineDesc(vertexShader, fragmentShader, colorFormat, depthFormat, transparent || vertexColor);
+		GraphicsPipelineDesc desc = MakePipelineDesc(
+			vertexShader, fragmentShader, tessCtrlShader, tessEvalShader, geometryShader, colorFormat, depthFormat, transparent || vertexColor);
 
 		desc.vertexLayout.bindings = { vk::VertexInputBindingDescription{
 			.binding = 0, .stride = mesh.vertexStride, .inputRate = vk::VertexInputRate::eVertex } };

@@ -104,17 +104,29 @@ namespace Droplet::Graphics::Vulkan
         m_builtInResource = std::move(builtIn);
     }
 
-    ShaderPair ShaderLibrary::ResolveDefault(ShaderPair defaultShaders)
+    ShaderGroup ShaderLibrary::ResolveDefault(ShaderGroup defaultShaders)
     {
         const GUID builtIn = m_builtInDefault;
-        const ShaderPair fallback = GetOrCreate(builtIn, m_builtInResource) ? ShaderPair{ builtIn, builtIn } : ShaderPair{};
+		const ShaderGroup builtInFallback = ShaderGroup(builtIn, builtIn);
+
+        const ShaderGroup fallback = GetOrCreate(builtIn, m_builtInResource) ? builtInFallback : ShaderGroup();
         return Resolve(defaultShaders, fallback);
     }
 
-    ShaderPair ShaderLibrary::Resolve(ShaderPair shaders, ShaderPair fallback) const
+    ShaderGroup ShaderLibrary::Resolve(ShaderGroup shaders, ShaderGroup fallback) const
     {
-        const bool ready = IsReady(shaders.vertex, vk::ShaderStageFlagBits::eVertex)
-                           && IsReady(shaders.fragment, vk::ShaderStageFlagBits::eFragment);
+        bool ready = true;
+		if (shaders.vertex.used)
+			ready = IsReady(shaders.vertex.id, vk::ShaderStageFlagBits::eVertex);
+		if (shaders.tessCtrl.used)
+			ready = ready && IsReady(shaders.tessCtrl.id, vk::ShaderStageFlagBits::eTessellationControl);
+		if (shaders.tessEval.used)
+			ready = ready && IsReady(shaders.tessEval.id, vk::ShaderStageFlagBits::eTessellationEvaluation);
+		if (shaders.geometry.used)
+			ready = ready && IsReady(shaders.geometry.id, vk::ShaderStageFlagBits::eGeometry);
+		if (shaders.fragment.used)
+			ready = ready && IsReady(shaders.fragment.id, vk::ShaderStageFlagBits::eFragment);
+
         return ready ? shaders : fallback;
     }
 
@@ -167,12 +179,21 @@ namespace Droplet::Graphics::Vulkan
 
         const Shader& vertex = m_shaders.Get(desc.vertexShader, vk::ShaderStageFlagBits::eVertex);
         const Shader* fragment = desc.hasFragmentShader
-                                     ? &m_shaders.Get(desc.fragmentShader, vk::ShaderStageFlagBits::eFragment)
-                                     : nullptr;
+            ? &m_shaders.Get(desc.fragmentShader, vk::ShaderStageFlagBits::eFragment)
+            : nullptr;
+		const Shader *tessCtrl = desc.hasTessCtrlShader
+			? &m_shaders.Get(desc.tessCtrlShader, vk::ShaderStageFlagBits::eTessellationControl)
+			: nullptr;
+		const Shader *tessEval = desc.hasTessEvalShader
+			? &m_shaders.Get(desc.tessEvalShader, vk::ShaderStageFlagBits::eTessellationEvaluation)
+			: nullptr;
+		const Shader *geometry = desc.hasGeometryShader
+			? &m_shaders.Get(desc.geometryShader, vk::ShaderStageFlagBits::eGeometry)
+			: nullptr;
 
         const Render::PipelineHandle handle = m_pipelines.Add(Entry{
             .desc = desc,
-            .pipeline = GraphicsPipeline(m_device, desc, vertex, fragment, &m_vkCache)});
+            .pipeline = GraphicsPipeline(m_device, desc, vertex, fragment, tessCtrl, tessEval, geometry, &m_vkCache)});
         candidates.push_back(handle);
         return handle;
     }

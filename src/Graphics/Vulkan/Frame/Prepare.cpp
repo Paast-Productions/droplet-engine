@@ -64,7 +64,7 @@ namespace
     {
         Render::MeshHandle mesh;
         Render::ImageBinding baseColor;
-        Vulkan::ShaderPair shaders; ///< compiled stages; invalid: not even the default compiled
+        Vulkan::ShaderGroup shaders; ///< compiled stages; invalid: not even the default compiled
     };
 
     /// @brief A target that a view samples as its history (last frame's copy) instead.
@@ -213,7 +213,7 @@ Render::PreparedFrame Vulkan::Prepare(
     GpuResourceManager& gpu = context.gpu;
 
     // the default shaders: the world's once they have arrived, else the built-in ones
-    const ShaderPair defaultShaders = context.shaders.ResolveDefault({ world.defaultVertexShader, world.defaultFragmentShader });
+    const ShaderGroup defaultShaders = context.shaders.ResolveDefault(ShaderGroup(world.defaultVertexShader, world.defaultFragmentShader));
 
     // 1. render targets: one per drawn camera
     std::unordered_map<GUID, Render::TargetHandle> targetHandles;
@@ -222,8 +222,8 @@ Render::PreparedFrame Vulkan::Prepare(
         if (plans[cameraIndex].drawn)
         {
             const Droplet::Common::RenderTargetDesc& desc = world.cameras[cameraIndex].target;
-        targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
-    }
+            targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
+        }
     }
 
     Render::PreparedFrame frame;
@@ -337,7 +337,7 @@ Render::PreparedFrame Vulkan::Prepare(
                                  "Objects using it are not drawn", unsupported);
                 continue;
             }
-            const ShaderPair objectShaders{ source.vsData.guid, source.fsData.guid };
+            const ShaderGroup objectShaders{ source.vsData.guid, source.fsData.guid, source.gsData.guid, source.tcsData.guid, source.tesData.guid };
 
             if (source.dynamicMesh)
             {
@@ -354,15 +354,16 @@ Render::PreparedFrame Vulkan::Prepare(
                 const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
                 if (vertexColor && !vertexColorReady)
                     continue;
-                const ShaderPair shaders = vertexColor
-                    ? ShaderPair{ DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER }
+                const ShaderGroup shaders = vertexColor
+                    ? ShaderGroup(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER)
                     : context.shaders.Resolve(objectShaders, defaultShaders);
                 if (!shaders.IsValid())
                     continue;
 
                 const Render::ImageBinding material = vertexColor ? Render::ImageBinding{ gpu.WhiteTexture() } : materialOf(source.texData);
                 const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
-                    shaders.vertex, shaders.fragment, mesh, colorFormat, context.depthFormat, source.transparent));
+					shaders.vertex.id, shaders.fragment.id, shaders.tessCtrl.id, shaders.tessEval.id, shaders.geometry.id,
+                    mesh, colorFormat, context.depthFormat, source.transparent));
                 const bool blended = vertexColor || source.transparent;
 
                 if (mesh.id != C_INVALID_GUID)
@@ -417,7 +418,8 @@ Render::PreparedFrame Vulkan::Prepare(
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
-                    object.shaders.vertex, object.shaders.fragment, colorFormat, context.depthFormat, source.transparent)),
+                    object.shaders.vertex.id, object.shaders.fragment.id, object.shaders.tessCtrl.id, object.shaders.tessEval.id, object.shaders.geometry.id, 
+                    colorFormat, context.depthFormat, source.transparent)),
                 .mesh = object.mesh,
                 .material = material
             };
