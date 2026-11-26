@@ -61,8 +61,10 @@ namespace Droplet::Graphics::Vulkan
     FrameSubmitter::FrameSubmitter(
         const vk::raii::Device& device,
         std::array<QueueSlot, RenderGraph::QUEUE_COUNT> queues,
-        std::uint32_t framesInFlight)
+        std::uint32_t framesInFlight,
+        const GpuProfiler& gpuProfiler)
         : m_device(&device),
+          m_gpuProfiler(&gpuProfiler),
           m_queues(WithGraphicsFallback(std::move(queues))),
           m_timelines(MakeTimelines(device, std::make_index_sequence<RenderGraph::QUEUE_COUNT>{}))
     {
@@ -82,6 +84,7 @@ namespace Droplet::Graphics::Vulkan
     {
         m_frameSlot = frameSlot;
         FrameSlot& slot = m_slots[frameSlot];
+        m_gpuProfiler->BeginFrame();
 
         // wait until the GPU is past everything the slot's previous frame submitted, on every queue
         for (std::size_t queueIndex = 0; queueIndex < RenderGraph::QUEUE_COUNT; ++queueIndex)
@@ -132,6 +135,9 @@ namespace Droplet::Graphics::Vulkan
 
         vk::raii::CommandBuffer& commandBuffer = slot.commandBuffers.back();
         commandBuffer.begin(vk::CommandBufferBeginInfo{.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+        // the first submission of the frame on a queue reads back the finished timestamps and resets their queries
+        m_gpuProfiler->Collect(ToQueueIndex(submission.queue), *commandBuffer);
+        m_submissionZone.emplace(*m_gpuProfiler, ToQueueIndex(submission.queue), *commandBuffer, "Frame submission");
 
         m_passContext = PassContext{
             .cmd = *commandBuffer,
@@ -147,8 +153,9 @@ namespace Droplet::Graphics::Vulkan
                        m_queues[RenderGraph::ToIndex(context.queue)].canDraw);
     }
 
-    void FrameSubmitter::End(const PassContext& context, const RenderGraph::Submission& submission) const
+    void FrameSubmitter::End(const PassContext& context, const RenderGraph::Submission& submission)
     {
+        m_submissionZone.reset();
         m_slots[m_frameSlot].commandBuffers.back().end();
 
         std::vector<vk::SemaphoreSubmitInfo> waits;
