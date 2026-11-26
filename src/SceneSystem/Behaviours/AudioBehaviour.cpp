@@ -140,6 +140,7 @@ namespace Droplet::Scene
 
     void AudioBehaviour::RenderUIImpl()
     {
+#ifdef _EDITOR
         ImGui::PushID(this);
         
         // --- Bus Drag & Drop ---
@@ -274,6 +275,7 @@ namespace Droplet::Scene
         }
         
         ImGui::PopID();
+#endif
     }
 
     nlohmann::json AudioBehaviour::SerializeImpl()

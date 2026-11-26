@@ -4,6 +4,7 @@
 #include <Resource/StaticResourceHandle.hpp>
 #include <Resource/Types/Texture2DResource.hpp>
 #include <Resource/Types/ShaderResource.hpp>
+#include <SceneSystem/Bounds/DefaultNodeBounds.hpp>
 
 #include <glm/glm.hpp>
 #include <random>
@@ -14,14 +15,6 @@ namespace Droplet::Scene
 	class ParticleEmitterComponent : public Component
 	{
 	public:
-		struct ParticleVertex
-		{
-			glm::vec3 position;
-			glm::vec4 color;
-			float size;
-			float rotation;
-		};
-
 		enum class EmissionShape
 		{
 			Point,
@@ -82,6 +75,8 @@ namespace Droplet::Scene
 		ParticleEmitterComponent();
 
 		[[nodiscard]] std::string_view GetTypeName() const override { return "ParticleEmitterComponent"; }
+		[[nodiscard]] bool HasBoundsOverride() const override { return true; }
+		[[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
 		void Play();
 		void Pause();
@@ -138,16 +133,20 @@ namespace Droplet::Scene
 		[[nodiscard]] const std::vector<Burst> &GetBursts() const { return m_bursts; }
 
 		ScalarCurve &GetSizeOverLifetime() { return m_sizeOverLifetime; }
-		const ScalarCurve &GetSizeOverLifetime() const { return m_sizeOverLifetime; }
 		ScalarCurve &GetVelocityMultiplierOverLifetime() { return m_velocityOverLifetime; }
-		const ScalarCurve &GetVelocityMultiplierOverLifetime() const { return m_velocityOverLifetime; }
 		ScalarCurve &GetRotationOverLifetime() { return m_rotationOverLifetime; }
+		const ScalarCurve &GetSizeOverLifetime() const { return m_sizeOverLifetime; }
+		const ScalarCurve &GetVelocityMultiplierOverLifetime() const { return m_velocityOverLifetime; }
 		const ScalarCurve &GetRotationOverLifetime() const { return m_rotationOverLifetime; }
 
 		void SetTextureGUID(GUID guid);
 		[[nodiscard]] GUID GetTextureGUID() const { return m_texture.GetGUID(); }
 
-		void GenerateParticleMesh(std::vector<ParticleVertex> &outVertices);
+		void SetVSGUID(GUID guid);
+		void SetGSGUID(GUID guid);
+		void SetFSGUID(GUID guid);
+
+		void GenerateParticleMesh();
 
 	protected:
 		void StartImpl() override;
@@ -155,7 +154,7 @@ namespace Droplet::Scene
 		void EditorUpdateImpl() override;
 		void QueueRenderImpl() override;
 		void RenderUIImpl() override;
-		[[nodiscard]] Droplet::Graphics::RenderData GetRenderDataImpl() override;
+		[[nodiscard]] Droplet::Common::RenderData GetRenderDataImpl() override;
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(nlohmann::json p_compJson) override;
 
@@ -176,6 +175,10 @@ namespace Droplet::Scene
 		void DrawDebugEmitter() const;
 		void SerializeCurve(nlohmann::json &json, const char *key, const ScalarCurve &curve) const;
 		void DeserializeCurve(const nlohmann::json &json, const char *key, ScalarCurve &curve);
+
+		void UpdateBounds(glm::vec3 p_min, glm::vec3 p_max);
+
+		DefaultNodeBounds m_bounds{ glm::vec3(0.0f), glm::vec3(1.0f) };
 
 		bool m_playing = false;
 		bool m_paused = false;
@@ -216,5 +219,16 @@ namespace Droplet::Scene
 
 		StaticResourceHandle<Texture2DResource> m_texture{};
 		std::string m_textureDisplayName = "None";
+
+		StaticResourceHandle<ShaderResource> m_vs{};
+		std::string m_vsDisplayName = "None";
+
+		StaticResourceHandle<ShaderResource> m_gs{};
+		std::string m_gsDisplayName = "None";
+
+		StaticResourceHandle<ShaderResource> m_fs{};
+		std::string m_fsDisplayName = "None";
+
+		std::shared_ptr<const Common::DynamicMeshData> m_particleMesh{};
 	};
 }

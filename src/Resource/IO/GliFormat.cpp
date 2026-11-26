@@ -28,22 +28,62 @@ namespace Droplet::IO::GliFormat
         switch (p_format)
         {
         case gli::FORMAT_R8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: R8_UNORM" << std::endl;
             return TextureResource::TextureFormat::R8_Unorm;
 
         case gli::FORMAT_RGB8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: RGB8_UNORM" << std::endl;
             return TextureResource::TextureFormat::RGB8_Unorm;
 
+        case gli::FORMAT_RGB8_SRGB_PACK8:
+            std::cout << "TextureResourceFormat: RGB8_SRGB" << std::endl;
+            return TextureResource::TextureFormat::RGB8_Srgb;
+
         case gli::FORMAT_RGBA8_UNORM_PACK8:
-            std::cout << "TextureResourceFormat: RGBA8_UNORM" << std::endl;
             return TextureResource::TextureFormat::RGBA8_Unorm;
 
+        case gli::FORMAT_RGBA8_SRGB_PACK8:
+            std::cout << "TextureResourceFormat: RGBA8_SRGB" << std::endl;
+            return TextureResource::TextureFormat::RGBA8_Srgb;
+
+        case gli::FORMAT_RGBA_DXT1_UNORM_BLOCK8:
+            std::cout << "TextureResourceFormat: BC1" << std::endl;
+            return TextureResource::TextureFormat::BC1;
+
+        case gli::FORMAT_RGBA_DXT1_SRGB_BLOCK8:
+            std::cout << "TextureResourceFormat: BC1_SRGB" << std::endl;
+            return TextureResource::TextureFormat::BC1_Srgb;
+
+        case gli::FORMAT_RGBA_DXT3_UNORM_BLOCK16:
+            std::cout << "TextureResourceFormat: BC2" << std::endl;
+            return TextureResource::TextureFormat::BC2;
+
+        case gli::FORMAT_RGBA_DXT5_UNORM_BLOCK16:
+            std::cout << "TextureResourceFormat: BC3" << std::endl;
+            return TextureResource::TextureFormat::BC3;
+
+        case gli::FORMAT_RGBA_DXT5_SRGB_BLOCK16:
+            std::cout << "TextureResourceFormat: BC3_SRGB" << std::endl;
+            return TextureResource::TextureFormat::BC3_Srgb;
+
+        case gli::FORMAT_R_ATI1N_UNORM_BLOCK8:
+            std::cout << "TextureResourceFormat: BC4" << std::endl;
+            return TextureResource::TextureFormat::BC4;
+
+        case gli::FORMAT_RG_ATI2N_UNORM_BLOCK16:
+            std::cout << "TextureResourceFormat: BC5" << std::endl;
+            return TextureResource::TextureFormat::BC5;
+
+        case gli::FORMAT_RGB_BP_UFLOAT_BLOCK16:
+            std::cout << "TextureResourceFormat: BC6H" << std::endl;
+            return TextureResource::TextureFormat::BC6H;
+
         case gli::FORMAT_RGBA_BP_UNORM_BLOCK16:
-            std::cout << "TextureResourceFormat: BC7" << std::endl;
             return TextureResource::TextureFormat::BC7;
+
+        case gli::FORMAT_RGBA_BP_SRGB_BLOCK16:
+            std::cout << "TextureResourceFormat: BC7_SRGB" << std::endl;
+            return TextureResource::TextureFormat::BC7_Srgb;
+
         default:
-            std::cout << "TextureResourceFormat: Unknown" << std::endl;
             return TextureResource::TextureFormat::Unknown;
         }
     }
@@ -56,6 +96,7 @@ namespace Droplet::IO::GliFormat
     [[nodiscard]] static gli::texture ConvertPNGToKTX(const fs::path &p_inputPath, const fs::path &p_outputPath)
     {
         ZoneScoped;
+        ZoneText(p_inputPath.generic_string().c_str(), p_inputPath.generic_string().size());
 
         int width = 0;
         int height = 0;
@@ -74,11 +115,11 @@ namespace Droplet::IO::GliFormat
         std::memcpy(texture2D.data(), data, width * height * 4);
         stbi_image_free(data);
 
-        if (!gli::save(texture2D, p_outputPath.generic_string()))
+        /*if (!gli::save(texture2D, p_outputPath.generic_string()))
         {
             // TODO: (LOGGING) Use logger to log error
             std::cout << "Could not save KTX file" << std::endl;
-        }
+        }*/
         
         return texture2D;
     }
@@ -86,12 +127,9 @@ namespace Droplet::IO::GliFormat
 	std::unique_ptr<Texture2DResource> LoadTexture2D(const fs::path &p_assetPath, const nlohmann::json &p_loadSettings)
 	{
         ZoneScoped;
+        ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
-        bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
-        generateMipMaps;
-        // TODO: (RESOURCES) Use load setting
-        // From what I can gather, we can either bake mipmaps into the ktx file, generate them at load time (probably bad)
-        // Or generate them when uploading to GPU. Either way we need to use the load setting in some way here.
+        const bool generateMipMaps = p_loadSettings.value(MetaLoadSettings::C_GENERATE_MIPMAPS.key, MetaLoadSettings::C_GENERATE_MIPMAPS.defaultValue);
 
 		if (!fs::exists(p_assetPath))
 		{
@@ -136,10 +174,15 @@ namespace Droplet::IO::GliFormat
 
 		// Translate the gli texture to our custom format
 		TextureResource::TextureFormat format = ConvertTextureFormat(texture2d.format());
+		if (format == TextureResource::TextureFormat::Unknown)
+		{
+			throw std::runtime_error("Texture format is not supported.");
+		}
 		auto resource = std::make_unique<Texture2DResource>();
 		resource->SetDimensions(texture2d.extent().x, texture2d.extent().y);
         
-		resource->SetMipLevels(static_cast<int>(texture2d.levels())); // Temporary until we use loadsetting for mipmap
+		resource->SetMipLevels(static_cast<int>(texture2d.levels()));
+		resource->SetGenerateMipmaps(generateMipMaps);
         
 		resource->SetPixelData(texture2d.data(), texture2d.size());
 		resource->SetFormat(format, static_cast<int>(texture2d.size()));
@@ -151,6 +194,7 @@ namespace Droplet::IO::GliFormat
         const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;
+        ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
 
         std::vector<std::pair<StaticResourceType, std::string>> resources{};
         

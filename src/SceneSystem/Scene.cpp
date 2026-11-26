@@ -72,6 +72,33 @@ void Scene::Unload()
     m_loaded = false;
 }
 
+void Scene::BeginResourceLoad(GUID p_guid)
+{
+    if (p_guid == C_INVALID_GUID)
+        return;
+
+    std::scoped_lock lock(m_resourceLoadMutex);
+    m_pendingResourceLoads.insert(p_guid);
+}
+
+void Scene::EndResourceLoad(GUID p_guid)
+{
+    if (p_guid == C_INVALID_GUID)
+        return;
+
+    std::scoped_lock lock(m_resourceLoadMutex);
+	if (m_pendingResourceLoads.find(p_guid) == m_pendingResourceLoads.end())
+        return;
+
+    m_pendingResourceLoads.erase(p_guid);
+}
+
+bool Scene::AreResourcesLoaded() const
+{
+    std::scoped_lock lock(m_resourceLoadMutex);
+    return m_pendingResourceLoads.empty();
+}
+
 void Scene::Update()
 {
     if (!m_loaded || !m_active)
