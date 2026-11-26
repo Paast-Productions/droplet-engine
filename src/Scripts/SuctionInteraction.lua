@@ -1,5 +1,6 @@
 
 local suctionSystem = require("SuctionSystem")
+local suctionParticles = require("SuctionParticles")
 local scene
 
 local interactionRange = 5.0
@@ -201,6 +202,8 @@ function SuctionEnd(target)
 end
 
 function SuctionCancel()
+    suctionParticles.StopSuction()
+
     if #activeTargets == 0 then
         return
     end
@@ -265,6 +268,9 @@ function OnStart()
         return
     end
 
+    local particleEmitter = self:GetParticleEmitterComponent()
+    suctionParticles.Start(particleEmitter)
+
 end
 
 function OnUpdate(dt)
@@ -274,6 +280,7 @@ function OnUpdate(dt)
         SuctionCancel()
         return
     else
+        suctionParticles.StartSuction()
         FindNewTargets()
         SuctionUpdateAll(dt)
     end

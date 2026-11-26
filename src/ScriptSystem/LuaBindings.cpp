@@ -32,7 +32,7 @@
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
-#include <ParticleEmitterComponent.hpp>
+#include <SceneSystem/Components/ParticleEmitterComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -210,9 +210,9 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			}
         },	
 		"GetParticleEmitterComponent",
-		[](Scene::Node &node, const std::string &p_name)
+		[](Scene::Node &node)
 		{
-			return node.GetComponents<Scene::ParticleEmitterComponent>();
+			return node.GetComponent<Scene::ParticleEmitterComponent>();
 		}
 	);
 

@@ -38,6 +38,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterLadderComponent(p_luaState);
 	RegisterCollectibleTypeComponent(p_luaState);
     RegisterScriptComponent(p_luaState);
+	RegisterParticleEmitterComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -970,10 +971,13 @@ void Droplet::Script::Bindings::RegisterParticleEmitterComponent(sol::state_view
 		"ParticleEmitterComponent",
 		"Play", &Scene::ParticleEmitterComponent::Play,
 		"Pause", &Scene::ParticleEmitterComponent::Pause,
-		"Stop", &Scene::ParticleEmitterComponent::Stop,
+        "Stop", [](ParticleEmitterComponent &emitter, bool clearParticles)
+        {
+            emitter.Stop(clearParticles);
+        },
 		"Emit", &Scene::ParticleEmitterComponent::Emit,
 		"SetPlaying", &Scene::ParticleEmitterComponent::SetPlaying,
 		"IsPlaying", &Scene::ParticleEmitterComponent::IsPlaying,
-		"IsPaused", &Scene::ParticleEmitterComponent::IsPaused,
+		"IsPaused", &Scene::ParticleEmitterComponent::IsPaused
 	);
 }
