@@ -32,6 +32,7 @@
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
+#include <SceneSystem/Components/TransitionComponent.hpp>
 
 #include <print>
 #include <filesystem>
@@ -180,6 +181,11 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetComponent<Scene::LadderComponent>();
 		},
+		"GetTransitionComponent",
+		[](Scene::Node &node)
+		{
+			return node.GetComponent<Scene::TransitionComponent>();
+		},
 		"GetCollectibleTypeComponent",
 		[](Scene::Node &node)
 		{
@@ -232,7 +238,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPlayerBehaviour", "PlayerBehaviour", {} },
 		{"GetInteractableComponent", "InteractableComponent", {} },
 		{"GetLadderComponent", "LadderComponent", {} },
-		{"GetScriptComponent", "ScriptComponent", {{"path", "string"} }}
+		{"GetScriptComponent", "ScriptComponent", {{"path", "string"} }},
+		{"GetTransitionComponent", "TransitionComponent",{} }
 	};  
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);

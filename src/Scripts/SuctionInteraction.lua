@@ -16,18 +16,21 @@ local audioplayerSucction
 local playingSucction = false
 
 function FindNewTargets()
-
+    print("finding target")
     for _, fish in ipairs(suctionSystem.GetFishes()) do
         TryAddtarget(fish)
     end
-
+    print("did not find fish")
     for _, upgrade in ipairs(suctionSystem.GetUpgrades()) do
         TryAddtarget(upgrade)
     end
+    print("did not find upgrade")
 
     for _, part in ipairs(suctionSystem.GetBrokenParts()) do
         TryAddtarget(part)
     end
+    print("did not find part")
+
 end
 
 function InteractWith(target)
@@ -87,15 +90,15 @@ function IsAlreadySucking(target)
 end
 
 function TryAddtarget(target)
-
+    print("trying to add target")
     if #activeTargets >= 3 then
         return
     end
-
+    print("no active targets")
     if IsAlreadySucking(target) then
         return
     end
-
+    print("was not succing")
     if InteractWith(target) then
         SuctionStart(target)
     end
@@ -157,7 +160,7 @@ function SuctionUpdateTarget(target, dt)
 end
 
 function SuctionUpdateAll(dt)
-
+    print("Suction update all")
     for i = #activeTargets, 1, -1 do
         
         local target = activeTargets[i]

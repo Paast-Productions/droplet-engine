@@ -20,6 +20,7 @@
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Components/InteractableComponent.hpp>
+#include <SceneSystem/Components/TransitionComponent.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -39,6 +40,7 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterLadderComponent(p_luaState);
 	RegisterCollectibleTypeComponent(p_luaState);
     RegisterScriptComponent(p_luaState);
+    RegisterTransitionComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -804,6 +806,7 @@ void Bindings::RegisterLadderComponent(sol::state_view p_luaState)
 
     LuaBindings::PushLuaClassDefinition(classDef);
 }
+
 void Droplet::Script::Bindings::RegisterCollectibleTypeComponent(sol::state_view p_luaState)
 {
 	p_luaState.new_enum<Scene::CollectibleType>(
@@ -960,6 +963,24 @@ void Bindings::RegisterScriptComponent(sol::state_view p_luaState)
     classDef.functions =
     {
         {"SetActiveSelf", "void", {{"active", "boolean"}}}
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Droplet::Script::Bindings::RegisterTransitionComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::TransitionComponent>(
+        "TransitionComponent",
+        "BeginTransition", &Scene::TransitionComponent::BeginTransition
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "TransitionComponent";
+
+    classDef.functions =
+    {
+        { "BeginTransition", "void",{} }
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);

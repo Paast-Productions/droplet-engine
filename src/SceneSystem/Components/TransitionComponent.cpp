@@ -84,6 +84,12 @@ void TransitionComponent::RenderUIImpl()
         }
     }
 
+    ImGui::Separator();
+    ImGui::Text("To use me:\n"
+        "- Have an interactableComponent\n"
+        "- Equip Transition.lua or custom script\n"
+    );
+
 #endif
 }
 

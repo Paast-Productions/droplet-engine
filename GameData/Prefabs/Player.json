@@ -7,6 +7,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -23,6 +24,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "White",
                                 "textureGUID": 13855953862202670664,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -31,7 +33,7 @@
                         }
                     ],
                     "drawLayer": 32,
-                    "id": 29,
+                    "id": 68,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -53,9 +55,10 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 28,
+            "id": 67,
             "name": "Body",
             "transform": {
                 "position": [
@@ -82,6 +85,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -98,6 +102,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "White",
                                 "textureGUID": 13855953862202670664,
+                                "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
                             },
@@ -106,7 +111,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 31,
+                    "id": 70,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -130,6 +135,7 @@
                 {
                     "active": true,
                     "children": [],
+                    "collisionLayerMask": 1,
                     "components": [
                         {
                             "active": true,
@@ -142,6 +148,13 @@
                                         100.0
                                     ]
                                 },
+                                "clearColor": [
+                                    0.0,
+                                    0.0,
+                                    0.30000001192092896,
+                                    1.0
+                                ],
+                                "debugDraw": false,
                                 "drawLayerMask": 65503,
                                 "priority": 0,
                                 "resolution": [
@@ -155,6 +168,7 @@
                         {
                             "active": true,
                             "data": {
+                                "data": "",
                                 "filepath": "CameraController.lua"
                             },
                             "id": 2,
@@ -162,7 +176,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 32,
+                    "id": 71,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -184,9 +198,10 @@
                     }
                 }
             ],
+            "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 30,
+            "id": 69,
             "name": "Head",
             "transform": {
                 "position": [
@@ -208,10 +223,12 @@
             }
         }
     ],
+    "collisionLayerMask": 1,
     "components": [
         {
             "active": true,
             "data": {
+                "data": "",
                 "filepath": "Engine_Side/PlayerController.lua"
             },
             "id": 5,
@@ -220,17 +237,20 @@
         {
             "active": true,
             "data": {
+                "friction": 1.0,
                 "h": 0.5,
                 "halfExtentsX": 0.0,
                 "halfExtentsY": 0.0,
                 "halfExtentsZ": 0.0,
                 "layer": 1,
+                "mass": 80.0,
                 "meshGUID": 0,
                 "motionType": 2,
                 "offsetX": 0.0,
                 "offsetY": 0.0,
                 "offsetZ": 0.0,
                 "r": 0.30000001192092896,
+                "restitution": 0.0,
                 "shapeType": 7
             },
             "id": 6,
@@ -240,7 +260,9 @@
             "active": true,
             "data": {
                 "health": 100.0,
-                "maxHealth": 100.0
+                "hullIntegrity": 100.0,
+                "maxHealth": 100.0,
+                "maxHullIntegrity": 100.0
             },
             "id": 7,
             "type": "HealthComponent"
@@ -250,16 +272,25 @@
             "data": {},
             "id": 8,
             "type": "PlayerComponent"
+        },
+        {
+            "active": true,
+            "data": {
+                "data": "",
+                "filepath": "PlayerInteraction.lua"
+            },
+            "id": 9,
+            "type": "ScriptComponent"
         }
     ],
     "drawLayer": 1,
-    "id": 27,
+    "id": 66,
     "name": "Player",
     "transform": {
         "position": [
-            0.0,
-            10.0,
-            0.0
+            -0.3416726589202881,
+            0.9379874467849731,
+            1.647356390953064
         ],
         "rotation": [
             1.0,
