@@ -195,7 +195,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 3,
                     "type": "HazardComponent"
@@ -276,7 +277,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 3,
                     "type": "HazardComponent"
@@ -348,7 +350,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 3,
                     "type": "HazardComponent"
@@ -420,7 +423,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 3,
                     "type": "HazardComponent"
@@ -492,7 +496,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 3,
                     "type": "HazardComponent"
@@ -519,6 +524,43 @@
                     5.578000068664551
                 ]
             }
+        },
+        {
+            "active": false,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": ""
+                    },
+                    "id": 1,
+                    "type": "ScriptComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 562,
+            "name": "Suction Particles",
+            "transform": {
+                "position": [
+                    -45.644718170166016,
+                    -10.037979125976563,
+                    22.707212448120117
+                ],
+                "rotation": [
+                    1.0,
+                    -1.0849922848187032e-14,
+                    -5.6605106379947756e-08,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.9999960064888,
+                    0.9999960660934448
+                ]
+            }
         }
     ],
     "collisionLayerMask": 33,
@@ -540,6 +582,7 @@
                     0.30000001192092896,
                     1.0
                 ],
+                "debugDraw": false,
                 "drawLayerMask": 65471,
                 "priority": 0,
                 "resolution": [
@@ -563,7 +606,9 @@
             "active": true,
             "data": {
                 "health": 100.0,
-                "maxHealth": 100.0
+                "hullIntegrity": 100.0,
+                "maxHealth": 100.0,
+                "maxHullIntegrity": 100.0
             },
             "id": 4,
             "type": "HealthComponent"
@@ -652,17 +697,20 @@
         {
             "active": true,
             "data": {
+                "friction": 1.0,
                 "h": 0.10000000149011612,
                 "halfExtentsX": 0.0,
                 "halfExtentsY": 0.0,
                 "halfExtentsZ": 0.0,
                 "layer": 1,
+                "mass": 80.0,
                 "meshGUID": 0,
                 "motionType": 2,
                 "offsetX": 0.0,
                 "offsetY": 0.0,
                 "offsetZ": 0.0,
                 "r": 1.0,
+                "restitution": 0.0,
                 "shapeType": 7
             },
             "id": 15,

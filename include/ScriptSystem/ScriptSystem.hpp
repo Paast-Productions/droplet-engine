@@ -173,7 +173,7 @@ namespace Droplet::Script
 		bool m_isShutdown = false;
 	};
 
-	/// @brief Calls a Lua function through the ScriptManager.
+	/// @brief Calls a Lua function through the ScriptManager. 
 	/// @tparam Args Types of the arguments passed to the Lua function.
 	/// @param p_scriptComponent Script component containing the function to call.
 	/// @param p_functionName Name of the Lua function to call.

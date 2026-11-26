@@ -211,7 +211,8 @@ end
 
 function UpdateSuctionSound()
     
-    if Input:KeyHeld(Key.E) then
+   if Input:KeyHeld(Key.E) then
+        print("Mouse succ")
         if not playingSucction then
             audioplayerSucction:Play()
             playingSucction = true

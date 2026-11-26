@@ -12,14 +12,13 @@
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
+#include <SceneSystem/Components/ParticleEmitterComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
 #include <Component.hpp>
-#include "ItemRegistry.hpp"
 #include <SceneSystem/Components/LadderComponent.hpp>
 #include <SceneSystem/Node.hpp>
-#include <SceneSystem/Components/InteractableComponent.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -963,4 +962,18 @@ void Bindings::RegisterScriptComponent(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Droplet::Script::Bindings::RegisterParticleEmitterComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<Scene::ParticleEmitterComponent>(
+		"ParticleEmitterComponent",
+		"Play", &Scene::ParticleEmitterComponent::Play,
+		"Pause", &Scene::ParticleEmitterComponent::Pause,
+		"Stop", &Scene::ParticleEmitterComponent::Stop,
+		"Emit", &Scene::ParticleEmitterComponent::Emit,
+		"SetPlaying", &Scene::ParticleEmitterComponent::SetPlaying,
+		"IsPlaying", &Scene::ParticleEmitterComponent::IsPlaying,
+		"IsPaused", &Scene::ParticleEmitterComponent::IsPaused,
+	);
 }
