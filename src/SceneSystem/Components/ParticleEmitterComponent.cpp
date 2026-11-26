@@ -95,6 +95,7 @@ void ParticleEmitterComponent::Stop(bool clearParticles)
 	m_systemTime = 0.0f;
 	m_delayElapsed = 0.0f;
 	m_emissionAccumulator = 0.0f;
+	m_turbulenceTime = 0.0f;
 	ResetBurstTriggers();
 	if (clearParticles)
 		m_particles.clear();
@@ -142,6 +143,28 @@ void ParticleEmitterComponent::SetSimulationSpace(SimulationSpace space) { m_sim
 void ParticleEmitterComponent::SetShapeRadius(float radius) { m_shapeRadius = std::max(0.0f, radius); }
 void ParticleEmitterComponent::SetShapeBoxSize(const glm::vec3 &size) { m_shapeBoxSize = glm::max(size, glm::vec3(0.0f)); }
 void ParticleEmitterComponent::SetConeAngle(float angleDegrees) { m_coneAngle = std::clamp(angleDegrees, 0.0f, 180.0f); }
+void ParticleEmitterComponent::SetRandomSeed(uint32_t seed)
+{
+	m_randomSeed = seed;
+	m_random.seed(seed);
+}
+
+void ParticleEmitterComponent::SetColorOverLifetime(std::vector<ColorStop> stops)
+{
+	m_colorOverLifetime = std::move(stops);
+	if (m_colorOverLifetime.empty())
+		m_colorOverLifetime = { { 0.0f, glm::vec4(1.0f) }, { 1.0f, glm::vec4(1.0f) } };
+	SortColorOverLifetime();
+}
+
+void ParticleEmitterComponent::SortColorOverLifetime()
+{
+	for (ColorStop &stop : m_colorOverLifetime)
+		stop.time = std::clamp(stop.time, 0.0f, 1.0f);
+	std::stable_sort(m_colorOverLifetime.begin(), m_colorOverLifetime.end(),
+		[](const ColorStop &a, const ColorStop &b) { return a.time < b.time; });
+}
+
 void ParticleEmitterComponent::AddBurst(float time, uint32_t count)
 {
 	m_bursts.push_back({ std::max(0.0f, time), std::max(1u, count), false });
@@ -150,6 +173,97 @@ void ParticleEmitterComponent::AddBurst(float time, uint32_t count)
 void ParticleEmitterComponent::ClearBursts()
 {
 	m_bursts.clear();
+}
+
+namespace
+{
+	glm::vec3 NormalizeOr(const glm::vec3 &p_v, const glm::vec3 &p_fallback)
+	{
+		return glm::length(p_v) > 1e-6f ? glm::normalize(p_v) : p_fallback;
+	}
+
+	/// @brief Any unit vector perpendicular to p_axis (which must be normalized)
+	glm::vec3 AnyPerpendicular(const glm::vec3 &p_axis)
+	{
+		const glm::vec3 helper = std::abs(p_axis.y) < 0.999f ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(1.0f, 0.0f, 0.0f);
+		return glm::normalize(glm::cross(p_axis, helper));
+	}
+
+	/// @brief Linearly interpolates the color stops at p_t. Stops must be sorted by time.
+	glm::vec4 EvaluateGradient(const std::vector<ParticleEmitterComponent::ColorStop> &p_stops, float p_t)
+	{
+		if (p_stops.empty())
+			return glm::vec4(1.0f);
+		if (p_t <= p_stops.front().time)
+			return p_stops.front().color;
+
+		for (std::size_t i = 1; i < p_stops.size(); ++i)
+		{
+			const ParticleEmitterComponent::ColorStop &b = p_stops[i];
+			if (p_t < b.time)
+			{
+				const ParticleEmitterComponent::ColorStop &a = p_stops[i - 1];
+				const float span = b.time - a.time;
+				const float u = span > 0.0f ? (p_t - a.time) / span : 1.0f;
+				return glm::mix(a.color, b.color, u);
+			}
+		}
+		return p_stops.back().color;
+	}
+
+	void SortColorStops(std::vector<ParticleEmitterComponent::ColorStop> &p_stops)
+	{
+		std::stable_sort(p_stops.begin(), p_stops.end(), [](const auto &a, const auto &b) { return a.time < b.time; });
+	}
+
+	struct OrbitSample
+	{
+		glm::vec3 center;
+		glm::vec3 axis;
+		float radius;
+		float angularSpeed;
+		float strength;
+		bool gravityOnly;
+		float softening;
+	};
+
+	/// @brief Pulls a particle onto the orbit ring of p_orbit and steers its velocity around the axis
+	void ApplyOrbit(const OrbitSample &p_orbit, const glm::vec3 &p_position, glm::vec3 &p_velocity, float p_deltaTime)
+	{
+		if (p_orbit.gravityOnly)
+		{
+			// Softened inverse-square attraction towards the centre, without any orbit ring or steering
+			const glm::vec3 toCenter = p_orbit.center - p_position;
+			const float softening = std::max(p_orbit.softening, 0.01f);
+			const float softenedSq = glm::dot(toCenter, toCenter) + softening * softening;
+			p_velocity += toCenter * (p_orbit.strength / (softenedSq * std::sqrt(softenedSq)) * p_deltaTime);
+			return;
+		}
+
+		const glm::vec3 offset = p_position - p_orbit.center;
+		const float along = glm::dot(offset, p_orbit.axis);
+		const glm::vec3 planar = offset - p_orbit.axis * along;
+		const float dist = glm::length(planar);
+		const glm::vec3 radial = dist > 1e-4f ? planar / dist : AnyPerpendicular(p_orbit.axis);
+		const glm::vec3 tangent = glm::cross(p_orbit.axis, radial);
+
+		// Gain is capped so explicit integration stays stable for large time steps
+		const float gain = std::min(p_orbit.strength, 0.5f / p_deltaTime);
+		const float tangentialSpeed = glm::dot(p_velocity, tangent);
+		const glm::vec3 acceleration =
+			(-radial * (dist - p_orbit.radius) - p_orbit.axis * along) * gain +
+			tangent * (p_orbit.angularSpeed * dist - tangentialSpeed) * gain;
+		p_velocity += acceleration * p_deltaTime;
+	}
+
+	/// @brief Smooth, time-varying pseudo-random force field
+	glm::vec3 SampleTurbulence(const glm::vec3 &p_position, float p_time, float p_frequency)
+	{
+		return glm::vec3(
+			std::sin(p_position.y * p_frequency + p_time * 1.3f),
+			std::sin(p_position.z * p_frequency + 1.7f + p_time * 1.1f),
+			std::sin(p_position.x * p_frequency + 3.1f + p_time * 0.9f));
+	}
 }
 
 namespace
@@ -250,6 +364,22 @@ glm::vec4 ParticleEmitterComponent::RandomStartColor()
 	}
 }
 
+glm::vec3 ParticleEmitterComponent::RandomDirectionInCone(const glm::vec3 &p_axis, float p_spreadDegrees)
+{
+	const float cosMax = std::cos(glm::radians(std::clamp(p_spreadDegrees, 0.0f, 180.0f)));
+	const float z = RandomFloat(cosMax, 1.0f);
+	const float angle = RandomFloat(0.0f, glm::two_pi<float>());
+	const float planar = std::sqrt(std::max(0.0f, 1.0f - z * z));
+	const glm::vec3 tangent = AnyPerpendicular(p_axis);
+	const glm::vec3 bitangent = glm::cross(p_axis, tangent);
+	return tangent * (planar * std::cos(angle)) + bitangent * (planar * std::sin(angle)) + p_axis * z;
+}
+
+glm::vec4 ParticleEmitterComponent::EvaluateColorOverLifetime(float normalizedTime) const
+{
+	return EvaluateGradient(m_colorOverLifetime, normalizedTime);
+}
+
 glm::vec3 ParticleEmitterComponent::RandomDirectionForEmission()
 {
 	switch (m_emissionShape)
@@ -270,6 +400,39 @@ glm::vec3 ParticleEmitterComponent::RandomDirectionForEmission()
 		return RandomUnitSphere();
 	default:
 		return RandomUnitSphere();
+	}
+}
+
+glm::vec3 ParticleEmitterComponent::RandomPointInEmissionVolume()
+{
+	// Uniform sampling of the region covered by the emission shape
+	switch (m_emissionShape)
+	{
+	case EmissionShape::Sphere:
+		return RandomUnitSphere() * (m_shapeRadius * std::cbrt(RandomFloat(0.0f, 1.0f)));
+	case EmissionShape::Hemisphere:
+	{
+		glm::vec3 point = RandomUnitSphere() * (m_shapeRadius * std::cbrt(RandomFloat(0.0f, 1.0f)));
+		point.z = std::abs(point.z);
+		return point;
+	}
+	case EmissionShape::Box:
+		return {
+			RandomFloat(-m_shapeBoxSize.x, m_shapeBoxSize.x) * 0.5f,
+			RandomFloat(-m_shapeBoxSize.y, m_shapeBoxSize.y) * 0.5f,
+			RandomFloat(-m_shapeBoxSize.z, m_shapeBoxSize.z) * 0.5f
+		};
+	case EmissionShape::Cone:
+		return RandomDirectionForEmission() * RandomFloat(0.0f, m_shapeRadius);
+	case EmissionShape::Circle:
+	{
+		const float angle = RandomFloat(0.0f, glm::two_pi<float>());
+		const float distance = m_shapeRadius * std::sqrt(RandomFloat(0.0f, 1.0f));
+		return { distance * std::cos(angle), distance * std::sin(angle), 0.0f };
+	}
+	case EmissionShape::Point:
+	default:
+		return glm::vec3(0.0f);
 	}
 }
 
@@ -311,13 +474,33 @@ void ParticleEmitterComponent::SpawnParticle()
 		break;
 	}
 
+	if (m_directionMode == DirectionMode::Fixed)
+		direction = RandomDirectionInCone(NormalizeOr(m_direction, glm::vec3(0.0f, 1.0f, 0.0f)), m_directionSpread);
+
+	const bool aimed = m_directionMode == DirectionMode::TowardsPoint || m_directionMode == DirectionMode::RandomPointInShape;
+	glm::vec3 targetLocal = m_targetPoint;
+	if (m_directionMode == DirectionMode::RandomPointInShape)
+		targetLocal = RandomPointInEmissionVolume();
+
 	glm::vec3 worldDirection = glm::normalize(direction);
 	glm::vec3 worldPosition = localPosition;
+	glm::vec3 worldTarget = targetLocal;
 	if (GetOwner() && m_simulationSpace == SimulationSpace::World)
 	{
 		Transform &transform = GetOwner()->GetTransform();
-		worldPosition = transform.GetPosition(Transform::Space::World) + glm::mat3(transform.GetRotation(Transform::Space::World)) * localPosition;
-		worldDirection = glm::normalize(glm::mat3(transform.GetRotation(Transform::Space::World)) * direction);
+		const glm::mat3 rotation = glm::mat3(transform.GetRotation(Transform::Space::World));
+		const glm::vec3 origin = transform.GetPosition(Transform::Space::World);
+		worldPosition = origin + rotation * localPosition;
+		worldDirection = glm::normalize(rotation * direction);
+		worldTarget = origin + rotation * targetLocal;
+	}
+
+	if (aimed)
+	{
+		// Particles spawning exactly on their target keep the shape's own direction
+		const glm::vec3 toTarget = worldTarget - worldPosition;
+		if (glm::dot(toTarget, toTarget) > 1e-8f)
+			worldDirection = glm::normalize(toTarget);
 	}
 
 	const float lifetime = RandomFloat(m_lifetimeRange.min, m_lifetimeRange.max);
@@ -332,6 +515,7 @@ void ParticleEmitterComponent::SpawnParticle()
 	particle.rotation = glm::radians(RandomFloat(m_rotationRange.min, m_rotationRange.max));
 	particle.angularVelocity = glm::radians(RandomFloat(m_angularVelocityRange.min, m_angularVelocityRange.max));
 	particle.color = startColor;
+	particle.baseColor = startColor;
 	particle.lifetime = lifetime;
 	m_particles.push_back(particle);
 }
@@ -396,6 +580,38 @@ void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 
 	const glm::vec3 gravity(0.0f, -9.81f * m_gravityModifier, 0.0f);
 
+	// Particles live in simulation space: world space offsets by the owner's rotation and position, local space is raw
+	glm::mat3 simRotation(1.0f);
+	glm::vec3 simOrigin(0.0f);
+	if (GetOwner() && m_simulationSpace == SimulationSpace::World)
+	{
+		Transform &transform = GetOwner()->GetTransform();
+		simRotation = glm::mat3(transform.GetRotation(Transform::Space::World));
+		simOrigin = transform.GetPosition(Transform::Space::World);
+	}
+
+	const glm::vec3 acceleration = gravity + simRotation * m_acceleration;
+
+	std::vector<OrbitSample> orbits;
+	orbits.reserve(m_orbitPoints.size());
+	for (const OrbitPoint &orbit : m_orbitPoints)
+	{
+		orbits.push_back({
+			simOrigin + simRotation * orbit.position,
+			simRotation * NormalizeOr(orbit.axis, glm::vec3(0.0f, 1.0f, 0.0f)),
+			orbit.radius,
+			orbit.angularSpeed,
+			orbit.strength,
+			orbit.gravityOnly,
+			orbit.softening
+		});
+	}
+
+	m_turbulenceTime += deltaTime;
+	const float turbulenceTime = m_turbulenceTime;
+	const float turbulenceStrength = m_turbulenceStrength;
+	const float turbulenceFrequency = m_turbulenceFrequency;
+
 	#pragma omp parallel for schedule(static)
 	for (std::ptrdiff_t i = 0; i < static_cast<std::ptrdiff_t>(m_particles.size()); ++i)
 	{
@@ -406,9 +622,16 @@ void ParticleEmitterComponent::UpdateParticles(float deltaTime)
 		{
 			const float normalizedLife = std::clamp(particle.age / particle.lifetime, 0.0f, 1.0f);
 			const float velocityMultiplier = EvaluateCurve(m_velocityOverLifetime, normalizedLife);
-			particle.velocity += gravity * deltaTime;
+
+			particle.velocity += acceleration * deltaTime;
+			if (turbulenceStrength > 0.0f)
+				particle.velocity += SampleTurbulence(particle.position, turbulenceTime, turbulenceFrequency) * (turbulenceStrength * deltaTime);
+			for (const OrbitSample &orbit : orbits)
+				ApplyOrbit(orbit, particle.position, particle.velocity, deltaTime);
+
 			particle.position += particle.velocity * velocityMultiplier * deltaTime;
 			particle.size = particle.baseSize * EvaluateCurve(m_sizeOverLifetime, normalizedLife);
+			particle.color = particle.baseColor * EvaluateColorOverLifetime(normalizedLife);
 			particle.rotation += particle.angularVelocity * deltaTime + EvaluateCurve(m_rotationOverLifetime, normalizedLife) * deltaTime;
 		}
 	}
@@ -589,6 +812,68 @@ void ParticleEmitterComponent::DrawDebugEmitter() const
 		DebugDraw::DrawCircle(position, forward, radius, color, 24, false, true);
 		break;
 	}
+
+	const glm::mat3 ownerRotation = GetOwner() ? glm::mat3(GetOwner()->GetTransform().GetRotation(Transform::Space::World)) : glm::mat3(1.0f);
+	const glm::mat4 worldMatrix = GetOwner() ? GetOwner()->GetTransform().GetMatrix(Transform::Space::World) : glm::mat4(1.0f);
+
+	if (m_directionMode == DirectionMode::Fixed)
+	{
+		const glm::vec3 dir = NormalizeOr(ownerRotation * NormalizeOr(m_direction, glm::vec3(0.0f, 1.0f, 0.0f)), forward);
+		const glm::vec4 directionColor(1.0f, 0.6f, 0.2f, 0.9f);
+		const glm::vec3 tip = position + dir * radius;
+		DebugDraw::DrawRay(position, dir * radius, directionColor, false);
+
+		if (m_directionSpread > 0.0f)
+		{
+			const float baseRadius = radius * std::tan(glm::radians(std::min(m_directionSpread, 89.0f)));
+			const glm::vec3 perp = AnyPerpendicular(dir);
+			const glm::vec3 perp2 = glm::cross(dir, perp);
+			DebugDraw::DrawCircle(tip, dir, baseRadius, directionColor, 24, false, true);
+			DebugDraw::DrawLine(position, tip + perp * baseRadius, directionColor, false);
+			DebugDraw::DrawLine(position, tip - perp * baseRadius, directionColor, false);
+			DebugDraw::DrawLine(position, tip + perp2 * baseRadius, directionColor, false);
+			DebugDraw::DrawLine(position, tip - perp2 * baseRadius, directionColor, false);
+		}
+	}
+
+	if (m_directionMode == DirectionMode::TowardsPoint)
+	{
+		const glm::vec4 targetColor(0.3f, 1.0f, 0.4f, 0.9f);
+		const glm::vec3 target = m_simulationSpace == SimulationSpace::World
+			? position + ownerRotation * m_targetPoint
+			: glm::vec3(worldMatrix * glm::vec4(m_targetPoint, 1.0f));
+		DebugDraw::DrawLine(position, target, targetColor, false);
+		DebugDraw::DrawSphere(Sphere(target, 0.1f * radiusScale), targetColor, 1, false);
+	}
+
+	// Orbit centers and axes follow the same transform rules as the simulation (see UpdateParticles)
+	const glm::vec4 orbitColor(1.0f, 0.4f, 0.9f, 0.8f);
+	const glm::vec4 gravityColor(0.3f, 0.9f, 1.0f, 0.8f);
+	for (const OrbitPoint &orbit : m_orbitPoints)
+	{
+		glm::vec3 center;
+		glm::vec3 axis = NormalizeOr(orbit.axis, glm::vec3(0.0f, 1.0f, 0.0f));
+		float orbitRadius = orbit.radius;
+		if (m_simulationSpace == SimulationSpace::World)
+		{
+			center = position + ownerRotation * orbit.position;
+			axis = ownerRotation * axis;
+		}
+		else
+		{
+			center = glm::vec3(worldMatrix * glm::vec4(orbit.position, 1.0f));
+			axis = NormalizeOr(glm::mat3(worldMatrix) * axis, axis);
+			orbitRadius *= radiusScale;
+		}
+
+		if (orbit.gravityOnly)
+		{
+			DebugDraw::DrawSphere(Sphere(center, 0.1f * radiusScale), gravityColor, 1, false);
+			continue;
+		}
+		DebugDraw::DrawCircle(center, axis, orbitRadius, orbitColor, 32, false, true);
+		DebugDraw::DrawSphere(Sphere(center, 0.05f * radiusScale), orbitColor, 1, false);
+	}
 }
 
 void ParticleEmitterComponent::QueueRenderImpl()
@@ -712,6 +997,30 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	SerializeCurve(json, "sizeOverLifetime", m_sizeOverLifetime);
 	SerializeCurve(json, "velocityOverLifetime", m_velocityOverLifetime);
 	SerializeCurve(json, "rotationOverLifetime", m_rotationOverLifetime);
+
+	json["randomSeed"] = m_randomSeed;
+	json["directionMode"] = static_cast<int>(m_directionMode);
+	json["direction"] = { m_direction.x, m_direction.y, m_direction.z };
+	json["directionSpread"] = m_directionSpread;
+	json["targetPoint"] = { m_targetPoint.x, m_targetPoint.y, m_targetPoint.z };
+	json["acceleration"] = { m_acceleration.x, m_acceleration.y, m_acceleration.z };
+	json["turbulenceStrength"] = m_turbulenceStrength;
+	json["turbulenceFrequency"] = m_turbulenceFrequency;
+
+	json["colorOverLifetime"] = nlohmann::json::array();
+	for (const ColorStop &stop : m_colorOverLifetime)
+		json["colorOverLifetime"].push_back({ { "time", stop.time }, { "color", { stop.color.r, stop.color.g, stop.color.b, stop.color.a } } });
+
+	json["orbitPoints"] = nlohmann::json::array();
+	for (const OrbitPoint &orbit : m_orbitPoints)
+		json["orbitPoints"].push_back({
+			{ "position", { orbit.position.x, orbit.position.y, orbit.position.z } },
+			{ "axis", { orbit.axis.x, orbit.axis.y, orbit.axis.z } },
+			{ "radius", orbit.radius },
+			{ "angularSpeed", orbit.angularSpeed },
+			{ "strength", orbit.strength },
+			{ "gravityOnly", orbit.gravityOnly },
+			{ "softening", orbit.softening } });
 	return json;
 }
 
@@ -790,6 +1099,56 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	DeserializeCurve(p_compJson, "sizeOverLifetime", m_sizeOverLifetime);
 	DeserializeCurve(p_compJson, "velocityOverLifetime", m_velocityOverLifetime);
 	DeserializeCurve(p_compJson, "rotationOverLifetime", m_rotationOverLifetime);
+
+	if (p_compJson.contains("randomSeed")) SetRandomSeed(p_compJson["randomSeed"].get<uint32_t>());
+	if (p_compJson.contains("directionMode"))
+		m_directionMode = static_cast<DirectionMode>(p_compJson["directionMode"].get<int>());
+	if (p_compJson.contains("direction"))
+	{
+		const auto &v = p_compJson["direction"];
+		m_direction = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+	}
+	if (p_compJson.contains("directionSpread")) SetDirectionSpread(p_compJson["directionSpread"].get<float>());
+	if (p_compJson.contains("targetPoint"))
+	{
+		const auto &v = p_compJson["targetPoint"];
+		SetTargetPoint(glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>()));
+	}
+	if (p_compJson.contains("acceleration"))
+	{
+		const auto &v = p_compJson["acceleration"];
+		m_acceleration = glm::vec3(v[0].get<float>(), v[1].get<float>(), v[2].get<float>());
+	}
+	if (p_compJson.contains("turbulenceStrength")) SetTurbulenceStrength(p_compJson["turbulenceStrength"].get<float>());
+	if (p_compJson.contains("turbulenceFrequency")) SetTurbulenceFrequency(p_compJson["turbulenceFrequency"].get<float>());
+
+	if (p_compJson.contains("colorOverLifetime"))
+	{
+		std::vector<ColorStop> stops;
+		for (const nlohmann::json &stop : p_compJson["colorOverLifetime"])
+		{
+			const auto &c = stop["color"];
+			stops.push_back({ stop["time"].get<float>(), glm::vec4(c[0].get<float>(), c[1].get<float>(), c[2].get<float>(), c[3].get<float>()) });
+		}
+		SetColorOverLifetime(std::move(stops));
+	}
+
+	ClearOrbitPoints();
+	if (p_compJson.contains("orbitPoints"))
+		for (const nlohmann::json &orbit : p_compJson["orbitPoints"])
+		{
+			const auto &p = orbit["position"];
+			const auto &a = orbit["axis"];
+			OrbitPoint point;
+			point.position = glm::vec3(p[0].get<float>(), p[1].get<float>(), p[2].get<float>());
+			point.axis = glm::vec3(a[0].get<float>(), a[1].get<float>(), a[2].get<float>());
+			point.radius = orbit["radius"].get<float>();
+			point.angularSpeed = orbit["angularSpeed"].get<float>();
+			point.strength = orbit["strength"].get<float>();
+			point.gravityOnly = orbit.value("gravityOnly", false);
+			point.softening = orbit.value("softening", 0.5f);
+			AddOrbitPoint(point);
+		}
 }
 
 void ParticleEmitterComponent::RenderUIImpl()
@@ -800,6 +1159,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 	m_uiSelected = true;
 
 	PushID(this);
+	PushItemWidth(GetFontSize() * 12.0f);
 
 	if (Button(m_playing ? "Pause" : "Play"))
 	{
@@ -815,91 +1175,319 @@ void ParticleEmitterComponent::RenderUIImpl()
 	if (Button("Burst"))
 		Emit(std::max(1u, m_bursts.empty() ? 30u : m_bursts.front().count));
 
-	Checkbox("Looping", &m_looping);
-	Checkbox("Play On Awake", &m_playOnAwake);
-	Checkbox("Transparent", &m_transparent);
-	Checkbox("Debug Draw", &m_debugDraw);
-	DragFloat("Duration", &m_duration, 0.1f, 0.001f, 3600.0f);
-	DragFloat("Start Delay", &m_startDelay, 0.05f, 0.0f, 3600.0f);
-	DragFloat("Emission Rate", &m_emissionRate, 0.5f, 0.0f, 100000.0f);
+	auto RenderGradientEditor = [](const char *label, std::vector<ColorStop> &stops) {
+		ImGuiStorage *storage = ImGui::GetStateStorage();
+		const ImGuiID selectedID = ImGui::GetID("selectedColorStop");
+		int selected = storage->GetInt(selectedID, -1);
+		if (selected >= static_cast<int>(stops.size()))
+			selected = -1;
 
-	int maxParticles = static_cast<int>(m_maxParticles);
-	if (DragInt("Max Particles", &maxParticles, 1.0f, 1, 1000000))
-		SetMaxParticles(static_cast<uint32_t>(maxParticles));
+		const float barWidth = std::max(1.0f, GetContentRegionAvail().x);
+		const float barHeight = 24.0f;
+		const float handleRow = 14.0f;
+		const ImVec2 origin = GetCursorScreenPos();
+		const auto timeToX = [&](float t) { return origin.x + barWidth * t; };
+		const float mouseT = std::clamp((GetMousePos().x - origin.x) / barWidth, 0.0f, 1.0f);
 
-	const char *shapeNames[] = { "Point", "Sphere", "Hemisphere", "Box", "Cone", "Circle" };
-	int shape = static_cast<int>(m_emissionShape);
-	if (Combo("Emission Shape", &shape, shapeNames, IM_ARRAYSIZE(shapeNames)))
-		m_emissionShape = static_cast<EmissionShape>(shape);
+		ImDrawList *drawList = GetWindowDrawList();
+		constexpr int segments = 64;
+		for (int i = 0; i < segments; ++i)
+		{
+			const float t0 = static_cast<float>(i) / segments;
+			const float t1 = static_cast<float>(i + 1) / segments;
+			const glm::vec4 c = EvaluateGradient(stops, (t0 + t1) * 0.5f);
+			drawList->AddRectFilled(
+				ImVec2(timeToX(t0), origin.y),
+				ImVec2(timeToX(t1), origin.y + barHeight),
+				ColorConvertFloat4ToU32(ImVec4(c.r, c.g, c.b, c.a)));
+		}
+		drawList->AddRect(origin, ImVec2(origin.x + barWidth, origin.y + barHeight), IM_COL32(255, 255, 255, 60));
 
-	const char *spaceNames[] = { "Local", "World" };
-	int space = static_cast<int>(m_simulationSpace);
-	if (Combo("Simulation Space", &space, spaceNames, IM_ARRAYSIZE(spaceNames)))
-		m_simulationSpace = static_cast<SimulationSpace>(space);
+		InvisibleButton(label, ImVec2(barWidth, barHeight + handleRow));
+		const bool hovered = IsItemHovered();
 
-	DragFloat("Shape Radius", &m_shapeRadius, 0.05f, 0.0f, 1000.0f);
-	DragFloat3("Box Size", &m_shapeBoxSize.x, 0.05f, 0.0f, 1000.0f);
-	DragFloat("Cone Angle", &m_coneAngle, 0.5f, 0.0f, 180.0f);
-	DragFloat("Gravity Modifier", &m_gravityModifier, 0.05f, -10.0f, 10.0f);
+		if (IsItemActivated())
+		{
+			selected = -1;
+			float bestDistance = 8.0f;
+			for (int i = 0; i < static_cast<int>(stops.size()); ++i)
+			{
+				const float distance = std::abs(GetMousePos().x - timeToX(stops[i].time));
+				if (distance < bestDistance)
+				{
+					bestDistance = distance;
+					selected = i;
+				}
+			}
+		}
 
-	DragFloat2("Lifetime Range", &m_lifetimeRange.min, 0.05f, 0.001f, 3600.0f);
-	DragFloat2("Speed Range", &m_speedRange.min, 0.05f, -1000.0f, 1000.0f);
-	DragFloat2("Size Range", &m_sizeRange.min, 0.01f, 0.0f, 1000.0f);
-	DragFloat2("Rotation Range", &m_rotationRange.min, 1.0f, -3600.0f, 3600.0f);
-	DragFloat2("Angular Velocity", &m_angularVelocityRange.min, 1.0f, -3600.0f, 3600.0f);
-	ColorEdit4("Start Color Min", &m_startColorRange.min.r);
-	ColorEdit4("Start Color Max", &m_startColorRange.max.r);
-	const char *startColorModeNames[] = { "Random Per Component", "Lerp", "Spherical Lerp" };
-	int startColorMode = static_cast<int>(m_startColorMode);
-	if (Combo("Start Color Mode", &startColorMode, startColorModeNames, IM_ARRAYSIZE(startColorModeNames)))
-		m_startColorMode = static_cast<StartColorMode>(startColorMode);
+		if (hovered && IsMouseDoubleClicked(ImGuiMouseButton_Left))
+		{
+			stops.push_back({ mouseT, EvaluateGradient(stops, mouseT) });
+			SortColorStops(stops);
+			selected = -1;
+		}
 
-	Separator();
-	TextUnformatted("Bursts");
-	for (std::size_t i = 0; i < m_bursts.size();)
+		if (selected >= 0 && IsItemActive() && IsMouseDragging(ImGuiMouseButton_Left))
+			stops[selected].time = mouseT;
+
+		if (selected >= 0 && IsItemDeactivated())
+		{
+			SortColorStops(stops);
+			selected = -1;
+		}
+		storage->SetInt(selectedID, selected);
+
+		for (int i = 0; i < static_cast<int>(stops.size()); ++i)
+		{
+			const glm::vec4 &c = stops[i].color;
+			const ImVec2 center(timeToX(stops[i].time), origin.y + barHeight + handleRow * 0.5f);
+			drawList->AddRectFilled(
+				ImVec2(center.x - 5.0f, center.y - 5.0f),
+				ImVec2(center.x + 5.0f, center.y + 5.0f),
+				ColorConvertFloat4ToU32(ImVec4(c.r, c.g, c.b, 1.0f)));
+			drawList->AddRect(
+				ImVec2(center.x - 5.0f, center.y - 5.0f),
+				ImVec2(center.x + 5.0f, center.y + 5.0f),
+				i == selected ? IM_COL32(255, 255, 255, 255) : IM_COL32(0, 0, 0, 255),
+				0.0f, 0, i == selected ? 2.0f : 1.0f);
+		}
+	};
+
+	auto RenderColorStopList = [](std::vector<ColorStop> &stops) {
+		std::size_t removeIndex = stops.size();
+		bool changed = false;
+		for (std::size_t i = 0; i < stops.size(); ++i)
+		{
+			PushID(static_cast<int>(i));
+			float time = stops[i].time;
+			if (ImGui::SliderFloat("Time", &time, 0.0f, 1.0f))
+			{
+				stops[i].time = time;
+				changed = true;
+			}
+			ImGui::ColorEdit4("Color", &stops[i].color.r, ImGuiColorEditFlags_AlphaBar);
+			ImGui::BeginDisabled(stops.size() <= 1);
+			if (ImGui::Button("Remove"))
+				removeIndex = i;
+			ImGui::EndDisabled();
+			ImGui::Separator();
+			PopID();
+		}
+		if (removeIndex < stops.size())
+		{
+			stops.erase(stops.begin() + removeIndex);
+			changed = true;
+		}
+		if (ImGui::Button("Add Stop"))
+		{
+			stops.push_back({ 1.0f, stops.empty() ? glm::vec4(1.0f) : stops.back().color });
+			changed = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Reset"))
+		{
+			stops = { { 0.0f, glm::vec4(1.0f) }, { 1.0f, glm::vec4(1.0f) } };
+			changed = true;
+		}
+		if (changed)
+			SortColorStops(stops);
+	};
+
+	if (CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		PushID(static_cast<int>(i));
-		float time = m_bursts[i].time;
-		int count = static_cast<int>(m_bursts[i].count);
-		DragFloat("Time", &time, 0.05f, 0.0f, m_duration);
-		DragInt("Count", &count, 1.0f, 1, 1000000);
-		m_bursts[i].time = std::max(0.0f, time);
-		m_bursts[i].count = static_cast<uint32_t>(std::max(1, count));
+		Checkbox("Looping", &m_looping);
+		Checkbox("Play On Awake", &m_playOnAwake);
+		DragFloat("Duration", &m_duration, 0.1f, 0.001f, 3600.0f);
+		DragFloat("Start Delay", &m_startDelay, 0.05f, 0.0f, 3600.0f);
+
+		int maxParticles = static_cast<int>(m_maxParticles);
+		if (DragInt("Max Particles", &maxParticles, 1.0f, 1, 1000000))
+			SetMaxParticles(static_cast<uint32_t>(maxParticles));
+
+		int seed = static_cast<int>(m_randomSeed & 0x7FFFFFFFu);
+		if (DragInt("Random Seed", &seed, 1.0f, 0, 0x7FFFFFFF))
+			SetRandomSeed(static_cast<uint32_t>(seed));
 		SameLine();
-		if (Button("Remove"))
-			m_bursts.erase(m_bursts.begin() + i);
-		else
-			++i;
-		PopID();
-	}
-	if (Button("Add Burst"))
-		AddBurst(0.0f, 30);
+		if (Button("Reroll"))
+			SetRandomSeed(static_cast<uint32_t>(m_random()) & 0x7FFFFFFFu);
 
-	Separator();
-	GUID newGUID = C_INVALID_GUID;
-	std::string newName;
-	if (BeginTable("ParticleTexture", 2, ImGuiTableFlags_SizingStretchProp))
+		const char *spaceNames[] = { "Local", "World" };
+		int space = static_cast<int>(m_simulationSpace);
+		if (Combo("Simulation Space", &space, spaceNames, IM_ARRAYSIZE(spaceNames)))
+			m_simulationSpace = static_cast<SimulationSpace>(space);
+	}
+
+	if (CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 80.0f);
-		TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
-		if (ResourceSlot("Texture", m_texture.GetGUID(), m_textureDisplayName, newGUID, newName, StaticResourceType::Texture2D))
-			SetTextureGUID(newGUID);
-		newGUID = C_INVALID_GUID;
-		newName.clear();
-		if (ResourceSlot("Vertex Shader", m_vs.GetGUID(), m_vsDisplayName, newGUID, newName,
-			StaticResourceType::Shader, ShaderResource::ShaderType::Vertex))
-			SetVSGUID(newGUID);
-		newGUID = C_INVALID_GUID;
-		newName.clear();
-		if (ResourceSlot("Geometry Shader", m_gs.GetGUID(), m_gsDisplayName, newGUID, newName,
-			StaticResourceType::Shader, ShaderResource::ShaderType::Geometry))
-			SetGSGUID(newGUID);
-		newGUID = C_INVALID_GUID;
-		newName.clear();
-		if (ResourceSlot("Fragment Shader", m_fs.GetGUID(), m_fsDisplayName, newGUID, newName,
-			StaticResourceType::Shader, ShaderResource::ShaderType::Fragment))
-			SetFSGUID(newGUID);
-		EndTable();
+		DragFloat("Emission Rate", &m_emissionRate, 0.5f, 0.0f, 100000.0f);
+
+		if (TreeNodeEx(("Bursts (" + std::to_string(m_bursts.size()) + ")###Bursts").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			std::size_t removeIndex = m_bursts.size();
+			for (std::size_t i = 0; i < m_bursts.size(); ++i)
+			{
+				PushID(static_cast<int>(i));
+				const std::string label = "Burst " + std::to_string(i + 1);
+				if (TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+				{
+					float time = m_bursts[i].time;
+					int count = static_cast<int>(m_bursts[i].count);
+					if (DragFloat("Time", &time, 0.05f, 0.0f, m_duration))
+						m_bursts[i].time = std::max(0.0f, time);
+					if (DragInt("Count", &count, 1.0f, 1, 1000000))
+						m_bursts[i].count = static_cast<uint32_t>(std::max(1, count));
+					if (Button("Remove"))
+						removeIndex = i;
+					TreePop();
+				}
+				PopID();
+			}
+			if (removeIndex < m_bursts.size())
+				m_bursts.erase(m_bursts.begin() + removeIndex);
+			if (Button("Add Burst"))
+				AddBurst(0.0f, 30);
+			TreePop();
+		}
+	}
+
+	if (CollapsingHeader("Shape", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		const char *shapeNames[] = { "Point", "Sphere", "Hemisphere", "Box", "Cone", "Circle" };
+		int shape = static_cast<int>(m_emissionShape);
+		if (Combo("Emission Shape", &shape, shapeNames, IM_ARRAYSIZE(shapeNames)))
+			SetEmissionShape(static_cast<EmissionShape>(shape));
+
+		if (m_emissionShape == EmissionShape::Sphere || m_emissionShape == EmissionShape::Hemisphere ||
+			m_emissionShape == EmissionShape::Cone || m_emissionShape == EmissionShape::Circle)
+		{
+			float radius = m_shapeRadius;
+			if (DragFloat("Radius", &radius, 0.05f, 0.0f, 1000.0f))
+				SetShapeRadius(radius);
+		}
+		if (m_emissionShape == EmissionShape::Box)
+		{
+			glm::vec3 boxSize = m_shapeBoxSize;
+			if (DragFloat3("Box Size", &boxSize.x, 0.05f, 0.0f, 1000.0f))
+				SetShapeBoxSize(boxSize);
+		}
+		if (m_emissionShape == EmissionShape::Cone)
+		{
+			float angle = m_coneAngle;
+			if (DragFloat("Cone Angle", &angle, 0.5f, 0.0f, 180.0f))
+				SetConeAngle(angle);
+		}
+	}
+
+	if (CollapsingHeader("Start Values", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		DragFloat2("Lifetime Range", &m_lifetimeRange.min, 0.05f, 0.001f, 3600.0f);
+		DragFloat2("Speed Range", &m_speedRange.min, 0.05f, -1000.0f, 1000.0f);
+		DragFloat2("Size Range", &m_sizeRange.min, 0.01f, 0.0f, 1000.0f);
+		DragFloat2("Rotation Range", &m_rotationRange.min, 1.0f, -3600.0f, 3600.0f);
+		DragFloat2("Angular Velocity", &m_angularVelocityRange.min, 1.0f, -3600.0f, 3600.0f);
+		ColorEdit4("Start Color Min", &m_startColorRange.min.r);
+		ColorEdit4("Start Color Max", &m_startColorRange.max.r);
+		const char *startColorModeNames[] = { "Random Per Component", "Lerp", "Spherical Lerp" };
+		int startColorMode = static_cast<int>(m_startColorMode);
+		if (Combo("Start Color Mode", &startColorMode, startColorModeNames, IM_ARRAYSIZE(startColorModeNames)))
+			m_startColorMode = static_cast<StartColorMode>(startColorMode);
+	}
+
+	if (CollapsingHeader("Direction"))
+	{
+		const char *directionNames[] = { "Shape", "Fixed", "Towards Point", "Random Point In Shape" };
+		int directionMode = static_cast<int>(m_directionMode);
+		if (Combo("Direction Mode", &directionMode, directionNames, IM_ARRAYSIZE(directionNames)))
+			SetDirectionMode(static_cast<DirectionMode>(directionMode));
+
+		if (m_directionMode == DirectionMode::Fixed)
+		{
+			glm::vec3 direction = m_direction;
+			if (DragFloat3("Direction", &direction.x, 0.01f))
+				SetDirection(direction);
+			float spread = m_directionSpread;
+			if (DragFloat("Spread", &spread, 0.5f, 0.0f, 180.0f))
+				SetDirectionSpread(spread);
+		}
+		else if (m_directionMode == DirectionMode::TowardsPoint)
+		{
+			glm::vec3 target = m_targetPoint;
+			if (DragFloat3("Target Point", &target.x, 0.05f))
+				SetTargetPoint(target);
+			TextDisabled("Particles are aimed at this point in emitter-local space.");
+		}
+		else if (m_directionMode == DirectionMode::RandomPointInShape)
+		{
+			TextDisabled("Each particle is aimed at a random point inside the emission shape.");
+		}
+		else
+		{
+			TextDisabled("Particles use the emission shape's own directions.");
+		}
+	}
+
+	if (CollapsingHeader("Forces"))
+	{
+		DragFloat("Gravity Modifier", &m_gravityModifier, 0.05f, -10.0f, 10.0f);
+
+		glm::vec3 acceleration = m_acceleration;
+		if (DragFloat3("Acceleration", &acceleration.x, 0.05f, -100.0f, 100.0f))
+			SetAcceleration(acceleration);
+
+		float turbulenceStrength = m_turbulenceStrength;
+		if (DragFloat("Turbulence Strength", &turbulenceStrength, 0.05f, 0.0f, 100.0f))
+			SetTurbulenceStrength(turbulenceStrength);
+		float turbulenceFrequency = m_turbulenceFrequency;
+		if (DragFloat("Turbulence Frequency", &turbulenceFrequency, 0.05f, 0.0f, 100.0f))
+			SetTurbulenceFrequency(turbulenceFrequency);
+	}
+
+	if (CollapsingHeader("Color Over Lifetime"))
+	{
+		TextDisabled("Drag handles to move them. Double-click the bar to add a stop.");
+		RenderGradientEditor("##Color Gradient", m_colorOverLifetime);
+		if (TreeNodeEx(("Color Stops (" + std::to_string(m_colorOverLifetime.size()) + ")###ColorStops").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			RenderColorStopList(m_colorOverLifetime);
+			TreePop();
+		}
+	}
+
+	if (CollapsingHeader("Orbit Points"))
+	{
+		TextDisabled("Orbit points form a ring around their axis. Gravity Only points attract particles instead.");
+		std::size_t removeIndex = m_orbitPoints.size();
+		for (std::size_t i = 0; i < m_orbitPoints.size(); ++i)
+		{
+			PushID(static_cast<int>(i));
+			const std::string label = "Orbit " + std::to_string(i + 1);
+			if (TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				OrbitPoint &orbit = m_orbitPoints[i];
+				DragFloat3("Position", &orbit.position.x, 0.05f);
+				Checkbox("Gravity Only", &orbit.gravityOnly);
+				if (orbit.gravityOnly)
+				{
+					DragFloat("Softening", &orbit.softening, 0.01f, 0.01f, 1000.0f);
+				}
+				else
+				{
+					DragFloat3("Axis", &orbit.axis.x, 0.01f, -1.0f, 1.0f);
+					DragFloat("Radius", &orbit.radius, 0.05f, 0.0f, 1000.0f);
+					DragFloat("Angular Speed", &orbit.angularSpeed, 0.05f, -100.0f, 100.0f);
+				}
+				DragFloat("Strength", &orbit.strength, 0.1f, 0.0f, 100.0f);
+				if (Button("Remove"))
+					removeIndex = i;
+				TreePop();
+			}
+			PopID();
+		}
+		if (removeIndex < m_orbitPoints.size())
+			m_orbitPoints.erase(m_orbitPoints.begin() + removeIndex);
+		if (Button("Add Orbit Point"))
+			AddOrbitPoint({});
 	}
 
 	auto RenderCurve = [](const char *label, ScalarCurve &curve) {
@@ -977,16 +1565,61 @@ void ParticleEmitterComponent::RenderUIImpl()
 
 	if (CollapsingHeader("Over Lifetime", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		TextUnformatted("Size Over Lifetime");
-		RenderCurve("##Size Over Lifetime", m_sizeOverLifetime);
-
-		TextUnformatted("Velocity Over Lifetime");
-		RenderCurve("##Velocity Over Lifetime", m_velocityOverLifetime);
-
-		TextUnformatted("Rotation Over Lifetime");
-		RenderCurve("##Rotation Over Lifetime", m_rotationOverLifetime);
+		if (TreeNodeEx("Size", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			RenderCurve("##Size Over Lifetime", m_sizeOverLifetime);
+			TreePop();
+		}
+		if (TreeNodeEx("Velocity", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			RenderCurve("##Velocity Over Lifetime", m_velocityOverLifetime);
+			TreePop();
+		}
+		if (TreeNodeEx("Rotation", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			RenderCurve("##Rotation Over Lifetime", m_rotationOverLifetime);
+			TreePop();
+		}
 	}
 
+	if (CollapsingHeader("Rendering"))
+	{
+		Checkbox("Transparent", &m_transparent);
+
+		GUID newGUID = C_INVALID_GUID;
+		std::string newName;
+		if (BeginTable("ParticleTexture", 2, ImGuiTableFlags_SizingStretchProp))
+		{
+			TableSetupColumn("label", ImGuiTableColumnFlags_WidthFixed, 120.0f);
+			TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
+			if (ResourceSlot("Texture", m_texture.GetGUID(), m_textureDisplayName, newGUID, newName, StaticResourceType::Texture2D))
+				SetTextureGUID(newGUID);
+			newGUID = C_INVALID_GUID;
+			newName.clear();
+			if (ResourceSlot("Vertex Shader", m_vs.GetGUID(), m_vsDisplayName, newGUID, newName,
+				StaticResourceType::Shader, ShaderResource::ShaderType::Vertex))
+				SetVSGUID(newGUID);
+			newGUID = C_INVALID_GUID;
+			newName.clear();
+			if (ResourceSlot("Geometry Shader", m_gs.GetGUID(), m_gsDisplayName, newGUID, newName,
+				StaticResourceType::Shader, ShaderResource::ShaderType::Geometry))
+				SetGSGUID(newGUID);
+			newGUID = C_INVALID_GUID;
+			newName.clear();
+			if (ResourceSlot("Fragment Shader", m_fs.GetGUID(), m_fsDisplayName, newGUID, newName,
+				StaticResourceType::Shader, ShaderResource::ShaderType::Fragment))
+				SetFSGUID(newGUID);
+			EndTable();
+		}
+	}
+
+	if (CollapsingHeader("Debug"))
+	{
+		Checkbox("Debug Draw", &m_debugDraw);
+		TextDisabled("Shows the emission shape, fixed direction cone and orbit rings in the viewport.");
+	}
+
+	PopItemWidth();
 	PopID();
 #endif
 }
