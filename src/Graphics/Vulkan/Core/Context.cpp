@@ -34,8 +34,7 @@ namespace Droplet::Graphics::Vulkan
         : m_surfaceProvider{&surfaceProvider},
           m_instance{WithPlatformExtensions(surfaceProvider, createInfo.instance)},
           m_surface{surfaceProvider, m_instance},
-          m_device{m_instance, m_surface, createInfo.device},
-          m_gpuProfiler{m_device}
+          m_device{m_instance, m_surface, createInfo.device}
     {
         CreateAllocator();
     }

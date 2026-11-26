@@ -184,7 +184,6 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
     // 6. resources nothing asked for in a while are released; what the GPU is done with is destroyed
     m_device.EndFrame();
-    m_vulkanContext.GetGpuProfiler().Collect();
     FrameMark;
 }
 
@@ -239,7 +238,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         .drawView = [this](PassContext& ctx, const Render::DrawList& view,
                            const Vulkan::ViewTargets& targets)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Draw view"};
             if (!ctx.resources)
                 return;
 
@@ -285,7 +283,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         },
         .copyTarget = [this](PassContext& ctx, Render::TargetHandle srcHandle, Render::TargetHandle dstHandle)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Copy target"};
             const GpuRenderTarget* source = m_device.Resources().Find(srcHandle);
             const GpuRenderTarget* destination = m_device.Resources().Find(dstHandle);
             if (!source || !destination)
@@ -321,7 +318,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                                  const EffectStep& step,
                                  RenderGraph::ResourceId source, RenderGraph::ResourceId destination)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Fragment effect"};
             // `destination` has the format of the view's target: the pipeline for that format
             const GpuRenderTarget* target = m_device.Resources().Find(view.target);
             if (!target)
@@ -338,7 +334,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
                                 RenderGraph::ResourceId source, RenderGraph::ResourceId destination,
                                 RenderGraph::ResourceId stepBuffer)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Compute effect"};
             m_effectPass.Record(
                 ctx.cmd,
                 ctx.resources->View(source),
@@ -350,7 +345,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         .resolveEffects = [this](PassContext& ctx, const Render::DrawList& view,
                                  RenderGraph::ResourceId source, RenderGraph::ResourceId destination)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Resolve effects"};
             // `destination` is the view's target: the pipeline for its format
             const GpuRenderTarget* target = m_device.Resources().Find(view.target);
             if (!target)
@@ -367,7 +361,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         .composite = [this, &frame](PassContext& ctx, RenderGraph::ResourceId source,
                                     RenderGraph::ResourceId destination)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Composite"};
             // no source: RecordFullscreen only clears
             m_compositor.RecordFullscreen(
                 ctx.cmd,
@@ -385,7 +378,6 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
         inputs.overlayReads = m_overlayReads;
         inputs.overlay = [this, overlay](PassContext& ctx, RenderGraph::ResourceId destination)
         {
-            const GpuZone zone{m_vulkanContext.GetGpuProfiler(), ToQueueIndex(ctx.queue), ctx.cmd, "Overlay"};
             const vk::RenderingAttachmentInfo color{
                 .imageView = ctx.resources->View(destination),
                 .imageLayout = vk::ImageLayout::eColorAttachmentOptimal,

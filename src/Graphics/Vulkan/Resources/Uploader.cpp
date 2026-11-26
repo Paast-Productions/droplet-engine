@@ -23,7 +23,7 @@ namespace Droplet::Graphics::Vulkan
     }
 
     template <class Record>
-    void Uploader::SubmitAndWait(const char* name, Record&& record)
+    void Uploader::SubmitAndWait(Record&& record)
     {
         const vk::CommandBufferAllocateInfo allocInfo{
             .commandPool = *m_pool,
@@ -34,10 +34,7 @@ namespace Droplet::Graphics::Vulkan
         vk::raii::CommandBuffer& cmd = buffers.front();
 
         cmd.begin(vk::CommandBufferBeginInfo{.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
-        {
-            const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, *cmd, name};
-            record(*cmd);
-        }
+        record(*cmd);
         cmd.end();
 
         const vk::CommandBuffer raw = *cmd;
@@ -84,7 +81,7 @@ namespace Droplet::Graphics::Vulkan
             vma::AllocationCreateInfo{.usage = vma::MemoryUsage::eAutoPreferDevice});
 
         // fill in lambda
-        SubmitAndWait("Upload buffer", [&](vk::CommandBuffer cmd)
+        SubmitAndWait([&](vk::CommandBuffer cmd)
         {
             cmd.copyBuffer(staging.Get(), buffer.Get(), vk::BufferCopy{
                                .srcOffset = 0,
@@ -124,7 +121,7 @@ namespace Droplet::Graphics::Vulkan
                 .mipLevels = mipLevels
             });
 
-        SubmitAndWait("Upload image", [&](vk::CommandBuffer cmd)
+        SubmitAndWait([&](vk::CommandBuffer cmd)
         {
             // one barrier on a range of mip levels
             const auto transitionLevels = [&](std::uint32_t firstLevel, std::uint32_t levelCount,
@@ -187,7 +184,7 @@ namespace Droplet::Graphics::Vulkan
     {
         ZoneScoped
         ImageState state = ImageState::Undefined();
-        SubmitAndWait("Clear image", [&](vk::CommandBuffer cmd)
+        SubmitAndWait([&](vk::CommandBuffer cmd)
         {
             TransitionImage(cmd, image, state, ImageState::TransferDst(), range);
             cmd.clearColorImage(image, vk::ImageLayout::eTransferDstOptimal,

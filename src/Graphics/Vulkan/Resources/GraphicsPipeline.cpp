@@ -38,7 +38,7 @@ namespace
                 .dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
                 .colorBlendOp = vk::BlendOp::eAdd,
                 .srcAlphaBlendFactor = vk::BlendFactor::eOne,
-                .dstAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
+                .dstAlphaBlendFactor = vk::BlendFactor::eZero,
                 .alphaBlendOp = vk::BlendOp::eAdd,
                 .colorWriteMask = ALL_COMPONENTS
             };
