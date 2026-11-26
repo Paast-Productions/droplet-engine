@@ -68,7 +68,7 @@ namespace Droplet::Graphics::Vulkan
     class ShaderLibrary
     {
     public:
-        explicit ShaderLibrary(const vk::raii::Device& device);
+        explicit ShaderLibrary(const vk::raii::Device& device, bool geometryShaders, bool tessellationShaders);
         ~ShaderLibrary();
 
         ShaderLibrary(const ShaderLibrary&) = delete;
@@ -129,6 +129,8 @@ namespace Droplet::Graphics::Vulkan
 
         const vk::raii::Device& m_device;
         std::unique_ptr<IO::ShaderCompiler> m_compiler;
+        bool m_geometryShaders; ///< the device has the geometry stage
+        bool m_tessellationShaders; ///< the device has the tessellation stages
         std::unordered_map<std::pair<GUID, vk::ShaderStageFlagBits>, std::unique_ptr<Shader>, StageKeyHash> m_shaders; ///< hashes shader groups to stage bits
         std::unordered_map<GUID, std::uint64_t> m_failed; ///< assets that did not compile, at this revision
         std::unordered_map<GUID, std::uint64_t> m_revisions; ///< revision each compiled asset was compiled from

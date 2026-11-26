@@ -92,6 +92,8 @@ namespace Droplet::Graphics::Vulkan
 
         /// @brief Widest line the device supports; 1 if none.
         [[nodiscard]] float GetMaxLineWidth() const noexcept { return m_device.GetMaxLineWidth(); }
+        [[nodiscard]] bool HasGeometryShader() const noexcept { return m_device.HasGeometryShader(); }
+        [[nodiscard]] bool HasTessellationShader() const noexcept { return m_device.HasTessellationShader(); }
 
         /// @brief The VMA allocator.
         [[nodiscard]] const vma::raii::Allocator& GetAllocator() const noexcept { return m_allocator; }

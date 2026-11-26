@@ -15,9 +15,11 @@
 
 namespace Droplet::Graphics::Vulkan
 {
-    ShaderLibrary::ShaderLibrary(const vk::raii::Device& device)
+    ShaderLibrary::ShaderLibrary(const vk::raii::Device& device, bool geometryShaders, bool tessellationShaders)
         : m_device(device),
-          m_compiler(std::make_unique<Droplet::IO::ShaderCompiler>())
+          m_compiler(std::make_unique<Droplet::IO::ShaderCompiler>()),
+          m_geometryShaders(geometryShaders),
+          m_tessellationShaders(tessellationShaders)
     {
     }
 
@@ -35,6 +37,13 @@ namespace Droplet::Graphics::Vulkan
         case Bridge::ShaderStage::Fragment: stage = vk::ShaderStageFlagBits::eFragment; break;
         default:
             std::println("ShaderLibrary: shader {:016x} has an unknown stage; not uploaded", upload.id);
+            return false;
+        }
+        // not recorded as failed: m_failed is per GUID, which would also block the shader's supported stages
+        if ((stage == vk::ShaderStageFlagBits::eGeometry && !m_geometryShaders)
+            || ((stage == vk::ShaderStageFlagBits::eTessellationControl || stage == vk::ShaderStageFlagBits::eTessellationEvaluation) && !m_tessellationShaders))
+        {
+            std::println("ShaderLibrary: shader {:016x} needs a stage the device does not support; not uploaded", upload.id);
             return false;
         }
         if (IsReady(upload.id, stage))

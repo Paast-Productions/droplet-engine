@@ -207,6 +207,9 @@ namespace Droplet::Graphics::Vulkan
 			.tessEvalShader = tessEvalShader,
 			.geometryShader = geometryShader,
 			.hasFragmentShader = true,
+			.hasTessCtrlShader = tessCtrlShader != C_INVALID_GUID,
+			.hasTessEvalShader = tessEvalShader != C_INVALID_GUID,
+			.hasGeometryShader = geometryShader != C_INVALID_GUID,
 			.layout = *m_pipelineLayout,
 			.vertexLayout = VertexLayout{
 				.bindings = {binding},
