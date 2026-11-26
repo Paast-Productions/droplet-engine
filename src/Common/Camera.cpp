@@ -79,6 +79,11 @@ void Camera::UpdateCameraVectors()
 
 Frustum Camera::GetFrustum() const
 {
+	if (m_projection == Projection::Orthographic)
+	{
+		return ViewRectToWorldTile(glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+	}
+	
 	return Frustum(
 		m_position, 
 		m_forward, 
@@ -107,6 +112,21 @@ glm::mat4 Camera::GetViewMatrix() const
 
 glm::mat4 Camera::GetProjectionMatrix() const
 {
+	if (m_projection == Projection::Orthographic)
+	{
+		const float halfHeight = m_orthographicHeight * 0.5f;
+		const float halfWidth = halfHeight * m_aspect;
+
+		return glm::ortho(
+			-halfWidth, 
+			halfWidth, 
+			-halfHeight, 
+			halfHeight, 
+			m_planes.x, 
+			m_planes.y
+		);
+	}
+	
 	return glm::perspective(
 		glm::radians(m_fov),
 		m_aspect,

@@ -1,5 +1,8 @@
 {
     "name": "BoatScene",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
     "roots": [
         {
             "active": true,
@@ -21,6 +24,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -52,7 +56,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 542,
+            "id": 1,
             "name": "Boat",
             "transform": {
                 "position": [
@@ -87,6 +91,8 @@
                                 "autoRender": true,
                                 "camera": {
                                     "fov": 90.0,
+                                    "orthographic": false,
+                                    "orthographicHeight": 10.0,
                                     "planes": [
                                         0.10000000149011612,
                                         300.0
@@ -104,7 +110,8 @@
                                 "resolution": [
                                     1280,
                                     720
-                                ]
+                                ],
+                                "targetId": 6694501793097196005
                             },
                             "id": 1,
                             "type": "CameraComponent"
@@ -120,7 +127,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 544,
+                    "id": 3,
                     "name": "Camera",
                     "transform": {
                         "position": [
@@ -177,7 +184,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 543,
+            "id": 2,
             "name": "Player",
             "transform": {
                 "position": [
@@ -224,6 +231,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -255,7 +263,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 547,
+                            "id": 6,
                             "name": "Door",
                             "transform": {
                                 "position": [
@@ -280,7 +288,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 546,
+                    "id": 5,
                     "name": "Pod Door",
                     "transform": {
                         "position": [
@@ -305,7 +313,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 548,
+                    "id": 7,
                     "name": "Pod Exterior",
                     "prefab": "GameData\\Prefabs\\Pod Exterior.json",
                     "transform": {
@@ -331,7 +339,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 549,
+                    "id": 8,
                     "name": "Pod Interior",
                     "prefab": "GameData\\Prefabs\\Pod Interior.json",
                     "transform": {
@@ -357,7 +365,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 545,
+            "id": 4,
             "name": "Pod",
             "transform": {
                 "position": [
@@ -401,6 +409,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "BaseFish",
                                 "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 7809030845991192100,
                                 "vsName": "Base.VS"
@@ -410,7 +419,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 559,
+                    "id": 18,
                     "name": "Mesh",
                     "transform": {
                         "position": [
@@ -435,7 +444,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 558,
+            "id": 17,
             "name": "Fish",
             "transform": {
                 "position": [
@@ -476,6 +485,7 @@
                         "tesName": "",
                         "textureDisplayName": "Portrait",
                         "textureGUID": 10240792835275847271,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -485,7 +495,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 560,
+            "id": 19,
             "name": "Mesh Node",
             "transform": {
                 "position": [
@@ -510,7 +520,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 561,
+            "id": 20,
             "name": "RonnyCutout",
             "prefab": "GameData\\Prefabs\\RonnyCutout.json",
             "transform": {
@@ -555,6 +565,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -564,7 +575,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 570,
+                    "id": 29,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -605,6 +616,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -614,7 +626,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 571,
+                    "id": 30,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -655,6 +667,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -664,7 +677,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 572,
+                    "id": 31,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -705,6 +718,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -714,7 +728,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 573,
+                    "id": 32,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -755,6 +769,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -764,7 +779,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 574,
+                    "id": 33,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -805,6 +820,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -814,7 +830,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 575,
+                    "id": 34,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -855,6 +871,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -864,7 +881,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 576,
+                    "id": 35,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -905,6 +922,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -914,7 +932,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 577,
+                    "id": 36,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -955,6 +973,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -964,7 +983,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 578,
+                    "id": 37,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1005,6 +1024,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1014,7 +1034,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 579,
+                    "id": 38,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1055,6 +1075,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1064,7 +1085,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 580,
+                    "id": 39,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1105,6 +1126,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1114,7 +1136,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 581,
+                    "id": 40,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1155,6 +1177,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1164,7 +1187,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 582,
+                    "id": 41,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1205,6 +1228,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1214,7 +1238,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 583,
+                    "id": 42,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1255,6 +1279,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1264,7 +1289,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 584,
+                    "id": 43,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1305,6 +1330,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1314,7 +1340,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 585,
+                    "id": 44,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1355,6 +1381,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1364,7 +1391,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 586,
+                    "id": 45,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1405,6 +1432,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1414,7 +1442,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 587,
+                    "id": 46,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1455,6 +1483,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1464,7 +1493,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 588,
+                    "id": 47,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1505,6 +1534,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1514,7 +1544,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 589,
+                    "id": 48,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1555,6 +1585,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1564,7 +1595,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 590,
+                    "id": 49,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1605,6 +1636,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1614,7 +1646,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 591,
+                    "id": 50,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1655,6 +1687,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1664,7 +1697,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 592,
+                    "id": 51,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1705,6 +1738,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1714,7 +1748,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 593,
+                    "id": 52,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1755,6 +1789,7 @@
                                 "tesName": "",
                                 "textureDisplayName": "WaterColor",
                                 "textureGUID": 15353692435168822611,
+                                "textureIsRenderTarget": false,
                                 "transparent": false,
                                 "vs": 14984259795497788457,
                                 "vsName": "ocean.VS"
@@ -1764,7 +1799,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 594,
+                    "id": 53,
                     "name": "Sea Tile",
                     "transform": {
                         "position": [
@@ -1789,7 +1824,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 569,
+            "id": 28,
             "name": "Sea",
             "transform": {
                 "position": [
@@ -1830,6 +1865,7 @@
                         "tesName": "",
                         "textureDisplayName": "Skybox",
                         "textureGUID": 6240586937985701558,
+                        "textureIsRenderTarget": false,
                         "transparent": true,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -1839,7 +1875,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 595,
+            "id": 54,
             "name": "Skybox",
             "transform": {
                 "position": [
@@ -1857,6 +1893,65 @@
                     100.00010681152344,
                     100.0,
                     100.00006866455078
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "orthographic": true,
+                            "orthographicHeight": 50.0,
+                            "planes": [
+                                0.009999999776482582,
+                                200.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "debugDraw": false,
+                        "drawLayerMask": 65535,
+                        "priority": 0,
+                        "resolution": [
+                            1024,
+                            1024
+                        ],
+                        "targetId": 2549264949695661062
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 56,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    -49.67124557495117,
+                    5.224360466003418,
+                    -29.541584014892578
+                ],
+                "rotation": [
+                    0.8738900423049927,
+                    0.10813362151384354,
+                    0.4702218770980835,
+                    -0.059284403920173645
+                ],
+                "scale": [
+                    0.9999848008155823,
+                    0.9999997019767761,
+                    0.999984860420227
                 ]
             }
         }
