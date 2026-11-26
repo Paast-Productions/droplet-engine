@@ -385,13 +385,6 @@ void HierarchyWindow::RenderImpl()
                 continue;
             }
 
-            auto oldParent = node.lock()->GetParent();
-
-            if (!oldParent.expired())
-            {
-                oldParent.lock()->RemoveChild(node.lock(), true);
-            }
-
             m_newParent.lock()->AddChild(node.lock(), true);
         }
     }

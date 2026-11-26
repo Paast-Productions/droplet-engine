@@ -307,7 +307,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	else
 	{
 		// Child was a root. Remove it from the scene's root nodes.
-		m_scene.lock()->SetRoot(p_child, false);
+		m_scene.lock()->SetRoot(p_child, false, true);
 	}
 
 	p_child->m_parent = shared_from_this();
