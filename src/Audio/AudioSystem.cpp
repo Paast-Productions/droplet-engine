@@ -32,6 +32,7 @@ bool Droplet::Audio::AudioSystem::Initialize()
     config.streamCapacity = 64;
     config.voiceCapacity = 128;
     config.busCapacity = 128;
+    config.logLevel = dalia::LogLevel::None;
 	dalia::Result res = m_daliaEngine->Initialize(config);
 	if (res != dalia::Result::Ok) return false;
     RegisterEffects();
