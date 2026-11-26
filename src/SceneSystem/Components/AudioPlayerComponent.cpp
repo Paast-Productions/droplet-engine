@@ -2,6 +2,7 @@
 #include "ImGui/imgui.h"
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Scene.hpp>
+#include <SceneSystem/SceneResourceLoad.hpp>
 #include <Audio/AudioSystem.hpp>
 #include <Audio/AudioBus.hpp>
 #include <SceneSystem/Behaviour.hpp>
@@ -90,7 +91,7 @@ void Droplet::Scene::AudioPlayerComponent::SetLooping(bool p_looping)
 
 void Droplet::Scene::AudioPlayerComponent::SetSound(GUID p_guid)
 {
-	m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(p_guid);
+	m_resourceHandle = LoadTrackedResource<SoundResource>(TryGetScene(), p_guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(p_guid, entry))
 	{
 		m_soundName = entry.displayName;
@@ -135,7 +136,7 @@ void Droplet::Scene::AudioPlayerComponent::RenderUIImpl()
         {
             if (newGuid != C_INVALID_GUID)
             {
-                m_resourceHandle = ResourceManager::GetInstance().LoadResource<SoundResource>(newGuid);
+                m_resourceHandle = LoadTrackedResource<SoundResource>(TryGetScene(), newGuid);
             }
             
             m_soundName = newName;

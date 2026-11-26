@@ -4,6 +4,7 @@
 #include <SceneSystem/Scene.hpp>
 #include <Time.hpp>
 #include <resource/ResourceManager.hpp>
+#include <SceneSystem/SceneResourceLoad.hpp>
 #include <Editor/ResourceSlot.hpp>
 #include <Editor/ImGuiCurve.hpp>
 #include <Graphics/Debug/DebugDraw.hpp>
@@ -187,7 +188,7 @@ void ParticleEmitterComponent::SetFSGUID(GUID guid)
 
 void ParticleEmitterComponent::SetTextureGUID(GUID guid)
 {
-	m_texture = ResourceManager::GetInstance().LoadResource<Texture2DResource>(guid);
+	m_texture = LoadTrackedResource<Texture2DResource>(TryGetScene(), guid);
 	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
 		m_textureDisplayName = entry.displayName;
 }

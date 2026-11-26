@@ -35,11 +35,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
-    //engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
-    //engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/PodScene.json");
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    while (!engine.GetSceneManager().IsLoadingComplete())
+    {
+        engine.Update();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 

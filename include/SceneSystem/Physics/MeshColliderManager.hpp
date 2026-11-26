@@ -2,6 +2,7 @@
 
 #include <Jolt/Jolt.h>
 #include <unordered_map>
+#include <mutex>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <resource/Types/MeshResource.hpp>
@@ -50,6 +51,7 @@ private:
 	/// @param p_mesh The mesh resource to make a collider of
 	static JPH::MeshShapeSettings CreateMeshShapeSettings(const Droplet::MeshResource *p_mesh);
 
+    std::recursive_mutex m_mutex{};
     std::unordered_map<Droplet::GUID, MeshColliderCache> m_shapeSettings{};
     
 };
