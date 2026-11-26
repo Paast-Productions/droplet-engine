@@ -3,6 +3,7 @@
 #include <SceneSystem/Component.hpp>
 #include <resource/StaticResourceHandle.hpp>
 #include <resource/types/FontResource.hpp>
+#include <Common/RenderData.hpp>
 
 #include <string_view>
 
@@ -46,7 +47,7 @@ namespace Droplet::Scene
 		void EditorUpdateImpl() override;
 		void QueueRenderImpl() override;
 		void RenderUIImpl() override;
-		[[nodiscard]] Graphics::RenderData GetRenderDataImpl() override;
+		[[nodiscard]] Common::RenderData GetRenderDataImpl() override;
 		
 		nlohmann::json SerializeImpl() override;
 		void DeserializeImpl(const nlohmann::json p_compJson) override;

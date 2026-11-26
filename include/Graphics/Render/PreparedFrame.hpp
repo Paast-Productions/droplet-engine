@@ -43,6 +43,18 @@ namespace Droplet::Graphics::Render
         std::uint32_t first = 0;
         std::uint32_t count = 0;
     };
+    
+    /// @brief Data needed to draw one piece of text
+    struct TextDrawItem
+    {
+        glm::mat4 model{1.0f};
+        glm::vec4 color{1.0f};
+        
+        TextureHandle fontTexture;
+        
+        uint32_t firstInstance = 0;
+        uint32_t instanceCount = 0;
+    };
 
     /// @brief Everything needed to render one view: where it draws, what it samples and its draws.
     /// @details Handles are valid unless a field says otherwise; a view whose target does not exist has no draw list.
@@ -70,6 +82,8 @@ namespace Droplet::Graphics::Render
         std::vector<DynamicDrawItem> dynamicItems;
         /// last: kept dynamic meshes drawn without depth test
         std::vector<DrawItem> lateItems;
+        
+        std::vector<TextDrawItem> textItems;
     };
 
     // == Frame ==
@@ -83,5 +97,7 @@ namespace Droplet::Graphics::Render
         /// start of their group's vertices
         std::vector<std::byte> dynamicVertexData;
         std::vector<std::uint32_t> dynamicIndices;
+        
+        std::vector<Text::GlyphInstance> glyphInstances;
     };
 }

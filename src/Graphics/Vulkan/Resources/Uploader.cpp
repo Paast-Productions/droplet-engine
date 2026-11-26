@@ -68,6 +68,22 @@ namespace Droplet::Graphics::Vulkan
         return staging;
     }
 
+    vk::DeviceSize Uploader::BytesPerTexel(vk::Format format)
+    {
+        switch (format)
+        {
+        case vk::Format::eR8G8B8A8Srgb:
+        case vk::Format::eR8G8B8A8Unorm:
+            return 4;
+            
+        case vk::Format::eR32G32B32A32Sfloat:
+            return 16;
+            
+        default:
+            throw std::invalid_argument("Unsupported image upload format.");
+        }
+    }
+
     Buffer Uploader::CreateDeviceBuffer(const void* data, vk::DeviceSize size, vk::BufferUsageFlags usage)
     {
         ZoneScoped
@@ -100,8 +116,15 @@ namespace Droplet::Graphics::Vulkan
         std::uint32_t mipLevels)
     {
         ZoneScoped
-        if (byteSize != vk::DeviceSize{extent.width} * extent.height * sizeof(std::uint32_t))
-            throw std::invalid_argument("UploadImage2D: expected tightly packed 4-byte pixels");
+        
+        const vk::DeviceSize bytesPerTexel = BytesPerTexel(format);
+        
+        if (!pixels || extent.width == 0 || extent.height == 0)
+            throw std::invalid_argument("Invalid image upload.");
+        
+        const vk::DeviceSize expectedBytes = vk::DeviceSize{extent.width} * extent.height * bytesPerTexel;
+        if (byteSize != bytesPerTexel)
+            throw std::invalid_argument("Image payload size does not match dimensions and format.");
 
         // building mips blits each level from the one above with linear filtering, which the format must support
         constexpr vk::FormatFeatureFlags blitFeatures = vk::FormatFeatureFlagBits::eBlitSrc

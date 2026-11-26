@@ -22,7 +22,8 @@ namespace Droplet::Common
     enum class PixelFormat
     {
         RGBA8_SRGB,
-        RGBA8_UNORM
+        RGBA8_UNORM,
+        RGBA32_FLOAT
     };
 
     // == Post-processing ==

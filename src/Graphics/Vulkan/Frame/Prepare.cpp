@@ -339,6 +339,28 @@ Render::PreparedFrame Vulkan::Prepare(
             }
             const ShaderPair objectShaders{ source.vsData.guid, source.fsData.guid };
 
+            if (source.textData)
+            {
+                const auto& text = *source.textData;
+                
+                if (!text.glyphInstances || text.glyphInstances->empty())
+                    continue;
+                
+                const auto& glyphInstances = *text.glyphInstances;
+                
+                const uint32_t firstInstance = static_cast<uint32_t>(frame.glyphInstances.size());
+                
+                frame.glyphInstances.insert(frame.glyphInstances.end(), glyphInstances.begin(), glyphInstances.end());
+                
+                list.textItems.push_back(Render::TextDrawItem{
+                    .model = source.transform,
+                    .color = text.color,
+                    /// .fontTexture = text.fontGUID,
+                    .firstInstance = firstInstance,
+                    .instanceCount = glyphInstances.size()
+                });
+            }
+            
             if (source.dynamicMesh)
             {
                 const Common::DynamicMeshData& mesh = *source.dynamicMesh;

@@ -7,6 +7,7 @@
 #include <memory>
 #include <vector>
 
+#include "GlyphInstance.hpp"
 #include "Common/Camera.hpp"
 #include "Common/RenderDesc.hpp"
 
@@ -94,6 +95,14 @@ namespace Droplet::Common
         MeshTopology topology{ MeshTopology::Triangles };
         bool depthTest{ true };             ///< false -> drawn over everything
     };
+    
+    struct TextData
+    {
+        GUID fontGUID{C_INVALID_GUID};
+        glm::vec4 color{1.0f};
+        
+        std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> glyphInstances;
+    };
 
     struct RenderData
     {
@@ -113,6 +122,9 @@ namespace Droplet::Common
 
         /// drawn instead of meshData when set
         std::shared_ptr<const DynamicMeshData> dynamicMesh{};
+        
+        /// drawn instead of meshData and dynamicmeshdata when set
+        std::optional<TextData> textData{};
 
         // HACK: Sort based on transparency
         bool operator<(const RenderData& p_other) const

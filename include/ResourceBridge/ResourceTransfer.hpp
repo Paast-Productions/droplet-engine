@@ -66,6 +66,9 @@ namespace Droplet::Bridge
         std::vector<MeshUpload> meshes;
         std::vector<TextureUpload> textures;
         std::vector<ShaderUpload> shaders;
+        
+        // Owns generated texture payloads used by TextureUpload::pixels.
+        std::vector<std::vector<std::byte>> ownedPixelData;
     };
 
     /// @brief The assets a world refers to, each once.
@@ -74,6 +77,7 @@ namespace Droplet::Bridge
         std::vector<GUID> meshes;
         std::vector<GUID> textures;
         std::vector<GUID> shaders;
+        std::vector<GUID> fonts;
     };
 
     /// @brief An asset on the GPU and the rscMan revision it was uploaded from.

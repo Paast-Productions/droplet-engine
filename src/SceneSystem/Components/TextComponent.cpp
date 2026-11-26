@@ -150,19 +150,22 @@ void Droplet::Scene::TextComponent::RenderUIImpl()
 #endif
 }
 
-Droplet::Graphics::RenderData Droplet::Scene::TextComponent::GetRenderDataImpl()
+Droplet::Common::RenderData Droplet::Scene::TextComponent::GetRenderDataImpl()
 {
-	Graphics::RenderData data{};
+	if (m_textIsDirty) // TODO: This might not be necessary, it depends on the order of execution.
+		RebuildText();
 	
-	data.textData = Graphics::TextData{
-		.font = m_font,
+	Common::RenderData renderData{};
+	
+	renderData.textData = Common::TextData{
+		.fontGUID = m_font.GetGUID(),
 		.color = m_textColor,
 		.glyphInstances = m_glyphInstances
 	};
 	
-	data.transparent = true;
+	renderData.transparent = true;
 	
-	return data;
+	return renderData;
 }
 
 nlohmann::json Droplet::Scene::TextComponent::SerializeImpl()
