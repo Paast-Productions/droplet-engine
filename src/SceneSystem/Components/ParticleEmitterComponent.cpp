@@ -23,6 +23,38 @@ using namespace Droplet::Common;
 ParticleEmitterComponent::ParticleEmitterComponent()
 {
 	m_particles.reserve(m_maxParticles);
+
+	if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::EditorFlags))
+	{
+		// Set default resources
+
+		ResourceManager &rsMan = ResourceManager::GetInstance();
+		MetaEntry entry;
+
+		// Texture
+		if (rsMan.GetResourceMetaEntry("White", entry))
+		{
+			SetTextureGUID(entry.guid);
+		}
+
+		// Vertex Shader
+		if (rsMan.GetResourceMetaEntry("Particle.VS", entry))
+		{
+			SetVSGUID(entry.guid);
+		}
+
+		// Geometry Shader
+		if (rsMan.GetResourceMetaEntry("Particle.GS", entry))
+		{
+			SetGSGUID(entry.guid);
+		}
+
+		// Fragment Shader
+		if (rsMan.GetResourceMetaEntry("Particle.FS", entry))
+		{
+			SetFSGUID(entry.guid);
+		}
+	}
 }
 
 ParticleEmitterComponent::ScalarCurve ParticleEmitterComponent::MakeDefaultCurve(float value)
@@ -117,6 +149,40 @@ void ParticleEmitterComponent::AddBurst(float time, uint32_t count)
 void ParticleEmitterComponent::ClearBursts()
 {
 	m_bursts.clear();
+}
+
+namespace
+{
+	/// @brief The shader a particle stage uses when none is chosen: the renderer's particle shaders by display name
+	GUID ParticleShaderOrDefault(GUID p_chosen, const char *p_defaultName)
+	{
+		if (p_chosen != C_INVALID_GUID)
+			return p_chosen;
+		if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(std::string(p_defaultName), entry))
+			return entry.guid;
+		return C_INVALID_GUID;
+	}
+}
+
+void ParticleEmitterComponent::SetVSGUID(GUID guid)
+{
+	m_vs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_vsDisplayName = entry.displayName;
+}
+
+void ParticleEmitterComponent::SetGSGUID(GUID guid)
+{
+	m_gs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_gsDisplayName = entry.displayName;
+}
+
+void ParticleEmitterComponent::SetFSGUID(GUID guid)
+{
+	m_fs = ResourceManager::GetInstance().LoadResource<ShaderResource>(guid);
+	if (MetaEntry entry; ResourceManager::GetInstance().GetResourceMetaEntry(guid, entry))
+		m_fsDisplayName = entry.displayName;
 }
 
 void ParticleEmitterComponent::SetTextureGUID(GUID guid)
@@ -535,9 +601,9 @@ RenderData ParticleEmitterComponent::GetRenderDataImpl()
 	Common::RenderData renderData{};
 	renderData.dynamicMesh = m_particleMesh;
 	renderData.texData.GUID = m_texture.GetGUID();
-	renderData.vsData.guid = m_vs.GetGUID();
-	renderData.gsData.guid = m_gs.GetGUID();
-	renderData.fsData.guid = m_fs.GetGUID();
+	renderData.vsData.guid = ParticleShaderOrDefault(m_vs.GetGUID(), "Particle.VS");
+	renderData.gsData.guid = ParticleShaderOrDefault(m_gs.GetGUID(), "Particle.GS");
+	renderData.fsData.guid = ParticleShaderOrDefault(m_fs.GetGUID(), "Particle.FS");
 	renderData.transparent = m_transparent;
 	return renderData;
 }
@@ -621,6 +687,12 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	json["debugDraw"] = m_debugDraw;
 	json["textureGUID"] = GetTextureGUID();
 	json["textureDisplayName"] = m_textureDisplayName;
+	json["vsGUID"] = m_vs.GetGUID();
+	json["vsDisplayName"] = m_vsDisplayName;
+	json["gsGUID"] = m_gs.GetGUID();
+	json["gsDisplayName"] = m_gsDisplayName;
+	json["fsGUID"] = m_fs.GetGUID();
+	json["fsDisplayName"] = m_fsDisplayName;
 
 	json["lifetimeRange"] = { m_lifetimeRange.min, m_lifetimeRange.max };
 	json["speedRange"] = { m_speedRange.min, m_speedRange.max };
@@ -668,6 +740,12 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	if (p_compJson.contains("debugDraw")) SetDebugDraw(p_compJson["debugDraw"].get<bool>());
 	if (p_compJson.contains("textureGUID")) SetTextureGUID(p_compJson["textureGUID"].get<GUID>());
 	if (p_compJson.contains("textureDisplayName")) m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+	if (p_compJson.contains("vsGUID")) SetVSGUID(p_compJson["vsGUID"].get<GUID>());
+	if (p_compJson.contains("vsDisplayName")) m_vsDisplayName = p_compJson["vsDisplayName"].get<std::string>();
+	if (p_compJson.contains("gsGUID")) SetGSGUID(p_compJson["gsGUID"].get<GUID>());
+	if (p_compJson.contains("gsDisplayName")) m_gsDisplayName = p_compJson["gsDisplayName"].get<std::string>();
+	if (p_compJson.contains("fsGUID")) SetFSGUID(p_compJson["fsGUID"].get<GUID>());
+	if (p_compJson.contains("fsDisplayName")) m_fsDisplayName = p_compJson["fsDisplayName"].get<std::string>();
 
 	if (p_compJson.contains("lifetimeRange"))
 	{
@@ -805,6 +883,21 @@ void ParticleEmitterComponent::RenderUIImpl()
 		TableSetupColumn("value", ImGuiTableColumnFlags_WidthStretch);
 		if (ResourceSlot("Texture", m_texture.GetGUID(), m_textureDisplayName, newGUID, newName, StaticResourceType::Texture2D))
 			SetTextureGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Vertex Shader", m_vs.GetGUID(), m_vsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Vertex))
+			SetVSGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Geometry Shader", m_gs.GetGUID(), m_gsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Geometry))
+			SetGSGUID(newGUID);
+		newGUID = C_INVALID_GUID;
+		newName.clear();
+		if (ResourceSlot("Fragment Shader", m_fs.GetGUID(), m_fsDisplayName, newGUID, newName,
+			StaticResourceType::Shader, ShaderResource::ShaderType::Fragment))
+			SetFSGUID(newGUID);
 		EndTable();
 	}
 
@@ -953,7 +1046,7 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 		.vertexStride = sizeof(ParticleVertex),
 		.attributes = {
 			{.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(ParticleVertex, position)},
-			{.location = 1, .format = Common::VertexFormat::UNorm8x4, .offset = offsetof(ParticleVertex, color)},
+			{.location = 1, .format = Common::VertexFormat::Float4, .offset = offsetof(ParticleVertex, color)},
 			{.location = 2, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, size)},
 			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)}
 		},

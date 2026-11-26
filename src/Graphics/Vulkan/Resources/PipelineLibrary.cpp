@@ -25,9 +25,18 @@ namespace Droplet::Graphics::Vulkan
 
     bool ShaderLibrary::Upload(const Bridge::ShaderUpload& upload)
     {
-        const vk::ShaderStageFlagBits stage = upload.stage == Bridge::ShaderStage::Vertex
-                                                  ? vk::ShaderStageFlagBits::eVertex
-                                                  : vk::ShaderStageFlagBits::eFragment;
+        vk::ShaderStageFlagBits stage{};
+        switch (upload.stage)
+        {
+        case Bridge::ShaderStage::Vertex: stage = vk::ShaderStageFlagBits::eVertex; break;
+        case Bridge::ShaderStage::TessControl: stage = vk::ShaderStageFlagBits::eTessellationControl; break;
+        case Bridge::ShaderStage::TessEvaluation: stage = vk::ShaderStageFlagBits::eTessellationEvaluation; break;
+        case Bridge::ShaderStage::Geometry: stage = vk::ShaderStageFlagBits::eGeometry; break;
+        case Bridge::ShaderStage::Fragment: stage = vk::ShaderStageFlagBits::eFragment; break;
+        default:
+            std::println("ShaderLibrary: shader {:016x} has an unknown stage; not uploaded", upload.id);
+            return false;
+        }
         if (IsReady(upload.id, stage))
         {
             const std::uint64_t created = m_revisions[upload.id];
@@ -115,9 +124,8 @@ namespace Droplet::Graphics::Vulkan
 
     ShaderGroup ShaderLibrary::Resolve(ShaderGroup shaders, ShaderGroup fallback) const
     {
-        bool ready = true;
-		if (shaders.vertex.used)
-			ready = IsReady(shaders.vertex.id, vk::ShaderStageFlagBits::eVertex);
+        // a group without a vertex stage cannot be drawn, so it must fall back
+        bool ready = shaders.vertex.used && IsReady(shaders.vertex.id, vk::ShaderStageFlagBits::eVertex);
 		if (shaders.tessCtrl.used)
 			ready = ready && IsReady(shaders.tessCtrl.id, vk::ShaderStageFlagBits::eTessellationControl);
 		if (shaders.tessEval.used)

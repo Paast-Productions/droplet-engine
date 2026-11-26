@@ -47,6 +47,9 @@ namespace Droplet::Bridge
     enum class ShaderStage : std::uint8_t
     {
         Vertex,
+        TessControl,
+        TessEvaluation,
+        Geometry,
         Fragment
     };
 

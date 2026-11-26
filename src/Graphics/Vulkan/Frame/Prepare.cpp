@@ -46,19 +46,6 @@ namespace
         return gpu.PlaceholderTexture(); // never rendered
     }
 
-    /**
-     * @brief Whether an object uses a tessellation or geometry stage, which the renderer does not support
-     * @param object The object to check
-     * @returns The first such stage's GUID, or C_INVALID_GUID
-     */
-    GUID UnsupportedStageOf(const Common::RenderData& object)
-    {
-        for (const GUID stage : { object.tcsData.guid, object.tesData.guid, object.gsData.guid })
-            if (stage != C_INVALID_GUID)
-                return stage;
-        return C_INVALID_GUID;
-    }
-
     /// @brief What is drawn for an object's GUIDs; mesh and base colour are always valid
     struct ResolvedObject
     {
@@ -330,13 +317,6 @@ Render::PreparedFrame Vulkan::Prepare(
         std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
         for (const Common::RenderData& source : camera.renderData)
         {
-            if (const GUID unsupported = UnsupportedStageOf(source); unsupported != C_INVALID_GUID)
-            {
-                if (context.reportedMeshes.insert(unsupported).second)
-                    std::println("Prepare: shader {:016x} is a tessellation or geometry stage, which is not supported. "
-                                 "Objects using it are not drawn", unsupported);
-                continue;
-            }
             const ShaderGroup objectShaders{ source.vsData.guid, source.fsData.guid, source.gsData.guid, source.tcsData.guid, source.tesData.guid };
 
             if (source.dynamicMesh)
@@ -352,11 +332,13 @@ Render::PreparedFrame Vulkan::Prepare(
                     continue;
                 }
                 const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
+                const bool particle = meshInterface == DrawPass::MeshInterface::Particle;
                 if (vertexColor && !vertexColorReady)
                     continue;
+                // particles have their own vertex layout, so scene shaders cannot stand in for them
                 const ShaderGroup shaders = vertexColor
                     ? ShaderGroup(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER)
-                    : context.shaders.Resolve(objectShaders, defaultShaders);
+                    : context.shaders.Resolve(objectShaders, particle ? ShaderGroup() : defaultShaders);
                 if (!shaders.IsValid())
                     continue;
 
@@ -364,7 +346,7 @@ Render::PreparedFrame Vulkan::Prepare(
                 const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
 					shaders.vertex.id, shaders.fragment.id, shaders.tessCtrl.id, shaders.tessEval.id, shaders.geometry.id,
                     mesh, colorFormat, context.depthFormat, source.transparent));
-                const bool blended = vertexColor || source.transparent;
+                const bool blended = vertexColor || particle || source.transparent;
 
                 if (mesh.id != C_INVALID_GUID)
                 {

@@ -51,7 +51,8 @@ namespace Droplet::Graphics::Vulkan
         {
             None,       ///< no built-in shader reads it
             Scene,      ///< position, normal, uv at locations 0, 1, 2: the scene shaders and materials
-            VertexColor ///< position at 0, colour at 1: unlit, alpha blended
+            VertexColor, ///< position at 0, colour at 1: unlit, alpha blended
+            Particle     ///< point list: centre, colour, size, rotation at 0-3; expanded to quads by the geometry shader
         };
 
         /// The renderer's shader for vertex-colour meshes (unlit), compiled on first use

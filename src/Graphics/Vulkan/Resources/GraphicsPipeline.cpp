@@ -192,12 +192,18 @@ namespace Droplet::Graphics::Vulkan
             .pAttachments = blendStates.data()
         };
 
+        // triangle patches: a tessellation pipeline's topology is patch list with 3 control points per triangle
+        constexpr std::uint32_t TRIANGLE_PATCH_CONTROL_POINTS = 3;
+        const vk::PipelineTessellationStateCreateInfo tessellationInfo{ .patchControlPoints = TRIANGLE_PATCH_CONTROL_POINTS };
+        const bool tessellation = tessCtrl || tessEval;
+
         const vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> chain{
             {
                 .stageCount = stageCount,
                 .pStages = stages.data(),
                 .pVertexInputState = &vertexInputInfo,
                 .pInputAssemblyState = &inputAssemblyInfo,
+                .pTessellationState = tessellation ? &tessellationInfo : nullptr,
                 .pViewportState = &viewportInfo,
                 .pRasterizationState = &rasterInfo,
                 .pMultisampleState = &multisampleInfo,

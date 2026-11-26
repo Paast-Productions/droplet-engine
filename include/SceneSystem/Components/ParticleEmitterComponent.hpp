@@ -142,6 +142,10 @@ namespace Droplet::Scene
 		void SetTextureGUID(GUID guid);
 		[[nodiscard]] GUID GetTextureGUID() const { return m_texture.GetGUID(); }
 
+		void SetVSGUID(GUID guid);
+		void SetGSGUID(GUID guid);
+		void SetFSGUID(GUID guid);
+
 		void GenerateParticleMesh();
 
 	protected:
