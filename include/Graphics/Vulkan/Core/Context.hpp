@@ -9,6 +9,7 @@
 #include <vulkan/vulkan_raii.hpp>
 #include <vk_mem_alloc_raii.hpp>
 
+#include "Graphics/Vulkan/Core/GpuProfiler.hpp"
 #include "Graphics/Vulkan/Core/SurfaceProvider.hpp"
 #include "Graphics/Vulkan/Abstraction/Device.hpp"
 #include "Graphics/Vulkan/Abstraction/Instance.hpp"
@@ -98,6 +99,9 @@ namespace Droplet::Graphics::Vulkan
         /// @brief The VMA allocator.
         [[nodiscard]] const vma::raii::Allocator& GetAllocator() const noexcept { return m_allocator; }
 
+        /// @brief Tracy GPU profiler for the device's queues.
+        [[nodiscard]] const GpuProfiler& GetGpuProfiler() const noexcept { return m_gpuProfiler; }
+
         /// @brief Blocks until the device has finished all submitted work
         void WaitIdle() const;
         
@@ -130,6 +134,7 @@ namespace Droplet::Graphics::Vulkan
         Instance m_instance;                        ///< Instance and debug messenger.
         Surface m_surface;                          ///< Window surface.
         Device m_device;                            ///< GPU, logical device and queues.
+        GpuProfiler m_gpuProfiler;                  ///< Tracy GPU contexts; destroyed before m_device.
         vma::raii::Allocator m_allocator{nullptr};  ///< Device memory allocator.
     };
 }

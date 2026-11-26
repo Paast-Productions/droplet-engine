@@ -412,11 +412,15 @@ namespace Droplet::Graphics::Vulkan
 				cmd.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
 			}
 		};
-		drawItems(list.items);
+		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw kept meshes"};
+			drawItems(list.items);
+		}
 
 		// dynamic geometry, from this frame's stream buffers (BeginFrame)
 		if (!list.dynamicItems.empty())
 		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw streamed meshes"};
 			const Buffer& vertexStream = m_dynamicVertexBuffers[m_frameSlot];
 			const Buffer& indexStream = m_dynamicIndexBuffers[m_frameSlot];
 			if (indexStream)
@@ -443,6 +447,9 @@ namespace Droplet::Graphics::Vulkan
 		}
 
 		// kept dynamic meshes without depth test, over everything
-		drawItems(list.lateItems);
+		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw late meshes (no depth)"};
+			drawItems(list.lateItems);
+		}
 	}
 }
