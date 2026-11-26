@@ -11,8 +11,9 @@ struct GSInput
 {
     [[vk::location(0)]] float3 center : CENTER;
     [[vk::location(1)]] float4 color : COLOR;
-    [[vk::location(2)]] float size : SIZE;
+    [[vk::location(2)]] float2 size : SIZE;
     [[vk::location(3)]] float rotation : ROTATION;
+    [[vk::location(4)]] float2 billboardOffset : BILLBOARDOFFSET;
 };
 
 struct GSOutput
@@ -28,7 +29,7 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> stream)
 {
     const GSInput particle = input[0];
     const float3 centerView = mul(viewProjection.view, float4(particle.center, 1.0)).xyz;
-    const float halfSize = particle.size * 0.5;
+    const float2 halfSize = particle.size * 0.5;
     const float s = sin(particle.rotation);
     const float c = cos(particle.rotation);
 
@@ -36,10 +37,14 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> stream)
     for (int i = 0; i < 4; i++)
     {
         const float2 corner = float2((i & 1) != 0 ? 1.0 : -1.0, (i & 2) != 0 ? 1.0 : -1.0);
-        const float2 rotated = float2(c * corner.x - s * corner.y, s * corner.x + c * corner.y);
+        // scale by width and height first so the rotation turns the rectangle rather than stretching it
+        const float2 offset = corner * halfSize;
+        const float2 rotated = float2(c * offset.x - s * offset.y, s * offset.x + c * offset.y);
+        // the billboard offset is in the camera plane, so it does not turn with the rotation
+        const float2 shifted = rotated + particle.billboardOffset;
 
         GSOutput vertex;
-        vertex.position = mul(viewProjection.proj, float4(centerView + float3(rotated * halfSize, 0.0), 1.0));
+        vertex.position = mul(viewProjection.proj, float4(centerView + float3(shifted, 0.0), 1.0));
         // image top (v = 0) is the quad's top
         vertex.uv = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);
         vertex.color = particle.color;

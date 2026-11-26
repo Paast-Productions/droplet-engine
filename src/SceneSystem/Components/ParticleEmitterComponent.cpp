@@ -78,8 +78,22 @@ void ParticleEmitterComponent::StartImpl()
 
 void ParticleEmitterComponent::Play()
 {
+	// Resuming from pause continues the sequence; a fresh play restarts it so the same seed gives the same result.
+	// Also restarts a non-looping emitter that already expired, whose timers would otherwise end it immediately.
+	if (!m_paused)
+	{
+		Stop(false);
+		if (m_randomSeedEachPlay)
+			SetRandomSeed(std::random_device{}() & 0x7FFFFFFFu);
+		else
+			m_random.seed(m_randomSeed);
+		RollEmissionRate();
+	}
 	m_paused = false;
 	m_playing = true;
+	// Movement made while stopped or paused should not count as emitter travel
+	m_hasLastOwnerPosition = false;
+	m_emitterVelocity = glm::vec3(0.0f);
 }
 
 void ParticleEmitterComponent::Pause()
@@ -95,6 +109,7 @@ void ParticleEmitterComponent::Stop(bool clearParticles)
 	m_systemTime = 0.0f;
 	m_delayElapsed = 0.0f;
 	m_emissionAccumulator = 0.0f;
+	m_updateAccumulator = 0.0f;
 	m_turbulenceTime = 0.0f;
 	ResetBurstTriggers();
 	if (clearParticles)
@@ -122,6 +137,8 @@ void ParticleEmitterComponent::SetDuration(float duration) { m_duration = std::m
 void ParticleEmitterComponent::SetLooping(bool looping) { m_looping = looping; }
 void ParticleEmitterComponent::SetPlayOnAwake(bool playOnAwake) { m_playOnAwake = playOnAwake; }
 void ParticleEmitterComponent::SetStartDelay(float startDelay) { m_startDelay = std::max(0.0f, startDelay); }
+void ParticleEmitterComponent::SetTimeScale(float timeScale) { m_timeScale = std::max(0.0f, timeScale); }
+void ParticleEmitterComponent::SetUpdateRate(float updatesPerSecond) { m_updateRate = std::max(0.0f, updatesPerSecond); }
 void ParticleEmitterComponent::SetMaxParticles(uint32_t maxParticles)
 {
 	m_maxParticles = std::max(1u, maxParticles);
@@ -130,10 +147,25 @@ void ParticleEmitterComponent::SetMaxParticles(uint32_t maxParticles)
 		m_particles.resize(m_maxParticles);
 }
 void ParticleEmitterComponent::SetEmissionRate(float particlesPerSecond) { m_emissionRate = std::max(0.0f, particlesPerSecond); }
+void ParticleEmitterComponent::SetEmissionRateOverDistance(float particlesPerUnit) { m_emissionRateOverDistance = std::max(0.0f, particlesPerUnit); }
+void ParticleEmitterComponent::SetRandomizeEmissionRate(bool randomize)
+{
+	m_randomizeEmissionRate = randomize;
+	RollEmissionRate();
+}
+void ParticleEmitterComponent::SetEmissionRateRange(const FloatRange &range)
+{
+	const float min = std::max(0.0f, range.min);
+	m_emissionRateRange = { min, std::max(min, range.max) };
+	RollEmissionRate();
+}
+void ParticleEmitterComponent::SetInheritVelocity(float inheritVelocity) { m_inheritVelocity = std::max(0.0f, inheritVelocity); }
 void ParticleEmitterComponent::SetLifetimeRange(const FloatRange &range) { m_lifetimeRange = { std::max(0.001f, range.min), std::max(0.001f, range.max) }; }
 void ParticleEmitterComponent::SetSpeedRange(const FloatRange &range) { m_speedRange = range; }
-void ParticleEmitterComponent::SetSizeRange(const FloatRange &range) { m_sizeRange = { std::max(0.0f, range.min), std::max(0.0f, range.max) }; }
+void ParticleEmitterComponent::SetWidthRange(const FloatRange &range) { m_widthRange = { std::max(0.0f, range.min), std::max(0.0f, range.max) }; }
+void ParticleEmitterComponent::SetHeightRange(const FloatRange &range) { m_heightRange = { std::max(0.0f, range.min), std::max(0.0f, range.max) }; }
 void ParticleEmitterComponent::SetRotationRange(const FloatRange &range) { m_rotationRange = range; }
+void ParticleEmitterComponent::SetBillboardOffset(const glm::vec2 &offset) { m_billboardOffset = offset; }
 void ParticleEmitterComponent::SetAngularVelocityRange(const FloatRange &range) { m_angularVelocityRange = range; }
 void ParticleEmitterComponent::SetStartColorRange(const ColorRange &range) { m_startColorRange = range; }
 void ParticleEmitterComponent::SetStartColorMode(StartColorMode mode) { m_startColorMode = mode; }
@@ -146,7 +178,7 @@ void ParticleEmitterComponent::SetConeAngle(float angleDegrees) { m_coneAngle = 
 void ParticleEmitterComponent::SetRandomSeed(uint32_t seed)
 {
 	m_randomSeed = seed;
-	m_random.seed(seed);
+	m_random.seed(m_randomSeed);
 }
 
 void ParticleEmitterComponent::SetColorOverLifetime(std::vector<ColorStop> stops)
@@ -313,6 +345,13 @@ float ParticleEmitterComponent::RandomFloat(float min, float max)
 		std::swap(min, max);
 	std::uniform_real_distribution<float> distribution(min, max);
 	return distribution(m_random);
+}
+
+void ParticleEmitterComponent::RollEmissionRate()
+{
+	m_activeEmissionRate = m_randomizeEmissionRate
+		? RandomFloat(m_emissionRateRange.min, m_emissionRateRange.max)
+		: m_emissionRate;
 }
 
 glm::vec3 ParticleEmitterComponent::RandomUnitSphere()
@@ -510,7 +549,9 @@ void ParticleEmitterComponent::SpawnParticle()
 	Particle particle{};
 	particle.position = worldPosition;
 	particle.velocity = worldDirection * speed;
-	particle.baseSize = RandomFloat(m_sizeRange.min, m_sizeRange.max);
+	if (m_simulationSpace == SimulationSpace::World)
+		particle.velocity += m_emitterVelocity * m_inheritVelocity;
+	particle.baseSize = glm::vec2(RandomFloat(m_widthRange.min, m_widthRange.max), RandomFloat(m_heightRange.min, m_heightRange.max));
 	particle.size = particle.baseSize;
 	particle.rotation = glm::radians(RandomFloat(m_rotationRange.min, m_rotationRange.max));
 	particle.angularVelocity = glm::radians(RandomFloat(m_angularVelocityRange.min, m_angularVelocityRange.max));
@@ -537,6 +578,20 @@ float ParticleEmitterComponent::EvaluateCurve(const ScalarCurve &curve, float no
 
 void ParticleEmitterComponent::UpdateEmitter(float deltaTime)
 {
+	m_updateAccumulator += deltaTime * m_timeScale;
+	const float updateInterval = m_updateRate > 0.0f ? 1.0f / m_updateRate : 0.0f;
+	if (m_updateAccumulator < updateInterval)
+	{
+		if (m_debugDraw)
+			DrawDebugParticles();
+		return;
+	}
+
+	// Simulate the accumulated time in one step so motion, emission and particle ageing stay consistent
+	deltaTime = m_updateAccumulator;
+	m_updateAccumulator = 0.0f;
+
+	const glm::vec3 displacement = UpdateOwnerMotion(deltaTime);
 	UpdateParticles(deltaTime);
 
 	if (m_debugDraw)
@@ -558,6 +613,7 @@ void ParticleEmitterComponent::UpdateEmitter(float deltaTime)
 		{
 			m_systemTime = std::fmod(m_systemTime, m_duration);
 			m_emissionAccumulator = 0.0f;
+			RollEmissionRate();
 			ResetBurstTriggers();
 		}
 		else
@@ -568,10 +624,32 @@ void ParticleEmitterComponent::UpdateEmitter(float deltaTime)
 	}
 
 	UpdateBurstEmission();
-	m_emissionAccumulator += m_emissionRate * deltaTime;
+	const float emissionRate = m_randomizeEmissionRate ? m_activeEmissionRate : m_emissionRate;
+	m_emissionAccumulator += emissionRate * deltaTime + m_emissionRateOverDistance * glm::length(displacement);
 	uint32_t toEmit = static_cast<uint32_t>(m_emissionAccumulator);
 	m_emissionAccumulator -= static_cast<float>(toEmit);
 	Emit(toEmit);
+}
+
+glm::vec3 ParticleEmitterComponent::UpdateOwnerMotion(float deltaTime)
+{
+	if (!GetOwner())
+	{
+		m_emitterVelocity = glm::vec3(0.0f);
+		return glm::vec3(0.0f);
+	}
+
+	// Scaled deltaTime keeps inherited velocity in the same time base as particle motion
+	const glm::vec3 origin = GetOwner()->GetTransform().GetPosition(Transform::Space::World);
+	glm::vec3 displacement(0.0f);
+	if (m_hasLastOwnerPosition && deltaTime > 0.0f)
+	{
+		displacement = origin - m_lastOwnerPosition;
+		m_emitterVelocity = displacement / deltaTime;
+	}
+	m_lastOwnerPosition = origin;
+	m_hasLastOwnerPosition = true;
+	return displacement;
 }
 
 void ParticleEmitterComponent::UpdateParticles(float deltaTime)
@@ -707,7 +785,7 @@ void ParticleEmitterComponent::DrawDebugParticles()
 
 	for (const Particle &particle : m_particles)
 	{
-		const float radius = std::max(0.001f, particle.size * 0.5f);
+		const float radius = std::max(0.001f, std::max(particle.size.x, particle.size.y) * 0.5f);
 
 		glm::vec3 pos = particle.position;
 		if (m_simulationSpace == SimulationSpace::Local)
@@ -960,8 +1038,14 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	json["looping"] = m_looping;
 	json["playOnAwake"] = m_playOnAwake;
 	json["startDelay"] = m_startDelay;
+	json["timeScale"] = m_timeScale;
+	json["updateRate"] = m_updateRate;
 	json["maxParticles"] = m_maxParticles;
 	json["emissionRate"] = m_emissionRate;
+	json["emissionRateOverDistance"] = m_emissionRateOverDistance;
+	json["randomizeEmissionRate"] = m_randomizeEmissionRate;
+	json["emissionRateRange"] = { m_emissionRateRange.min, m_emissionRateRange.max };
+	json["inheritVelocity"] = m_inheritVelocity;
 	json["gravityModifier"] = m_gravityModifier;
 	json["emissionShape"] = static_cast<int>(m_emissionShape);
 	json["simulationSpace"] = static_cast<int>(m_simulationSpace);
@@ -970,6 +1054,7 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	json["shapeBoxSize"] = { m_shapeBoxSize.x, m_shapeBoxSize.y, m_shapeBoxSize.z };
 	json["coneAngle"] = m_coneAngle;
 	json["transparent"] = m_transparent;
+	json["billboardOffset"] = { m_billboardOffset.x, m_billboardOffset.y };
 	json["debugDraw"] = m_debugDraw;
 	json["textureGUID"] = GetTextureGUID();
 	json["textureDisplayName"] = m_textureDisplayName;
@@ -982,7 +1067,8 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 
 	json["lifetimeRange"] = { m_lifetimeRange.min, m_lifetimeRange.max };
 	json["speedRange"] = { m_speedRange.min, m_speedRange.max };
-	json["sizeRange"] = { m_sizeRange.min, m_sizeRange.max };
+	json["widthRange"] = { m_widthRange.min, m_widthRange.max };
+	json["heightRange"] = { m_heightRange.min, m_heightRange.max };
 	json["rotationRange"] = { m_rotationRange.min, m_rotationRange.max };
 	json["angularVelocityRange"] = { m_angularVelocityRange.min, m_angularVelocityRange.max };
 	json["startColorRange"] = {
@@ -999,6 +1085,7 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	SerializeCurve(json, "rotationOverLifetime", m_rotationOverLifetime);
 
 	json["randomSeed"] = m_randomSeed;
+	json["randomSeedEachPlay"] = m_randomSeedEachPlay;
 	json["directionMode"] = static_cast<int>(m_directionMode);
 	json["direction"] = { m_direction.x, m_direction.y, m_direction.z };
 	json["directionSpread"] = m_directionSpread;
@@ -1030,8 +1117,18 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	if (p_compJson.contains("looping")) SetLooping(p_compJson["looping"].get<bool>());
 	if (p_compJson.contains("playOnAwake")) SetPlayOnAwake(p_compJson["playOnAwake"].get<bool>());
 	if (p_compJson.contains("startDelay")) SetStartDelay(p_compJson["startDelay"].get<float>());
+	if (p_compJson.contains("timeScale")) SetTimeScale(p_compJson["timeScale"].get<float>());
+	if (p_compJson.contains("updateRate")) SetUpdateRate(p_compJson["updateRate"].get<float>());
 	if (p_compJson.contains("maxParticles")) SetMaxParticles(p_compJson["maxParticles"].get<uint32_t>());
 	if (p_compJson.contains("emissionRate")) SetEmissionRate(p_compJson["emissionRate"].get<float>());
+	if (p_compJson.contains("emissionRateOverDistance")) SetEmissionRateOverDistance(p_compJson["emissionRateOverDistance"].get<float>());
+	if (p_compJson.contains("emissionRateRange"))
+	{
+		const auto &v = p_compJson["emissionRateRange"];
+		SetEmissionRateRange({ v[0].get<float>(), v[1].get<float>() });
+	}
+	if (p_compJson.contains("randomizeEmissionRate")) SetRandomizeEmissionRate(p_compJson["randomizeEmissionRate"].get<bool>());
+	if (p_compJson.contains("inheritVelocity")) SetInheritVelocity(p_compJson["inheritVelocity"].get<float>());
 	if (p_compJson.contains("gravityModifier")) SetGravityModifier(p_compJson["gravityModifier"].get<float>());
 	if (p_compJson.contains("emissionShape"))
 		SetEmissionShape(static_cast<EmissionShape>(p_compJson["emissionShape"].get<int>()));
@@ -1047,6 +1144,11 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	}
 	if (p_compJson.contains("coneAngle")) SetConeAngle(p_compJson["coneAngle"].get<float>());
 	if (p_compJson.contains("transparent")) m_transparent = p_compJson["transparent"].get<bool>();
+	if (p_compJson.contains("billboardOffset"))
+	{
+		const auto &v = p_compJson["billboardOffset"];
+		SetBillboardOffset(glm::vec2(v[0].get<float>(), v[1].get<float>()));
+	}
 	if (p_compJson.contains("debugDraw")) SetDebugDraw(p_compJson["debugDraw"].get<bool>());
 	if (p_compJson.contains("textureGUID")) SetTextureGUID(p_compJson["textureGUID"].get<GUID>());
 	if (p_compJson.contains("textureDisplayName")) m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
@@ -1067,10 +1169,22 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 		const auto &v = p_compJson["speedRange"];
 		SetSpeedRange({ v[0].get<float>(), v[1].get<float>() });
 	}
-	if (p_compJson.contains("sizeRange"))
+	if (p_compJson.contains("widthRange"))
+	{
+		const auto &v = p_compJson["widthRange"];
+		SetWidthRange({ v[0].get<float>(), v[1].get<float>() });
+	}
+	if (p_compJson.contains("heightRange"))
+	{
+		const auto &v = p_compJson["heightRange"];
+		SetHeightRange({ v[0].get<float>(), v[1].get<float>() });
+	}
+	// Scenes saved before width/height existed have a single uniform size range
+	if (p_compJson.contains("sizeRange") && !p_compJson.contains("widthRange") && !p_compJson.contains("heightRange"))
 	{
 		const auto &v = p_compJson["sizeRange"];
-		SetSizeRange({ v[0].get<float>(), v[1].get<float>() });
+		SetWidthRange({ v[0].get<float>(), v[1].get<float>() });
+		SetHeightRange({ v[0].get<float>(), v[1].get<float>() });
 	}
 	if (p_compJson.contains("rotationRange"))
 	{
@@ -1101,6 +1215,7 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	DeserializeCurve(p_compJson, "rotationOverLifetime", m_rotationOverLifetime);
 
 	if (p_compJson.contains("randomSeed")) SetRandomSeed(p_compJson["randomSeed"].get<uint32_t>());
+	if (p_compJson.contains("randomSeedEachPlay")) SetRandomSeedEachPlay(p_compJson["randomSeedEachPlay"].get<bool>());
 	if (p_compJson.contains("directionMode"))
 		m_directionMode = static_cast<DirectionMode>(p_compJson["directionMode"].get<int>());
 	if (p_compJson.contains("direction"))
@@ -1161,6 +1276,31 @@ void ParticleEmitterComponent::RenderUIImpl()
 	PushID(this);
 	PushItemWidth(GetFontSize() * 12.0f);
 
+	auto ResetOnRightClick = [](auto &&reset) {
+		if (ImGui::BeginPopupContextItem())
+		{
+			if (ImGui::MenuItem("Reset"))
+				reset();
+			ImGui::EndPopup();
+		}
+	};
+
+	auto RenderRange = [&ResetOnRightClick](const char *label, const char *tooltip, FloatRange &range, float speed, float minLimit, float maxLimit, FloatRange defaults) {
+		float values[2] = { range.min, range.max };
+		if (ImGui::DragFloat2(label, values, speed, minLimit, maxLimit))
+		{
+			// Only the component that changed may move, and it must not cross the other one
+			if (values[0] != range.min)
+				values[0] = std::min(values[0], values[1]);
+			else
+				values[1] = std::max(values[1], values[0]);
+			range.min = values[0];
+			range.max = values[1];
+		}
+		ImGui::SetItemTooltip("%s", tooltip);
+		ResetOnRightClick([&] { range = defaults; });
+	};
+
 	if (Button(m_playing ? "Pause" : "Play"))
 	{
 		if (m_playing)
@@ -1168,12 +1308,15 @@ void ParticleEmitterComponent::RenderUIImpl()
 		else
 			Play();
 	}
+	SetItemTooltip("Start the emitter, or pause it while it is playing.");
 	SameLine();
 	if (Button("Stop"))
 		Stop(true);
+	SetItemTooltip("Stop the emitter and clear all particles.");
 	SameLine();
 	if (Button("Burst"))
 		Emit(std::max(1u, m_bursts.empty() ? 30u : m_bursts.front().count));
+	SetItemTooltip("Emit one burst of particles immediately.");
 
 	auto RenderGradientEditor = [](const char *label, std::vector<ColorStop> &stops) {
 		ImGuiStorage *storage = ImGui::GetStateStorage();
@@ -1204,6 +1347,7 @@ void ParticleEmitterComponent::RenderUIImpl()
 		drawList->AddRect(origin, ImVec2(origin.x + barWidth, origin.y + barHeight), IM_COL32(255, 255, 255, 60));
 
 		InvisibleButton(label, ImVec2(barWidth, barHeight + handleRow));
+		SetItemTooltip("Colour across the particle's lifetime, from birth (left) to death (right).");
 		const bool hovered = IsItemHovered();
 
 		if (IsItemActivated())
@@ -1266,10 +1410,13 @@ void ParticleEmitterComponent::RenderUIImpl()
 				stops[i].time = time;
 				changed = true;
 			}
+			ImGui::SetItemTooltip("Position of this stop along the lifetime, from 0 for birth to 1 for death.");
 			ImGui::ColorEdit4("Color", &stops[i].color.r, ImGuiColorEditFlags_AlphaBar);
+			ImGui::SetItemTooltip("Colour and alpha at this stop.");
 			ImGui::BeginDisabled(stops.size() <= 1);
 			if (ImGui::Button("Remove"))
 				removeIndex = i;
+			ImGui::SetItemTooltip("Remove this colour stop. At least one stop is kept.");
 			ImGui::EndDisabled();
 			ImGui::Separator();
 			PopID();
@@ -1284,12 +1431,14 @@ void ParticleEmitterComponent::RenderUIImpl()
 			stops.push_back({ 1.0f, stops.empty() ? glm::vec4(1.0f) : stops.back().color });
 			changed = true;
 		}
+		ImGui::SetItemTooltip("Add a stop at the end of the lifetime.");
 		ImGui::SameLine();
 		if (ImGui::Button("Reset"))
 		{
 			stops = { { 0.0f, glm::vec4(1.0f) }, { 1.0f, glm::vec4(1.0f) } };
 			changed = true;
 		}
+		ImGui::SetItemTooltip("Restore the default gradient: white, fully opaque.");
 		if (changed)
 			SortColorStops(stops);
 	};
@@ -1297,30 +1446,79 @@ void ParticleEmitterComponent::RenderUIImpl()
 	if (CollapsingHeader("General", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		Checkbox("Looping", &m_looping);
+		SetItemTooltip("Restart the emitter automatically when its duration ends.");
+		ResetOnRightClick([&] { SetLooping(true); });
 		Checkbox("Play On Awake", &m_playOnAwake);
-		DragFloat("Duration", &m_duration, 0.1f, 0.001f, 3600.0f);
-		DragFloat("Start Delay", &m_startDelay, 0.05f, 0.0f, 3600.0f);
+		SetItemTooltip("Start emitting as soon as the scene loads.");
+		ResetOnRightClick([&] { SetPlayOnAwake(true); });
+		DragFloat("Duration", &m_duration, 0.05f, 0.001f, 3600.0f);
+		SetItemTooltip("Length of one emission cycle, in seconds. Bursts are timed within it.");
+		ResetOnRightClick([&] { SetDuration(5.0f); });
+		DragFloat("Start Delay", &m_startDelay, 0.025f, 0.0f, 60.0f);
+		SetItemTooltip("Seconds to wait after playing before the first particle is emitted.");
+		ResetOnRightClick([&] { SetStartDelay(0.0f); });
+		float timeScale = m_timeScale;
+		if (DragFloat("Time Scale", &timeScale, 0.005f, 0.0f))
+			SetTimeScale(timeScale);
+		SetItemTooltip("Speed multiplier for the simulation. 0 freezes it, 2 runs at double speed.");
+		ResetOnRightClick([&] { SetTimeScale(1.0f); });
+		float updateRate = m_updateRate;
+		if (DragFloat("Update Rate (Hz)", &updateRate, 0.25f, 0.0f, 1000.0f))
+			SetUpdateRate(updateRate);
+		SetItemTooltip("Simulation updates per second, capped to once per frame. 0: every frame.");
+		ResetOnRightClick([&] { SetUpdateRate(0.0f); });
 
 		int maxParticles = static_cast<int>(m_maxParticles);
-		if (DragInt("Max Particles", &maxParticles, 1.0f, 1, 1000000))
+		if (DragInt("Max Particles", &maxParticles, 0.5f, 1, 1000000))
 			SetMaxParticles(static_cast<uint32_t>(maxParticles));
+		SetItemTooltip("Maximum number of particles alive at once.");
+		ResetOnRightClick([&] { SetMaxParticles(1000u); });
 
 		int seed = static_cast<int>(m_randomSeed & 0x7FFFFFFFu);
-		if (DragInt("Random Seed", &seed, 1.0f, 0, 0x7FFFFFFF))
+		if (DragInt("Random Seed", &seed, 0.5f, 0, 0x7FFFFFFF))
 			SetRandomSeed(static_cast<uint32_t>(seed));
+		SetItemTooltip("Seed for all random values. The same seed gives the same result.");
+		ResetOnRightClick([&] { SetRandomSeed(0xD20B1E7u); });
 		SameLine();
 		if (Button("Reroll"))
 			SetRandomSeed(static_cast<uint32_t>(m_random()) & 0x7FFFFFFFu);
+		SetItemTooltip("Pick a new random seed.");
+		Checkbox("Random Seed Each Play", &m_randomSeedEachPlay);
+		SetItemTooltip("Use a new random seed every time the emitter plays. Turn off to replay the same result from the seed above.");
+		ResetOnRightClick([&] { SetRandomSeedEachPlay(false); });
 
 		const char *spaceNames[] = { "Local", "World" };
 		int space = static_cast<int>(m_simulationSpace);
 		if (Combo("Simulation Space", &space, spaceNames, IM_ARRAYSIZE(spaceNames)))
 			m_simulationSpace = static_cast<SimulationSpace>(space);
+		SetItemTooltip("Local: particles move with the emitter. World: particles stay where they were emitted.");
+		ResetOnRightClick([&] { SetSimulationSpace(SimulationSpace::World); });
 	}
 
 	if (CollapsingHeader("Emission", ImGuiTreeNodeFlags_DefaultOpen))
 	{
-		DragFloat("Emission Rate", &m_emissionRate, 0.5f, 0.0f, 100000.0f);
+		if (Checkbox("Randomize Emission Rate", &m_randomizeEmissionRate))
+			RollEmissionRate();
+		SetItemTooltip("Roll the emission rate from a range instead of using a fixed value.");
+		ResetOnRightClick([&] { SetRandomizeEmissionRate(false); });
+		if (m_randomizeEmissionRate)
+		{
+			const FloatRange before = m_emissionRateRange;
+			RenderRange("Emission Rate", "Range the emission rate is rolled from each time the emitter starts or loops.", m_emissionRateRange, 0.25f, 0.0f, 100000.0f, { 5.0f, 15.0f });
+			if (before.min != m_emissionRateRange.min || before.max != m_emissionRateRange.max)
+				RollEmissionRate();
+			TextDisabled("A new rate is rolled each time the emitter starts or loops.");
+		}
+		else
+		{
+			DragFloat("Emission Rate", &m_emissionRate, 0.25f, 0.0f, 100000.0f);
+			SetItemTooltip("Particles emitted per second.");
+			ResetOnRightClick([&] { SetEmissionRate(10.0f); });
+		}
+		DragFloat("Emission Rate Over Distance", &m_emissionRateOverDistance, 0.025f, 0.0f, 100000.0f);
+		SetItemTooltip("Extra particles emitted per world unit the emitter travels, on top of the rate.");
+		ResetOnRightClick([&] { SetEmissionRateOverDistance(0.0f); });
+		TextDisabled("Particles per world unit the emitter travels.");
 
 		if (TreeNodeEx(("Bursts (" + std::to_string(m_bursts.size()) + ")###Bursts").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -1333,12 +1531,17 @@ void ParticleEmitterComponent::RenderUIImpl()
 				{
 					float time = m_bursts[i].time;
 					int count = static_cast<int>(m_bursts[i].count);
-					if (DragFloat("Time", &time, 0.05f, 0.0f, m_duration))
+					if (DragFloat("Time", &time, 0.025f, 0.0f, m_duration))
 						m_bursts[i].time = std::max(0.0f, time);
-					if (DragInt("Count", &count, 1.0f, 1, 1000000))
+					SetItemTooltip("Time in the emission cycle, in seconds, when this burst fires.");
+					ResetOnRightClick([&] { m_bursts[i].time = 0.0f; });
+					if (DragInt("Count", &count, 0.5f, 1, 1000000))
 						m_bursts[i].count = static_cast<uint32_t>(std::max(1, count));
+					SetItemTooltip("Number of particles emitted by this burst.");
+					ResetOnRightClick([&] { m_bursts[i].count = 30u; });
 					if (Button("Remove"))
 						removeIndex = i;
+					SetItemTooltip("Remove this burst.");
 					TreePop();
 				}
 				PopID();
@@ -1347,9 +1550,44 @@ void ParticleEmitterComponent::RenderUIImpl()
 				m_bursts.erase(m_bursts.begin() + removeIndex);
 			if (Button("Add Burst"))
 				AddBurst(0.0f, 30);
+			SetItemTooltip("Add a burst at time 0 with 30 particles.");
 			TreePop();
 		}
 	}
+	if (CollapsingHeader("Start Values", ImGuiTreeNodeFlags_DefaultOpen))
+	{
+		RenderRange("Lifetime", "Range particle lifetimes are picked from, in seconds.", m_lifetimeRange, 0.025f, 0.001f, 3600.0f, { 1.0f, 2.0f });
+		RenderRange("Speed", "Range initial particle speeds are picked from, in units per second.", m_speedRange, 0.025f, -1000.0f, 1000.0f, { 5.0f, 5.0f });
+		if (m_simulationSpace == SimulationSpace::World)
+		{
+			float inheritVelocity = m_inheritVelocity;
+			if (DragFloat("Inherit Velocity", &inheritVelocity, 0.005f, 0.0f, 100.0f))
+				SetInheritVelocity(inheritVelocity);
+			SetItemTooltip("Fraction of the emitter's velocity that new particles inherit. World space only.");
+			ResetOnRightClick([&] { SetInheritVelocity(0.0f); });
+		}
+		else
+		{
+			TextDisabled("Inherit Velocity requires World simulation space.");
+		}
+		RenderRange("Width", "Range particle widths are picked from, in world units.", m_widthRange, 0.005f, 0.0f, 1000.0f, { 0.1f, 0.1f });
+		RenderRange("Height", "Range particle heights are picked from, in world units.", m_heightRange, 0.005f, 0.0f, 1000.0f, { 0.1f, 0.1f });
+		RenderRange("Rotation", "Range initial particle rotations are picked from, in degrees.", m_rotationRange, 0.5f, -3600.0f, 3600.0f, { 0.0f, 360.0f });
+		RenderRange("Angular Velocity", "Range particle spin speeds are picked from, in degrees per second.", m_angularVelocityRange, 0.5f, -3600.0f, 3600.0f, { 0.0f, 0.0f });
+		ColorEdit4("Start Color Min", &m_startColorRange.min.r);
+		SetItemTooltip("Lower colour bound. Each particle's starting colour is picked between Min and Max.");
+		ResetOnRightClick([&] { m_startColorRange.min = glm::vec4(1.0f); });
+		ColorEdit4("Start Color Max", &m_startColorRange.max.r);
+		SetItemTooltip("Upper colour bound. Each particle's starting colour is picked between Min and Max.");
+		ResetOnRightClick([&] { m_startColorRange.max = glm::vec4(1.0f); });
+		const char *startColorModeNames[] = { "Random Per Component", "Lerp", "Spherical Lerp" };
+		int startColorMode = static_cast<int>(m_startColorMode);
+		if (Combo("Start Color Mode", &startColorMode, startColorModeNames, IM_ARRAYSIZE(startColorModeNames)))
+			m_startColorMode = static_cast<StartColorMode>(startColorMode);
+		SetItemTooltip("How colours are picked between Min and Max. Random Per Component picks each channel independently; Lerp blends linearly; Spherical Lerp blends along the colour direction.");
+		ResetOnRightClick([&] { SetStartColorMode(StartColorMode::Lerp); });
+	}
+
 
 	if (CollapsingHeader("Shape", ImGuiTreeNodeFlags_DefaultOpen))
 	{
@@ -1357,41 +1595,34 @@ void ParticleEmitterComponent::RenderUIImpl()
 		int shape = static_cast<int>(m_emissionShape);
 		if (Combo("Emission Shape", &shape, shapeNames, IM_ARRAYSIZE(shapeNames)))
 			SetEmissionShape(static_cast<EmissionShape>(shape));
+		SetItemTooltip("Region particles spawn in. The Shape direction mode uses its directions.");
+		ResetOnRightClick([&] { SetEmissionShape(EmissionShape::Point); });
 
 		if (m_emissionShape == EmissionShape::Sphere || m_emissionShape == EmissionShape::Hemisphere ||
 			m_emissionShape == EmissionShape::Cone || m_emissionShape == EmissionShape::Circle)
 		{
 			float radius = m_shapeRadius;
-			if (DragFloat("Radius", &radius, 0.05f, 0.0f, 1000.0f))
+			if (DragFloat("Radius", &radius, 0.025f, 0.0f, 1000.0f))
 				SetShapeRadius(radius);
+			SetItemTooltip("Radius of the shape, in world units.");
+			ResetOnRightClick([&] { SetShapeRadius(1.0f); });
 		}
 		if (m_emissionShape == EmissionShape::Box)
 		{
 			glm::vec3 boxSize = m_shapeBoxSize;
-			if (DragFloat3("Box Size", &boxSize.x, 0.05f, 0.0f, 1000.0f))
+			if (DragFloat3("Box Size", &boxSize.x, 0.025f, 0.0f, 1000.0f))
 				SetShapeBoxSize(boxSize);
+			SetItemTooltip("Full width, height and depth of the box, in world units.");
+			ResetOnRightClick([&] { SetShapeBoxSize(glm::vec3(1.0f)); });
 		}
 		if (m_emissionShape == EmissionShape::Cone)
 		{
 			float angle = m_coneAngle;
-			if (DragFloat("Cone Angle", &angle, 0.5f, 0.0f, 180.0f))
+			if (DragFloat("Cone Angle", &angle, 0.25f, 0.0f, 180.0f))
 				SetConeAngle(angle);
+			SetItemTooltip("Half-angle of the cone, in degrees, measured from its axis to its edge.");
+			ResetOnRightClick([&] { SetConeAngle(25.0f); });
 		}
-	}
-
-	if (CollapsingHeader("Start Values", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		DragFloat2("Lifetime Range", &m_lifetimeRange.min, 0.05f, 0.001f, 3600.0f);
-		DragFloat2("Speed Range", &m_speedRange.min, 0.05f, -1000.0f, 1000.0f);
-		DragFloat2("Size Range", &m_sizeRange.min, 0.01f, 0.0f, 1000.0f);
-		DragFloat2("Rotation Range", &m_rotationRange.min, 1.0f, -3600.0f, 3600.0f);
-		DragFloat2("Angular Velocity", &m_angularVelocityRange.min, 1.0f, -3600.0f, 3600.0f);
-		ColorEdit4("Start Color Min", &m_startColorRange.min.r);
-		ColorEdit4("Start Color Max", &m_startColorRange.max.r);
-		const char *startColorModeNames[] = { "Random Per Component", "Lerp", "Spherical Lerp" };
-		int startColorMode = static_cast<int>(m_startColorMode);
-		if (Combo("Start Color Mode", &startColorMode, startColorModeNames, IM_ARRAYSIZE(startColorModeNames)))
-			m_startColorMode = static_cast<StartColorMode>(startColorMode);
 	}
 
 	if (CollapsingHeader("Direction"))
@@ -1400,21 +1631,29 @@ void ParticleEmitterComponent::RenderUIImpl()
 		int directionMode = static_cast<int>(m_directionMode);
 		if (Combo("Direction Mode", &directionMode, directionNames, IM_ARRAYSIZE(directionNames)))
 			SetDirectionMode(static_cast<DirectionMode>(directionMode));
+		SetItemTooltip("Shape: use the shape's own directions. Fixed: one direction with spread. Towards Point: aim at a point. Random Point In Shape: aim each particle at a random point inside the shape.");
+		ResetOnRightClick([&] { SetDirectionMode(DirectionMode::Shape); });
 
 		if (m_directionMode == DirectionMode::Fixed)
 		{
 			glm::vec3 direction = m_direction;
-			if (DragFloat3("Direction", &direction.x, 0.01f))
+			if (DragFloat3("Direction", &direction.x, 0.005f))
 				SetDirection(direction);
+			SetItemTooltip("Base travel direction, in emitter-local space.");
+			ResetOnRightClick([&] { SetDirection(glm::vec3(0.0f, 1.0f, 0.0f)); });
 			float spread = m_directionSpread;
-			if (DragFloat("Spread", &spread, 0.5f, 0.0f, 180.0f))
+			if (DragFloat("Spread", &spread, 0.25f, 0.0f, 180.0f))
 				SetDirectionSpread(spread);
+			SetItemTooltip("Random angle, in degrees, that particles may deviate from the base direction.");
+			ResetOnRightClick([&] { SetDirectionSpread(0.0f); });
 		}
 		else if (m_directionMode == DirectionMode::TowardsPoint)
 		{
 			glm::vec3 target = m_targetPoint;
-			if (DragFloat3("Target Point", &target.x, 0.05f))
+			if (DragFloat3("Target Point", &target.x, 0.025f))
 				SetTargetPoint(target);
+			SetItemTooltip("Point, in emitter-local space, that particles are aimed at.");
+			ResetOnRightClick([&] { SetTargetPoint(glm::vec3(0.0f, 5.0f, 0.0f)); });
 			TextDisabled("Particles are aimed at this point in emitter-local space.");
 		}
 		else if (m_directionMode == DirectionMode::RandomPointInShape)
@@ -1429,29 +1668,26 @@ void ParticleEmitterComponent::RenderUIImpl()
 
 	if (CollapsingHeader("Forces"))
 	{
-		DragFloat("Gravity Modifier", &m_gravityModifier, 0.05f, -10.0f, 10.0f);
+		DragFloat("Gravity Modifier", &m_gravityModifier, 0.025f, -10.0f, 10.0f);
+		SetItemTooltip("Scales gravity. 0 disables it, negative values pull particles upward.");
+		ResetOnRightClick([&] { SetGravityModifier(0.0f); });
 
 		glm::vec3 acceleration = m_acceleration;
-		if (DragFloat3("Acceleration", &acceleration.x, 0.05f, -100.0f, 100.0f))
+		if (DragFloat3("Acceleration", &acceleration.x, 0.025f, -100.0f, 100.0f))
 			SetAcceleration(acceleration);
+		SetItemTooltip("Constant acceleration added to every particle's velocity each second.");
+		ResetOnRightClick([&] { SetAcceleration(glm::vec3(0.0f)); });
 
 		float turbulenceStrength = m_turbulenceStrength;
-		if (DragFloat("Turbulence Strength", &turbulenceStrength, 0.05f, 0.0f, 100.0f))
+		if (DragFloat("Turbulence Strength", &turbulenceStrength, 0.025f, 0.0f, 100.0f))
 			SetTurbulenceStrength(turbulenceStrength);
+		SetItemTooltip("Strength of a noise-based force that pushes particles around.");
+		ResetOnRightClick([&] { SetTurbulenceStrength(0.0f); });
 		float turbulenceFrequency = m_turbulenceFrequency;
-		if (DragFloat("Turbulence Frequency", &turbulenceFrequency, 0.05f, 0.0f, 100.0f))
+		if (DragFloat("Turbulence Frequency", &turbulenceFrequency, 0.025f, 0.0f, 100.0f))
 			SetTurbulenceFrequency(turbulenceFrequency);
-	}
-
-	if (CollapsingHeader("Color Over Lifetime"))
-	{
-		TextDisabled("Drag handles to move them. Double-click the bar to add a stop.");
-		RenderGradientEditor("##Color Gradient", m_colorOverLifetime);
-		if (TreeNodeEx(("Color Stops (" + std::to_string(m_colorOverLifetime.size()) + ")###ColorStops").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			RenderColorStopList(m_colorOverLifetime);
-			TreePop();
-		}
+		SetItemTooltip("How quickly the turbulence changes across space and time.");
+		ResetOnRightClick([&] { SetTurbulenceFrequency(1.0f); });
 	}
 
 	if (CollapsingHeader("Orbit Points"))
@@ -1465,21 +1701,36 @@ void ParticleEmitterComponent::RenderUIImpl()
 			if (TreeNodeEx(label.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				OrbitPoint &orbit = m_orbitPoints[i];
-				DragFloat3("Position", &orbit.position.x, 0.05f);
+				DragFloat3("Position", &orbit.position.x, 0.025f);
+				SetItemTooltip("Centre of the orbit point, in emitter-local space.");
+				ResetOnRightClick([&] { orbit.position = glm::vec3(0.0f); });
 				Checkbox("Gravity Only", &orbit.gravityOnly);
+				SetItemTooltip("Attract particles like a gravity well instead of orbiting them in a ring.");
+				ResetOnRightClick([&] { orbit.gravityOnly = false; });
 				if (orbit.gravityOnly)
 				{
-					DragFloat("Softening", &orbit.softening, 0.01f, 0.01f, 1000.0f);
+					DragFloat("Softening", &orbit.softening, 0.005f, 0.01f, 1000.0f);
+					SetItemTooltip("Softens the pull near the centre. Higher values give a gentler pull.");
+					ResetOnRightClick([&] { orbit.softening = 0.5f; });
 				}
 				else
 				{
-					DragFloat3("Axis", &orbit.axis.x, 0.01f, -1.0f, 1.0f);
-					DragFloat("Radius", &orbit.radius, 0.05f, 0.0f, 1000.0f);
-					DragFloat("Angular Speed", &orbit.angularSpeed, 0.05f, -100.0f, 100.0f);
+					DragFloat3("Axis", &orbit.axis.x, 0.005f, -1.0f, 1.0f);
+					SetItemTooltip("Rotation axis of the orbit ring.");
+					ResetOnRightClick([&] { orbit.axis = glm::vec3(0.0f, 1.0f, 0.0f); });
+					DragFloat("Radius", &orbit.radius, 0.025f, 0.0f, 1000.0f);
+					SetItemTooltip("Radius of the orbit ring, in world units.");
+					ResetOnRightClick([&] { orbit.radius = 1.0f; });
+					DragFloat("Angular Speed", &orbit.angularSpeed, 0.025f, -100.0f, 100.0f);
+					SetItemTooltip("How fast particles circle the ring. Negative values reverse the direction.");
+					ResetOnRightClick([&] { orbit.angularSpeed = 1.0f; });
 				}
-				DragFloat("Strength", &orbit.strength, 0.1f, 0.0f, 100.0f);
+				DragFloat("Strength", &orbit.strength, 0.05f, 0.0f, 100.0f);
+				SetItemTooltip("How strongly particles are pulled toward the orbit or gravity well.");
+				ResetOnRightClick([&] { orbit.strength = 5.0f; });
 				if (Button("Remove"))
 					removeIndex = i;
+				SetItemTooltip("Remove this orbit point.");
 				TreePop();
 			}
 			PopID();
@@ -1488,9 +1739,10 @@ void ParticleEmitterComponent::RenderUIImpl()
 			m_orbitPoints.erase(m_orbitPoints.begin() + removeIndex);
 		if (Button("Add Orbit Point"))
 			AddOrbitPoint({});
+		SetItemTooltip("Add an orbit point at the emitter origin.");
 	}
 
-	auto RenderCurve = [](const char *label, ScalarCurve &curve) {
+	auto RenderCurve = [&ResetOnRightClick](const char *label, const char *tooltip, ScalarCurve &curve) {
 		BeginChild(label, ImVec2(ImGui::GetContentRegionAvail().x, 0), ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY);
 
 		std::vector<ImGui::BezierPoint> points;
@@ -1543,41 +1795,63 @@ void ParticleEmitterComponent::RenderUIImpl()
 
 			if (ImGui::Combo("Curve Type", &curveType, curveTypeNames, IM_ARRAYSIZE(curveTypeNames)))
 				curve.type = static_cast<Curves::CurveType>(curveType);
+			ResetOnRightClick([&] { curve.type = Curves::CurveType::Linear; });
 
-			if (ImGui::DragInt("Height", &height, 1.0f, 1))
+			if (ImGui::DragInt("Height", &height, 0.5f, 1))
 				storage->SetInt(heightID, height);
+			ResetOnRightClick([&] { storage->SetInt(heightID, 150); });
 
-			ImVec2 minMaxValue(minValue, maxValue);
-			if (ImGui::DragFloat2("Value Range", &minMaxValue.x, 0.01f))
+			if (ImGui::DragFloat("Min Value", &minValue, 0.005f))
 			{
-				storage->SetFloat(minValueID, minMaxValue.x);
-				storage->SetFloat(maxValueID, minMaxValue.y);
+				minValue = std::min(minValue, maxValue);
+				storage->SetFloat(minValueID, minValue);
 			}
+			ResetOnRightClick([&] { storage->SetFloat(minValueID, 0.0f); });
 
-			if (ImGui::DragFloat("Line Thickness", &lineThickness, 0.1f, 1))
+			if (ImGui::DragFloat("Max Value", &maxValue, 0.005f))
+			{
+				maxValue = std::max(maxValue, minValue);
+				storage->SetFloat(maxValueID, maxValue);
+			}
+			ResetOnRightClick([&] { storage->SetFloat(maxValueID, 2.0f); });
+
+			if (ImGui::DragFloat("Line Thickness", &lineThickness, 0.05f, 1))
 				storage->SetFloat(lineThicknessID, lineThickness);
+			ResetOnRightClick([&] { storage->SetFloat(lineThicknessID, 3.0f); });
 
 			ImGui::EndPopup();
 		}
 
 		EndChild();
+		SetItemTooltip("%s", tooltip);
 	};
 
 	if (CollapsingHeader("Over Lifetime", ImGuiTreeNodeFlags_DefaultOpen))
 	{
 		if (TreeNodeEx("Size", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			RenderCurve("##Size Over Lifetime", m_sizeOverLifetime);
+			RenderCurve("##Size Over Lifetime", "Multiplier for particle size, from birth (left) to death (right).", m_sizeOverLifetime);
 			TreePop();
 		}
 		if (TreeNodeEx("Velocity", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			RenderCurve("##Velocity Over Lifetime", m_velocityOverLifetime);
+			RenderCurve("##Velocity Over Lifetime", "Multiplier for particle velocity, from birth (left) to death (right).", m_velocityOverLifetime);
 			TreePop();
 		}
 		if (TreeNodeEx("Rotation", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			RenderCurve("##Rotation Over Lifetime", m_rotationOverLifetime);
+			RenderCurve("##Rotation Over Lifetime", "Extra spin added to each particle, from birth (left) to death (right).", m_rotationOverLifetime);
+			TreePop();
+		}
+	}
+
+	if (CollapsingHeader("Color Over Lifetime"))
+	{
+		TextDisabled("Drag handles to move them. Double-click the bar to add a stop.");
+		RenderGradientEditor("##Color Gradient", m_colorOverLifetime);
+		if (TreeNodeEx(("Color Stops (" + std::to_string(m_colorOverLifetime.size()) + ")###ColorStops").c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			RenderColorStopList(m_colorOverLifetime);
 			TreePop();
 		}
 	}
@@ -1585,6 +1859,15 @@ void ParticleEmitterComponent::RenderUIImpl()
 	if (CollapsingHeader("Rendering"))
 	{
 		Checkbox("Transparent", &m_transparent);
+		SetItemTooltip("Render with alpha blending so semi-transparent particles blend with what is behind them.");
+		ResetOnRightClick([&] { m_transparent = true; });
+
+		glm::vec2 billboardOffset = m_billboardOffset;
+		if (DragFloat2("Billboard Offset", &billboardOffset.x, 0.005f))
+			SetBillboardOffset(billboardOffset);
+		SetItemTooltip("Moves each billboard in the camera plane, in world units, relative to its particle.");
+		ResetOnRightClick([&] { SetBillboardOffset(glm::vec2(0.0f)); });
+		TextDisabled("Shifts each billboard in the camera plane, relative to its particle.");
 
 		GUID newGUID = C_INVALID_GUID;
 		std::string newName;
@@ -1616,6 +1899,8 @@ void ParticleEmitterComponent::RenderUIImpl()
 	if (CollapsingHeader("Debug"))
 	{
 		Checkbox("Debug Draw", &m_debugDraw);
+		SetItemTooltip("Show the emission shape, direction cone and orbit rings in the viewport.");
+		ResetOnRightClick([&] { m_debugDraw = false; });
 		TextDisabled("Shows the emission shape, fixed direction cone and orbit rings in the viewport.");
 	}
 
@@ -1633,8 +1918,9 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 	{
 		glm::vec3 position;
 		glm::vec4 color;
-		float size;
+		glm::vec2 size;
 		float rotation;
+		glm::vec2 billboardOffset;
 	};
 	
 	std::vector<ParticleVertex> vertices;
@@ -1649,7 +1935,7 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 	for (const Particle &p : m_particles)
 	{
 		glm::vec3 pos = p.position;
-		float size = p.size;
+		glm::vec2 size = p.size;
 		float rot = p.rotation;
 
 		if (m_simulationSpace == SimulationSpace::World)
@@ -1662,14 +1948,17 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 			pos = glm::vec3(invWorldMatrix * glm::vec4(pos, 1.0f));
 		}
 
-		min = glm::min(min, pos - glm::vec3(size * 0.5f));
-		max = glm::max(max, pos + glm::vec3(size * 0.5f));
+		// Conservative bounds: a square of the larger dimension covers any rotation of the quad, plus the billboard offset
+		const float extent = std::max(size.x, size.y) * 0.5f + glm::length(m_billboardOffset);
+		min = glm::min(min, pos - glm::vec3(extent));
+		max = glm::max(max, pos + glm::vec3(extent));
 
 		vertices.emplace_back(
 			pos,
 			p.color,
 			size,
-			rot
+			rot,
+			m_billboardOffset
 		);
 		indices.emplace_back(index++);
 	}
@@ -1681,8 +1970,9 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 		.attributes = {
 			{.location = 0, .format = Common::VertexFormat::Float3, .offset = offsetof(ParticleVertex, position)},
 			{.location = 1, .format = Common::VertexFormat::Float4, .offset = offsetof(ParticleVertex, color)},
-			{.location = 2, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, size)},
-			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)}
+			{.location = 2, .format = Common::VertexFormat::Float2, .offset = offsetof(ParticleVertex, size)},
+			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)},
+			{.location = 4, .format = Common::VertexFormat::Float2, .offset = offsetof(ParticleVertex, billboardOffset)}
 		},
 		.vertexData = { bytes.begin(), bytes.end() },
 		.indices = std::move(indices),
