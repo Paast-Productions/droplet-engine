@@ -114,14 +114,14 @@ void Component::QueueRender()
 	QueueRenderImpl();
 }
 
-Droplet::Graphics::RenderData Component::GetRenderData()
+Droplet::Common::RenderData Component::GetRenderData()
 {
 	if (!IsActiveSelf() || !m_started)
 	{
 		return {};
 	}
 
-	Droplet::Graphics::RenderData rData = GetRenderDataImpl();
+	Droplet::Common::RenderData rData = GetRenderDataImpl();
 	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
 
 	return rData;

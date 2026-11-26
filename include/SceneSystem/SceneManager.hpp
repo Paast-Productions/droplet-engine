@@ -6,7 +6,7 @@
 #include <vector>
 #include <json/json.hpp>
 #include <Audio/AudioSystem.hpp>
-namespace Droplet::Graphics
+namespace Droplet::Common
 {
 	struct CameraRenderData;
 }
@@ -106,7 +106,7 @@ namespace Droplet::Scene
         void Update();
 
         /// @brief Returns Renderdata for all active scenes
-        [[nodiscard]] std::vector<Droplet::Graphics::CameraRenderData> GetRenderData();
+        [[nodiscard]] std::vector<Droplet::Common::CameraRenderData> GetRenderData();
 
 		/// @brief Performs post-rendering operations for all active Scenes.
 		void PostRender();

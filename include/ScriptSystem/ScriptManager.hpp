@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ScriptInstance.hpp"
-#include "GameInput.hpp"
+#include "Platform/GameInput.hpp"
 
 #include <SceneSystem/Component.hpp>
 #include <SceneSystem/Behaviour.hpp>
