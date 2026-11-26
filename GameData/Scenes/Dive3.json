@@ -9,8 +9,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "SeaFloor",
@@ -27,10 +27,32 @@
                     },
                     "id": 1,
                     "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 10217964150388832841,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 45,
+            "id": 474,
             "name": "SeaFloor",
             "transform": {
                 "position": [
@@ -59,8 +81,8 @@
                 {
                     "active": true,
                     "data": {
-                        "fs": 13680123319807966343,
-                        "fsName": "Base.FS",
+                        "fs": 4700928726894490275,
+                        "fsName": "Screen.FS",
                         "gs": 0,
                         "gsName": "",
                         "meshDisplayName": "Ship",
@@ -80,13 +102,13 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 46,
+            "id": 475,
             "name": "Mesh Node",
             "transform": {
                 "position": [
                     -67.716064453125,
-                    -32.23149490356445,
-                    90.54182434082031
+                    -30.64722442626953,
+                    83.28732299804688
                 ],
                 "rotation": [
                     0.9930163621902466,
@@ -105,13 +127,13 @@
             "active": true,
             "collisionLayerMask": 33,
             "drawLayer": 1,
-            "id": 47,
+            "id": 476,
             "name": "Drone",
             "prefab": "GameData\\Prefabs\\Drone.json",
             "transform": {
                 "position": [
                     157.66099548339844,
-                    13.628381729125977,
+                    14.231413841247559,
                     183.0
                 ],
                 "rotation": [
@@ -131,7 +153,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 57,
+            "id": 485,
             "name": "BrinePoolSurface",
             "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
             "transform": {
@@ -157,12 +179,12 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 61,
+            "id": 489,
             "name": "BrinePoolSurface",
             "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
             "transform": {
                 "position": [
-                    45.872074127197266,
+                    45.373130798339844,
                     -21.996747970581055,
                     -65.0667724609375
                 ],
@@ -173,7 +195,7 @@
                     0.0
                 ],
                 "scale": [
-                    90.30730438232422,
+                    73.4417724609375,
                     0.47999998927116394,
                     77.1112060546875
                 ]
@@ -183,7 +205,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 65,
+            "id": 493,
             "name": "BrinePoolSurface",
             "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
             "transform": {
@@ -193,14 +215,14 @@
                     -182.6096954345703
                 ],
                 "rotation": [
-                    0.9252287745475769,
+                    0.9252286553382874,
                     0.0,
-                    -0.3794099986553192,
+                    -0.37940993905067444,
                     0.0
                 ],
                 "scale": [
                     278.5660095214844,
-                    0.47999998927116394,
+                    1.0,
                     107.44497680664063
                 ]
             }
@@ -209,7 +231,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 109,
+            "id": 497,
             "name": "Pod Exterior",
             "prefab": "GameData\\Prefabs\\Pod Exterior.json",
             "transform": {
@@ -228,6 +250,134 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 64,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 9231716951358039710,
+                        "fsName": "BrineFS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "BrinePoolLayer3",
+                        "meshGUID": 9785540404026015327,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": true,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 2,
+            "id": 498,
+            "name": "Layer 3",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.5,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 499,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    204.49093627929688,
+                    1.9114294052124023,
+                    -28.601747512817383
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    52.08842468261719,
+                    0.47999998927116394,
+                    134.1536865234375
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 503,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    171.5897216796875,
+                    1.9114294052124023,
+                    126.79700469970703
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    27.2737979888916,
+                    1.0,
+                    29.982898712158203
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 507,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    65.3298110961914,
+                    1.9114339351654053,
+                    213.33229064941406
+                ],
+                "rotation": [
+                    0.9601849317550659,
+                    0.0,
+                    0.2793651223182678,
+                    0.0
+                ],
+                "scale": [
+                    80.06977081298828,
+                    1.0,
+                    46.74363327026367
                 ]
             }
         }
