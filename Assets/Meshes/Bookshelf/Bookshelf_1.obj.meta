@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Bookshelf",
+            "guid": 1447338291679625972,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Bookshelf",
+            "type": 3
+        }
+    ]
+}

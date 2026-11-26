@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "T_Bookrow4",
+            "guid": 2311689133199628985,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "T_Bookrow4",
+            "type": 1
+        }
+    ]
+}
