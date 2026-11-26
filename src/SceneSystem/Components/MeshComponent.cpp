@@ -127,7 +127,7 @@ Droplet::Common::RenderData MeshComponent::GetRenderDataImpl()
 	{
 		if (rsMan.GetResourceMetaEntry("Base.VS", entry))
 		{
-			renderData.vsData.GUID = entry.guid;
+			renderData.vsData.guid = entry.guid;
 		}
 	}
 
@@ -138,25 +138,25 @@ Droplet::Common::RenderData MeshComponent::GetRenderDataImpl()
 	case Droplet::Editor::Graphics::FragmentFlag::Basic:
 		if (rsMan.GetResourceMetaEntry("Base.FS", entry))
 		{
-			renderData.fsData.GUID = entry.guid;
+			renderData.fsData.guid = entry.guid;
 		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Color:
 		if (rsMan.GetResourceMetaEntry("Color.FS", entry))
 		{
-			renderData.fsData.GUID = entry.guid;
+			renderData.fsData.guid = entry.guid;
 		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::Normal:
 		if (rsMan.GetResourceMetaEntry("Normal.FS", entry))
 		{
-			renderData.fsData.GUID = entry.guid;
+			renderData.fsData.guid = entry.guid;
 		}
 		break;
 	case Droplet::Editor::Graphics::FragmentFlag::UV:
 		if (rsMan.GetResourceMetaEntry("UV.FS", entry))
 		{
-			renderData.fsData.GUID = entry.guid;
+			renderData.fsData.guid = entry.guid;
 		}
 		break;
 	}
