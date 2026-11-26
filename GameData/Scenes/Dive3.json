@@ -1,0 +1,236 @@
+{
+    "name": "Dive3",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "SeaFloor",
+                        "meshGUID": 10217964150388832841,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "DeepSeaFloor",
+                        "textureGUID": 12438710227993555912,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 45,
+            "name": "SeaFloor",
+            "transform": {
+                "position": [
+                    -4.817797660827637,
+                    13.495599746704102,
+                    24.318086624145508
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Ship",
+                        "meshGUID": 14144947830466232061,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 46,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    -67.716064453125,
+                    -32.23149490356445,
+                    90.54182434082031
+                ],
+                "rotation": [
+                    0.9930163621902466,
+                    0.11797670274972916,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.9999999403953552,
+                    0.9999999403953552
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 33,
+            "drawLayer": 1,
+            "id": 47,
+            "name": "Drone",
+            "prefab": "GameData\\Prefabs\\Drone.json",
+            "transform": {
+                "position": [
+                    157.66099548339844,
+                    13.628381729125977,
+                    183.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 57,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    -70.67803955078125,
+                    -28.652355194091797,
+                    105.96676635742188
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    61.66145706176758,
+                    0.47999998927116394,
+                    62.26272201538086
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 61,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    45.872074127197266,
+                    -21.996747970581055,
+                    -65.0667724609375
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    90.30730438232422,
+                    0.47999998927116394,
+                    77.1112060546875
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 65,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    -192.7896728515625,
+                    -68.3797836303711,
+                    -182.6096954345703
+                ],
+                "rotation": [
+                    0.9252287745475769,
+                    0.0,
+                    -0.3794099986553192,
+                    0.0
+                ],
+                "scale": [
+                    278.5660095214844,
+                    0.47999998927116394,
+                    107.44497680664063
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 109,
+            "name": "Pod Exterior",
+            "prefab": "GameData\\Prefabs\\Pod Exterior.json",
+            "transform": {
+                "position": [
+                    157.66062927246094,
+                    9.51986026763916,
+                    183.7030029296875
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "SeaFloor",
+            "guid": 10217964150388832841,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "SeaFloor",
+            "type": 3
+        }
+    ]
+}
