@@ -51,6 +51,8 @@ namespace Droplet::Editor
 		/// @return True if the editor window has focus, false otherwise.
 		[[nodiscard]] bool HasFocus() const { return m_hasFocus; }
 
+		void GiveFocus() { m_shouldGiveFocus = true; }
+
 	protected:
 
 		/// @brief Initializes the editor window. Derived classes can override this method to provide additional initialization logic.
@@ -81,6 +83,7 @@ namespace Droplet::Editor
 		ImGuiWindowFlags m_windowFlags = ImGuiWindowFlags_None;
 
 		bool m_hasFocus = false;
+		bool m_shouldGiveFocus = false;
 
 		/// @brief Opens the editor window. This method is called before rendering the window.
 		void OpenWindow();
