@@ -37,10 +37,13 @@ namespace Droplet::Bridge
         for (const Common::CameraRenderData& camera : world.cameras)
         {
             for (const Common::RenderData& object : camera.renderData)
-        {
+            {
                 AddUniqueId(required.meshes, object.meshData.GUID);
                 AddRequiredTexture(required, object.texData);
                 AddUniqueId(required.shaders, object.vsData.guid);
+                AddUniqueId(required.shaders, object.tcsData.guid);
+                AddUniqueId(required.shaders, object.tesData.guid);
+                AddUniqueId(required.shaders, object.gsData.guid);
                 AddUniqueId(required.shaders, object.fsData.guid);
             }
         }

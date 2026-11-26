@@ -60,7 +60,15 @@ namespace Droplet::Graphics::Vulkan
     {
         GUID vertexShader{};
         GUID fragmentShader{};   ///< Leave default (null) for depth-only pipelines
+		GUID tessCtrlShader{};
+		GUID tessEvalShader{};
+		GUID geometryShader{};
+
+		bool hasVertexShader = true;
         bool hasFragmentShader = true;
+		bool hasTessCtrlShader = false;
+		bool hasTessEvalShader = false;
+		bool hasGeometryShader = false;
 
         vk::PipelineLayout layout{};      ///< Non-owning; layouts live longer than pipelines
 
@@ -92,6 +100,9 @@ namespace Droplet::Graphics::Vulkan
             const GraphicsPipelineDesc& desc,
             const Shader& vertex,
             const Shader* fragment,
+            const Shader* tessCtrl,
+            const Shader* tessEval,
+            const Shader* geometry,
             const vk::raii::PipelineCache* cache = nullptr);
 
         [[nodiscard]] vk::Pipeline Handle() const { return *m_pipeline; }

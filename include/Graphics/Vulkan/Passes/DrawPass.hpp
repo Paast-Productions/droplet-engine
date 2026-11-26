@@ -51,7 +51,8 @@ namespace Droplet::Graphics::Vulkan
         {
             None,       ///< no built-in shader reads it
             Scene,      ///< position, normal, uv at locations 0, 1, 2: the scene shaders and materials
-            VertexColor ///< position at 0, colour at 1: unlit, alpha blended
+            VertexColor, ///< position at 0, colour at 1: unlit, alpha blended
+            Particle     ///< point list: centre, colour, size, rotation at 0-3; expanded to quads by the geometry shader
         };
 
         /// The renderer's shader for vertex-colour meshes (unlit), compiled on first use
@@ -75,7 +76,8 @@ namespace Droplet::Graphics::Vulkan
          * @param transparent Alpha blended without depth writes
          * @returns A description for PipelineLibrary::GetOrCreate
          */
-        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+        [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
+			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
 
         /**
@@ -96,7 +98,8 @@ namespace Droplet::Graphics::Vulkan
          * @returns A description for PipelineLibrary::GetOrCreate
          */
         [[nodiscard]] GraphicsPipelineDesc MakeMeshPipelineDesc(
-            GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
+			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+            const Common::DynamicMeshData& mesh,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent) const;
 
         /// @brief Writes every view's ViewProjectionBuffer and the frame's packed dynamic geometry. @pre the GPU is done with `frameSlot`'s last frame

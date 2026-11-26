@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Particle.VS",
+            "guid": 697027261207849031,
+            "loadFlags": 3,
+            "loadSettings": {
+                "shader_type": 0
+            },
+            "sourceName": "Particle.VS",
+            "type": 6
+        }
+    ]
+}

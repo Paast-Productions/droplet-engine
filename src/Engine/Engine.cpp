@@ -144,11 +144,17 @@ namespace
             return;
         }
 
-        // the renderer reports other stages once (tessellation and geometry are not supported)
+        // compute, mesh and task stages have no graphics pipeline slot: skipped
         const ShaderResource::ShaderType type = shader->GetType();
-        if (type != ShaderResource::ShaderType::Vertex && type != ShaderResource::ShaderType::Fragment)
+        Bridge::ShaderStage stage{};
+        switch (type)
         {
-            return;
+        case ShaderResource::ShaderType::Vertex: stage = Bridge::ShaderStage::Vertex; break;
+        case ShaderResource::ShaderType::TessellationControl: stage = Bridge::ShaderStage::TessControl; break;
+        case ShaderResource::ShaderType::TessellationEvaluation: stage = Bridge::ShaderStage::TessEvaluation; break;
+        case ShaderResource::ShaderType::Geometry: stage = Bridge::ShaderStage::Geometry; break;
+        case ShaderResource::ShaderType::Fragment: stage = Bridge::ShaderStage::Fragment; break;
+        default: return;
         }
 
         // no byte code (released from RAM): uploaded empty, the renderer reports it and draws with the defaults
@@ -160,7 +166,7 @@ namespace
         uploads.shaders.push_back({
             .id = id,
             .revision = 0, // no revisions yet
-            .stage = type == ShaderResource::ShaderType::Vertex ? Bridge::ShaderStage::Vertex : Bridge::ShaderStage::Fragment,
+            .stage = stage,
             .spirv = spirv,
             .entryPoint = "main"
         });

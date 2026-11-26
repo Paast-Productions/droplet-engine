@@ -220,6 +220,12 @@ namespace Droplet::Graphics::Vulkan
         const bool hasWideLines = m_physicalDevice.getFeatures().wideLines == vk::True;
         m_maxLineWidth = hasWideLines ? m_physicalDevice.getProperties().limits.lineWidthRange[1] : 1.0f;
 
+        // geometry and tessellation stages are optional too: particles need the geometry stage
+        const bool hasGeometryShader = m_physicalDevice.getFeatures().geometryShader == vk::True;
+        const bool hasTessellationShader = m_physicalDevice.getFeatures().tessellationShader == vk::True;
+        m_hasGeometryShader = hasGeometryShader;
+        m_hasTessellationShader = hasTessellationShader;
+
         // features to enable, checked by IsDeviceSuitable
         const vk::StructureChain<
             vk::PhysicalDeviceFeatures2,
@@ -227,7 +233,9 @@ namespace Droplet::Graphics::Vulkan
             vk::PhysicalDeviceVulkan12Features,
             vk::PhysicalDeviceVulkan13Features,
             vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT> featureChain{
-            {.features = {.wideLines = hasWideLines ? vk::True : vk::False,
+            {.features = {.geometryShader = hasGeometryShader ? vk::True : vk::False,
+                          .tessellationShader = hasTessellationShader ? vk::True : vk::False,
+                          .wideLines = hasWideLines ? vk::True : vk::False,
                           .samplerAnisotropy = hasSamplerAnisotropy ? vk::True : vk::False}}, // Features2
             {.shaderDrawParameters = vk::True}, // vk::PhysicalDeviceVulkan11Features
             {
