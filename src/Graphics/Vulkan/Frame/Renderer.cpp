@@ -184,7 +184,6 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
 
     // 6. resources nothing asked for in a while are released; what the GPU is done with is destroyed
     m_device.EndFrame();
-    m_vulkanContext.GetGpuProfiler().Collect();
     FrameMark;
 }
 

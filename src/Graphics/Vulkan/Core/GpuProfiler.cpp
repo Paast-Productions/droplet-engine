@@ -4,11 +4,27 @@
  */
 #include "Graphics/Vulkan/Core/GpuProfiler.hpp"
 
+#include <algorithm>
 #include <cstring>
 
 namespace
 {
     using Droplet::Graphics::Vulkan::GpuContext;
+
+    /// @brief True if command buffers of `family` can reset and write timestamp queries (graphics or compute family
+    ///        with valid timestamp bits); transfer-only families cannot reset queries
+    bool SupportsTimestamps(const Droplet::Graphics::Vulkan::Device& device, uint32_t family)
+    {
+        const std::vector<vk::QueueFamilyProperties> families = device.GetPhysicalDevice().getQueueFamilyProperties();
+        if (family >= families.size())
+        {
+            return false;
+        }
+        const vk::QueueFamilyProperties& properties = families[family];
+        const bool graphicsOrCompute =
+            static_cast<bool>(properties.queueFlags & (vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute));
+        return graphicsOrCompute && properties.timestampValidBits > 0;
+    }
 
     /**
      * @brief Creates a Tracy context on queue, recording its setup command buffer from a new pool.
@@ -35,7 +51,20 @@ namespace
                                           .commandBufferCount = 1}};
         [[maybe_unused]] const vk::CommandBuffer setupCommandBuffer = *commandBuffers.front();
 
-        GpuContext context = TracyVkContext(*device.GetPhysicalDevice(), *device.Get(), queue, setupCommandBuffer);
+        GpuContext context = nullptr;
+        // Prefer calibrated timestamps so that CPU and GPU get lined by Tracy
+        if (device.HasCalibratedTimestamps())
+        {
+            std::println("CALIBRATED TRACY CONTEXT ========================================");
+            context = TracyVkContextCalibrated(*device.GetPhysicalDevice(), *device.Get(), queue, setupCommandBuffer,
+                device.GetPhysicalDevice().getDispatcher()->vkGetPhysicalDeviceCalibrateableTimeDomainsEXT,
+                device.Get().getDispatcher()->vkGetCalibratedTimestampsEXT);
+        }
+        else
+        {
+            std::println("NORMAL TRACY CONTEXT ========================================");
+            context  = TracyVkContext(*device.GetPhysicalDevice(), *device.Get(), queue, setupCommandBuffer);
+        }
         TracyVkContextName(context, name, std::strlen(name));
         return context;
     }
@@ -48,8 +77,12 @@ namespace Droplet::Graphics::Vulkan
         m_owned.reserve(QUEUE_INDEX_COUNT);
         const QueueInfo& info = device.GetQueueInfo();
 
-        const GpuContext graphics = [&]
+        const GpuContext graphics = [&]() -> GpuContext
         {
+            if (!SupportsTimestamps(device, info.familyIndices[ToIndex(QueueKind::Graphics)]))
+            {
+                return nullptr;
+            }
             vk::raii::CommandPool pool{nullptr};
             const GpuContext context = CreateContext(device,
                                                      *device.GetGraphicsQueue(),
@@ -67,6 +100,11 @@ namespace Droplet::Graphics::Vulkan
             if (!queue)
             {
                 m_contexts[ToIndex(kind)] = graphics;
+                continue;
+            }
+            if (!SupportsTimestamps(device, info.familyIndices[ToIndex(kind)]))
+            {
+                m_contexts[ToIndex(kind)] = nullptr; // e.g. a transfer-only queue: its work is not timed
                 continue;
             }
 
@@ -94,12 +132,22 @@ namespace Droplet::Graphics::Vulkan
         return m_contexts[ToIndex(kind)];
     }
 
-    void GpuProfiler::Collect() const noexcept
+    void GpuProfiler::BeginFrame() const noexcept
     {
-        for ([[maybe_unused]] const OwnedContext& owned : m_owned)
+        m_collected.clear();
+    }
+
+    void GpuProfiler::Collect([[maybe_unused]] QueueKind kind, [[maybe_unused]] vk::CommandBuffer cmd) const noexcept
+    {
+#if defined TRACY_ENABLE
+        const GpuContext context = m_contexts[ToIndex(kind)];
+        if (!context || std::ranges::find(m_collected, context) != m_collected.end())
         {
-            TracyVkCollect(owned.context, VK_NULL_HANDLE);
+            return;
         }
+        m_collected.push_back(context);
+        TracyVkCollect(context, static_cast<VkCommandBuffer>(cmd));
+#endif
     }
 
     GpuZone::GpuZone([[maybe_unused]] const GpuProfiler& profiler,

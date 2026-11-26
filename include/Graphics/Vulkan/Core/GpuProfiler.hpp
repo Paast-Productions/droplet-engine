@@ -27,7 +27,8 @@ namespace Droplet::Graphics::Vulkan
     /**
      * @brief Owns the Tracy Vulkan contexts for the device's queues and collects their timestamps.
      *
-     * @details A queue kind the device has no dedicated queue for is served by the graphics context.
+     * @details A queue kind the device has no dedicated queue for is served by the graphics context. A transfer queue cannot
+
      * Tracy contexts are not thread-safe: create and use zones from the main thread only.
      * Without TRACY_ENABLE every operation is a no-op.
      */
@@ -48,8 +49,16 @@ namespace Droplet::Graphics::Vulkan
         /// @brief Tracy context for queue kind, or null when Tracy is disabled.
         [[nodiscard]] GpuContext ForQueue(QueueKind kind) const noexcept;
 
-        /// @brief Reads back finished GPU timestamps into Tracy. Call once per frame from the main thread.
-        void Collect() const noexcept;
+        /// @brief Starts a frame: every context may be collected once again.
+        void BeginFrame() const noexcept;
+
+        /**
+         * @brief Reads back finished GPU timestamps into Tracy and records the reset of their queries, once per frame
+         *        per context
+         * @param kind the queue `cmd` is recorded for
+         * @param cmd a command buffer in recording state, outside any render pass, before its first zone
+         */
+        void Collect(QueueKind kind, vk::CommandBuffer cmd) const noexcept;
 
     private:
         /// A Tracy context this profiler created, with the pool its setup command buffer came from.
@@ -61,6 +70,7 @@ namespace Droplet::Graphics::Vulkan
 
         std::array<GpuContext, QUEUE_INDEX_COUNT> m_contexts{};  ///< Context per queue kind; shared when not dedicated.
         std::vector<OwnedContext> m_owned;                       ///< Contexts created by this profiler.
+        mutable std::vector<GpuContext> m_collected;             ///< Contexts collected this frame (BeginFrame clears).
     };
 
     /**

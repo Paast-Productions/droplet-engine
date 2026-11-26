@@ -84,6 +84,7 @@ namespace Droplet::Graphics::Vulkan
     {
         m_frameSlot = frameSlot;
         FrameSlot& slot = m_slots[frameSlot];
+        m_gpuProfiler->BeginFrame();
 
         // wait until the GPU is past everything the slot's previous frame submitted, on every queue
         for (std::size_t queueIndex = 0; queueIndex < RenderGraph::QUEUE_COUNT; ++queueIndex)
@@ -134,6 +135,8 @@ namespace Droplet::Graphics::Vulkan
 
         vk::raii::CommandBuffer& commandBuffer = slot.commandBuffers.back();
         commandBuffer.begin(vk::CommandBufferBeginInfo{.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit});
+        // the first submission of the frame on a queue reads back the finished timestamps and resets their queries
+        m_gpuProfiler->Collect(ToQueueIndex(submission.queue), *commandBuffer);
         m_submissionZone.emplace(*m_gpuProfiler, ToQueueIndex(submission.queue), *commandBuffer, "Frame submission");
 
         m_passContext = PassContext{
