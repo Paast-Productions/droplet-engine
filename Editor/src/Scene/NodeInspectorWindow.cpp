@@ -161,7 +161,7 @@ void NodeInspectorWindow::RenderImpl()
 		}
 		ImGui::LockToItem();
 
-		// HACK: Resetting rotation to zero doesn't consistently undo all rotation. 
+		// HACK: (EDITOR) Resetting rotation to zero doesn't consistently undo all rotation. 
 		// Added a right-click context menu to reset rotation to alleviate issue.
 
 		if (ImGui::BeginPopupContextItem("Rotation Context Menu"))
@@ -214,7 +214,7 @@ void NodeInspectorWindow::RenderImpl()
 	const float buttonMargin = buttonWidth * 0.2f;
 
 	// Vector of components
-	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: Make weak pointer
+	const std::vector<std::shared_ptr<Droplet::Scene::Component>> components = m_currentNode.lock()->GetAllComponents(); // TODO: (SCENE) Make weak pointer
 
 	for (std::size_t componentIndex = 0; componentIndex < components.size(); ++componentIndex)
 	{

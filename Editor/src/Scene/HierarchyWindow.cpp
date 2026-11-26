@@ -712,7 +712,7 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 
             if (ImGui::MenuItem("Duplicate Node"))
             {
-				// TODO: Implement node duplication logic
+				// TODO: (EDITOR) Implement node duplication logic
             }
 
             ImGui::EndPopup();

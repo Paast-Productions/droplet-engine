@@ -19,6 +19,7 @@ struct FSInput
 
 layout(set = 2, binding = 0) Sampler2D textureArr[];
 
+
 [shader("fragment")]
 float4 main(FSInput vertIn) : SV_TARGET
 {

@@ -81,7 +81,7 @@ void Droplet::Audio::AudioBus::RemoveChildBus(const AudioBus* p_audioBus)
 
 	m_children.erase(iterator);
 
-	// TODO Either add the child to the master bus, or just erase it totally
+	// TODO: (AUDIO) Either add the child to the master bus, or just erase it totally
 }
 
 bool Droplet::Audio::AudioBus::IsDecendantOf(const AudioBus* p_audioBus) const
@@ -222,7 +222,7 @@ Effect *Droplet::Audio::AudioBus::AttachEffect(std::unique_ptr<Effect> p_effect,
 		return nullptr;
 	}
 	p_effect->SetSlot(slot);
-	m_effects[slot] = std::move(p_effect); // HACK This would replace the effect in the spot that is selected, do we want this or should we reject new effect?
+	m_effects[slot] = std::move(p_effect); // HACK: (AUDIO) This would replace the effect in the spot that is selected, do we want this or should we reject new effect?
 	
 	if (m_started)
 	{

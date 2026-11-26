@@ -108,7 +108,7 @@ namespace Droplet
             }
             catch (const std::exception &)
             {
-                // TODO: Log this
+                // TODO: (LOGGING) Log this
             }
         }
 

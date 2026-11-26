@@ -22,14 +22,14 @@ AABB Droplet::Math::SphereToAABB(const Sphere &p_sphere)
 
 AABB Droplet::Math::FrustumToAABB(const Frustum &p_frustum)
 {
-	// TODO: Implement Frustum to AABB conversion
+	// TODO: (BOUNDS) Implement Frustum to AABB conversion
 	assert(false);
 	return AABB();
 }
 
 OBB Droplet::Math::FrustumToOBB(const Frustum &p_frustum)
 {
-	// TODO: Implement Frustum to OBB conversion
+	// TODO: (BOUNDS) Implement Frustum to OBB conversion
 	assert(false);
 	return OBB();
 }

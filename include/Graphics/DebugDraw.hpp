@@ -8,6 +8,11 @@
 #include <Math/Bounds/Sphere.hpp>
 #include <Math/Bounds/Frustum.hpp>
 #include <resource/GuidUtils.hpp>
+#include <Graphics/Vulkan/Sampler.hpp>
+#include <Graphics/Vulkan/Image.hpp>
+#include <Graphics/Vulkan/ImageView.hpp>
+#include <resource/StaticResourceHandle.hpp>
+#include <resource/types/Texture2DResource.hpp>
 
 #define VULKAN_HPP_NO_STRUCT_CONSTRUCTORS
 #include <vulkan/vulkan_raii.hpp>
@@ -16,12 +21,22 @@
 
 #include <array>
 #include <cstdint>
+#include <unordered_map>
+#include <unordered_set>
+#include <memory>
 
 namespace Droplet::Graphics
 {
 	// Forward declarations
 	class Renderer;
 	class Camera;
+}
+
+namespace Droplet::Graphics::Vulkan
+{
+	class Context;
+	class CommandPool;
+	class Sampler;
 }
 
 namespace Droplet::Graphics::Debug
@@ -160,6 +175,18 @@ namespace Droplet::Graphics::Debug
 			int p_subdiv = 1,
 			bool p_depth = true
 		);
+		
+		/// @brief Draw a wireframe sphere in 3D space.
+		/// @param p_sphere The sphere to be drawn.
+		/// @param p_col The color of the sphere.
+		/// @param p_seg The number of segments to divide the sphere into.
+		/// @param p_depth Whether to enable depth testing for the sphere.
+		static void DrawWireSphere(
+			const Math::Sphere &p_sphere,
+			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
+			int p_seg = 12,
+			bool p_depth = true
+		);
 
 		/// @brief Draw an arc in 3D space.
 		/// @param p_center The center of the arc.
@@ -250,12 +277,15 @@ namespace Droplet::Graphics::Debug
 			const vk::raii::PhysicalDevice &p_physicalDevice,
 			const vk::raii::Device &p_device,
 			const vma::raii::Allocator &p_allocator,
+			const Vulkan::Context &p_context,
 			const vk::raii::Queue &p_queue,
-			const vk::raii::CommandPool &p_commandPool,
+			const Vulkan::CommandPool &p_commandPool,
 			const vk::raii::DescriptorPool &p_descriptorPool,
 			vk::Format p_colorFormat,
 			vk::Format p_depthFormat,
-			std::uint32_t p_framesInFlight);
+			std::uint32_t p_framesInFlight,
+			vk::LineRasterizationMode p_lineRasterizationMode
+		);
 
 		/// @brief Shutdown the debug draw system and release graphics resources
 		void Shutdown();
@@ -285,19 +315,18 @@ namespace Droplet::Graphics::Debug
 		/// @brief Internal structure to order draws by their draw options
 		struct InternalDrawOptions
 		{
-			glm::vec4 color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			bool depthTest = true;
 			GUID icon = 0;
 
 			InternalDrawOptions() = default;
 
-			InternalDrawOptions(glm::vec4 p_color, bool p_depthTest, GUID p_icon = 0)
-				: color(p_color), depthTest(p_depthTest), icon(p_icon) {}
+			InternalDrawOptions(bool p_depthTest, GUID p_icon = 0)
+				: depthTest(p_depthTest), icon(p_icon) {}
 
 			// Comparison operators for unordered_map key
 			bool operator==(const InternalDrawOptions &other) const
 			{
-				return icon == other.icon && color == other.color && depthTest == other.depthTest;
+				return icon == other.icon && depthTest == other.depthTest;
 			}
 			bool operator!=(const InternalDrawOptions &other) const
 			{
@@ -309,14 +338,6 @@ namespace Droplet::Graphics::Debug
 					return icon < other.icon;
 				if (depthTest != other.depthTest)
 					return depthTest < other.depthTest;
-				if (color.x != other.color.x)
-					return color.x < other.color.x;
-				if (color.y != other.color.y)
-					return color.y < other.color.y;
-				if (color.z != other.color.z)
-					return color.z < other.color.z;
-				if (color.w != other.color.w)
-					return color.w < other.color.w;
 				return false;
 			}
 			bool operator<=(const InternalDrawOptions &other) const
@@ -336,17 +357,20 @@ namespace Droplet::Graphics::Debug
 		struct DbgLine
 		{
 			glm::vec3 v1, v2;
+			glm::vec4 color;
 		};
 
 		struct DbgTri
 		{
 			glm::vec3 v1, v2, v3;
+			glm::vec4 color;
 		};
 
 		struct DbgIcon
 		{
 			glm::vec3 position;
 			glm::vec2 scale;
+			glm::vec4 color;
 		};
 
 		struct Vertex
@@ -360,6 +384,15 @@ namespace Droplet::Graphics::Debug
 			glm::vec3 position;
 			glm::vec4 color;
 			glm::vec2 texCoord;
+		};
+
+		struct IconTexture
+		{
+			StaticResourceHandle<Texture2DResource> resourceHandle{};
+			std::unique_ptr<Vulkan::Image> image{};
+			std::unique_ptr<Vulkan::ImageView> imageView{};
+			vk::raii::DescriptorSet descriptorSet { nullptr };
+			std::uint32_t unusedFrames = 0;
 		};
 
 		struct FrameResources
@@ -384,22 +417,19 @@ namespace Droplet::Graphics::Debug
 		/// @brief Append the given lines to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_lines The lines to convert to vertices and append
-		/// @param p_color The color to use for the vertices
-		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines, glm::vec4 p_color);
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgLine> &p_lines);
 
 		/// @brief Append the given triangles to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_tris The triangles to convert to vertices and append
-		/// @param p_color The color to use for the vertices
-		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris, glm::vec4 p_color);
+		void AppendToMesh(std::vector<Vertex> &p_mesh, const std::vector<DbgTri> &p_tris);
 
 		/// @brief Append the given icons to the mesh, converting them to vertices
 		/// @param p_mesh The mesh to append to
 		/// @param p_icons The icons to convert to vertices and append
-		/// @param p_color The color to use for the vertices
 		/// @param p_right The right direction for the icons
 		/// @param p_up The up direction for the icons
-		void AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec4 p_color, glm::vec3 p_right, glm::vec3 p_up);
+		void AppendToMesh(std::vector<IconVertex> &p_mesh, const std::vector<DbgIcon> &p_icons, glm::vec3 p_right, glm::vec3 p_up);
 
 		// Draw commands for the current frame, organized by draw options.
 		std::map<InternalDrawOptions, std::vector<DbgLine>>	m_wireLists{};
@@ -413,6 +443,8 @@ namespace Droplet::Graphics::Debug
 		std::vector<Vertex> m_fillDepthMesh{};
 		std::map<GUID, std::vector<IconVertex>> m_iconMeshes{};
 		std::map<GUID, std::vector<IconVertex>> m_iconDepthMeshes{};
+		std::unordered_map<GUID, IconTexture> m_iconTextureCache{};
+		static constexpr std::uint32_t C_ICON_TEXTURE_CACHE_FRAMES = 120;
 
 		// Cached unit geometry by detail level.
 		std::map<int, std::vector<DbgTri>> m_icosphereCache{};
@@ -423,14 +455,18 @@ namespace Droplet::Graphics::Debug
 		const vk::raii::PhysicalDevice *m_physicalDevice = nullptr;
 		const vk::raii::Device *m_device = nullptr;
 		const vma::raii::Allocator *m_allocator = nullptr;
+		const Vulkan::Context *m_context = nullptr;
 		const vk::raii::Queue *m_queue = nullptr;
-		const vk::raii::CommandPool *m_commandPool = nullptr;
+		const Vulkan::CommandPool *m_commandPool = nullptr;
 		const vk::raii::DescriptorPool *m_descriptorPool = nullptr;
 		vk::Format m_colorFormat {};
 		vk::Format m_depthFormat {}; 
 		std::vector<FrameResources> m_frameResources {};
 		vk::raii::DescriptorSetLayout m_descriptorSetLayout { nullptr };
+		vk::raii::DescriptorSetLayout m_iconDescriptorSetLayout { nullptr };
 		vk::raii::PipelineLayout m_pipelineLayout { nullptr };
+		vk::raii::PipelineLayout m_iconPipelineLayout { nullptr };
+		Vulkan::Sampler m_iconSampler { nullptr };
 		std::array<vk::raii::ShaderModule, 4> m_shaderModules
 		{
 			vk::raii::ShaderModule { nullptr },

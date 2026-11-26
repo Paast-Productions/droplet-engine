@@ -57,7 +57,7 @@ namespace Droplet::Editor::Scene
 		glm::mat4 m_gizmoRawMatrix = glm::mat4(1.0f);
 		
 		/// @brief Bool indicating whether the SDL Window has been resized
-		bool m_hasBeenResized = false;
+		bool m_hasBeenResized = true;
 
 		/// @brief Camera navigation drag currently in progress
 		enum class CameraDrag { None, Orbit, Pan };

@@ -106,6 +106,10 @@ namespace Droplet::Graphics::Vulkan
 		/// @brief Queue index getter
 		/// @return uint32 Queue index
 		[[nodiscard]] std::uint32_t GetQueueIndex() const { return m_queueIndex; }
+
+		/// @brief Checks if the device supports rectangular smooth lines
+		/// @return bool whether device supports rectangular smooth lines (true) or not (false)
+		[[nodiscard]] bool SupportsRectangularSmooth();
 	private:
 		/// @brief Creates the vulkan instance
 		void CreateInstance(const vk::raii::Context &p_context);

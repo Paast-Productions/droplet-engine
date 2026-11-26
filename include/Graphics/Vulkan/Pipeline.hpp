@@ -23,7 +23,7 @@ namespace Droplet::Graphics::Vulkan
 	class Pipeline
 	{
 	public:
-		// TODO: Pipeline() = delete?
+		// TODO: (RENDERING) Pipeline() = delete?
 		// Author: SkyH1ghDev
 		Pipeline() :
 			m_pipelineLayout { nullptr },

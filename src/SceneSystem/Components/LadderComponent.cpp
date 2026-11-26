@@ -51,6 +51,18 @@ void LadderComponent::ConstructImpl()
 
 void LadderComponent::UpdateImpl()
 {
+    if (!m_targetSceneLoaded)
+    {
+        if (auto ladderBehaviour = m_ladderBehaviour.lock())
+        {
+			if (m_targetSceneName.empty())
+			{
+				return;
+			}
+            ladderBehaviour->LoadTargetScene(m_targetSceneName);
+			m_targetSceneLoaded = true;
+        }
+    }
 }
 
 void LadderComponent::RenderUIImpl()
