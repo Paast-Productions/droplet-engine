@@ -1,13 +1,16 @@
 #include "Resource/ResourceBrowser.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
+#include <optional>
 
 #include <IconFontCppHeaders/IconsLucide.h>
 
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
 
+#include <EditorConfig.hpp>
 #include <Platform/GameInput.hpp>
 #include <Core/FileExplorer.hpp>
 #include <resource/meta/MetaUtils.hpp>
@@ -51,6 +54,8 @@ void ResourceBrowser::InitImpl()
 	m_previewCamera.target.id = GuidUtils::Generate();
 	m_previewCamera.target.extent = {
 		static_cast<std::uint32_t>(m_previewCamera.resolution.x), static_cast<std::uint32_t>(m_previewCamera.resolution.y) };
+
+	m_showAllSubfolders = EditorConfig::LoadBool("ResourceBrowser.ShowAllSubfolders", false);
 }
 
 void ResourceBrowser::RenderToolbar()
@@ -64,7 +69,49 @@ void ResourceBrowser::RenderToolbar()
 
 	Separator();
 
-	SearchBar(m_searchFilter, ImVec2(50.0f, 0.0f));
+	if (Button(ICON_LC_SETTINGS " Options"))
+	{
+		OpenPopup("ResourceBrowserOptions");
+	}
+
+	SameLine();
+	
+	const std::string typeFilterLabel = m_typeFilter ? ResourceTypeToString(*m_typeFilter) : "All Types";
+	SetNextItemWidth(GetFrameHeight() * 8.0f);
+	if (BeginCombo("##TypeFilter", (ICON_LC_FILTER " " + typeFilterLabel).c_str()))
+	{
+		if (Selectable("All Types", !m_typeFilter.has_value()))
+		{
+			m_typeFilter.reset();
+		}
+
+		constexpr std::array C_FILTERABLE_TYPES = {
+			StaticResourceType::Texture2D, StaticResourceType::Texture3D, StaticResourceType::Mesh,
+			StaticResourceType::SkinnedMesh, StaticResourceType::Animation, StaticResourceType::Shader,
+			StaticResourceType::Material, StaticResourceType::Sound, StaticResourceType::Font };
+
+		for (StaticResourceType type : C_FILTERABLE_TYPES)
+		{
+			const bool isSelected = (m_typeFilter == type);
+			if (Selectable(ResourceTypeToString(type).c_str(), isSelected))
+			{
+				m_typeFilter = type;
+			}
+		}
+		EndCombo();
+	}
+
+	if (BeginPopup("ResourceBrowserOptions"))
+	{
+		if (Checkbox("Show resources from all subfolders", &m_showAllSubfolders))
+		{
+			EditorConfig::StoreBool("ResourceBrowser.ShowAllSubfolders", m_showAllSubfolders);
+		}
+		EndPopup();
+	}
+
+	SameLine();
+	SearchBar(m_searchFilter, ImVec2(50.0f, GetContentRegionAvail().x));
 }
 
 void ResourceBrowser::RenderImpl()
@@ -274,6 +321,12 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 	TextDisabled("Current Path: /%s", m_currentBrowserPath.generic_string().c_str());
 	Separator();
 
+	if (m_showAllSubfolders)
+	{
+		DrawFlatResourceList(*p_currentNode);
+		return;
+	}
+
 	// Draw go back item
 	if (!m_currentBrowserPath.empty())
 	{
@@ -287,7 +340,7 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 	// Draw directories
 	for (auto &[childName, childNode] : p_currentNode->children)
 	{
-		if (childNode.isDirectory)
+		if (childNode.isDirectory && (!m_typeFilter.has_value() || SubtreeHasMatchingType(childNode)))
 		{
 			std::string label = ICON_LC_FOLDER " " + childName;
 			if (Selectable(label.c_str(), false))
@@ -313,6 +366,12 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 				{
 					continue;
 				}
+			}
+
+			if (m_typeFilter.has_value() && !std::any_of(childNode.resources.begin(), childNode.resources.end(),
+				[this](const MetaEntry *p_entry) { return MatchesTypeFilter(p_entry->type); }))
+			{
+				continue;
 			}
 
 			// --- Asset ---
@@ -359,35 +418,13 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 				for (const MetaEntry *entry : childNode.resources)
 				{
 					// --- Resource ---
-					bool isSelected = (m_selectedResourceGuid == entry->guid);
+					if (!MatchesTypeFilter(entry->type))
+					{
+						continue;
+					}
+
 					std::string resLabel = ICON_LC_PACKAGE " " + entry->displayName + " [" + ResourceTypeToString(entry->type) + "]";
-					if (Selectable(resLabel.c_str(), isSelected))
-					{
-						if (isSelected)
-						{
-							m_selectedResourceGuid = C_INVALID_GUID;
-						}
-						else
-						{
-							m_selectedResourceGuid = entry->guid;
-							m_inspectedEntry = *entry;
-						}
-					}
-
-					// Resource drag source
-					if (BeginDragDropSource())
-					{
-						const MetaEntry *payload = entry;
-
-						SetDragDropPayload(
-							PAYLOAD_RESOURCE.data(),
-							&payload,
-							sizeof(payload));
-
-						TextDisabled("Resource: %s", entry->displayName.c_str());
-
-						EndDragDropSource();
-					}
+					DrawResourceRow(*entry, resLabel);
 				}
 				TreePop();
 			}
@@ -427,6 +464,113 @@ void ResourceBrowser::DrawResourceList([[maybe_unused]] const std::vector<const 
 			}
 		}
 		EndPopup();
+	}
+}
+
+void ResourceBrowser::DrawFlatResourceList(const BrowserNode &p_node)
+{
+	using namespace ImGui;
+
+	std::vector<const MetaEntry *> resources;
+	CollectResources(p_node, resources);
+
+	std::erase_if(resources, [this](const MetaEntry *p_entry)
+	{
+		if (!MatchesTypeFilter(p_entry->type))
+		{
+			return true;
+		}
+
+		if (m_searchFilter.empty())
+		{
+			return false;
+		}
+
+		std::string lowerName = p_entry->displayName;
+		std::transform(lowerName.begin(), lowerName.end(), lowerName.begin(), ::tolower);
+		return lowerName.find(m_searchFilter) == std::string::npos;
+	});
+
+	TextDisabled("%zu matching resources", resources.size());
+	Separator();
+
+	if (resources.empty())
+	{
+		TextDisabled("No matching resources");
+		return;
+	}
+
+	for (size_t i = 0; i < resources.size(); i++)
+	{
+		const MetaEntry &entry = *resources[i];
+
+		PushID(static_cast<int>(i));
+		std::string label = ICON_LC_PACKAGE " " + entry.displayName + " [" + ResourceTypeToString(entry.type) + "]";
+		DrawResourceRow(entry, label);
+		SameLine();
+		TextDisabled("%s", entry.relAssetPath.c_str());
+		PopID();
+	}
+}
+
+void ResourceBrowser::DrawResourceRow(const MetaEntry &p_entry, const std::string &p_label)
+{
+	using namespace ImGui;
+
+	bool isSelected = (m_selectedResourceGuid == p_entry.guid);
+	if (Selectable(p_label.c_str(), isSelected))
+	{
+		if (isSelected)
+		{
+			m_selectedResourceGuid = C_INVALID_GUID;
+		}
+		else
+		{
+			m_selectedResourceGuid = p_entry.guid;
+			m_inspectedEntry = p_entry;
+		}
+	}
+
+	// Resource drag source
+	if (BeginDragDropSource())
+	{
+		const MetaEntry *payload = &p_entry;
+
+		SetDragDropPayload(
+			PAYLOAD_RESOURCE.data(),
+			&payload,
+			sizeof(payload));
+
+		TextDisabled("Resource: %s", p_entry.displayName.c_str());
+
+		EndDragDropSource();
+	}
+}
+
+bool ResourceBrowser::MatchesTypeFilter(StaticResourceType p_type) const
+{
+	return !m_typeFilter.has_value() || *m_typeFilter == p_type;
+}
+
+bool ResourceBrowser::SubtreeHasMatchingType(const BrowserNode &p_node) const
+{
+	if (std::any_of(p_node.resources.begin(), p_node.resources.end(),
+		[this](const MetaEntry *p_entry) { return MatchesTypeFilter(p_entry->type); }))
+	{
+		return true;
+	}
+
+	return std::any_of(p_node.children.begin(), p_node.children.end(),
+		[this](const auto &p_child) { return SubtreeHasMatchingType(p_child.second); });
+}
+
+void ResourceBrowser::CollectResources(const BrowserNode &p_node, std::vector<const MetaEntry *> &p_outResources) const
+{
+	p_outResources.insert(p_outResources.end(), p_node.resources.begin(), p_node.resources.end());
+
+	for (const auto &[childName, childNode] : p_node.children)
+	{
+		CollectResources(childNode, p_outResources);
 	}
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <string>
 
 #include <EditorWindow.hpp>
@@ -58,6 +59,24 @@ namespace Droplet::Editor::Resource
 		/// @brief Draws the resource list in the left pane of the resource browser window.
 		void DrawResourceList(const std::vector<const MetaEntry *> &p_resources, BrowserNode *p_currentNode);
 
+		/// @brief Draws every matching resource in the subtree of a node as one flat list, showing each resource's path.
+		/// @param p_node The folder whose subfolders are included.
+		void DrawFlatResourceList(const BrowserNode &p_node);
+
+		/// @brief Draws a selectable row for a resource that can be selected and dragged onto the scene or hierarchy.
+		/// @param p_entry The resource to draw.
+		/// @param p_label The text drawn for the row.
+		void DrawResourceRow(const MetaEntry &p_entry, const std::string &p_label);
+
+		/// @brief Checks whether a resource passes the type filter.
+		bool MatchesTypeFilter(StaticResourceType p_type) const;
+
+		/// @brief Checks whether a folder or any of its subfolders contains a resource that passes the type filter.
+		bool SubtreeHasMatchingType(const BrowserNode &p_node) const;
+
+		/// @brief Collects all resources in a node and its subfolders.
+		void CollectResources(const BrowserNode &p_node, std::vector<const MetaEntry *> &p_outResources) const;
+
 		/// @brief Draws the resource details in the right pane of the resource browser window.
 		void DrawResourceInspector(const MetaEntry &p_entry);
 
@@ -111,5 +130,7 @@ namespace Droplet::Editor::Resource
 		std::unordered_map<std::uint64_t, std::uint32_t> m_imGuiTexMap {};
 
 		std::string m_searchFilter = "";
+		std::optional<StaticResourceType> m_typeFilter {}; // If set, only resources of this type are shown
+		bool m_showAllSubfolders = false; // If true, resources from all subfolders are shown in one flat list
 	};
 }
