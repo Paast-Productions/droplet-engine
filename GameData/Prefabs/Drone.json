@@ -21,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "Drone",
                         "textureGUID": 1365390299680718017,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -30,7 +31,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 684,
+            "id": 1246,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -71,6 +72,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeColor",
                         "textureGUID": 4599309985099221335,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -89,7 +91,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 685,
+            "id": 1247,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -130,6 +132,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -139,7 +142,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 686,
+            "id": 1248,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -180,6 +183,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_1",
                         "textureGUID": 13378112930153838476,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -212,7 +216,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 687,
+            "id": 1249,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
@@ -253,6 +257,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_2",
                         "textureGUID": 16967291178797757359,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -285,7 +290,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 688,
+            "id": 1250,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -326,6 +331,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_3",
                         "textureGUID": 7860564897902025064,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -358,7 +364,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 689,
+            "id": 1251,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -399,6 +405,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_4",
                         "textureGUID": 7653706612453229096,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -431,7 +438,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 690,
+            "id": 1252,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -472,6 +479,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_5",
                         "textureGUID": 4120819183314893811,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -504,7 +512,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 691,
+            "id": 1253,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -531,54 +539,80 @@
             "collisionLayerMask": 1,
             "components": [
                 {
-                    "active": false,
-                    "data": {
-                        "autoRender": true,
-                        "camera": {
-                            "fov": 45.0,
-                            "planes": [
-                                0.10000000149011612,
-                                100.0
-                            ]
-                        },
-                        "clearColor": [
-                            0.0,
-                            0.0,
-                            0.30000001192092896,
-                            1.0
-                        ],
-                        "debugDraw": true,
-                        "drawLayerMask": 65535,
-                        "priority": 0,
-                        "resolution": [
-                            256,
-                            256
-                        ]
-                    },
-                    "id": 2,
-                    "type": "CameraComponent"
-                },
-                {
                     "active": true,
                     "data": {
+                        "acceleration": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
                         "angularVelocityRange": [
                             0.0,
                             0.0
                         ],
+                        "billboardOffset": [
+                            0.0,
+                            0.0
+                        ],
                         "bursts": [],
+                        "colorOverLifetime": [
+                            {
+                                "color": [
+                                    1.0,
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ],
+                                "time": 0.0
+                            },
+                            {
+                                "color": [
+                                    1.0,
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ],
+                                "time": 1.0
+                            }
+                        ],
                         "coneAngle": 25.0,
-                        "debugDraw": true,
+                        "debugDraw": false,
+                        "direction": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "directionMode": 0,
+                        "directionSpread": 0.0,
                         "duration": 5.0,
                         "emissionRate": 10.0,
-                        "emissionShape": 4,
+                        "emissionRateOverDistance": 0.0,
+                        "emissionRateRange": [
+                            5.0,
+                            15.0
+                        ],
+                        "emissionShape": 0,
+                        "fsDisplayName": "Particle.FS",
+                        "fsGUID": 1836046263311467133,
                         "gravityModifier": 0.0,
+                        "gsDisplayName": "Particle.GS",
+                        "gsGUID": 698209572438075209,
+                        "heightRange": [
+                            0.10000000149011612,
+                            0.10000000149011612
+                        ],
+                        "inheritVelocity": 0.0,
                         "lifetimeRange": [
                             1.0,
                             2.0
                         ],
                         "looping": true,
                         "maxParticles": 1000,
+                        "orbitPoints": [],
                         "playOnAwake": true,
+                        "randomSeed": 220246503,
+                        "randomSeedEachPlay": false,
+                        "randomizeEmissionRate": false,
                         "rotationOverLifetime": {
                             "points": [
                                 {
@@ -656,10 +690,6 @@
                             ],
                             "type": 0
                         },
-                        "sizeRange": [
-                            0.10000000149011612,
-                            0.10000000149011612
-                        ],
                         "speedRange": [
                             5.0,
                             5.0
@@ -680,9 +710,18 @@
                             ]
                         ],
                         "startDelay": 0.0,
-                        "textureDisplayName": "None",
-                        "textureGUID": 0,
+                        "targetPoint": [
+                            0.0,
+                            5.0,
+                            0.0
+                        ],
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "timeScale": 1.0,
                         "transparent": true,
+                        "turbulenceFrequency": 1.0,
+                        "turbulenceStrength": 0.0,
+                        "updateRate": 0.0,
                         "velocityOverLifetime": {
                             "points": [
                                 {
@@ -715,20 +754,26 @@
                                 }
                             ],
                             "type": 0
-                        }
+                        },
+                        "vsDisplayName": "Particle.VS",
+                        "vsGUID": 697027261207849031,
+                        "widthRange": [
+                            0.10000000149011612,
+                            0.10000000149011612
+                        ]
                     },
-                    "id": 1,
+                    "id": 4,
                     "type": "ParticleEmitterComponent"
                 }
             ],
             "drawLayer": 1,
-            "id": 1815,
+            "id": 1254,
             "name": "Suction Particles",
             "transform": {
                 "position": [
-                    0.003200531005859375,
+                    0.003612518310546875,
                     -9.5367431640625e-07,
-                    3.8878002166748047
+                    5.832975387573242
                 ],
                 "rotation": [
                     -0.0034828048665076494,
@@ -752,6 +797,8 @@
                 "autoRender": true,
                 "camera": {
                     "fov": 75.0,
+                    "orthographic": false,
+                    "orthographicHeight": 10.0,
                     "planes": [
                         0.10000000149011612,
                         500.0
@@ -769,7 +816,8 @@
                 "resolution": [
                     1920,
                     1080
-                ]
+                ],
+                "targetId": 8353240613360224910
             },
             "id": 9,
             "type": "CameraComponent"
@@ -950,7 +998,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 683,
+    "id": 1245,
     "name": "Drone",
     "transform": {
         "position": [

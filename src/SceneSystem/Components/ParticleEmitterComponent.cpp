@@ -1902,6 +1902,8 @@ void ParticleEmitterComponent::RenderUIImpl()
 		SetItemTooltip("Show the emission shape, direction cone and orbit rings in the viewport.");
 		ResetOnRightClick([&] { m_debugDraw = false; });
 		TextDisabled("Shows the emission shape, fixed direction cone and orbit rings in the viewport.");
+		SeparatorText("Info");
+		Text("Number of particles: %zu", m_particles.size());
 	}
 
 	PopItemWidth();

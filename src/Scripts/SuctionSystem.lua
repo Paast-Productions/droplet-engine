@@ -97,4 +97,10 @@ function SuctionSystem.GetBrokenParts()
     return SuctionSystem.brokenParts
 end
 
+function SuctionSystem.Clear()
+    SuctionSystem.fishes = {}
+    SuctionSystem.upgrades = {}
+    SuctionSystem.brokenParts = {}
+end
+
 return SuctionSystem

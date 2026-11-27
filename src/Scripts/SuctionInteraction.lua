@@ -230,7 +230,10 @@ function UpdateSuctionSound()
 end
 
 function OnStart()
+    suctionSystem.Clear()
+
     scene = self:GetScene()
+
     audioplayerMusic = self:GetAudioPlayer("The Big Blue(Vorbis 96kHz Mono)") --HACK
     if audioplayerMusic == nil then
         print("Could not find audio player for The Big Blue")
