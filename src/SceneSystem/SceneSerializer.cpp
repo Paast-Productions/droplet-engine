@@ -16,6 +16,9 @@ nlohmann::json SceneSerializer::SerializeScene( const std::shared_ptr<Scene> p_s
 
     json["version"] = 1; // Should we even have version?, shouldn't be implemented like this tho
     json["name"] = p_scene->GetName();
+    json["octreeExt"] = p_scene->GetOctree().GetExtentLength();
+    json["octreeMaxNodes"] = p_scene->GetOctree().GetMaxNodes();
+    json["octreeMaxDepth"] = p_scene->GetOctree().GetMaxDepth();
     json["roots"] = nlohmann::json::array();
 
     for (const auto& root : p_scene->GetRoots())
@@ -36,6 +39,25 @@ void SceneSerializer::DeserializeScene(const nlohmann::json &p_json,std::shared_
     {
         std::cerr << "Failed to load Game scene\n";
         throw std::runtime_error("Cannot load Scene '" + p_json["name"]);
+    }
+    
+    if (p_json.contains("name"))
+    {
+        p_scene->SetName(p_json["name"]);
+    }
+    if (p_json.contains("octreeExt"))
+    {
+        p_scene->InitializeOctree(p_json["octreeExt"]);
+    }
+    if (p_json.contains("octreeMaxNodes"))
+    {
+        Octree &octree = p_scene->GetOctree();
+        octree.SetMaxNodes(p_json["octreeMaxNodes"]);
+    }
+    if (p_json.contains("octreeMaxDepth"))
+    {
+        Octree &octree = p_scene->GetOctree();
+        octree.SetMaxDepth(p_json["octreeMaxDepth"]);
     }
 
     for (const auto &rootJson : p_json["roots"])
@@ -77,7 +99,7 @@ std::shared_ptr<Node> Droplet::Scene::SceneSerializer::DeserializeLonsesomeNode(
     if (p_json.contains("drawLayer"))
     {
         uint16_t drawLayerValue = p_json["drawLayer"];
-        node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+        node->SetDrawLayer(static_cast<Common::DrawLayer>(drawLayerValue));
     }
 
     if (p_json.contains("collisionLayerMask"))
@@ -196,7 +218,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
         if (p_json.contains("drawLayer"))
         {
             uint16_t drawLayerValue = p_json["drawLayer"];
-            node->SetDrawLayer(static_cast<Graphics::DrawLayer>(drawLayerValue));
+            node->SetDrawLayer(static_cast<Common::DrawLayer>(drawLayerValue));
         }
 
         if (p_json.contains("collisionLayerMask"))

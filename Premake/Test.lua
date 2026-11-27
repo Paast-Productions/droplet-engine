@@ -25,7 +25,8 @@ project "Test"
 
         includedirs
         {
-            "../include",
+            "../include/",
+            "../include/**",
             vkPath .. "/Include",
             targetBuildPath .. "/External/include"
         }
@@ -41,7 +42,8 @@ project "Test"
 
         includedirs
         {
-            "../include",
+            "../include/",
+            "../include/**",
             targetBuildPath .. "/External/include"
         }
     

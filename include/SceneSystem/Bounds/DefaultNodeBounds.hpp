@@ -1,9 +1,9 @@
 #pragma once
-
 #include <glm/glm.hpp>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Math/Bounds/Intersection.hpp>
 #include <Math/Bounds/Conversion.hpp>
+#include <Math/Bounds/OBB.hpp>
 
 namespace Droplet::Scene
 {
@@ -11,22 +11,37 @@ namespace Droplet::Scene
     class DefaultNodeBounds : public NodeBounds
     {
     public:
-        DefaultNodeBounds(glm::vec3 p_pos, glm::vec3 p_ext) : m_aabb(p_pos, p_ext) {}
+        DefaultNodeBounds(Math::OBB p_obb) : m_obb(p_obb) {}
+        DefaultNodeBounds(glm::vec3 p_pos, glm::vec3 p_ext, glm::mat3 p_orientation = glm::mat3(1.0f)) : m_obb(p_pos, p_ext, p_orientation) {}
         ~DefaultNodeBounds() = default;
+
+		void SetOBB(const Math::OBB &p_obb) { m_obb = p_obb; }
+		void SetCenter(const glm::vec3 &p_center) { m_obb.center = p_center; }
+		void SetExtents(const glm::vec3 &p_extents) { m_obb.extents = p_extents; }
+		void SetSize(const glm::vec3 &p_size) { m_obb.extents = p_size * 0.5f; }
+		void SetOrientation(const glm::mat3 &p_orientation) { m_obb.orientation = p_orientation; }
+		void SetOrientation(const glm::quat &p_quat) { m_obb.orientation = glm::mat3_cast(p_quat); }
+
+		[[nodiscard]] const Math::OBB &GetLocalOBB() const { return m_obb; }
+		[[nodiscard]] glm::vec3 GetLocalCenter() const { return m_obb.center; }
+		[[nodiscard]] glm::vec3 GetLocalExtents() const { return m_obb.extents; }
+		[[nodiscard]] glm::vec3 GetLocalSize() const { return m_obb.GetSize(); }
+		[[nodiscard]] glm::mat3 GetLocalOrientationMat() const { return m_obb.orientation; }
+		[[nodiscard]] glm::quat GetLocalOrientationQuat() const { return glm::quat_cast(m_obb.orientation); }
 
         /// @brief Gets the axis-aligned bounding box (AABB) representation of the node bounds in local-space.
         /// @return The AABB of the node bounds in local-space.
         [[nodiscard]] Math::AABB GetAABB() const override
         {
-            return m_aabb;
+            return Math::OBBToAABB(m_obb);
         }
 
 		/// @brief Returns a transformed OBB of the default node bounds using the provided world matrix.
 		/// @param p_worldMat The world matrix to transform the OBB.
 		/// @return A transformed OBB representing the default node bounds in world space.
-        [[nodiscard]] Math::OBB GetTransformedOBB(const glm::mat4x4 &p_worldMat) const override
+        [[nodiscard]] Math::OBB GetTransformedOBB(const glm::mat4x4 &p_worldMat) const
         {
-            return Math::OBB::Transform(Math::AABBToOBB(m_aabb), p_worldMat);
+            return Math::OBB::Transform(m_obb, p_worldMat);
         }
 
         /// @brief Determines whether the default node bounds intersects with a plane.
@@ -78,6 +93,6 @@ namespace Droplet::Scene
         }
 
     private:
-        Math::AABB m_aabb;
+        Math::OBB m_obb;
     };
 }

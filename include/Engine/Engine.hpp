@@ -1,8 +1,25 @@
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <functional>
+#include <span>
+#include <unordered_map>
+#include <vector>
+
+#include "Platform/SDLWindow.hpp"
+#include "Platform/SDLVulkan.hpp"
+#include "Graphics/Vulkan/Frame/Renderer.hpp"
+
+#ifdef _EDITOR
+#include "Graphics/Debug/ImGuiFrame.hpp"
+#include <ImGui/imgui.h>
+#endif
+
+#include <Common/RenderData.hpp>
+#include <Resource/StaticResourceHandle.hpp>
+#include <Resource/Types/ShaderResource.hpp>
 #include <Engine/EngineFlags.hpp>
-#include <Graphics/SDL/Window.hpp>
-#include <Graphics/Vulkan/Renderer.hpp>
 #include <ScriptSystem/ScriptSystem.hpp>
 #include <SceneSystem/SceneManager.hpp>
 #include <GameInput.hpp>
@@ -21,7 +38,7 @@ namespace Droplet
 	/// @brief EngineConfig is used to configure engine functionality on startup.
 	struct EngineConfig
 	{
-		Graphics::SDL::WindowConfig WindowConfig;
+		Platform::SDL::Window::Config WindowConfig;
 		UpdateFlags UpdateFlags{ UpdateFlags::DefaultFlags };
 	};
 	
@@ -41,56 +58,58 @@ namespace Droplet
 		/// @brief Will update the subsystems. Is needed to run anything.
 		/// @return The droplet returntype can be used to detemine if the update was successful or not.
 		[[nodiscard]] DROPLET_RETURNTYPE Update();
-		
-		/// @brief Will render the subsystems. Is needed to run anything.
-		/// @brief If camRenderDatas is provided, the engine will render the provided camera render data in addition to the scene's render data.
-		/// @return The droplet returntype can be used to detemine if the render was successful or not.
-		[[nodiscard]] DROPLET_RETURNTYPE Render(std::vector<Graphics::CameraRenderData> *camRenderDatas = nullptr);
 
-		/// @brief Adds an event listener that will be called when an SDL event is polled.
-		/// @param p_listener The event listener to add.
-		void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
-		
-		/// @brief Is meant to enable other classes to use functionality from scenemanager
-		/// @return A reference to engines scenemanager
-		[[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
-		
+       /// @brief Starts the ImGui frame; call before any ImGui window
+       void BeginFrame();
 
-		/// @brief Getter for the window of the engine
-		/// @return An SDL window handle
-		[[nodiscard]] SDL_Window *GetWindow() const { return m_window.Get(); }
+       /// @brief Renders the scene's cameras and `p_cameras` (the editor's), then the ImGui frame
+       [[nodiscard]] DROPLET_RETURNTYPE Render(std::span<const Common::CameraRenderData> p_cameras);
 
-		//HACK: (RENDERER) This is a temporary solution to get access to the renderer. The renderer should be a singleton, but for now this will do.
-		Graphics::Renderer &GetRenderer() { return m_renderer; }
-		
-	private:
+       /// @brief Adds an event listener that will be called when an SDL event is polled.
+       /// @param p_listener The event listener to add.
+       void AddEventListener(const EventListener &p_listener) { m_eventListeners.push_back(p_listener); }
 
-		/// @brief Setter class with the sole purpose of setting the update flags for the engine.
-		/// 
-		/// This is done to ensure that the update flags are set before any other subsystems are 
-		/// initialized while still following RAII principles.
-		/// @note Does this make you happy, Christoffer?
-		class UpdateFlagsSetter
-		{
-		public:
-			UpdateFlagsSetter() = delete;
+       /// @brief Is meant to enable other classes to use functionality from scenemanager
+       /// @return A reference to engines scenemanager
+       [[nodiscard]] Scene::SceneManager &GetSceneManager() { return m_sceneManager; }
 
-			UpdateFlagsSetter(UpdateFlags p_flags)
-			{
-				EngineFlagsOwner::SetUpdateFlags(p_flags);
-			}
-		};
+       /// @brief Getter for the window of the engine
+       /// @return An SDL window handle
+       [[nodiscard]] SDL_Window *GetWindow() { return m_window.GetSDLWindow(); }
 
-		UpdateFlagsSetter m_updateFlagsSetter;
-		
-		/// @brief The window instance should only be one.
-		Graphics::SDL::Window m_window;
+    private:
 
-		/// @brief The renderer instance, should only be one.
-		Graphics::Renderer m_renderer;
-				
-		/// @brief Registry containing the game's registered item definitions.
-		Droplet::Game::ItemRegistry m_itemRegistry; // HACK: (ENGINE) Game systems do not go in Engine, this would work as a behaviour
+       /// @brief Setter class with the sole purpose of setting the update flags for the engine.
+       ///
+       /// This is done to ensure that the update flags are set before any other subsystems are
+       /// initialized while still following RAII principles.
+       /// @note Does this make you happy, Christoffer?
+       class UpdateFlagsSetter
+       {
+       public:
+          UpdateFlagsSetter() = delete;
+
+          UpdateFlagsSetter(UpdateFlags p_flags)
+          {
+             EngineFlagsOwner::SetUpdateFlags(p_flags);
+          }
+       };
+
+       UpdateFlagsSetter m_updateFlagsSetter;
+
+       // == Window and rendering == constructed in this order, destroyed in reverse
+       Platform::SDL::Window m_window;
+       Platform::SDL::VulkanSurfaceProvider m_surfaceProvider;
+#ifdef _EDITOR
+		Graphics::Debug::ImGuiFrame m_imguiFrame; ///< the ImGui context, outlives the renderer's ImGui backend
+#endif
+		Graphics::Vulkan::Renderer m_renderer;
+		StaticResourceHandle<ShaderResource> m_defaultVertexShader;   ///< Base.VS, kept loaded
+		StaticResourceHandle<ShaderResource> m_defaultFragmentShader; ///< Base.FS, kept loaded
+		std::unordered_map<GUID, StaticResourceHandle<ShaderResource>> m_requestedShaders; ///< shaders loaded for the renderer (e.g. editor overrides)
+
+       /// @brief Registry containing the game's registered item definitions.
+       Game::ItemRegistry m_itemRegistry; // HACK: Game systems do not go in Engine, this would work as a behaviour
 
 		/// @brief The scenemanager instance, should only be one.
 		Scene::SceneManager m_sceneManager;
@@ -102,7 +121,7 @@ namespace Droplet
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 
-		/// @brief Registers all components owned by the engine.
-		void RegisterComponents();
-	};
+       /// @brief Registers all components owned by the engine.
+       void RegisterComponents();
+    };
 }

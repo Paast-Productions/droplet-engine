@@ -2,7 +2,7 @@
 #include "Scene.hpp"
 #include "Component.hpp"
 #include "ComponentFactory.hpp"
-#include <SceneSystem/DefaultNodeBounds.hpp>
+#include <SceneSystem/Bounds/DefaultNodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <stdexcept>
 #include <glm/gtc/matrix_transform.hpp>
@@ -307,7 +307,7 @@ std::shared_ptr<Node> Node::AddChild(std::shared_ptr<Node> p_child, bool p_keepW
 	else
 	{
 		// Child was a root. Remove it from the scene's root nodes.
-		m_scene.lock()->SetRoot(p_child, false);
+		m_scene.lock()->SetRoot(p_child, false, true);
 	}
 
 	p_child->m_parent = shared_from_this();

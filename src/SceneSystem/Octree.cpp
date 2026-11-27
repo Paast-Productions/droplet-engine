@@ -12,7 +12,7 @@
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <GameInput.hpp>
 #include <SceneSystem/Components/MeshComponent.hpp>
 
@@ -73,7 +73,7 @@ void Octree::Update()
 		nodeBounds.GetCorners(corners);
 		AABB fatBounds = AABB::FromPoints(corners, 8);
 
-		fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+		fatBounds.extents += m_fatAabbMargin; // Add a margin to the fat AABB to reduce reinsertion frequency
 
 		m_placements[nodePtr.get()].fatBounds = fatBounds;
 		AddToTreeNode(node, m_root, fatBounds);
@@ -101,7 +101,7 @@ void Octree::AddNode(const std::weak_ptr<Node> &p_node)
 	nodeBounds.GetCorners(corners);
 	AABB fatBounds = AABB::FromPoints(corners, 8);
 
-	fatBounds.extents += C_FAT_AABB_MARGIN; // Add a margin to the fat AABB to reduce reinsertion frequency
+	fatBounds.extents += m_fatAabbMargin; // Add a margin to the fat AABB to reduce reinsertion frequency
 	
 	m_containedNodes.push_back(p_node);
 	m_placements[nodePtr.get()].fatBounds = fatBounds;
@@ -334,8 +334,34 @@ void Octree::GetNodesFromSphere(const Math::Sphere &p_sphere, std::vector<std::w
 	p_nodes = std::move(uniqueNodes);
 }
 
+float Octree::GetExtentLength() const
+{
+	return m_root->octant.extents.x;
+}
+
+std::uint8_t Octree::GetMaxNodes() const
+{
+	 return m_maxNodes;
+}
+
+std::uint8_t Octree::GetMaxDepth() const
+{
+	return m_maxDepth;
+}
+
+void Octree::SetMaxNodes(const std::uint8_t p_maxNodes)
+{
+	m_maxNodes = p_maxNodes;
+	m_mergeThreshold = m_maxNodes / 2;
+}
+
+void Octree::SetMaxDepth(const std::uint8_t p_maxDepth)
+{
+	m_maxDepth = p_maxDepth;
+}
+
 void Octree::CheckIntersecting(std::vector<std::weak_ptr<Node>>& p_nodes, const Math::AABB& p_shape,
-	const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
+                               const std::unique_ptr<TreeNode>& p_treeNode, CollisionLayer p_layerMask)
 {
 	ZoneScoped;
 		
@@ -640,7 +666,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 		return;
 	}
 
-	if (p_treeNode->level > C_MAX_DEPTH)
+	if (p_treeNode->level > m_maxDepth)
 	{
 		return;
 	}
@@ -676,7 +702,7 @@ void Octree::AddToTreeNode(const std::weak_ptr<Node> &p_node, const std::unique_
 	p_treeNode->nodes.push_back(p_node);
 
 	// Subdivide if capacity is exceeded and max depth is not reached
-	if (p_treeNode->nodes.size() > C_MAX_NODES && p_treeNode->level < C_MAX_DEPTH)
+	if (p_treeNode->nodes.size() > m_maxNodes && p_treeNode->level < m_maxDepth)
 	{
 		std::array<AABB, 8> octants;
 		SubdivideOctant(p_treeNode->octant, octants);
@@ -1106,7 +1132,7 @@ void Octree::TryMerge(const std::unique_ptr<TreeNode> &p_treeNode)
 			{
 				uniqueNodes.push_back(node);
 
-				if (uniqueNodes.size() > C_MERGE_THRESHOLD)
+				if (uniqueNodes.size() > m_mergeThreshold)
 				{
 					exceedsThreshold = true;
 					return;
@@ -1145,7 +1171,7 @@ void Octree::TryMerge(const std::unique_ptr<TreeNode> &p_treeNode)
 	}
 		
 	// Too many unique nodes remain, keep the subdivision
-	if (uniqueNodes.size() > C_MERGE_THRESHOLD)
+	if (uniqueNodes.size() > m_mergeThreshold)
 	{
 		return;
 	}
