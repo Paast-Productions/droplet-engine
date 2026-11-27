@@ -10,6 +10,26 @@ using namespace Droplet::Common;
 using namespace Droplet::Graphics;
 using namespace Droplet::Graphics::Debug;
 
+namespace
+{
+	/// The renderer's built-in effects, in the order the inspector lists them
+	constexpr PostEffect C_POST_EFFECTS[] = {
+		PostEffect::Grayscale, PostEffect::Contrast, PostEffect::Invert, PostEffect::Blur, PostEffect::AutoExposure
+	};
+
+	/// What an effect's amount means; nullptr if the effect has no amount
+	const char *AmountLabel(PostEffect p_effect)
+	{
+		switch (p_effect)
+		{
+		case PostEffect::Contrast: return "Contrast";      // 1 = unchanged
+		case PostEffect::Blur: return "Radius (px)";
+		case PostEffect::AutoExposure: return "Brightness"; // 1 = mid grey
+		default: return nullptr;
+		}
+	}
+}
+
 void CameraComponent::StartImpl()
 {
 	// store target id case meshes refer to it
@@ -134,6 +154,69 @@ void CameraComponent::RenderUIImpl()
 
 	ColorEdit4("Clear Color", &m_clearColor.x);
 
+	if (TreeNode("Post Effects"))
+	{
+		// applied top to bottom; changes are collected and applied after the loop
+		int removeIndex = -1;
+		int swapIndex = -1; // swaps with the next effect
+		for (int i = 0; i < static_cast<int>(m_postEffects.size()); ++i)
+		{
+			PostEffectDesc &effect = m_postEffects[i];
+			PushID(i);
+
+			SetNextItemWidth(120.0f);
+			if (BeginCombo("##effect", ToString(effect.effect)))
+			{
+				for (const PostEffect candidate : C_POST_EFFECTS)
+				{
+					if (Selectable(ToString(candidate), candidate == effect.effect))
+					{
+						effect.effect = candidate;
+					}
+				}
+				EndCombo();
+			}
+
+			if (const char *label = AmountLabel(effect.effect))
+			{
+				SameLine();
+				SetNextItemWidth(80.0f);
+				DragFloat(label, &effect.amount, 0.01f, 0.0f, 100.0f);
+			}
+
+			SameLine();
+			if (ArrowButton("##up", ImGuiDir_Up) && i > 0)
+			{
+				swapIndex = i - 1;
+			}
+			SameLine();
+			if (ArrowButton("##down", ImGuiDir_Down) && i + 1 < static_cast<int>(m_postEffects.size()))
+			{
+				swapIndex = i;
+			}
+			SameLine();
+			if (SmallButton("X"))
+			{
+				removeIndex = i;
+			}
+			PopID();
+		}
+
+		if (swapIndex >= 0)
+		{
+			std::swap(m_postEffects[swapIndex], m_postEffects[swapIndex + 1]);
+		}
+		if (removeIndex >= 0)
+		{
+			m_postEffects.erase(m_postEffects.begin() + removeIndex);
+		}
+		if (Button("Add Effect"))
+		{
+			m_postEffects.push_back({});
+		}
+		TreePop();
+	}
+
 	if (Button("Trigger Render"))
 	{
 		TriggerRender();
@@ -209,6 +292,7 @@ CameraRenderData CameraComponent::GetRenderData() const
 	renderData.renderData = m_renderData;
 	renderData.debug = m_debugDraw;
 	renderData.clearColor = m_clearColor;
+	renderData.postEffects = m_postEffects;
 
 	return renderData;
 }
@@ -234,6 +318,13 @@ nlohmann::json CameraComponent::SerializeImpl()
 	compJson["resolution"] = { m_resolution.x, m_resolution.y };
 	compJson["clearColor"] = { m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a };
 	compJson["debugDraw"] = m_debugDraw;
+
+	json effectsJson = json::array();
+	for (const PostEffectDesc &effect : m_postEffects)
+	{
+		effectsJson.push_back({ { "effect", ToString(effect.effect) }, { "amount", effect.amount } });
+	}
+	compJson["postEffects"] = effectsJson;
 	compJson["targetId"] = m_target.id; // if a mesh uses the output as a texture
 
 	return compJson;
@@ -308,6 +399,22 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 			m_clearColor.g = color[1].get<float>();
 			m_clearColor.b = color[2].get<float>();
 			m_clearColor.a = color[3].get<float>();
+		}
+	}
+
+	if (p_compJson.contains("postEffects") && p_compJson["postEffects"].is_array())
+	{
+		// by name, so reordering the enum does not change saved scenes; unknown names are skipped
+		m_postEffects.clear();
+		for (const json &effectJson : p_compJson["postEffects"])
+		{
+			const std::string name = effectJson.value("effect", std::string{});
+			const auto known = std::ranges::find_if(C_POST_EFFECTS,
+				[&name](PostEffect p_effect) { return name == ToString(p_effect); });
+			if (known != std::end(C_POST_EFFECTS))
+			{
+				m_postEffects.push_back({ .effect = *known, .amount = effectJson.value("amount", 1.0f) });
+			}
 		}
 	}
 

@@ -69,16 +69,17 @@ namespace Droplet::Graphics::Vulkan
 
         /**
          * @brief The pipeline description for objects drawn with the scene layout
-         * @param vertexShader The vertex stage's shader GUID
-         * @param fragmentShader The fragment stage's shader GUID
+         * @param shaders A group of shader GUIDs
          * @param colorFormat The view's colour format
          * @param depthFormat The view's depth format
          * @param transparent Alpha blended without depth writes
          * @returns A description for PipelineLibrary::GetOrCreate
          */
         [[nodiscard]] GraphicsPipelineDesc MakePipelineDesc(
-			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
-            vk::Format colorFormat, vk::Format depthFormat, bool transparent = false) const;
+            const ShaderGroup &shaders,
+            vk::Format colorFormat, 
+            vk::Format depthFormat, 
+            bool transparent = false) const;
 
         /**
          * @brief The built-in shader interface a mesh's vertex layout fits
@@ -89,8 +90,7 @@ namespace Droplet::Graphics::Vulkan
 
         /**
          * @brief The pipeline description for a dynamic mesh: its own vertex layout, topology and depth test
-         * @param vertexShader The vertex stage's shader GUID
-         * @param fragmentShader The fragment stage's shader GUID
+         * @param shaders Group of shader ids
          * @param mesh A mesh whose interface is not None
          * @param colorFormat The view's colour format
          * @param depthFormat The view's depth format
@@ -98,7 +98,7 @@ namespace Droplet::Graphics::Vulkan
          * @returns A description for PipelineLibrary::GetOrCreate
          */
         [[nodiscard]] GraphicsPipelineDesc MakeMeshPipelineDesc(
-			GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+			const ShaderGroup &shaders,
             const Common::DynamicMeshData& mesh,
             vk::Format colorFormat, vk::Format depthFormat, bool transparent) const;
 

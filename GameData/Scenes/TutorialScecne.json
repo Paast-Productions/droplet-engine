@@ -1,11 +1,16 @@
 {
     "name": "TutorialScecne",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
     "roots": [
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -19,6 +24,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
                     },
@@ -26,6 +33,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 1,
             "name": "SeafloorMain",
             "transform": {
@@ -50,8 +58,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -65,6 +75,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -72,6 +84,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 2,
             "name": "Seafloor",
             "transform": {
@@ -96,8 +109,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -111,6 +126,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -118,6 +135,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 3,
             "name": "Seafloor",
             "transform": {
@@ -127,10 +145,10 @@
                     -48.729644775390625
                 ],
                 "rotation": [
-                    0.5524958968162537,
-                    0.11899898201227188,
-                    -0.7051836252212524,
-                    -0.4281396269798279
+                    0.5524959564208984,
+                    0.11899899691343307,
+                    -0.7051836848258972,
+                    -0.42813968658447266
                 ],
                 "scale": [
                     0.19251741468906403,
@@ -142,8 +160,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -157,6 +177,8 @@
                         "tesName": "",
                         "textureDisplayName": "underwater_lab2_base",
                         "textureGUID": 17525405162226008434,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -164,6 +186,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 4,
             "name": "UnderWaterLab",
             "transform": {
@@ -188,8 +211,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -203,6 +228,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -210,6 +237,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 5,
             "name": "kelp",
             "transform": {
@@ -234,8 +262,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -249,6 +279,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -256,6 +288,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 6,
             "name": "Seafloor",
             "transform": {
@@ -280,8 +313,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -295,6 +330,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -302,6 +339,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 7,
             "name": "kelp",
             "transform": {
@@ -311,9 +349,9 @@
                     -55.304168701171875
                 ],
                 "rotation": [
-                    0.8012517690658569,
+                    0.8012516498565674,
                     0.0,
-                    0.5983275175094604,
+                    0.5983274579048157,
                     0.0
                 ],
                 "scale": [
@@ -326,8 +364,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -341,6 +381,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -348,6 +390,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 8,
             "name": "kelp",
             "transform": {
@@ -372,8 +415,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -387,6 +432,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -394,6 +441,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 9,
             "name": "kelp",
             "transform": {
@@ -418,8 +466,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -433,6 +483,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -440,6 +492,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 10,
             "name": "kelp2",
             "transform": {
@@ -464,8 +517,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -479,6 +534,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -486,6 +543,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 11,
             "name": "kelp2",
             "transform": {
@@ -510,8 +568,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -525,6 +585,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -532,6 +594,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 12,
             "name": "kelp2",
             "transform": {
@@ -556,8 +619,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -571,6 +636,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -578,6 +645,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 13,
             "name": "kelp2",
             "transform": {
@@ -602,8 +670,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -617,6 +687,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -624,6 +696,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 14,
             "name": "BigSeaGrass2",
             "transform": {
@@ -648,8 +721,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -663,6 +738,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -670,6 +747,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 15,
             "name": "BigSeaGrass2",
             "transform": {
@@ -694,8 +772,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -709,6 +789,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -716,6 +798,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 16,
             "name": "BigSeaGrass2",
             "transform": {
@@ -740,8 +823,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -755,6 +840,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -762,6 +849,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 17,
             "name": "BigSeaGrass2",
             "transform": {
@@ -786,8 +874,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -801,6 +891,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -808,6 +900,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 18,
             "name": "kelp",
             "transform": {
@@ -832,8 +925,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -847,6 +942,8 @@
                         "tesName": "",
                         "textureDisplayName": "Seagrass_2",
                         "textureGUID": 3979492177554091074,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -854,6 +951,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 19,
             "name": "BigSeaGrass2",
             "transform": {
@@ -878,8 +976,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -893,6 +993,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -900,6 +1002,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 20,
             "name": "kelp",
             "transform": {
@@ -924,8 +1027,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -939,6 +1044,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -946,6 +1053,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 21,
             "name": "kelp2",
             "transform": {
@@ -970,8 +1078,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -985,6 +1095,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -992,6 +1104,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 22,
             "name": "kelp2",
             "transform": {
@@ -1016,8 +1129,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1031,6 +1146,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1038,6 +1155,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 23,
             "name": "kelp3",
             "transform": {
@@ -1062,8 +1180,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1077,6 +1197,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1084,6 +1206,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 24,
             "name": "kelp3",
             "transform": {
@@ -1108,8 +1231,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1123,6 +1248,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1130,6 +1257,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 25,
             "name": "kelp3",
             "transform": {
@@ -1154,8 +1282,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1169,6 +1299,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1176,6 +1308,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 26,
             "name": "kelp3",
             "transform": {
@@ -1200,8 +1333,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1215,6 +1350,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1222,6 +1359,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 27,
             "name": "kelp3",
             "transform": {
@@ -1246,8 +1384,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1261,6 +1401,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1268,6 +1410,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 28,
             "name": "kelp3",
             "transform": {
@@ -1292,8 +1435,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1307,6 +1452,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1314,6 +1461,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 29,
             "name": "kelp3",
             "transform": {
@@ -1338,8 +1486,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1353,6 +1503,8 @@
                         "tesName": "",
                         "textureDisplayName": "RockV2_base",
                         "textureGUID": 2617992142281023542,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1360,6 +1512,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 30,
             "name": "Stone",
             "transform": {
@@ -1384,8 +1537,10 @@
         {
             "active": true,
             "children": [],
+            "collisionLayerMask": 1,
             "components": [
                 {
+                    "active": true,
                     "data": {
                         "fs": 3658838734074951198,
                         "fsName": "BlueTint.FS",
@@ -1399,6 +1554,8 @@
                         "tesName": "",
                         "textureDisplayName": "kelp_base",
                         "textureGUID": 14395557324987730134,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "BaseVS"
                     },
@@ -1406,6 +1563,7 @@
                     "type": "MeshComponent"
                 }
             ],
+            "drawLayer": 1,
             "id": 31,
             "name": "kelp3",
             "transform": {
@@ -1424,6 +1582,66 @@
                     1.0000001192092896,
                     1.0,
                     1.0000001192092896
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 45.0,
+                            "orthographic": false,
+                            "orthographicHeight": 10.0,
+                            "planes": [
+                                0.10000000149011612,
+                                100.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "debugDraw": false,
+                        "drawLayerMask": 65535,
+                        "postEffects": [],
+                        "priority": 0,
+                        "resolution": [
+                            256,
+                            256
+                        ],
+                        "targetId": 5084094488865963835
+                    },
+                    "id": 1,
+                    "type": "CameraComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 32,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    2.7776567935943604,
+                    14.733911514282227,
+                    -0.35794544219970703
+                ],
+                "rotation": [
+                    0.9895257949829102,
+                    0.14435619115829468,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }

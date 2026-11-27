@@ -122,27 +122,30 @@ namespace Droplet::Graphics::Vulkan
         m_builtInResource = std::move(builtIn);
     }
 
-    ShaderGroup ShaderLibrary::ResolveDefault(ShaderGroup defaultShaders)
+    ShaderGroup ShaderLibrary::ResolveDefault(const ShaderGroup &defaultShaders)
     {
         const GUID builtIn = m_builtInDefault;
-		const ShaderGroup builtInFallback = ShaderGroup(builtIn, builtIn);
+        const ShaderGroup fallback = GetOrCreate(builtIn, m_builtInResource)
+            ? ShaderGroup{ .vertex = builtIn, .fragment = builtIn }
+            : ShaderGroup{};
 
-        const ShaderGroup fallback = GetOrCreate(builtIn, m_builtInResource) ? builtInFallback : ShaderGroup();
         return Resolve(defaultShaders, fallback);
     }
 
-    ShaderGroup ShaderLibrary::Resolve(ShaderGroup shaders, ShaderGroup fallback) const
+    ShaderGroup ShaderLibrary::Resolve(const ShaderGroup &shaders, const ShaderGroup &fallback) const
     {
-        // a group without a vertex stage cannot be drawn, so it must fall back
-        bool ready = shaders.vertex.used && IsReady(shaders.vertex.id, vk::ShaderStageFlagBits::eVertex);
-		if (shaders.tessCtrl.used)
-			ready = ready && IsReady(shaders.tessCtrl.id, vk::ShaderStageFlagBits::eTessellationControl);
-		if (shaders.tessEval.used)
-			ready = ready && IsReady(shaders.tessEval.id, vk::ShaderStageFlagBits::eTessellationEvaluation);
-		if (shaders.geometry.used)
-			ready = ready && IsReady(shaders.geometry.id, vk::ShaderStageFlagBits::eGeometry);
-		if (shaders.fragment.used)
-			ready = ready && IsReady(shaders.fragment.id, vk::ShaderStageFlagBits::eFragment);
+        // every stage the group uses must be created; an invalid group (no vertex or fragment stage, half a
+        // tessellation pair) falls back
+        const auto stageReady = [this](GUID id, vk::ShaderStageFlagBits stage)
+        {
+            return id == C_INVALID_GUID || IsReady(id, stage);
+        };
+        const bool ready = shaders.IsValid()
+            && stageReady(shaders.vertex, vk::ShaderStageFlagBits::eVertex)
+            && stageReady(shaders.tessControl, vk::ShaderStageFlagBits::eTessellationControl)
+            && stageReady(shaders.tessEvaluation, vk::ShaderStageFlagBits::eTessellationEvaluation)
+            && stageReady(shaders.geometry, vk::ShaderStageFlagBits::eGeometry)
+            && stageReady(shaders.fragment, vk::ShaderStageFlagBits::eFragment);
 
         return ready ? shaders : fallback;
     }
@@ -194,23 +197,22 @@ namespace Droplet::Graphics::Vulkan
                 return candidate;
         }
 
-        const Shader& vertex = m_shaders.Get(desc.vertexShader, vk::ShaderStageFlagBits::eVertex);
-        const Shader* fragment = desc.hasFragmentShader
-            ? &m_shaders.Get(desc.fragmentShader, vk::ShaderStageFlagBits::eFragment)
-            : nullptr;
-		const Shader *tessCtrl = desc.hasTessCtrlShader
-			? &m_shaders.Get(desc.tessCtrlShader, vk::ShaderStageFlagBits::eTessellationControl)
-			: nullptr;
-		const Shader *tessEval = desc.hasTessEvalShader
-			? &m_shaders.Get(desc.tessEvalShader, vk::ShaderStageFlagBits::eTessellationEvaluation)
-			: nullptr;
-		const Shader *geometry = desc.hasGeometryShader
-			? &m_shaders.Get(desc.geometryShader, vk::ShaderStageFlagBits::eGeometry)
-			: nullptr;
+        // the created stage for each GUID the group uses; an unused stage stays null
+        const auto stage = [this](GUID id, vk::ShaderStageFlagBits stageBit) -> const Shader*
+        {
+            return id != C_INVALID_GUID ? &m_shaders.Get(id, stageBit) : nullptr;
+        };
+        const GraphicsPipeline::Stages stages{
+            .vertex = stage(desc.shaders.vertex, vk::ShaderStageFlagBits::eVertex),
+            .tessControl = stage(desc.shaders.tessControl, vk::ShaderStageFlagBits::eTessellationControl),
+            .tessEvaluation = stage(desc.shaders.tessEvaluation, vk::ShaderStageFlagBits::eTessellationEvaluation),
+            .geometry = stage(desc.shaders.geometry, vk::ShaderStageFlagBits::eGeometry),
+            .fragment = stage(desc.shaders.fragment, vk::ShaderStageFlagBits::eFragment),
+        };
 
         const Render::PipelineHandle handle = m_pipelines.Add(Entry{
             .desc = desc,
-            .pipeline = GraphicsPipeline(m_device, desc, vertex, fragment, tessCtrl, tessEval, geometry, &m_vkCache)});
+            .pipeline = GraphicsPipeline(m_device, desc, stages, &m_vkCache)});
         candidates.push_back(handle);
         return handle;
     }

@@ -50,6 +50,41 @@ namespace Droplet::Graphics::Vulkan
     };
 
     /**
+     * @brief The shader stages a graphics pipeline is built from
+     * @details A stage is used when its GUID is valid; leave the others out:
+     *          `ShaderGroup{ .vertex = vs, .geometry = gs, .fragment = fs }`
+     */
+    struct ShaderGroup
+    {
+        GUID vertex{ C_INVALID_GUID };
+        GUID tessControl{ C_INVALID_GUID };
+        GUID tessEvaluation{ C_INVALID_GUID };
+        GUID geometry{ C_INVALID_GUID };
+        GUID fragment{ C_INVALID_GUID }; ///< invalid: depth only (no colour written)
+
+        /// @brief True if the group has both tessellation stages
+        [[nodiscard]] bool HasTessellation() const noexcept
+        {
+            return tessControl != C_INVALID_GUID && tessEvaluation != C_INVALID_GUID;
+        }
+
+        /// @brief True if the group has a geometry stage
+        [[nodiscard]] bool HasGeometry() const noexcept { return geometry != C_INVALID_GUID; }
+
+        /**
+         * @brief True if the group can draw a scene object: a vertex and a fragment stage, and tessellation stages
+         *        either both or neither (Vulkan needs the pair)
+         */
+        [[nodiscard]] bool IsValid() const noexcept
+        {
+            const bool tessellationPaired = (tessControl == C_INVALID_GUID) == (tessEvaluation == C_INVALID_GUID);
+            return vertex != C_INVALID_GUID && fragment != C_INVALID_GUID && tessellationPaired;
+        }
+
+        friend bool operator==(const ShaderGroup&, const ShaderGroup&) = default;
+    };
+
+    /**
      * @brief Everything that defines a graphics pipeline. No Vulkan objects are owned here.
      *
      * Shaders are referenced by GUID so the description can be serialized / stored on a material.
@@ -58,17 +93,7 @@ namespace Droplet::Graphics::Vulkan
      */
     struct GraphicsPipelineDesc
     {
-        GUID vertexShader{};
-        GUID fragmentShader{};   ///< Leave default (null) for depth-only pipelines
-		GUID tessCtrlShader{};
-		GUID tessEvalShader{};
-		GUID geometryShader{};
-
-		bool hasVertexShader = true;
-        bool hasFragmentShader = true;
-		bool hasTessCtrlShader = false;
-		bool hasTessEvalShader = false;
-		bool hasGeometryShader = false;
+        ShaderGroup shaders{};            ///< a stage is used when its GUID is valid; no fragment: depth only
 
         vk::PipelineLayout layout{};      ///< Non-owning; layouts live longer than pipelines
 
@@ -95,14 +120,28 @@ namespace Droplet::Graphics::Vulkan
     class GraphicsPipeline
     {
     public:
+        /// @brief The created shader stages a pipeline is built from; null: the stage is not used
+        struct Stages
+        {
+            const Shader* vertex = nullptr; ///< required
+            const Shader* tessControl = nullptr;
+            const Shader* tessEvaluation = nullptr;
+            const Shader* geometry = nullptr;
+            const Shader* fragment = nullptr;
+        };
+
+        /**
+         * @brief Builds the pipeline
+         * @param device The device
+         * @param desc The state; desc.shaders names the stages `stages` holds
+         * @param stages The created stages, each with its stage's type
+         * @param cache Optional pipeline cache
+         * @throws std::invalid_argument if a stage is missing or of the wrong type, or the description is inconsistent
+         */
         GraphicsPipeline(
             const vk::raii::Device& device,
             const GraphicsPipelineDesc& desc,
-            const Shader& vertex,
-            const Shader* fragment,
-            const Shader* tessCtrl,
-            const Shader* tessEval,
-            const Shader* geometry,
+            const Stages& stages,
             const vk::raii::PipelineCache* cache = nullptr);
 
         [[nodiscard]] vk::Pipeline Handle() const { return *m_pipeline; }

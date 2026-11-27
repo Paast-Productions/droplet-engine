@@ -110,10 +110,14 @@ namespace
                     mesh->vertexData.size() % stride != 0)
                     continue;
                 const auto meshVertices = static_cast<std::uint32_t>(mesh->vertexData.size() / stride);
-                if (std::ranges::any_of(mesh->indices, [meshVertices](std::uint32_t index) { return index >= meshVertices; }))
+                if (std::ranges::any_of(mesh->indices, [meshVertices](std::uint32_t index)
+                {
+                    return index >= meshVertices;
+                }))
                     continue;
 
-                frame.dynamicVertexData.insert(frame.dynamicVertexData.end(), mesh->vertexData.begin(), mesh->vertexData.end());
+                frame.dynamicVertexData.insert(frame.dynamicVertexData.end(), mesh->vertexData.begin(),
+                                               mesh->vertexData.end());
                 PackedDynamicDraw& result = packed[mesh];
                 result.packed = true;
                 result.vertexByteOffset = groupStart;
@@ -143,7 +147,8 @@ namespace
             return mesh.id;
         std::uint64_t key = mesh.vertexStride;
         for (const Common::VertexAttribute& attribute : mesh.attributes)
-            key = key * 1099511628211ull ^ (attribute.location << 16 | static_cast<std::uint32_t>(attribute.format) << 8 | attribute.offset);
+            key = key * 1099511628211ull ^ (attribute.location << 16 | static_cast<std::uint32_t>(attribute.format) << 8
+                | attribute.offset);
         return key;
     }
 
@@ -196,11 +201,14 @@ Render::PreparedFrame Vulkan::Prepare(
     const Vulkan::PrepareContext& context)
 {
     ZoneScoped
-    
+
     GpuResourceManager& gpu = context.gpu;
 
     // the default shaders: the world's once they have arrived, else the built-in ones
-    const ShaderGroup defaultShaders = context.shaders.ResolveDefault(ShaderGroup(world.defaultVertexShader, world.defaultFragmentShader));
+    const ShaderGroup defaultShaders = context.shaders.ResolveDefault({
+        .vertex = world.defaultVertexShader,
+        .fragment = world.defaultFragmentShader
+    });
 
     // 1. render targets: one per drawn camera
     std::unordered_map<GUID, Render::TargetHandle> targetHandles;
@@ -222,7 +230,8 @@ Render::PreparedFrame Vulkan::Prepare(
     {
         return std::ranges::any_of(camera.renderData, [](const Common::RenderData& object)
         {
-            return object.dynamicMesh && DrawPass::InterfaceOf(*object.dynamicMesh) == DrawPass::MeshInterface::VertexColor;
+            return object.dynamicMesh && DrawPass::InterfaceOf(*object.dynamicMesh) ==
+                DrawPass::MeshInterface::VertexColor;
         });
     });
     const bool vertexColorReady = usesVertexColor &&
@@ -249,8 +258,11 @@ Render::PreparedFrame Vulkan::Prepare(
         const glm::mat4 proj = camera.camera.GetProjectionMatrix();
 
         const auto settings = std::ranges::find(world.viewSettings, camera.target.id, &Render::ViewSettings::targetId);
+        
         Render::DrawList list{
-            .name = settings != world.viewSettings.end() ? settings->name : std::format("Camera {:016x}", camera.target.id),
+            .name = settings != world.viewSettings.end()
+                        ? settings->name
+                        : std::format("Camera {:016x}", camera.target.id),
             .view = view,
             .proj = proj,
             .clearColor = camera.clearColor,
@@ -259,10 +271,10 @@ Render::PreparedFrame Vulkan::Prepare(
             .target = target,
             .history = plan.needsHistory ? gpu.GetOrCreateHistory(target) : Render::TargetHandle{},
             .presented = !presentedFound && target == presented,
-            .effects = settings != world.viewSettings.end() ? settings->effects : std::vector<Common::PostEffectDesc>{},
+            .effects = settings != world.viewSettings.end() && !settings->effects.empty() ? settings->effects : camera.postEffects,
         };
         presentedFound = presentedFound || list.presented;
-        
+
         // other views' targets, this frame's contents
         for (const GUID readId : plan.readIds)
         {
@@ -317,7 +329,13 @@ Render::PreparedFrame Vulkan::Prepare(
         std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
         for (const Common::RenderData& source : camera.renderData)
         {
-            const ShaderGroup objectShaders{ source.vsData.guid, source.fsData.guid, source.gsData.guid, source.tcsData.guid, source.tesData.guid };
+            const ShaderGroup objectShaders{
+                .vertex = source.vsData.guid,
+                .tessControl = source.tcsData.guid,
+                .tessEvaluation = source.tesData.guid,
+                .geometry = source.gsData.guid,
+                .fragment = source.fsData.guid
+            };
 
             if (source.dynamicMesh)
             {
@@ -326,9 +344,10 @@ Render::PreparedFrame Vulkan::Prepare(
                 if (meshInterface == DrawPass::MeshInterface::None)
                 {
                     if (context.reportedMeshes.insert(ReportKey(mesh)).second)
-                        std::println("Prepare: dynamic mesh {:016x} has a vertex layout no built-in shader reads (position "
-                                     "float3 at 0, then normal float3 and uv float2, or a float4 or unorm8x4 colour). Not drawn",
-                                     mesh.id);
+                        std::println(
+                            "Prepare: dynamic mesh {:016x} has a vertex layout no built-in shader reads (position "
+                            "float3 at 0, then normal float3 and uv float2, or a float4 or unorm8x4 colour). Not drawn",
+                            mesh.id);
                     continue;
                 }
                 const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
@@ -337,15 +356,21 @@ Render::PreparedFrame Vulkan::Prepare(
                     continue;
                 // particles have their own vertex layout, so scene shaders cannot stand in for them
                 const ShaderGroup shaders = vertexColor
-                    ? ShaderGroup(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER)
-                    : context.shaders.Resolve(objectShaders, particle ? ShaderGroup() : defaultShaders);
+                                                ? ShaderGroup{ .vertex = DrawPass::VERTEX_COLOR_SHADER,
+                                                              .fragment = DrawPass::VERTEX_COLOR_SHADER}
+                                                : context.shaders.Resolve(
+                                                    objectShaders, particle 
+                                                    ? ShaderGroup() 
+                                                    : defaultShaders);
                 if (!shaders.IsValid())
                     continue;
 
-                const Render::ImageBinding material = vertexColor ? Render::ImageBinding{ gpu.WhiteTexture() } : materialOf(source.texData);
-                const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
-					shaders.vertex.id, shaders.fragment.id, shaders.tessCtrl.id, shaders.tessEval.id, shaders.geometry.id,
-                    mesh, colorFormat, context.depthFormat, source.transparent));
+                const Render::ImageBinding material = vertexColor
+                                                          ? Render::ImageBinding{gpu.WhiteTexture()}
+                                                          : materialOf(source.texData);
+                const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(
+                    context.scenePass.MakeMeshPipelineDesc(shaders,
+                        mesh, colorFormat, context.depthFormat, source.transparent));
                 const bool blended = vertexColor || particle || source.transparent;
 
                 if (mesh.id != C_INVALID_GUID)
@@ -354,7 +379,9 @@ Render::PreparedFrame Vulkan::Prepare(
                     const Render::MeshHandle handle = gpu.FindDynamicMesh(mesh.id);
                     if (!handle.IsValid())
                         continue;
-                    Render::DrawItem item{ .model = source.transform, .pipeline = pipeline, .mesh = handle, .material = material };
+                    Render::DrawItem item{
+                        .model = source.transform, .pipeline = pipeline, .mesh = handle, .material = material
+                    };
                     if (!mesh.depthTest)
                         list.lateItems.push_back(std::move(item));
                     else if (blended)
@@ -370,14 +397,14 @@ Render::PreparedFrame Vulkan::Prepare(
                     continue;
                 const std::uint32_t rank = !mesh.depthTest ? 2u : (blended ? 1u : 0u);
                 rankedDynamic.emplace_back(rank, Render::DynamicDrawItem{
-                    .model = source.transform,
-                    .pipeline = pipeline,
-                    .material = material,
-                    .vertexByteOffset = packed->second.vertexByteOffset,
-                    .indexed = packed->second.indexed,
-                    .first = packed->second.first,
-                    .count = packed->second.count
-                });
+                                               .model = source.transform,
+                                               .pipeline = pipeline,
+                                               .material = material,
+                                               .vertexByteOffset = packed->second.vertexByteOffset,
+                                               .indexed = packed->second.indexed,
+                                               .first = packed->second.first,
+                                               .count = packed->second.count
+                                           });
                 continue;
             }
 
@@ -400,7 +427,7 @@ Render::PreparedFrame Vulkan::Prepare(
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
-                    object.shaders.vertex.id, object.shaders.fragment.id, object.shaders.tessCtrl.id, object.shaders.tessEval.id, object.shaders.geometry.id, 
+                    object.shaders,
                     colorFormat, context.depthFormat, source.transparent)),
                 .mesh = object.mesh,
                 .material = material
