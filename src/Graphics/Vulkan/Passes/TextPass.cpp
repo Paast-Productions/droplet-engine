@@ -126,9 +126,7 @@ Droplet::Graphics::Vulkan::GraphicsPipelineDesc Droplet::Graphics::Vulkan::TextP
 {
 	GraphicsPipelineDesc desc{};
 	
-	desc.vertexShader = SHADER_ID;
-	desc.fragmentShader = SHADER_ID;
-	desc.hasFragmentShader = true;
+	desc.shaders = ShaderGroup{ .vertex = SHADER_ID, .fragment = SHADER_ID};
 	
 	desc.layout = *m_pipelineLayout;
 	
