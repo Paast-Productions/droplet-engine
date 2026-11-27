@@ -1,10 +1,14 @@
 #include "Resource/ResourceBrowser.hpp"
 
+#include <algorithm>
+#include <cmath>
+
 #include <IconFontCppHeaders/IconsLucide.h>
 
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_stdlib.h>
 
+#include <Platform/GameInput.hpp>
 #include <Core/FileExplorer.hpp>
 #include <resource/meta/MetaUtils.hpp>
 #include <Editor/DragDropFields.hpp>
@@ -628,13 +632,12 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		if (m_previewResourceHandle.GetGUID() != p_entry.guid)
 		{
 			m_isPreviewResourceLoaded = false;
+			m_resetPreviewCamera = true;
 
 			StaticResourceHandle<MeshResource> meshHandle = resManInstance.LoadResource<MeshResource>(
 				p_entry.guid,
 				[this]([[maybe_unused]] StaticResourceHandle<MeshResource> handle) { 
 					m_isPreviewResourceLoaded = true; 
-
-					// TODO: (UI) Calculate the bounding box of the mesh and adjust the preview camera accordingly
 				}
 			);
 
@@ -674,6 +677,15 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			StaticResourceHandle<MeshResource> meshHandle = StaticResourceHandle<MeshResource>(guid, &resManInstance);
 
+			if (m_resetPreviewCamera)
+			{
+				if (const MeshResource *mesh = meshHandle.Get())
+				{
+					ResetMeshPreviewCamera(*mesh);
+				}
+				m_resetPreviewCamera = false;
+			}
+
 			// Calculate the size to maintain aspect ratio
 			float previewSizeX = static_cast<float>(m_previewCamera.resolution.x);
 			float previewSizeY = static_cast<float>(m_previewCamera.resolution.y);
@@ -698,9 +710,14 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 
 			SetCursorPos(previewPos);
 			BeginChild("Preview Image", scaledImageSize);
-			ImGui::Image(previewTexture, GetContentRegionAvail(), ImVec2(0, 0), ImVec2(1, 1));
+			const ImVec2 imagePos = GetCursorScreenPos();
+			const ImVec2 imageSize = GetContentRegionAvail();
+			ImGui::Image(previewTexture, imageSize, ImVec2(0, 0), ImVec2(1, 1));
 
-			// TODO: (UI) Handle rotation through mouse interaction
+			// Invisible button over the image to capture mouse input for the camera
+			SetCursorScreenPos(imagePos);
+			InvisibleButton("##MeshPreviewInput", imageSize, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
+			ProcessMeshPreviewInput(imageSize);
 
 			EndChild();
 
@@ -740,6 +757,123 @@ void ResourceBrowser::DrawResourcePreview(const MetaEntry &p_entry)
 		TextDisabled("No Preview Available");
 		break;
 	}
+}
+
+void ResourceBrowser::ResetMeshPreviewCamera(const MeshResource &p_mesh)
+{
+	if (!p_mesh.GetBVH().IsGenerated())
+		return;
+
+	constexpr float C_FIT_MARGIN = 1.1f; // Leaves a small border around the mesh
+
+	const Math::AABB bounds = p_mesh.GetBVH().GetBounds();
+	const float boundsRadius = std::max(glm::length(bounds.extents), 1e-3f);
+	const float halfFovRad = glm::radians(m_previewCamera.camera.GetFOV()) * 0.5f;
+
+	m_previewCamera.fitRadius = boundsRadius / std::sin(halfFovRad) * C_FIT_MARGIN;
+	m_previewCamera.pivot = bounds.center;
+	m_previewCamera.pivotRadius = m_previewCamera.fitRadius;
+
+	m_previewCamera.camera.SetOrientation(glm::vec3(0, 0, 1), glm::vec3(0, 1, 0));
+	m_previewCamera.camera.SetPlanes(m_previewCamera.fitRadius * 0.01f, m_previewCamera.fitRadius * 50.0f);
+	ApplyMeshPreviewPivot();
+}
+
+void ResourceBrowser::SetPreviewCursorLocked(bool p_locked)
+{
+	if (m_previewCursorLocked == p_locked)
+		return;
+
+	m_previewCursorLocked = p_locked;
+
+	GameInput &input = GameInput::Get();
+	ImGuiIO &io = ImGui::GetIO();
+
+	if (p_locked)
+	{
+		// Remember where the cursor was so it can be restored on release
+		const ImVec2 mainViewportPos = ImGui::GetMainViewport()->Pos;
+		m_previewCursorRestorePos = ImVec2(io.MousePos.x - mainViewportPos.x, io.MousePos.y - mainViewportPos.y);
+
+		// Called while the preview input button is the last item, so its rect is the preview area
+		const ImVec2 itemMin = ImGui::GetItemRectMin();
+		const ImVec2 itemMax = ImGui::GetItemRectMax();
+		const ImVec2 windowPos = ImGui::GetWindowPos();
+		const float centerX = (itemMin.x + itemMax.x) * 0.5f - windowPos.x;
+		const float centerY = (itemMin.y + itemMax.y) * 0.5f - windowPos.y;
+
+		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+		input.LockCursor(true, centerX, centerY);
+		input.HideCursor(true);
+	}
+	else
+	{
+		io.ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+		input.LockCursor(false, 0.0f, 0.0f);
+
+		if (SDL_Window *window = input.GetMainWindow())
+		{
+			SDL_WarpMouseInWindow(window, m_previewCursorRestorePos.x, m_previewCursorRestorePos.y);
+		}
+
+		input.HideCursor(false);
+	}
+}
+
+void ResourceBrowser::ProcessMeshPreviewInput(const ImVec2 &p_imageSize)
+{
+	using namespace ImGui;
+
+	const ImGuiIO &io = GetIO();
+	Common::Camera &camera = m_previewCamera.camera;
+
+	const bool orbiting = IsItemActive() && IsMouseDown(ImGuiMouseButton_Left);
+	const bool panning = !orbiting && IsItemActive() && IsMouseDown(ImGuiMouseButton_Middle);
+	SetPreviewCursorLocked(orbiting || panning);
+
+	// Raw relative motion keeps working while the cursor is locked and warped
+	const glm::vec2 mouseDelta = GameInput::Get().GetDeltaMouse();
+
+	if (orbiting)
+	{
+		constexpr float C_ORBIT_SENSITIVITY = 0.3f;
+
+		camera.Rotate(-mouseDelta.x * C_ORBIT_SENSITIVITY, -mouseDelta.y * C_ORBIT_SENSITIVITY);
+		ApplyMeshPreviewPivot();
+	}
+	else if (panning && p_imageSize.y > 0.0f)
+	{
+		// Pan the pivot in the plane perpendicular to the camera's forward direction
+		const float viewHeight = 2.0f * m_previewCamera.pivotRadius * std::tan(glm::radians(camera.GetFOV()) * 0.5f);
+		const float worldPerPixel = viewHeight / p_imageSize.y;
+		const glm::vec3 offset = (-camera.GetRight() * mouseDelta.x + camera.GetUp() * mouseDelta.y) * worldPerPixel;
+
+		m_previewCamera.pivot += offset;
+		ApplyMeshPreviewPivot();
+	}
+
+	if (IsItemHovered() && IsMouseClicked(ImGuiMouseButton_Right))
+	{
+		m_resetPreviewCamera = true;
+	}
+
+	if (IsItemHovered() && io.MouseWheel != 0.0f)
+	{
+		constexpr float C_ZOOM_STEP = 0.1f;
+
+		const float minRadius = m_previewCamera.fitRadius * 0.05f;
+		const float maxRadius = m_previewCamera.fitRadius * 20.0f;
+		const float radius = m_previewCamera.pivotRadius * (1.0f - io.MouseWheel * C_ZOOM_STEP);
+
+		m_previewCamera.pivotRadius = std::clamp(radius, minRadius, maxRadius);
+		ApplyMeshPreviewPivot();
+	}
+}
+
+void ResourceBrowser::ApplyMeshPreviewPivot()
+{
+	Common::Camera &camera = m_previewCamera.camera;
+	camera.SetPosition(m_previewCamera.pivot - camera.GetForward() * m_previewCamera.pivotRadius);
 }
 
 void ResourceBrowser::RegisterAsset()

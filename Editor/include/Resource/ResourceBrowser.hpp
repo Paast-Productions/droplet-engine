@@ -25,6 +25,10 @@ namespace Droplet::Editor::Resource
 		Common::RenderTargetDesc target {};
 		glm::ivec2 resolution{ 256, 256 };
 
+		glm::vec3 pivot{}; // The point the camera orbits around and zooms towards
+		float pivotRadius = 10.0f; // The distance from the camera to the pivot
+		float fitRadius = 10.0f; // The distance from the pivot at which the mesh bounds fill the view
+
 		StaticResourceHandle<Texture2DResource> texHandle {};
 		StaticResourceHandle<ShaderResource> vsHandle {};
 		StaticResourceHandle<ShaderResource> fsHandle {};
@@ -58,6 +62,20 @@ namespace Droplet::Editor::Resource
 		void DrawResourceInspector(const MetaEntry &p_entry);
 
 		void DrawResourcePreview(const MetaEntry &p_entry);
+
+		/// @brief Frames the mesh preview camera on the mesh bounds, with the pivot at the bounds center.
+		/// @param p_mesh The mesh being previewed. Left unchanged if its BVH has not been generated.
+		void ResetMeshPreviewCamera(const MeshResource &p_mesh);
+
+		/// @brief Applies mouse orbit, pan and zoom to the mesh preview camera. LMB orbits, MMB pans the pivot and the wheel zooms.
+		/// @param p_imageSize The size of the displayed preview image in pixels.
+		void ProcessMeshPreviewInput(const ImVec2 &p_imageSize);
+
+		/// @brief Hides and locks the mouse cursor over the mesh preview, or restores it. Uses the last drawn item as the lock area.
+		void SetPreviewCursorLocked(bool p_locked);
+
+		/// @brief Moves the mesh preview camera so it looks at its pivot from its current pivot radius.
+		void ApplyMeshPreviewPivot();
 	    
         /// @brief Draws the meta settings for a resource.
         /// @param p_entry The meta entry to draw settings for.
@@ -82,6 +100,9 @@ namespace Droplet::Editor::Resource
 		PreviewCamera m_previewCamera {}; // The camera used for rendering previews of resources in the resource browser
 		StaticResourceHandle<IStaticResource> m_previewResourceHandle {}; // The handle of the resource currently being inspected
 		bool m_isPreviewResourceLoaded = false; // True if the preview resource has been loaded and is ready to be drawn
+		bool m_resetPreviewCamera = false; // True if the mesh preview camera should be framed on the mesh once it has loaded
+		bool m_previewCursorLocked = false; // True while the cursor is hidden and locked by a mesh preview drag
+		ImVec2 m_previewCursorRestorePos {}; // Window-relative cursor position captured when the preview lock began
 		
 	    bool m_showUnsupportedPopup = false; // True if a popup showing unsupported assets should be rendered
 	    std::string m_unsupportedFilesList {}; // A list of unsupported assets in the latest registering attempt
