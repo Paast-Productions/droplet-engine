@@ -5,13 +5,13 @@
 #include <glm/vec4.hpp>
 
 #include "FontResource.hpp"
-#include "GlyphInstance.hpp"
+#include "Common/RenderData.hpp"
 
 namespace Droplet::Graphics::Text
 {
 	struct TextLayoutResult
 	{
-		std::vector<GlyphInstance> instances;
+		std::vector<Common::GlyphInstance> instances;
 		glm::vec2 minBounds{};
 		glm::vec2 maxBounds{};
 	};

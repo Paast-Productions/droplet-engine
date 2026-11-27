@@ -7,7 +7,6 @@
 #include <memory>
 #include <vector>
 
-#include "GlyphInstance.hpp"
 #include "Common/Camera.hpp"
 #include "Common/RenderDesc.hpp"
 
@@ -97,12 +96,28 @@ namespace Droplet::Common
         bool depthTest{ true };             ///< false -> drawn over everything
     };
     
+    /// @brief Contains the per-glyph data required for instanced text rendering.
+    /// @details Stores the glyph's transformation, dimensions, color, and
+    /// band metadata used by the Slug rendering shader.
+    struct GlyphInstance
+    {
+        /// @brief Glyph quad scale (xy) and position (zw).
+        glm::vec4 scaleBias;
+
+        /// @brief Glyph dimensions (xy) and band scaling factors (zw).
+        glm::vec4 glyphBandScale;
+
+        /// @brief Maximum horizontal and vertical band indices (xy),
+        /// and starting coordinates in the band texture (zw).
+        glm::uvec4 bandMaxTexCoords;
+    };
+    
     struct TextData
     {
         GUID fontGUID{C_INVALID_GUID};
         glm::vec4 color{1.0f};
         
-        std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> glyphInstances;
+        std::shared_ptr<const std::vector<GlyphInstance>> glyphInstances;
     };
 
     struct RenderData

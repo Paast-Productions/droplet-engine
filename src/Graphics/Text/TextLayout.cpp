@@ -28,7 +28,7 @@ Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayo
 		
 		float advance = 0.0f;
 		bool shouldRender = false;
-		GlyphInstance instance{};
+		Common::GlyphInstance instance{};
 		
 		if (!glyph)
 		{

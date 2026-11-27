@@ -53,7 +53,7 @@ Droplet::Graphics::Vulkan::TextPass::TextPass(const Context &p_context, RenderDe
 	const vk::PushConstantRange pushRange{
 		.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
 		.offset = 0,
-		.size = sizeof(Text::TextPushConstants)
+		.size = sizeof(TextPushConstants)
 	};
 	
 	m_pipelineLayout = vk::raii::PipelineLayout(
@@ -186,7 +186,7 @@ void Droplet::Graphics::Vulkan::TextPass::BeginFrame(uint32_t p_frameSlot, const
 		);
 	}
 	
-	const vk::DeviceSize glyphBytes = p_frame.glyphInstances.size() * sizeof(Text::GlyphInstance);
+	const vk::DeviceSize glyphBytes = p_frame.glyphInstances.size() * sizeof(Common::GlyphInstance);
 	
 	if (glyphBytes == 0)
 		return;
@@ -290,7 +290,7 @@ void Droplet::Graphics::Vulkan::TextPass::Record(vk::CommandBuffer p_cmd, vk::Ex
 		
 		pipeline->Bind(p_cmd);
 		
-		const Text::TextPushConstants constants{
+		const TextPushConstants constants{
 			.model = item.model,
 			.color = item.color,
 			.textureId = fontTexture->slot.Index(),

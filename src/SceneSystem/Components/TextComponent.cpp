@@ -267,7 +267,7 @@ void Droplet::Scene::TextComponent::RebuildText()
 	bool hasGlyphs = !layout.instances.empty();
 	UpdateBounds(hasGlyphs, layout.minBounds, layout.maxBounds);
 	
-	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
+	m_glyphInstances = std::make_shared<const std::vector<Common::GlyphInstance>>(std::move(layout.instances));
 	
 	m_textIsDirty = false;
 }

@@ -67,7 +67,7 @@ namespace Droplet::Scene
 		float m_emSize = 0.5f;
 		std::string m_text = "Text";
 		
-		std::shared_ptr<const std::vector<Graphics::Text::GlyphInstance>> m_glyphInstances;
+		std::shared_ptr<const std::vector<Common::GlyphInstance>> m_glyphInstances;
 		DefaultNodeBounds m_bounds{glm::vec3(0.0f), glm::vec3(0.5f) };
 	};
 }

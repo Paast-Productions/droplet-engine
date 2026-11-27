@@ -13,6 +13,7 @@
 
 #include "Common/RenderDesc.hpp"
 #include "Graphics/Render/Handles.hpp"
+#include "Common/RenderData.hpp"
 
 namespace Droplet::Graphics::Render
 {
@@ -99,6 +100,6 @@ namespace Droplet::Graphics::Render
         std::vector<std::byte> dynamicVertexData;
         std::vector<std::uint32_t> dynamicIndices;
         
-        std::vector<Text::GlyphInstance> glyphInstances;
+        std::vector<Common::GlyphInstance> glyphInstances;
     };
 }
