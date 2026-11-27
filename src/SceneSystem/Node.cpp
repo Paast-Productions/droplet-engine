@@ -548,6 +548,25 @@ std::vector<std::shared_ptr<Component>> Node::GetAllComponents() const // TODO: 
 	return m_components;
 }
 
+bool Node::CanApplyResource(const Droplet::MetaEntry &p_entry) const
+{
+	return std::any_of(m_components.begin(), m_components.end(),
+		[&p_entry](const auto &p_component) { return p_component->CanApplyResource(p_entry); });
+}
+
+bool Node::OnResourceDropped(const Droplet::MetaEntry &p_entry)
+{
+	bool applied = false;
+	for (const auto &component : m_components)
+	{
+		if (component->TryApplyResource(p_entry))
+		{
+			applied = true;
+		}
+	}
+	return applied;
+}
+
 void Node::RemoveComponent(const Component *p_component) // TODO: (COMPONENT) Make weak pointer
 {
 	if (!p_component)

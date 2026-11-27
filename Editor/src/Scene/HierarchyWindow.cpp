@@ -9,6 +9,7 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
 #include <Editor/DragDropFields.hpp>
+#include <Scene/ResourceDropTarget.hpp>
 #include <memory>
 
 
@@ -83,7 +84,7 @@ void HierarchyWindow::RenderToolbar()
 {
     auto scene = m_editorContext->GetActiveScene().lock();
 
-	bool isEnabled = scene && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode);
+	bool isEnabled = true; //scene && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode);
 
     if (ImGui::BeginMenu("Scene", isEnabled))
     {
@@ -199,7 +200,7 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+    //ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Reserve a thin strip on the left for dropping nodes as roots.
     const float rootDropWidth = 6.0f;
@@ -269,7 +270,7 @@ void HierarchyWindow::RenderImpl()
     m_visibleNodeRects.clear();
     m_rangeSelectTarget.reset();
 
-    ImGui::EndDisabled();
+    //ImGui::EndDisabled();
 
     for (const auto &root : scene->GetRoots())
     {
@@ -287,7 +288,7 @@ void HierarchyWindow::RenderImpl()
         DrawNode(root);
     }
 
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+    //ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (auto target = m_rangeSelectTarget.lock())
@@ -443,7 +444,7 @@ void HierarchyWindow::RenderImpl()
         m_editorContext->GetInteractionState().ClearNodeSelection();
     }
 
-    ImGui::EndDisabled();
+    //ImGui::EndDisabled();
 }
 
 void HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
@@ -770,6 +771,22 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
                     if (sourceNode && destinationNode && data.component)
                     {
                         sourceNode->MoveComponent(data.component, *destinationNode);
+                    }
+                }
+            }
+
+            bool isDelivery = false;
+            const ResourceDropEntries resourceEntries = AcceptResourceDrop(isDelivery);
+            if (!resourceEntries.empty())
+            {
+                if (auto destinationNode = p_node.lock())
+                {
+                    const bool accepts = CanApplyResources(*destinationNode, resourceEntries);
+                    DrawResourceDropHighlight(*destinationNode, accepts);
+
+                    if (accepts && isDelivery)
+                    {
+                        ApplyResources(*destinationNode, resourceEntries);
                     }
                 }
             }

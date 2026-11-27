@@ -6,6 +6,11 @@
 #include <SceneSystem/Bounds/NodeBounds.hpp>
 #include <Common/RenderData.hpp>
 
+namespace Droplet
+{
+    struct MetaEntry;
+}
+
 namespace Droplet::Scene
 {
     // Forward declaration
@@ -124,6 +129,22 @@ namespace Droplet::Scene
         ///
         /// @return The bounding box provided by the component.
         [[nodiscard]] virtual const NodeBounds *GetBounds() const { return nullptr; }
+
+        /// @brief Determines whether this component would accept a dropped resource.
+        /// @param p_entry The metadata of the dragged resource.
+        /// @return True if TryApplyResource() would apply the resource, otherwise false.
+        [[nodiscard]] virtual bool CanApplyResource([[maybe_unused]] const Droplet::MetaEntry &p_entry) const
+        {
+            return false;
+        }
+
+        /// @brief Applies a dropped resource to this component if it fits one of its slots.
+        /// @param p_entry The metadata of the dropped resource.
+        /// @return True if the resource was applied, otherwise false.
+        virtual bool TryApplyResource([[maybe_unused]] const Droplet::MetaEntry &p_entry)
+        {
+            return false;
+        }
 
 		/// @brief Checks if the component and all of its ancestors are active.
 		/// @return true if the component and all of its ancestors are active, otherwise false.

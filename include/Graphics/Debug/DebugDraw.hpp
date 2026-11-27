@@ -15,6 +15,11 @@
 #include <unordered_map>
 #include <memory>
 
+namespace Droplet
+{
+	class MeshResource;
+}
+
 namespace Droplet::Graphics::Debug
 {
 	/// @brief A utility class for rendering debug shapes in 3D space.
@@ -207,6 +212,20 @@ namespace Droplet::Graphics::Debug
 		/// @param p_wire Whether to draw only the wireframe of the frustum.
 		static void DrawFrustum(
 			const Math::Frustum &p_frustum,
+			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
+			bool p_depth = true,
+			bool p_wire = false
+		);
+
+		/// @brief Draw a mesh resource in 3D space, transformed by a world matrix.
+		/// @param p_mesh The mesh to be drawn. Its vertex layout must contain a POSITION attribute.
+		/// @param p_world The world matrix that transforms the mesh from local to world space.
+		/// @param p_col The color of the mesh.
+		/// @param p_depth Whether to enable depth testing for the mesh.
+		/// @param p_wire Whether to draw only the wireframe of the mesh.
+		static void DrawMesh(
+			const MeshResource &p_mesh,
+			const glm::mat4 &p_world,
 			glm::vec4 p_col = glm::vec4(0, 0, 0, 1),
 			bool p_depth = true,
 			bool p_wire = false

@@ -454,6 +454,68 @@ void MeshComponent::DeserializeImpl([[maybe_unused]] const nlohmann::json p_comp
 	}
 }
 
+namespace
+{
+	/// @brief The MeshComponent slot that a dropped resource can be applied to.
+	enum class MeshSlotTarget
+	{
+		None,
+		Mesh,
+		Texture,
+		VS,
+		TCS,
+		TES,
+		GS,
+		FS
+	};
+
+	MeshSlotTarget GetMeshSlotTarget(const MetaEntry &p_entry)
+	{
+		switch (p_entry.type)
+		{
+		case StaticResourceType::Mesh:
+			return MeshSlotTarget::Mesh;
+		case StaticResourceType::Texture2D:
+			return MeshSlotTarget::Texture;
+		case StaticResourceType::Shader:
+		{
+			const auto shaderType = p_entry.loadSettings.value(MetaLoadSettings::C_SHADER_TYPE.key, MetaLoadSettings::C_SHADER_TYPE.defaultValue);
+			switch (shaderType)
+			{
+			case ShaderResource::ShaderType::Vertex:                 return MeshSlotTarget::VS;
+			case ShaderResource::ShaderType::TessellationControl:    return MeshSlotTarget::TCS;
+			case ShaderResource::ShaderType::TessellationEvaluation: return MeshSlotTarget::TES;
+			case ShaderResource::ShaderType::Geometry:               return MeshSlotTarget::GS;
+			case ShaderResource::ShaderType::Fragment:               return MeshSlotTarget::FS;
+			default:                                                 return MeshSlotTarget::None;
+			}
+		}
+		default:
+			return MeshSlotTarget::None;
+		}
+	}
+}
+
+bool MeshComponent::CanApplyResource(const MetaEntry &p_entry) const
+{
+	return GetMeshSlotTarget(p_entry) != MeshSlotTarget::None;
+}
+
+bool MeshComponent::TryApplyResource(const MetaEntry &p_entry)
+{
+	switch (GetMeshSlotTarget(p_entry))
+	{
+	case MeshSlotTarget::Mesh:    SetMeshGUID(p_entry.guid); return true;
+	case MeshSlotTarget::Texture: SetTextureGUID(p_entry.guid); return true;
+	case MeshSlotTarget::VS:      SetVSGUID(p_entry.guid); return true;
+	case MeshSlotTarget::TCS:     SetTCSGUID(p_entry.guid); return true;
+	case MeshSlotTarget::TES:     SetTESGUID(p_entry.guid); return true;
+	case MeshSlotTarget::GS:      SetGSGUID(p_entry.guid); return true;
+	case MeshSlotTarget::FS:      SetFSGUID(p_entry.guid); return true;
+	default:                      return false;
+	}
+}
+
 void MeshComponent::SetMeshGUID(GUID p_guid)
 {
 	m_mesh = LoadTrackedResource<MeshResource>(TryGetScene(), p_guid);

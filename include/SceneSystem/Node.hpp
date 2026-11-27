@@ -25,6 +25,11 @@
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 
+namespace Droplet
+{
+	struct MetaEntry;
+}
+
 namespace Droplet::Scene
 {
 	// TODO: (SCENE) Refactor after Material implementation
@@ -293,6 +298,16 @@ namespace Droplet::Scene
         /// 
         /// @return A vector of shared pointers to the components, the member variable of this class
         [[nodiscard]] std::vector<std::shared_ptr<Component>> GetAllComponents() const; // TODO: (COMPONENTS) Make weak pointer
+
+		/// @brief Checks whether any Component of this Node would accept the resource.
+		/// @param p_entry The metadata of the dragged resource.
+		/// @return True if at least one Component can apply the resource.
+		[[nodiscard]] bool CanApplyResource(const Droplet::MetaEntry &p_entry) const;
+
+		/// @brief Offers a dropped resource to every Component of this Node.
+		/// @param p_entry The metadata of the dropped resource.
+		/// @return True if at least one Component applied the resource.
+		bool OnResourceDropped(const Droplet::MetaEntry &p_entry);
 
 		/// @brief Removes a specific Component from the Node.
 		///
