@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "TreeWood.018",
+            "guid": 3774912928602977704,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "TreeWood.018",
+            "type": 3
+        }
+    ]
+}
