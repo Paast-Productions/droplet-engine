@@ -75,6 +75,12 @@ namespace Droplet::Scene
         /// @return The bounding box provided by the component.
         [[nodiscard]] const NodeBounds *GetBounds() const override { return &m_bounds; }
 
+        /// @brief Determines whether a mesh, texture or shader resource fits one of the component's slots.
+        [[nodiscard]] bool CanApplyResource(const Droplet::MetaEntry &p_entry) const override;
+
+        /// @brief Applies a mesh, texture or shader resource to the slot it fits.
+        bool TryApplyResource(const Droplet::MetaEntry &p_entry) override;
+
     protected:
         void StartImpl() override;
         void UpdateImpl() override;

@@ -81,6 +81,11 @@ namespace Droplet::Editor::Scene
 
 		void RemovePrefabPreview();
 
+		/// @brief Handles resource drags over the scene view. Hovering a node that accepts the resources highlights it, while meshes over
+		/// empty space or non-accepting nodes spawn a preview node that is committed on release.
+		/// @return True if the preview node should be kept this frame.
+		bool HandleResourceDrop(const ImVec2 &p_imageMin, const ImVec2 &p_imageMax);
+
 		void FocusCameraOnSelection();
 
 		/// @brief Renders the ImGuizmo gizmo for manipulating objects in the scene view.

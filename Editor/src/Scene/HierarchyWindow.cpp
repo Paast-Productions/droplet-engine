@@ -9,6 +9,7 @@
 #include <SceneSystem/Components/ScriptComponent.hpp>
 #include <EditorShortcuts.hpp>
 #include <Editor/DragDropFields.hpp>
+#include <Scene/ResourceDropTarget.hpp>
 #include <memory>
 
 
@@ -770,6 +771,22 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
                     if (sourceNode && destinationNode && data.component)
                     {
                         sourceNode->MoveComponent(data.component, *destinationNode);
+                    }
+                }
+            }
+
+            bool isDelivery = false;
+            const ResourceDropEntries resourceEntries = AcceptResourceDrop(isDelivery);
+            if (!resourceEntries.empty())
+            {
+                if (auto destinationNode = p_node.lock())
+                {
+                    const bool accepts = CanApplyResources(*destinationNode, resourceEntries);
+                    DrawResourceDropHighlight(*destinationNode, accepts);
+
+                    if (accepts && isDelivery)
+                    {
+                        ApplyResources(*destinationNode, resourceEntries);
                     }
                 }
             }

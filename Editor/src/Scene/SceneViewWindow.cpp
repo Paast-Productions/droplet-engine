@@ -17,6 +17,7 @@
 #include <Graphics/Debug/DebugDraw.hpp>
 #include <ImGuiUtils.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <Scene/ResourceDropTarget.hpp>
 
 using namespace Droplet;
 using namespace Droplet::Editor;
@@ -67,6 +68,25 @@ namespace
 	using DScene = Droplet::Scene::Scene;
 	using DNode = Droplet::Scene::Node;
 	using DTransform = Droplet::Scene::Transform;
+
+	std::vector<std::weak_ptr<DNode>> GetPreviewIgnoredNodes(const std::shared_ptr<DNode> &p_previewNode)
+	{
+		std::vector<std::weak_ptr<DNode>> ignoredNodes;
+		if (p_previewNode)
+		{
+			auto children = p_previewNode->GetChildren(true);
+
+			ignoredNodes.reserve(children.size() + 1);
+			for (const auto &child : children)
+			{
+				ignoredNodes.push_back(child);
+			}
+
+			ignoredNodes.push_back(p_previewNode);
+		}
+
+		return ignoredNodes;
+	}
 
 	/// @brief Gets the selected nodes that are valid for manipulation, excluding nodes whose ancestor is also selected
 	/// (those follow their ancestor, and would otherwise be transformed twice).
@@ -624,19 +644,7 @@ void SceneViewWindow::RenderEditorView()
 
 					if (auto scene = m_editorContext->GetActiveScene().lock())
 					{
-						std::vector<std::weak_ptr<DNode>> ignoredNodes;
-						if (m_prefabPreviewNode)
-						{
-							auto children = m_prefabPreviewNode->GetChildren(true);
-
-							ignoredNodes.reserve(children.size() + 1);
-							for (const auto &child : children)
-							{
-								ignoredNodes.push_back(child);
-							}
-
-							ignoredNodes.push_back(m_prefabPreviewNode);
-						}
+						std::vector<std::weak_ptr<DNode>> ignoredNodes = GetPreviewIgnoredNodes(m_prefabPreviewNode);
 
 						const Math::Ray viewRay = camera.GetViewRay(mousePosInView);
 						Math::RayHit hit{};
@@ -680,7 +688,9 @@ void SceneViewWindow::RenderEditorView()
 		ImGui::EndDragDropTarget();
 	}
 
-	if (m_prefabPreviewNode && !prefabPreviewHovered)
+	const bool resourcePreviewHovered = HandleResourceDrop(imageMin, imageMax);
+
+	if (m_prefabPreviewNode && !prefabPreviewHovered && !resourcePreviewHovered)
 	{
 		RemovePrefabPreview();
 	}
@@ -887,7 +897,7 @@ void SceneViewWindow::RenderEditorView()
 	if (!isDragging)
 	{
 		if (m_hoveringSceneView && !m_cameraLookToggled && !m_usingGizmo && !m_hoveringGizmo && !m_hoveringPlayButton
-			&& !input.KeyHeld(Key::KeyLALT) && m_cameraDrag == CameraDrag::None && input.MousePressed(Mouse::LMB))
+			&& !input.KeyHeld(Key::KeyLALT) && !input.MouseHeld(Mouse::MB4) && m_cameraDrag == CameraDrag::None && input.MousePressed(Mouse::LMB))
 		{
 			isDragging = true;
 			dragStartPos = ImGui::GetIO().MousePos;
@@ -1719,7 +1729,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	{
 		constexpr float C_SCROLL_STEP = 0.1f; // TODO: (EDITOR) Make configurable
 
-		if (input.KeyHeld(Key::KeyLALT))
+		if (input.KeyHeld(Key::KeyLALT) || input.MouseHeld(Mouse::MB4))
 		{
 			// Move along camera view direction, leaving the pivot radius unchanged.
 			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
@@ -1771,6 +1781,107 @@ void SceneViewWindow::DrawCameraPivot() const
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.1f, 0.0f, 0.0f), m_cameraPivot + glm::vec3(0.1f, 0.0f, 0.0f), glm::vec4(1, 0, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.1f, 0.0f), m_cameraPivot + glm::vec3(0.0f, 0.1f, 0.0f), glm::vec4(0, 1, 0, 1), false);
 	DebugDraw::DrawLine(m_cameraPivot - glm::vec3(0.0f, 0.0f, 0.1f), m_cameraPivot + glm::vec3(0.0f, 0.0f, 0.1f), glm::vec4(0, 0, 1, 1), false);
+}
+
+bool SceneViewWindow::HandleResourceDrop(const ImVec2 &p_imageMin, const ImVec2 &p_imageMax)
+{
+	bool previewHovered = false;
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		bool isDelivery = false;
+		const Droplet::Editor::ResourceDropEntries entries = Droplet::Editor::AcceptResourceDrop(isDelivery);
+		const ImVec2 viewSize = { p_imageMax.x - p_imageMin.x, p_imageMax.y - p_imageMin.y };
+
+		if (!entries.empty() && viewSize.x > 0.0f && viewSize.y > 0.0f)
+		{
+			if (auto scene = m_editorContext->GetActiveScene().lock())
+			{
+				if (m_prefabPreviewNode && m_prefabPreviewScene.lock() != scene)
+				{
+					RemovePrefabPreview();
+				}
+
+				const ImVec2 mousePos = ImGui::GetIO().MousePos;
+				const glm::vec2 mousePosInView = {
+					(mousePos.x - p_imageMin.x) / viewSize.x,
+					(mousePos.y - p_imageMin.y) / viewSize.y
+				};
+
+				auto ignoredNodes = GetPreviewIgnoredNodes(m_prefabPreviewNode);
+				const Math::Ray viewRay = m_editorContext->GetEditorCamera().GetViewRay(mousePosInView);
+				Math::RayHit hit{};
+				const std::shared_ptr<DNode> hitNode = scene->RaycastNode(viewRay, &hit, &ignoredNodes).lock();
+
+				// Meshes never replace an existing node's mesh here; they always spawn a new node
+				const bool hasMesh = std::any_of(entries.begin(), entries.end(),
+					[](const MetaEntry *p_entry) { return p_entry->type == StaticResourceType::Mesh; });
+
+				if (hitNode && !hasMesh && Droplet::Editor::CanApplyResources(*hitNode, entries))
+				{
+					// Applied only on release; hovering just highlights the target
+					Droplet::Editor::DrawResourceDropHighlight(*hitNode, true);
+					if (isDelivery)
+					{
+						Droplet::Editor::ApplyResources(*hitNode, entries);
+					}
+				}
+				else
+				{
+					// The first mesh spawns a preview node that follows the cursor, as prefabs do; other resources are applied to it
+					const MetaEntry *meshEntry = nullptr;
+					Droplet::Editor::ResourceDropEntries spawnEntries;
+					for (const MetaEntry *entry : entries)
+					{
+						if (entry->type == StaticResourceType::Mesh)
+						{
+							if (meshEntry)
+							{
+								continue;
+							}
+							meshEntry = entry;
+						}
+						spawnEntries.push_back(entry);
+					}
+
+					if (meshEntry)
+					{
+						const glm::vec3 position = hit.didHit
+							? hit.point
+							: viewRay.pos + viewRay.dir * m_cameraPivotRadius;
+
+						if (!m_prefabPreviewNode)
+						{
+							m_prefabPreviewNode = scene->AddNode(meshEntry->displayName);
+							m_prefabPreviewScene = scene;
+							m_prefabPreviewNode->AttachComponent("MeshComponent");
+							Droplet::Editor::ApplyResources(*m_prefabPreviewNode, spawnEntries);
+						}
+
+						m_prefabPreviewNode->GetTransform().SetPosition(position);
+
+						if (isDelivery)
+						{
+							m_prefabPreviewNode.reset();
+							m_prefabPreviewScene.reset();
+						}
+						else
+						{
+							previewHovered = true;
+						}
+					}
+					else if (hitNode)
+					{
+						Droplet::Editor::DrawResourceDropHighlight(*hitNode, false);
+					}
+				}
+			}
+		}
+
+		ImGui::EndDragDropTarget();
+	}
+
+	return previewHovered;
 }
 
 void SceneViewWindow::RemovePrefabPreview()
