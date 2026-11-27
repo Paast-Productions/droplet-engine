@@ -15,16 +15,6 @@
 
 using namespace Droplet::Scene;
 
-Droplet::Scene::SceneManager::SceneManager()
-{
-
-}
-
-Droplet::Scene::SceneManager::~SceneManager()
-{
-    
-}
-
 std::weak_ptr<Scene> SceneManager::LoadScene(const std::string &p_name)
 {
     ZoneScoped;
@@ -569,6 +559,68 @@ void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePa
     ).string();
 
     p_node.SetPrefabPath(relativePath);
+}
+
+void SceneManager::SerializeBehaviours()
+{
+	nlohmann::json data;
+    
+	data["behaviours"] = nlohmann::json::array();
+	for (const auto& behaviour : m_behaviours)
+	{
+		data["behaviours"].push_back(behaviour->Serialize());
+	}
+    
+	if (!std::filesystem::exists(std::filesystem::path(BEHAVIOUR_SAVE_PATH)))
+	{
+		Core::JsonIO::CreateFile(std::string(BEHAVIOUR_SAVE_PATH));
+	}
+
+	try
+	{
+		Core::JsonIO::Write(std::string(BEHAVIOUR_SAVE_PATH), data);
+	}
+	catch (const std::runtime_error& e)
+	{
+		Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to save behaviour data: ") + e.what());
+	}
+}
+
+void SceneManager::DeserializeBehaviours()
+{
+	m_behaviours.clear();
+    
+	nlohmann::json data;
+	try
+	{
+		data = Core::JsonIO::Read(std::string(BEHAVIOUR_SAVE_PATH));
+	}
+	catch (const std::runtime_error &e)
+	{
+		Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to read saved behaviour data: ") + e.what());
+		return;
+	}
+    
+	if (data.contains("behaviours"))
+	{
+		for (const auto &entry : data["behaviours"])
+		{
+			if (entry.contains("type"))
+			{
+				std::string type = entry["type"];
+				auto behaviour = BehaviourFactory::CreateBehaviour(type);
+				if (!behaviour)
+				{
+					Debug::Log(Debug::LogType::Warning, "SceneManager: Failed to deserialize unknown behaviour type: "+ type);
+					continue;
+				}
+				behaviour->SetSceneManager(this);
+				m_behaviours.push_back(std::move(behaviour));   
+				m_behaviours.back()->Deserialize(entry);
+				m_behaviours.back()->Start();
+			}
+		}
+	}
 }
 
 std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)

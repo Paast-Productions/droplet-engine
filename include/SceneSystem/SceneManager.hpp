@@ -25,8 +25,11 @@ namespace Droplet::Scene
 {
     class Scene;
     class Behaviour;
+    class AudioBehaviour;
     class Node;
 	class CameraComponent;
+    
+    constexpr std::string_view BEHAVIOUR_SAVE_PATH = ROOT_PATH "/GameData/Behaviours/Behaviours.json";
 
     /// @brief Manages the Scenes used by the application.
     ///
@@ -41,10 +44,10 @@ namespace Droplet::Scene
     public:
 
         /// @brief Constructs an empty SceneManager.
-        SceneManager();
+        SceneManager() = default;
 
         /// @brief Destroys the SceneManager.
-        ~SceneManager();
+        ~SceneManager() = default;
 
         /// @brief Loads a Scene with the specified name.
         ///
@@ -169,6 +172,9 @@ namespace Droplet::Scene
 		/// @brief Get a snapshot of the active Behaviours. Safe to call from any thread.
 		[[nodiscard]] std::vector<std::shared_ptr<Behaviour>> GetBehaviours() const;
 
+    	void SerializeBehaviours();
+    	void DeserializeBehaviours();
+    	
 		/// @brief Starts a behaviour of the specified type.
         /// @param p_behaviourTypeName The type name of the behaviour to start.
 		/// @return A shared pointer to the started Behaviour.

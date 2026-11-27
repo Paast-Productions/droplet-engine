@@ -23,9 +23,8 @@ namespace Droplet::Scene
 
         if (!playerBehaviour)
         {
-            auto startedBehaviour = scene->StartBehaviour("PlayerBehaviour").lock();
-
-            playerBehaviour = std::dynamic_pointer_cast<PlayerBehaviour>(startedBehaviour);
+            auto startedBehaviour = scene->StartBehaviour("PlayerBehaviour");
+            playerBehaviour = std::dynamic_pointer_cast<PlayerBehaviour>(startedBehaviour.lock());
         }
 
         if (!playerBehaviour)

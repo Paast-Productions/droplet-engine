@@ -313,6 +313,8 @@ Engine::Engine(EngineConfig p_config)
     Audio::AudioSystem::GetInstance().Initialize();
 
     GameInput::Get().SetMainWindow(m_window.GetSDLWindow());
+	
+	m_sceneManager.DeserializeBehaviours(); // Placing this here for now
 }
 
 Engine::~Engine()

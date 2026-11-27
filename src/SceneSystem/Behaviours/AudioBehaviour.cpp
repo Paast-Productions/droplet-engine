@@ -8,120 +8,147 @@
 #include <algorithm>
 #include <cmath>
 
+namespace
+{
+    float DbToLinear(float p_db)
+    {
+        if (p_db <= Droplet::Audio::C_VOLUME_DECIBEL_MIN) return 0.0f;
+        return std::pow(10.0f, p_db / 20.0f);
+    }
+
+    float LinearToDb(float p_linear)
+    {
+        if (p_linear <= 0.0f) return Droplet::Audio::C_VOLUME_DECIBEL_MIN;
+
+        float db = 20.0f * std::log10(p_linear);
+        return std::clamp(db, Droplet::Audio::C_VOLUME_DECIBEL_MIN, Droplet::Audio::C_VOLUME_DECIBEL_MAX);
+    }
+}
+
 namespace Droplet::Scene
 {
+
     void AudioBehaviour::PlayTrack(const std::string &p_name, float p_fadeSeconds)
     {
+        auto& audio = Audio::AudioSystem::GetInstance();
+
         // Skip if track is already playing
-        if (m_currentTrackName == p_name && 
-            Audio::AudioSystem::GetInstance().GetPlaybackState(m_currentId) == Audio::PlaybackState::Playing)
+        if (m_currentTrackName == p_name &&
+            audio.GetPlaybackState(m_currentId) == Audio::PlaybackState::Playing)
         {
             return;
         }
-        
-        auto track = FindTrack(p_name);
+
+        auto* track = FindTrack(p_name);
         if (!track || !track->handle.Get()) return;
-        
-        Audio::PlaybackConfig config;
-        config.busName = m_busName;
-        config.looping = track->looping;
-        config.pitch = track->pitch;
-        config.stereoPan = track->stereoPan;
-        float peakDb = std::clamp(track->volumeDb + m_targetVolumeDb, 
+
+        m_currentTrackPeakDb = std::clamp(track->volumeDb,
             Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
-        
-        auto&  audio = Audio::AudioSystem::GetInstance();
-        
-        // If a fade-out is happening -> Stop it
+
+        Audio::PlaybackConfig config;
+        config.busName   = m_busName;
+        config.looping   = track->looping;
+        config.pitch     = track->pitch;
+        config.stereoPan = track->stereoPan;
+
+        // If a fade-out is already happening, stop it immediately
         if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID)
         {
             audio.Stop(m_fadingOutId);
             m_fadingOutId = Audio::C_INVALID_PLAYBACK_ID;
         }
-        
+
         if (p_fadeSeconds > 0.0f)
         {
-            m_fadingOutId = m_currentId;
-            config.volumeDb = Audio::C_VOLUME_DECIBEL_MIN;
-            m_currentId = audio.Play2D(track->handle.Get(), config);
-            
+            m_fadingOutId    = m_currentId;
+            m_fadeOutStartDb = m_currentInDb;
+
+            m_currentInDb   = Audio::C_VOLUME_DECIBEL_MIN;
+            config.volumeDb = m_currentInDb;
+            m_currentId     = audio.Play2D(track->handle.Get(), config);
+
             m_fadeDuration = p_fadeSeconds;
-            m_fadeElapsed = 0.0f;
+            m_fadeElapsed  = 0.0f;
         }
         else
         {
-            if (m_currentId != Audio::C_INVALID_PLAYBACK_ID) audio.Stop(m_currentId);
-            config.volumeDb = peakDb;
-            m_currentId = audio.Play2D(track->handle.Get(), config);
-            
+            if (m_currentId != Audio::C_INVALID_PLAYBACK_ID)
+                audio.Stop(m_currentId);
+
+            m_currentInDb   = m_currentTrackPeakDb;
+            config.volumeDb = m_currentInDb;
+            m_currentId     = audio.Play2D(track->handle.Get(), config);
+
             m_fadeDuration = 0.0f;
-            m_fadeElapsed = 0.0f;
+            m_fadeElapsed  = 0.0f;
         }
-        
+
         m_currentTrackName = p_name;
     }
 
     void AudioBehaviour::StopTracks(float p_fadeSeconds)
     {
         auto& audio = Audio::AudioSystem::GetInstance();
-        
+
         if (p_fadeSeconds > 0.0f && m_currentId != Audio::C_INVALID_PLAYBACK_ID)
         {
-            if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID) audio.Stop(m_fadingOutId);
-            m_fadingOutId = m_currentId;
-            m_currentId = Audio::C_INVALID_PLAYBACK_ID;
-            m_fadeDuration = p_fadeSeconds;
-            m_fadeElapsed = 0.0f;
+            if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID)
+                audio.Stop(m_fadingOutId);
+
+            m_fadingOutId    = m_currentId;
+            m_fadeOutStartDb = m_currentInDb;
+            m_currentId      = Audio::C_INVALID_PLAYBACK_ID;
+            m_fadeDuration   = p_fadeSeconds;
+            m_fadeElapsed    = 0.0f;
         }
         else
         {
             if (m_currentId != Audio::C_INVALID_PLAYBACK_ID) audio.Stop(m_currentId);
             if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID) audio.Stop(m_fadingOutId);
-            m_currentId = Audio::C_INVALID_PLAYBACK_ID;
-            m_fadingOutId = Audio::C_INVALID_PLAYBACK_ID;
+
+            m_currentId    = Audio::C_INVALID_PLAYBACK_ID;
+            m_fadingOutId  = Audio::C_INVALID_PLAYBACK_ID;
+            m_currentInDb  = Audio::C_VOLUME_DECIBEL_MIN;
             m_fadeDuration = 0.0f;
         }
-        
+
         m_currentTrackName.clear();
     }
 
     void AudioBehaviour::SetTargetVolumeDb(float p_volumeDb)
     {
-        m_targetVolumeDb = std::clamp(p_volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
-        if (auto* track = FindTrack(m_currentTrackName))
+        m_currentTrackPeakDb = std::clamp(p_volumeDb,
+            Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
+        
+        if (m_fadeDuration <= 0.0f && m_currentId != Audio::C_INVALID_PLAYBACK_ID)
         {
-            m_currentTrackPeakDb = std::clamp(track->volumeDb + m_targetVolumeDb, 
-                Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
-            
-            if (m_fadeDuration <= 0.0f && m_currentId != Audio::C_INVALID_PLAYBACK_ID)
-            {
-                Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_targetVolumeDb);
-            }
+            m_currentInDb = m_currentTrackPeakDb;
+            Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_currentInDb);
         }
     }
 
     void AudioBehaviour::PreUpdateImpl()
     {
         if (m_fadeDuration <= 0.0f) return;
-        
+
         m_fadeElapsed += Time::Get().GetDeltaTime();
         float t = std::clamp(m_fadeElapsed / m_fadeDuration, 0.0f, 1.0f);
-        
+
         auto& audio = Audio::AudioSystem::GetInstance();
-        
-        // Fade stepping
+
         if (m_currentId != Audio::C_INVALID_PLAYBACK_ID)
         {
-            float inDb = std::lerp(Audio::C_VOLUME_DECIBEL_MIN, m_targetVolumeDb, t);
-            audio.SetPlaybackVolumeDb(m_currentId, inDb);
+            float inGain  = std::lerp(0.0f, DbToLinear(m_currentTrackPeakDb), t);
+            m_currentInDb = LinearToDb(inGain);
+            audio.SetPlaybackVolumeDb(m_currentId, m_currentInDb);
         }
-        
+
         if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID)
         {
-            float outDb = std::lerp(m_targetVolumeDb, Audio::C_VOLUME_DECIBEL_MIN, t);
-            audio.SetPlaybackVolumeDb(m_fadingOutId, outDb);
+            float outGain = std::lerp(DbToLinear(m_fadeOutStartDb), 0.0f, t);
+            audio.SetPlaybackVolumeDb(m_fadingOutId, LinearToDb(outGain));
         }
-        
+
         if (t >= 1.0f)
         {
             if (m_fadingOutId != Audio::C_INVALID_PLAYBACK_ID)
@@ -142,6 +169,9 @@ namespace Droplet::Scene
     {
 #ifdef _EDITOR
         ImGui::PushID(this);
+    	
+    	// --- Name ---
+    	ImGui::InputText("Name", &m_name);
         
         // --- Bus Drag & Drop ---
         const std::string preview = m_busName.empty() ? "Drop Audio Bus Here" : m_busName;
@@ -170,12 +200,6 @@ namespace Droplet::Scene
             }
             ImGui::EndDragDropTarget();
         }
-        
-        if (ImGui::SliderFloat("##VolumeSlider", &m_targetVolumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
-        {
-            SetTargetVolumeDb(m_targetVolumeDb);
-        }
-        ImGui::SameLine(); ImGui::Text("Master Volume" ICON_LC_VOLUME_2);
         
         ImGui::SeparatorText("Tracks");
         
@@ -235,7 +259,7 @@ namespace Droplet::Scene
                 // Parameters
                 if (ImGui::SliderFloat("##VolumeSlider", &track.volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX, "%.2f"))
                 {
-                    m_currentTrackPeakDb = std::clamp(track.volumeDb + m_targetVolumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
+                    m_currentTrackPeakDb = std::clamp(track.volumeDb, Audio::C_VOLUME_DECIBEL_MIN, Audio::C_VOLUME_DECIBEL_MAX);
                     if (m_fadeDuration <= 0.0f) Audio::AudioSystem::GetInstance().SetPlaybackVolumeDb(m_currentId, m_currentTrackPeakDb);
                 }
                 ImGui::SameLine(); ImGui::Text(ICON_LC_VOLUME_2);
@@ -263,6 +287,14 @@ namespace Droplet::Scene
                 if (ImGui::Button((ICON_LC_SQUARE))) StopTracks();
                 ImGui::SameLine();
                 if (ImGui::Button("Remove")) removeIndex = i;
+                
+                Audio::PlaybackState currentState = Audio::AudioSystem::GetInstance().GetPlaybackState(m_currentId);
+                ImGui::SameLine();
+                switch (currentState) {
+                    case Audio::PlaybackState::Inactive: ImGui::TextColored({1.0f, 0.2f, 0.2f, 1.0f}, "Inactive");	break;
+                    case Audio::PlaybackState::Playing:  ImGui::TextColored({0.0f, 1.0f, 0.0f, 1.0f}, "Playing");	break;
+                    case Audio::PlaybackState::Paused:   ImGui::TextColored({1.0f, 1.0f, 0.0f, 1.0f}, "Paused");	break;
+                }
             }
             
             ImGui::PopID();
@@ -282,8 +314,8 @@ namespace Droplet::Scene
     {
         nlohmann::json json;
 
+    	json["name"] = m_name; 
         json["busName"] = m_busName;
-        json["targetVolumeDb"] = m_targetVolumeDb;
 
         nlohmann::json tracksJson = nlohmann::json::array();
         for (const AudioTrack& track : m_tracks)
@@ -307,7 +339,11 @@ namespace Droplet::Scene
     {
         StopTracks(0.0f);
         m_tracks.clear();
-
+    	
+    	if (p_behJson.contains("name"))
+    	{
+    		m_name = p_behJson["name"].get<std::string>();
+    	}
         if (p_behJson.contains("busName"))
         {
             m_busName = p_behJson["busName"].get<std::string>();
@@ -315,15 +351,6 @@ namespace Droplet::Scene
         if (!Audio::AudioSystem::GetInstance().GetMixer().HasAudioBusWithName(m_busName))
         {
             m_busName = "Master";
-        }
-
-        if (p_behJson.contains("targetVolumeDb"))
-        {
-            m_targetVolumeDb = std::clamp(
-                p_behJson["targetVolumeDb"].get<float>(),
-                Audio::C_VOLUME_DECIBEL_MIN,
-                Audio::C_VOLUME_DECIBEL_MAX
-            );
         }
 
         if (p_behJson.contains("tracks") && p_behJson["tracks"].is_array())
