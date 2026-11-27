@@ -1,6 +1,7 @@
 #include <UIComponent.hpp>
 #include "ImGui/imgui.h"
 #include "GameInput.hpp"
+#include "Engine.hpp"
 
 #include "RenderData.hpp"
 
@@ -51,17 +52,26 @@ namespace Droplet::Scene
     	return result;
     }
 
+    //This one good be wrong/
     glm::vec2 UIComponent::GetCurserNormalize()
     {
-        int width = 0;
-        int height = 0;
-
-        if (SDL_Window* window = GameInput::Get().GetMainWindow())
+        //vi kan kolla om är i editorn eller inte
+        if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
         {
-            SDL_GetWindowSizeInPixels(window, &width, &height);
+            //DOTO
+           //få storlek och pos funnktionen heter renderimpl som finns i sceneviewwindow
+            Engine::GetGameViewRect();
         }
-
-        return curser = { GameInput::Get().GetCursorX() / width, GameInput::Get().GetCursorY() / height };
+        else
+        {
+            int width = 0;
+            int height = 0;
+            if (SDL_Window* window = GameInput::Get().GetMainWindow())
+            {
+                SDL_GetWindowSizeInPixels(window, &width, &height);
+            }
+            return curser = { GameInput::Get().GetCursorX() / width, GameInput::Get().GetCursorY() / height };
+        }
     }
 
 

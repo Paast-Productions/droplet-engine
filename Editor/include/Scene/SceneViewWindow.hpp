@@ -73,6 +73,8 @@ namespace Droplet::Editor::Scene
 		glm::vec3 m_cameraSnapDir = glm::vec3(0.0f, 0.0f, 1.0f);
 		float m_cameraSnapRadius = 8.0f;
 
+		glm::vec4 m_sceneViewRect = { 0,0,0,0 };
+
 		void RenderEditorView();
 
 		void RenderGameView();
@@ -108,5 +110,7 @@ namespace Droplet::Editor::Scene
 		void SetCameraPivotPoint(const glm::vec3 &p_pivot); // Is it even needed?
 		void ApplyCameraPivot();
 		void DrawCameraPivot() const;
+
+
 	};
 }

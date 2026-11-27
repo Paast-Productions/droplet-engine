@@ -23,7 +23,7 @@ namespace Droplet::Scene
 
 
 		//set
-		void UIComponent::SetCurser(glm::vec2 p_curser) { curser = p_curser; };
+		//void UIComponent::SetCurser(glm::vec2 p_curser) { curser = p_curser; };
 
 		//DOTO more relevent functions 
 	protected:

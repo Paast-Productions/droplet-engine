@@ -251,7 +251,8 @@ void SceneViewWindow::InitImpl()
 			m_hasBeenResized = true;
 		}
 	});
-			
+	
+	engine.SetGameViewRectOverride([&]() {return m_sceneViewRect; });
 }
 
 void SceneViewWindow::RenderToolbar()
@@ -601,6 +602,8 @@ void SceneViewWindow::RenderEditorView()
 
 	ImVec2 imageMin = ImGui::GetItemRectMin();
 	ImVec2 imageMax = ImGui::GetItemRectMax();
+
+	m_sceneViewRect = { imageMin.x,imageMin.y,imageMax.x, imageMax.y };
 
 	EditorCamera &camera = m_editorContext->GetEditorCamera();
 	bool prefabPreviewHovered = false;
@@ -1177,6 +1180,10 @@ void SceneViewWindow::RenderGameView()
 
 			// Render the camera view texture to the scene view window
 			ImGui::Image(camViewTexture, camSize, ImVec2(0, 0), ImVec2(1, 1));
+
+			ImVec2 imageMin = ImGui::GetItemRectMin();
+			ImVec2 imageMax = ImGui::GetItemRectMax();
+			m_sceneViewRect = { imageMin.x,imageMin.y,imageMax.x, imageMax.y };
 		}
 	}
 

@@ -37,13 +37,13 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 3,
+            "id": 1,
             "name": "Empty Node",
             "transform": {
                 "position": [
                     0.0,
                     0.0,
-                    -7.999000072479248
+                    -7.5
                 ],
                 "rotation": [
                     1.0,
@@ -94,7 +94,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 4,
+            "id": 2,
             "name": "Camera Node",
             "transform": {
                 "position": [
