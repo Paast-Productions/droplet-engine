@@ -224,23 +224,40 @@ void Droplet::Graphics::Vulkan::TextPass::BeginFrame(uint32_t p_frameSlot, const
 		);
 	}
 	
-	for (std::size_t viewIndex = 0; viewIndex < p_frame.views.size(); ++viewIndex)
 	{
-		const Render::DrawList& view = p_frame.views[viewIndex];
-		const Common::ViewProjectionBuffer uniforms{ .view = view.view, .proj = view.proj };
-		viewBuffer.Write(&uniforms, sizeof(uniforms), viewIndex * m_viewStride);
+		ZoneScopedN("Text / Camera upload")
+		
+		for (std::size_t viewIndex = 0; viewIndex < p_frame.views.size(); ++viewIndex)
+		{
+			const Render::DrawList& view = p_frame.views[viewIndex];
+			const Common::ViewProjectionBuffer uniforms{ .view = view.view, .proj = view.proj };
+			viewBuffer.Write(&uniforms, sizeof(uniforms), viewIndex * m_viewStride);
+		}
 	}
-	
-	glyphBuffer.Write(p_frame.glyphInstances.data(), glyphBytes);
+	{
+		ZoneScopedN("Text / Glyph upload")
+		
+		TracyPlot(
+			"Text / Glyph instances",
+			static_cast<double>(p_frame.glyphInstances.size())
+		);
+		
+		TracyPlot(
+			"Text / Glyph upload KiB",
+			static_cast<double>(glyphBytes) / 1024.0
+		);
+		
+		glyphBuffer.Write(p_frame.glyphInstances.data(), glyphBytes);
+	}
 }
 
 void Droplet::Graphics::Vulkan::TextPass::Record(vk::CommandBuffer p_cmd, vk::Extent2D p_extent,
 	const Render::DrawList &p_view, uint32_t p_viewIndex, const PipelineLibrary &p_pipelines)
 {
-    ZoneScopedN("Text / Record")    
-	
 	if (p_view.textItems.empty())
 		return;
+	
+    ZoneScopedN("Text / Record")    
 	
 	const vk::Viewport viewport{
 		.x = 0.0f,

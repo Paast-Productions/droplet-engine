@@ -252,10 +252,10 @@ void Droplet::Scene::TextComponent::UpdateBounds(bool p_hasGlyphs, const glm::ve
 
 void Droplet::Scene::TextComponent::RebuildText()
 {
-	ZoneScopedN("Text / Rebuild")
-	
 	if (!m_textIsDirty || !m_font.IsReady())
 		return;
+	
+	ZoneScopedN("Text / Rebuild")
 	
 	const FontResource* font = m_font.Get();
 	
