@@ -252,7 +252,7 @@ void SceneViewWindow::InitImpl()
 		}
 	});
 	
-	engine.SetGameViewRectOverride([&]() {return m_sceneViewRect; });
+	GameInput::Get().SetGameViewRectOverride([&]() {return this->m_sceneViewRect; });
 }
 
 void SceneViewWindow::RenderToolbar()

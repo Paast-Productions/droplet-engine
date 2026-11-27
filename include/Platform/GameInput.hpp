@@ -197,6 +197,13 @@ namespace Droplet
 		void SetMainWindow(SDL_Window *p_window) { m_mainWindow = p_window; }
 		[[nodiscard]] SDL_Window *GetMainWindow() const { return m_mainWindow; }
 
+		void SetGameViewRectOverride(std::function <glm::vec4(void)> p_callback)
+		{
+			m_hasGameViewRectOverride = true;
+			m_getGameViewRectCallback = p_callback;
+		}
+
+		glm::vec4 GetGameViewRect();
 	private:
 		// Keyboard variables
 		std::unordered_set<Key> m_currentKeys{};
@@ -220,5 +227,8 @@ namespace Droplet
 		bool m_firstLockFrame = false;
 		float m_lockedCursorX = 0.0f;
 		float m_lockedCursorY = 0.0f;
+
+		bool m_hasGameViewRectOverride = false;
+		std::function < glm::vec4(void)> m_getGameViewRectCallback;
 	};
 }

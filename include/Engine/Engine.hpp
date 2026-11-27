@@ -77,14 +77,6 @@ namespace Droplet
        /// @return An SDL window handle
        [[nodiscard]] SDL_Window *GetWindow() { return m_window.GetSDLWindow(); }
 
-	   void SetGameViewRectOverride(std::function <glm::vec4(void)> p_callback)
-	   {
-		   m_hasGameViewRectOverride = true;
-		   m_getGameViewRectCallback = p_callback;
-	   }
-
-	   glm::vec4 GetGameViewRect();
-
     private:
 
        /// @brief Setter class with the sole purpose of setting the update flags for the engine.
@@ -125,9 +117,6 @@ namespace Droplet
 		/// @brief A list of event listeners that will be called when an SDL event is polled.
 		std::vector<EventListener> m_eventListeners;
 		
-		bool m_hasGameViewRectOverride = false;
-		std::function < glm::vec4(void)> m_getGameViewRectCallback;
-
 		/// @brief Registers all behaviours owned by the engine.
 		void RegisterBehaviours();
 

@@ -17,7 +17,7 @@ namespace Droplet::Scene
 		bool IsPointInsideCircle(glm::vec2 p_position, float p_radius);
 		
 		//Get
-		glm::vec2 GetCurserNormalize();
+		glm::vec2 GetCursorNormalize();
 
 		//glm::vec2 GetOrthoCursorPos();
 
@@ -35,7 +35,7 @@ namespace Droplet::Scene
 
 	private:
 		std::string m_soundName = "None";
-		glm::vec2 curser={0,0};
+		glm::vec2 m_cursor={0,0};
 		
 		bool m_pressed = false;
 	};

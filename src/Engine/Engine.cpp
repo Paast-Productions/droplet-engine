@@ -462,18 +462,3 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
 
     return DROPLET_RETURNTYPE::OK;
 }
-
-glm::vec4 Droplet::Engine::GetGameViewRect()
-{
-    if (!m_hasGameViewRectOverride)
-    {
-        int width = 0;
-        int height = 0;
-        if (SDL_Window *window = GameInput::Get().GetMainWindow())
-        {
-            SDL_GetWindowSizeInPixels(window, &width, &height);
-        }
-        return glm::vec4(0,0,width, height);
-    }
-    return m_getGameViewRectCallback();
-}
