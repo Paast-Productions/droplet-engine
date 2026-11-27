@@ -216,8 +216,6 @@ float4 fMain(VertexOutput input) : SV_TARGET
     coverageY = min(abs(coverageY), 1.0f);
 
     float glyphCoverage = (coverageX + coverageY) * 0.5f;
-    float alpha = textPushConstants.color.a * glyphCoverage;
-    // return float4(textPushConstants.color.rgb, textPushConstants.color.a * glyphCoverage);
-    return float4(textPushConstants.color.rgb * glyphCoverage, alpha);
+    return float4(textPushConstants.color.rgb, textPushConstants.color.a * glyphCoverage);
     
 }

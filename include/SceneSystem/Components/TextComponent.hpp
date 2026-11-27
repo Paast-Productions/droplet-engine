@@ -8,7 +8,7 @@
 #include <string_view>
 
 #include "TextLayout.hpp"
-#include "SceneSystem/DefaultNodeBounds.hpp"
+#include "SceneSystem/Bounds/DefaultNodeBounds.hpp"
 
 namespace Droplet::Scene
 {
