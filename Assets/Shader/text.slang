@@ -89,13 +89,6 @@ float4 LoadBand(uint index, uint bandStartRow)
 
 float TraceRayCurveH(float2 p1, float2 p2, float2 p3, float pixelsPerEm)
 {
-    if (max(max(p1.x, p2.x), p3.x) * pixelsPerEm < -0.5)
-    {
-        // The right-most point of the curve is to the left of the current fragment.
-        // Because the curves are sorted, we can exit.
-        return 0.0f;
-    }
-
     // Slug lookup table
     uint code =
         (0x2E74U >>
@@ -157,6 +150,15 @@ float TraceRayBand(uint2 bandData, float pixelsPerEm, float2 texCoords, float2 g
                         / float4(glyphScale, glyphScale) - float4(texCoords, texCoords);
 
         float2 p3 = textureArr[textPushConstants.textureID].Load(int3(curveLoc + int2(1, 0), 0)).xy / glyphScale - texCoords;
+
+
+        // The curves are sorted. If the statement below is true, that means we can exit
+        // because no more curves will hit.
+        const float maxAxis = vertical ?   max(max(p12.y, p12.w), p3.y)
+                                         : max(max(p12.x, p12.z), p3.x);
+
+        if (maxAxis * pixelsPerEm < -0.5f)
+            break;
 
         if (vertical)
         {
