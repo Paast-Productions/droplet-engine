@@ -330,6 +330,40 @@ Render::PreparedFrame Vulkan::Prepare(
         std::vector<std::pair<std::uint32_t, Render::DynamicDrawItem>> rankedDynamic;
         for (const Common::RenderData& source : camera.renderData)
         {
+            if (source.textData)
+            {
+                const Common::TextData& text = *source.textData;
+                
+                if (!text.glyphInstances || text.glyphInstances->empty())
+                    continue;
+                
+                const Render::TextureHandle fontTexture = gpu.FindTexture(text.fontGUID);
+                if (!fontTexture.IsValid())
+                    continue;
+                
+                const auto& instances = *text.glyphInstances;
+                if (instances.size() > std::numeric_limits<uint32_t>::max() - frame.glyphInstances.size())
+                    throw std::runtime_error("Too many glyph instances in prepared frame.");
+                
+                const auto firstInstance = static_cast<uint32_t>(frame.glyphInstances.size());
+                
+                frame.glyphInstances.insert(frame.glyphInstances.end(), instances.begin(), instances.end());
+                
+                const auto pipeline = context.pipelines.GetOrCreate(context.textPass.MakePipelineDesc(colorFormat, context.depthFormat));
+                
+                list.textItems.push_back(Render::TextDrawItem{
+                        .model = source.transform,
+                        .color = text.color,
+                        .pipeline = pipeline,
+                        .fontTexture = fontTexture,
+                        .firstInstance = firstInstance,
+                        .instanceCount = static_cast<uint32_t>(instances.size())
+                    }
+                );
+                
+                continue;
+            }
+            
             if (const GUID unsupported = UnsupportedStageOf(source); unsupported != C_INVALID_GUID)
             {
                 if (context.reportedMeshes.insert(unsupported).second)
@@ -357,7 +391,7 @@ Render::PreparedFrame Vulkan::Prepare(
                     .color = text.color,
                     /// .fontTexture = text.fontGUID,
                     .firstInstance = firstInstance,
-                    .instanceCount = glyphInstances.size()
+                    .instanceCount = static_cast<uint32_t>(glyphInstances.size())
                 });
             }
             

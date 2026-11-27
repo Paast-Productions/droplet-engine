@@ -150,7 +150,7 @@ void Droplet::Scene::TextComponent::RenderUIImpl()
 #endif
 }
 
-Droplet::Common::RenderData Droplet::Scene::TextComponent::GetRenderDataImpl()
+	Droplet::Common::RenderData Droplet::Scene::TextComponent::GetRenderDataImpl()
 {
 	if (m_textIsDirty) // TODO: This might not be necessary, it depends on the order of execution.
 		RebuildText();
@@ -219,7 +219,7 @@ void Droplet::Scene::TextComponent::DeserializeImpl(const nlohmann::json p_compJ
 
 void Droplet::Scene::TextComponent::UpdateBounds(bool p_hasGlyphs, const glm::vec2& p_min, const glm::vec2& p_max)
 {
-	if (!p_hasGlyphs)
+	if (p_hasGlyphs)
 	{
 		constexpr float thickness = 0.001f;
 
@@ -242,6 +242,9 @@ void Droplet::Scene::TextComponent::UpdateBounds(bool p_hasGlyphs, const glm::ve
 			glm::vec3(0.001f)
 		};
 	}
+	
+	if (GetOwner())
+		GetOwner()->GetTransform().MakeDirty();
 }
 
 void Droplet::Scene::TextComponent::RebuildText()
@@ -261,7 +264,6 @@ void Droplet::Scene::TextComponent::RebuildText()
 	
 	m_glyphInstances = std::make_shared<const std::vector<Graphics::Text::GlyphInstance>>(std::move(layout.instances));
 	
-	GetOwner()->GetTransform().MakeDirty();
 	m_textIsDirty = false;
 }
 

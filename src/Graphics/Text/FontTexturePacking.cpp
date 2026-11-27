@@ -11,7 +11,7 @@ namespace Droplet::Graphics::Text
         const auto& curves = p_font.GetCurvesTextureData();
         const auto& bands = p_font.GetBandsTextureData();
         
-        if (p_font.GetCurveTextureWidth() != width || p_font.GetBandsTextureWidth())
+        if (p_font.GetCurveTextureWidth() != width || p_font.GetBandsTextureWidth() != width)
         {
             throw std::runtime_error("Unexpected .slug texture width.");
         }

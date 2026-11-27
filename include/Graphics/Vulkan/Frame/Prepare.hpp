@@ -8,6 +8,7 @@
 
 #include <vulkan/vulkan_raii.hpp>
 
+#include "TextPass.hpp"
 #include "Graphics/Vulkan/Passes/DrawPass.hpp"
 #include "Graphics/Vulkan/Resources/GpuResourceManager.hpp"
 #include "Graphics/Vulkan/Resources/PipelineLibrary.hpp"
@@ -24,6 +25,7 @@ namespace Droplet::Graphics::Vulkan
         ShaderLibrary& shaders;
         PipelineLibrary& pipelines;
         const DrawPass& scenePass; ///< scene material interface (MakePipelineDesc)
+        const TextPass& textPass;
         vk::Format depthFormat;    ///< of the views' depth transients
         std::unordered_set<std::uint64_t>& reportedMeshes; ///< dynamic meshes and shaders already reported as not drawable
     };

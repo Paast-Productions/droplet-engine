@@ -24,5 +24,10 @@ namespace Droplet::Graphics::Text
 	{
 		glm::mat4 model{1.0f};
 		glm::vec4 color{1.0f};
+		
+		uint32_t textureId = 0;
+		uint32_t firstInstance = 0;
+		
+		uint32_t padding[2]{};
 	};
 }

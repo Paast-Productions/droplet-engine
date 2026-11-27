@@ -50,6 +50,7 @@ namespace Droplet::Graphics::Render
         glm::mat4 model{1.0f};
         glm::vec4 color{1.0f};
         
+        PipelineHandle pipeline;
         TextureHandle fontTexture;
         
         uint32_t firstInstance = 0;

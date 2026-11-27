@@ -79,6 +79,7 @@ Renderer::Renderer(const ISurfaceProvider& surfaceProvider)
       m_effectPass(m_vulkanContext, WSI::FramesInFlight()),
       m_graphExecutor(m_vulkanContext, m_device),
       m_drawPass(m_vulkanContext, m_device, DrawPassCreateInfo{.framesInFlight = WSI::FramesInFlight()}),
+      m_textPass(m_vulkanContext, m_device, WSI::FramesInFlight()),
       m_pipelineLibrary(m_vulkanContext.GetDevice(), m_device.Shaders())
 {
     m_device.Shaders().SetBuiltInDefault(BUILT_IN_SCENE_SHADER, BUILT_IN_SCENE_SHADER_ASSET);
@@ -133,6 +134,7 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
                                   .shaders = m_device.Shaders(),
                                   .pipelines = m_pipelineLibrary,
                                   .scenePass = m_drawPass,
+                                  .textPass = m_textPass,
                                   .depthFormat = m_depthFormat,
                                   .reportedMeshes = m_reportedMeshes
                               });
@@ -155,6 +157,7 @@ void Renderer::Render(const Render::RenderWorld& world, [[maybe_unused]] ImDrawD
     // the texture array this frame binds holds every texture and target Prepare gave an index
     m_device.Textures().BeginFrame(frame->frameSlot, m_device.Deletions(), m_device.Submitter().FrameRetireValues());
     m_drawPass.BeginFrame(frame->frameSlot, m_preparedFrame);
+    m_textPass.BeginFrame(frame->frameSlot, m_preparedFrame);
 
 #ifdef _EDITOR
     // the editor's ImGui: its textures uploaded before the graph, its render-target images resolved for this frame
@@ -279,6 +282,7 @@ void Renderer::RecordFrameGraph(const Frame& frame, [[maybe_unused]] ImDrawData*
             const auto viewIndex = static_cast<std::uint32_t>(&view - m_preparedFrame.views.data());
             // a list of m_preparedFrame
             m_drawPass.Record(ctx.cmd, extent, view, viewIndex, m_pipelineLibrary, DrawFilter::All);
+            m_textPass.Record(ctx.cmd, extent, view, viewIndex, m_pipelineLibrary);
             ctx.cmd.endRendering();
         },
         .copyTarget = [this](PassContext& ctx, Render::TargetHandle srcHandle, Render::TargetHandle dstHandle)

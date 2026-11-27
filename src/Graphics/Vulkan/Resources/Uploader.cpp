@@ -123,7 +123,7 @@ namespace Droplet::Graphics::Vulkan
             throw std::invalid_argument("Invalid image upload.");
         
         const vk::DeviceSize expectedBytes = vk::DeviceSize{extent.width} * extent.height * bytesPerTexel;
-        if (byteSize != bytesPerTexel)
+        if (byteSize != expectedBytes)
             throw std::invalid_argument("Image payload size does not match dimensions and format.");
 
         // building mips blits each level from the one above with linear filtering, which the format must support
