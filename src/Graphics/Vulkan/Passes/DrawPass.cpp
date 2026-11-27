@@ -251,9 +251,9 @@ namespace Droplet::Graphics::Vulkan
 			return MeshInterface::None;
 		if (formatAt(1) == VertexFormat::Float3 && formatAt(2) == VertexFormat::Float2)
 			return MeshInterface::Scene;
-		// particles: centre, colour, size, rotation; must precede VertexColor, which also matches colour at 1
+		// particles: centre, colour, size (width, height), rotation; must precede VertexColor, which also matches colour at 1
 		if (mesh.topology == Common::MeshTopology::Points &&
-			formatAt(1) == VertexFormat::Float4 && formatAt(2) == VertexFormat::Float1 && formatAt(3) == VertexFormat::Float1)
+			formatAt(1) == VertexFormat::Float4 && formatAt(2) == VertexFormat::Float2 && formatAt(3) == VertexFormat::Float1)
 			return MeshInterface::Particle;
 		if (formatAt(1) == VertexFormat::Float4 || formatAt(1) == VertexFormat::UNorm8x4)
 			return MeshInterface::VertexColor;
