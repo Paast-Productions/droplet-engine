@@ -19,7 +19,7 @@ void BehaviourInspector::RenderImpl()
     const float width = ImGui::GetContentRegionAvail().x;
     Droplet::Scene::Behaviour *behaviourToOpen = nullptr;
 
-    if (ImGui::Button("+ Add Behaviour", ImVec2(width * 2.0f/3.0f, 0.0f)))
+    if (ImGui::Button("+ Add Behaviour", ImVec2(width * 0.66f, 0.0f)))
     {
         ImGui::OpenPopup("Add Behaviour");
     }

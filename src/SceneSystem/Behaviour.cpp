@@ -132,7 +132,5 @@ nlohmann::json Behaviour::Serialize()
 
 void Behaviour::Deserialize(const nlohmann::json p_behJson)
 {
-	const nlohmann::json dataJson = p_behJson["data"];
-
 	DeserializeImpl(p_behJson["data"]);
 }
