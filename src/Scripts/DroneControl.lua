@@ -2,6 +2,7 @@
 --
 -- Member Variables
 --
+local WORLD_UP = Vec3.new(0.0, 1.0, 0.0)
 
 local trans = nil
 local velocity = nil
@@ -186,18 +187,14 @@ function UpdateMovement(dt)
 
     -- Dedicated vertical movement in world space
 
+    -- Dedicated vertical movement in world space (independent of drone rotation)
+
     if Input:KeyHeld(Key.Space) then
-        inputDirection = GLM.V3Add(
-            inputDirection,
-            trans:GetUp(TransformSpace.World)
-        )
+        inputDirection = GLM.V3Add(inputDirection, WORLD_UP)
     end
 
     if Input:KeyHeld(Key.LCTRL) then
-        inputDirection = GLM.V3Sub(
-            inputDirection,
-            trans:GetUp(TransformSpace.World)
-        )
+        inputDirection = GLM.V3Sub(inputDirection, WORLD_UP)
     end
 
     -- Get the slow modifier and apply on maxspeed and velocity

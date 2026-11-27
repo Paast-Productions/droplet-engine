@@ -1,5 +1,8 @@
 {
     "name": "Internlevel",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
     "roots": [
         {
             "active": true,
@@ -21,6 +24,7 @@
                         "tesName": "",
                         "textureDisplayName": "Seaflorr_base",
                         "textureGUID": 6101051464888118377,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -31,17 +35,20 @@
                 {
                     "active": true,
                     "data": {
+                        "friction": 0.20000000298023224,
                         "h": 0.0,
                         "halfExtentsX": 0.0,
                         "halfExtentsY": 0.0,
                         "halfExtentsZ": 0.0,
                         "layer": 0,
+                        "mass": 1.0,
                         "meshGUID": 4598941969821183147,
                         "motionType": 0,
                         "offsetX": 0.0,
                         "offsetY": 0.0,
                         "offsetZ": 0.0,
                         "r": 0.0,
+                        "restitution": 0.0,
                         "shapeType": 4
                     },
                     "id": 2,
@@ -49,7 +56,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1694,
+            "id": 748,
             "name": "Seafloor",
             "transform": {
                 "position": [
@@ -96,6 +103,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "PodExterior",
                                         "textureGUID": 7599848563937726273,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -106,17 +114,20 @@
                                 {
                                     "active": true,
                                     "data": {
+                                        "friction": 0.20000000298023224,
                                         "h": 0.0,
                                         "halfExtentsX": 0.0,
                                         "halfExtentsY": 0.0,
                                         "halfExtentsZ": 0.0,
                                         "layer": 0,
+                                        "mass": 1.0,
                                         "meshGUID": 7445482948709711179,
                                         "motionType": 0,
                                         "offsetX": 0.0,
                                         "offsetY": 0.0,
                                         "offsetZ": 0.0,
                                         "r": 0.0,
+                                        "restitution": 0.0,
                                         "shapeType": 4
                                     },
                                     "id": 2,
@@ -124,7 +135,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1697,
+                            "id": 751,
                             "name": "Pod Exterior",
                             "transform": {
                                 "position": [
@@ -168,6 +179,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "PodDoor",
                                                 "textureGUID": 4743341834037859640,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -178,17 +190,20 @@
                                         {
                                             "active": true,
                                             "data": {
+                                                "friction": 0.20000000298023224,
                                                 "h": 0.0,
                                                 "halfExtentsX": 0.0,
                                                 "halfExtentsY": 0.0,
                                                 "halfExtentsZ": 0.0,
                                                 "layer": 0,
+                                                "mass": 1.0,
                                                 "meshGUID": 10773550875263732350,
                                                 "motionType": 0,
                                                 "offsetX": 0.0,
                                                 "offsetY": 0.0,
                                                 "offsetZ": 0.0,
                                                 "r": 0.0,
+                                                "restitution": 0.0,
                                                 "shapeType": 4
                                             },
                                             "id": 2,
@@ -196,7 +211,7 @@
                                         }
                                     ],
                                     "drawLayer": 1,
-                                    "id": 1699,
+                                    "id": 753,
                                     "name": "Door",
                                     "transform": {
                                         "position": [
@@ -221,7 +236,7 @@
                             "collisionLayerMask": 1,
                             "components": [],
                             "drawLayer": 1,
-                            "id": 1698,
+                            "id": 752,
                             "name": "Pod Door",
                             "transform": {
                                 "position": [
@@ -248,7 +263,7 @@
                             "collisionLayerMask": 1,
                             "components": [],
                             "drawLayer": 1,
-                            "id": 1700,
+                            "id": 754,
                             "name": "InteractionButton",
                             "transform": {
                                 "position": [
@@ -275,8 +290,9 @@
                         {
                             "active": true,
                             "data": {
-                                "button": 1700,
-                                "drone": 1803,
+                                "button": 754,
+                                "drone": 857,
+                                "hasTransitionPeriod": false,
                                 "reach": 1.0,
                                 "targetSceneName": "BoatScene"
                             },
@@ -285,7 +301,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 1696,
+                    "id": 750,
                     "name": "Pod",
                     "transform": {
                         "position": [
@@ -313,7 +329,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1702,
+                            "id": 756,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -339,7 +355,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1703,
+                            "id": 757,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -365,7 +381,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1704,
+                            "id": 758,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -391,7 +407,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1705,
+                            "id": 759,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -417,7 +433,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1706,
+                            "id": 760,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -443,7 +459,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1707,
+                            "id": 761,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -469,7 +485,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1708,
+                            "id": 762,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -495,7 +511,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1712,
+                            "id": 766,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -521,7 +537,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1716,
+                            "id": 770,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -547,7 +563,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1720,
+                            "id": 774,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -573,7 +589,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1724,
+                            "id": 778,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -599,7 +615,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1728,
+                            "id": 782,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -625,7 +641,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1732,
+                            "id": 786,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -651,7 +667,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1736,
+                            "id": 790,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -677,7 +693,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1740,
+                            "id": 794,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -703,7 +719,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1741,
+                            "id": 795,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -729,7 +745,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1742,
+                            "id": 796,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -758,7 +774,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1744,
+                                    "id": 798,
                                     "name": "Seagrass_4_1",
                                     "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                                     "transform": {
@@ -784,7 +800,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1745,
+                                    "id": 799,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -810,7 +826,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1749,
+                                    "id": 803,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -836,7 +852,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1753,
+                                    "id": 807,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -862,7 +878,7 @@
                             "collisionLayerMask": 1,
                             "components": [],
                             "drawLayer": 1,
-                            "id": 1743,
+                            "id": 797,
                             "name": "LeftHill",
                             "transform": {
                                 "position": [
@@ -890,7 +906,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1758,
+                                    "id": 812,
                                     "name": "Seagrass_4_1",
                                     "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                                     "transform": {
@@ -916,7 +932,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1759,
+                                    "id": 813,
                                     "name": "Seagrass_4_1",
                                     "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                                     "transform": {
@@ -942,7 +958,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1760,
+                                    "id": 814,
                                     "name": "Seagrass_4_1",
                                     "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                                     "transform": {
@@ -968,7 +984,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1761,
+                                    "id": 815,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -994,7 +1010,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1765,
+                                    "id": 819,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1020,7 +1036,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1769,
+                                    "id": 823,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1046,7 +1062,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1773,
+                                    "id": 827,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1072,7 +1088,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1777,
+                                    "id": 831,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1098,7 +1114,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1781,
+                                    "id": 835,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1124,7 +1140,7 @@
                                     "active": true,
                                     "collisionLayerMask": 1,
                                     "drawLayer": 1,
-                                    "id": 1785,
+                                    "id": 839,
                                     "name": "Kelp",
                                     "prefab": "GameData\\Prefabs\\Kelp.json",
                                     "transform": {
@@ -1150,7 +1166,7 @@
                             "collisionLayerMask": 1,
                             "components": [],
                             "drawLayer": 1,
-                            "id": 1757,
+                            "id": 811,
                             "name": "RightHill",
                             "transform": {
                                 "position": [
@@ -1175,7 +1191,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1701,
+                    "id": 755,
                     "name": "Valleyfoliage",
                     "transform": {
                         "position": [
@@ -1203,7 +1219,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1790,
+                            "id": 844,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -1229,7 +1245,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1791,
+                            "id": 845,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -1255,7 +1271,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1792,
+                            "id": 846,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -1281,7 +1297,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1793,
+                            "id": 847,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -1307,7 +1323,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1794,
+                            "id": 848,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -1333,7 +1349,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1795,
+                            "id": 849,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1359,7 +1375,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1796,
+                            "id": 850,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -1385,7 +1401,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1797,
+                            "id": 851,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1411,7 +1427,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1798,
+                            "id": 852,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1437,7 +1453,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1799,
+                            "id": 853,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1463,7 +1479,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1800,
+                            "id": 854,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1489,7 +1505,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1801,
+                            "id": 855,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1515,7 +1531,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1802,
+                            "id": 856,
                             "name": "Scallop",
                             "prefab": "GameData\\Prefabs\\Scallop.json",
                             "transform": {
@@ -1541,7 +1557,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1789,
+                    "id": 843,
                     "name": "Environment",
                     "transform": {
                         "position": [
@@ -1566,7 +1582,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 1695,
+            "id": 749,
             "name": "Spawn",
             "transform": {
                 "position": [
@@ -1591,7 +1607,7 @@
             "active": true,
             "collisionLayerMask": 33,
             "drawLayer": 1,
-            "id": 1803,
+            "id": 857,
             "name": "Drone",
             "prefab": "GameData\\Prefabs\\Drone.json",
             "transform": {
@@ -1639,6 +1655,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -1648,7 +1665,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1814,
+                            "id": 868,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -1689,6 +1706,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -1724,7 +1742,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -1732,7 +1751,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -1757,7 +1776,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1815,
+                            "id": 869,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -1801,6 +1820,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -1810,7 +1830,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1817,
+                                    "id": 871,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -1851,6 +1871,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -1860,7 +1881,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1818,
+                                    "id": 872,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -1901,6 +1922,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -1910,7 +1932,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1819,
+                                    "id": 873,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -1951,6 +1973,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -1960,7 +1983,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1820,
+                                    "id": 874,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2001,6 +2024,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2010,7 +2034,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1821,
+                                    "id": 875,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2051,6 +2075,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2060,7 +2085,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1822,
+                                    "id": 876,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2101,6 +2126,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2110,7 +2136,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1823,
+                                    "id": 877,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2151,6 +2177,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2160,7 +2187,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1824,
+                                    "id": 878,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2187,7 +2214,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -2195,7 +2222,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1816,
+                            "id": 870,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -2220,7 +2247,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1813,
+                    "id": 867,
                     "name": "VolcanoMedium",
                     "transform": {
                         "position": [
@@ -2264,6 +2291,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -2273,7 +2301,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1826,
+                            "id": 880,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -2314,6 +2342,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -2349,7 +2378,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -2357,7 +2387,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -2382,7 +2412,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1827,
+                            "id": 881,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -2426,6 +2456,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2435,7 +2466,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1829,
+                                    "id": 883,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2476,6 +2507,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2485,7 +2517,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1830,
+                                    "id": 884,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2526,6 +2558,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2535,7 +2568,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1831,
+                                    "id": 885,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2576,6 +2609,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2585,7 +2619,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1832,
+                                    "id": 886,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2626,6 +2660,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2635,7 +2670,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1833,
+                                    "id": 887,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2676,6 +2711,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2685,7 +2721,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1834,
+                                    "id": 888,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2726,6 +2762,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2735,7 +2772,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1835,
+                                    "id": 889,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2776,6 +2813,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -2785,7 +2823,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1836,
+                                    "id": 890,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -2812,7 +2850,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -2820,7 +2858,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1828,
+                            "id": 882,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -2845,7 +2883,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1825,
+                    "id": 879,
                     "name": "VolcanoMedium",
                     "transform": {
                         "position": [
@@ -2889,6 +2927,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -2898,7 +2937,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1838,
+                            "id": 892,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -2939,6 +2978,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -2974,7 +3014,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -2982,7 +3023,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -3007,7 +3048,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1839,
+                            "id": 893,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -3051,6 +3092,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3060,7 +3102,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1841,
+                                    "id": 895,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3101,6 +3143,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3110,7 +3153,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1842,
+                                    "id": 896,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3151,6 +3194,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3160,7 +3204,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1843,
+                                    "id": 897,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3201,6 +3245,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3210,7 +3255,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1844,
+                                    "id": 898,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3251,6 +3296,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3260,7 +3306,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1845,
+                                    "id": 899,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3301,6 +3347,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3310,7 +3357,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1846,
+                                    "id": 900,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3351,6 +3398,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3360,7 +3408,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1847,
+                                    "id": 901,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3401,6 +3449,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3410,7 +3459,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1848,
+                                    "id": 902,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3437,7 +3486,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.30000001192093,\"x\":-0.30000001192093,\"y\":0.89999997615814},\"max\":{\"z\":0.30000001192093,\"x\":0.30000001192093,\"y\":2.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.08500000089407},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":1,\"max\":3},\"lifetimeRange\":{\"min\":2.5,\"max\":5.5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -3445,7 +3494,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1840,
+                            "id": 894,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -3470,7 +3519,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1837,
+                    "id": 891,
                     "name": "VolcanoMedium",
                     "transform": {
                         "position": [
@@ -3514,6 +3563,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -3523,7 +3573,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1850,
+                            "id": 904,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -3564,6 +3614,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -3599,7 +3650,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -3607,7 +3659,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -3632,7 +3684,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1851,
+                            "id": 905,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -3676,6 +3728,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3685,7 +3738,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1853,
+                                    "id": 907,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3726,6 +3779,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3735,7 +3789,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1854,
+                                    "id": 908,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3776,6 +3830,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3785,7 +3840,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1855,
+                                    "id": 909,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3826,6 +3881,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3835,7 +3891,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1856,
+                                    "id": 910,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3876,6 +3932,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3885,7 +3942,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1857,
+                                    "id": 911,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3926,6 +3983,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -3935,7 +3993,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1858,
+                                    "id": 912,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -3962,7 +4020,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -3970,7 +4028,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1852,
+                            "id": 906,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -3995,7 +4053,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1849,
+                    "id": 903,
                     "name": "VolcanoSmall",
                     "transform": {
                         "position": [
@@ -4039,6 +4097,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -4048,7 +4107,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1860,
+                            "id": 914,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -4089,6 +4148,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -4124,7 +4184,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -4132,7 +4193,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -4157,7 +4218,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1861,
+                            "id": 915,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -4201,6 +4262,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4210,7 +4272,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1863,
+                                    "id": 917,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4251,6 +4313,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4260,7 +4323,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1864,
+                                    "id": 918,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4301,6 +4364,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4310,7 +4374,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1865,
+                                    "id": 919,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4351,6 +4415,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4360,7 +4425,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1866,
+                                    "id": 920,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4401,6 +4466,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4410,7 +4476,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1867,
+                                    "id": 921,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4451,6 +4517,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4460,7 +4527,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1868,
+                                    "id": 922,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4487,7 +4554,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -4495,7 +4562,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1862,
+                            "id": 916,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -4520,7 +4587,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1859,
+                    "id": 913,
                     "name": "VolcanoSmall",
                     "transform": {
                         "position": [
@@ -4564,6 +4631,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -4573,7 +4641,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1870,
+                            "id": 924,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -4614,6 +4682,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -4649,7 +4718,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -4657,7 +4727,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -4682,7 +4752,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1871,
+                            "id": 925,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -4726,6 +4796,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4735,7 +4806,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1873,
+                                    "id": 927,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4776,6 +4847,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4785,7 +4857,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1874,
+                                    "id": 928,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4826,6 +4898,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4835,7 +4908,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1875,
+                                    "id": 929,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4876,6 +4949,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4885,7 +4959,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1876,
+                                    "id": 930,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4926,6 +5000,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4935,7 +5010,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1877,
+                                    "id": 931,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -4976,6 +5051,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -4985,7 +5061,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1878,
+                                    "id": 932,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5012,7 +5088,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -5020,7 +5096,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1872,
+                            "id": 926,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -5045,7 +5121,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1869,
+                    "id": 923,
                     "name": "VolcanoSmall",
                     "transform": {
                         "position": [
@@ -5089,6 +5165,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -5098,7 +5175,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1880,
+                            "id": 934,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -5139,6 +5216,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -5174,7 +5252,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -5182,7 +5261,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -5207,7 +5286,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1881,
+                            "id": 935,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -5251,6 +5330,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5260,7 +5340,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1883,
+                                    "id": 937,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5301,6 +5381,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5310,7 +5391,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1884,
+                                    "id": 938,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5351,6 +5432,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5360,7 +5442,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1885,
+                                    "id": 939,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5401,6 +5483,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5410,7 +5493,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1886,
+                                    "id": 940,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5451,6 +5534,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5460,7 +5544,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1887,
+                                    "id": 941,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5501,6 +5585,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5510,7 +5595,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1888,
+                                    "id": 942,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5537,7 +5622,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.20000000298023,\"x\":-0.20000000298023,\"y\":0.5},\"max\":{\"z\":0.20000000298023,\"x\":0.20000000298023,\"y\":1.5}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.075000002980232},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":0.30000001192093,\"max\":0.69999998807907},\"lifetimeRange\":{\"min\":2,\"max\":5}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -5545,7 +5630,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1882,
+                            "id": 936,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -5570,7 +5655,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1879,
+                    "id": 933,
                     "name": "VolcanoSmall",
                     "transform": {
                         "position": [
@@ -5614,6 +5699,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "Geyser",
                                         "textureGUID": 1546286907408242686,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -5623,7 +5709,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1890,
+                            "id": 944,
                             "name": "Mesh",
                             "transform": {
                                 "position": [
@@ -5664,6 +5750,7 @@
                                         "tesName": "",
                                         "textureDisplayName": "White",
                                         "textureGUID": 13855953862202670664,
+                                        "textureIsRenderTarget": false,
                                         "transparent": false,
                                         "vs": 7809030845991192100,
                                         "vsName": "Base.VS"
@@ -5699,7 +5786,8 @@
                                             0.0,
                                             0.0,
                                             1.0
-                                        ]
+                                        ],
+                                        "zone": 1
                                     },
                                     "id": 4,
                                     "type": "HazardComponent"
@@ -5707,7 +5795,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "",
+                                        "data": "{\"overlayGracePeriod\":0.1,\"useRandomTiming\":true,\"activeTime\":5,\"inactiveTime\":15,\"activeTimeMin\":4,\"activeTimeMax\":7,\"inactiveTimeMin\":12,\"outsideTemp\":150,\"temperatureChangeRate\":2,\"temperatureScaling\":0.05,\"inactiveTimeMax\":20,\"damageScaling\":5}",
                                         "filepath": "Heat.lua"
                                     },
                                     "id": 6,
@@ -5732,7 +5820,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1891,
+                            "id": 945,
                             "name": "Heat",
                             "transform": {
                                 "position": [
@@ -5776,6 +5864,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5785,7 +5874,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1893,
+                                    "id": 947,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5826,6 +5915,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5835,7 +5925,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1894,
+                                    "id": 948,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5876,6 +5966,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5885,7 +5976,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1895,
+                                    "id": 949,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5926,6 +6017,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5935,7 +6027,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1896,
+                                    "id": 950,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -5976,6 +6068,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -5985,7 +6078,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1897,
+                                    "id": 951,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6026,6 +6119,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6035,7 +6129,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1898,
+                                    "id": 952,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6076,6 +6170,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6085,7 +6180,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1899,
+                                    "id": 953,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6126,6 +6221,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6135,7 +6231,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1900,
+                                    "id": 954,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6176,6 +6272,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6185,7 +6282,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1901,
+                                    "id": 955,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6226,6 +6323,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6235,7 +6333,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1902,
+                                    "id": 956,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6276,6 +6374,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6285,7 +6384,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1903,
+                                    "id": 957,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6326,6 +6425,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6335,7 +6435,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1904,
+                                    "id": 958,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6376,6 +6476,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6385,7 +6486,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1905,
+                                    "id": 959,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6426,6 +6527,7 @@
                                                 "tesName": "",
                                                 "textureDisplayName": "White",
                                                 "textureGUID": 13855953862202670664,
+                                                "textureIsRenderTarget": false,
                                                 "transparent": false,
                                                 "vs": 7809030845991192100,
                                                 "vsName": "Base.VS"
@@ -6435,7 +6537,7 @@
                                         }
                                     ],
                                     "drawLayer": 4,
-                                    "id": 1906,
+                                    "id": 960,
                                     "name": "Heat Particle",
                                     "transform": {
                                         "position": [
@@ -6462,7 +6564,7 @@
                                 {
                                     "active": true,
                                     "data": {
-                                        "data": "{\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":5,\"max\":18},\"lifetimeRange\":{\"min\":3,\"max\":6},\"grav\":{\"z\":0,\"x\":0,\"y\":0.25},\"velRange\":{\"min\":{\"z\":-0.5,\"x\":-0.5,\"y\":2},\"max\":{\"z\":0.5,\"x\":0.5,\"y\":8}},\"space\":0}",
+                                        "data": "{\"velRange\":{\"min\":{\"z\":-0.5,\"x\":-0.5,\"y\":2},\"max\":{\"z\":0.5,\"x\":0.5,\"y\":8}},\"grav\":{\"z\":0,\"x\":0,\"y\":0.25},\"space\":0,\"spawnBox\":{\"min\":{\"z\":0,\"x\":0,\"y\":0},\"max\":{\"z\":0,\"x\":0,\"y\":0}},\"sizeRange\":{\"min\":5,\"max\":18},\"lifetimeRange\":{\"min\":3,\"max\":6}}",
                                         "filepath": "HazardEffect.lua"
                                     },
                                     "id": 1,
@@ -6470,7 +6572,7 @@
                                 }
                             ],
                             "drawLayer": 1,
-                            "id": 1892,
+                            "id": 946,
                             "name": "Heat ParticleSystem",
                             "transform": {
                                 "position": [
@@ -6495,7 +6597,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1889,
+                    "id": 943,
                     "name": "VolcanoLarge",
                     "transform": {
                         "position": [
@@ -6520,7 +6622,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 1812,
+            "id": 866,
             "name": "Volcanoes",
             "transform": {
                 "position": [
@@ -6551,7 +6653,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1909,
+                            "id": 963,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -6577,7 +6679,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1910,
+                            "id": 964,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -6603,7 +6705,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1911,
+                            "id": 965,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -6629,7 +6731,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1912,
+                            "id": 966,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -6655,7 +6757,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1913,
+                            "id": 967,
                             "name": "Seagrass_3_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_1.json",
                             "transform": {
@@ -6681,7 +6783,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1914,
+                            "id": 968,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -6707,7 +6809,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1915,
+                            "id": 969,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -6733,7 +6835,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1916,
+                            "id": 970,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -6759,7 +6861,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1917,
+                            "id": 971,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -6785,7 +6887,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1918,
+                            "id": 972,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -6811,7 +6913,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1919,
+                            "id": 973,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -6837,7 +6939,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1920,
+                            "id": 974,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -6863,7 +6965,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1921,
+                            "id": 975,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -6889,7 +6991,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1922,
+                            "id": 976,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -6915,7 +7017,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1923,
+                            "id": 977,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -6941,7 +7043,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1924,
+                            "id": 978,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -6967,7 +7069,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1928,
+                            "id": 982,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -6993,7 +7095,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1932,
+                            "id": 986,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7019,7 +7121,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1936,
+                            "id": 990,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7045,7 +7147,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1940,
+                            "id": 994,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7071,7 +7173,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1944,
+                            "id": 998,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7097,7 +7199,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1948,
+                            "id": 1002,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7123,7 +7225,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1952,
+                            "id": 1006,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7149,7 +7251,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1956,
+                            "id": 1010,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7175,7 +7277,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1960,
+                            "id": 1014,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7201,7 +7303,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1964,
+                            "id": 1018,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7227,7 +7329,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1968,
+                            "id": 1022,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7253,7 +7355,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1972,
+                            "id": 1026,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7279,7 +7381,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1976,
+                            "id": 1030,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7305,7 +7407,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1908,
+                    "id": 962,
                     "name": "Foliage",
                     "transform": {
                         "position": [
@@ -7333,7 +7435,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1981,
+                            "id": 1035,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -7359,7 +7461,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1982,
+                            "id": 1036,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -7385,7 +7487,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1983,
+                            "id": 1037,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -7411,7 +7513,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1984,
+                            "id": 1038,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -7437,7 +7539,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1985,
+                            "id": 1039,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -7463,7 +7565,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1986,
+                            "id": 1040,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -7489,7 +7591,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1987,
+                            "id": 1041,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -7515,7 +7617,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1988,
+                            "id": 1042,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7541,7 +7643,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1992,
+                            "id": 1046,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7567,7 +7669,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 1996,
+                            "id": 1050,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7593,7 +7695,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2000,
+                            "id": 1054,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7619,7 +7721,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2004,
+                            "id": 1058,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7645,7 +7747,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2008,
+                            "id": 1062,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7671,7 +7773,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2012,
+                            "id": 1066,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7697,7 +7799,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2016,
+                            "id": 1070,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7723,7 +7825,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2020,
+                            "id": 1074,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7749,7 +7851,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2024,
+                            "id": 1078,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7775,7 +7877,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2028,
+                            "id": 1082,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7801,7 +7903,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 1980,
+                    "id": 1034,
                     "name": "Opening",
                     "transform": {
                         "position": [
@@ -7829,7 +7931,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2033,
+                            "id": 1087,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -7855,7 +7957,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2034,
+                            "id": 1088,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -7881,7 +7983,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2035,
+                            "id": 1089,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -7907,7 +8009,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2036,
+                            "id": 1090,
                             "name": "Seagrass_3_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_1.json",
                             "transform": {
@@ -7933,7 +8035,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2037,
+                            "id": 1091,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7959,7 +8061,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2041,
+                            "id": 1095,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -7985,7 +8087,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2032,
+                    "id": 1086,
                     "name": "BigCliffRock",
                     "transform": {
                         "position": [
@@ -8013,7 +8115,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2046,
+                            "id": 1100,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -8039,7 +8141,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2047,
+                            "id": 1101,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -8065,7 +8167,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2048,
+                            "id": 1102,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -8091,7 +8193,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2049,
+                            "id": 1103,
                             "name": "Seagrass_1_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_1.json",
                             "transform": {
@@ -8117,7 +8219,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2050,
+                            "id": 1104,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -8143,7 +8245,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2051,
+                            "id": 1105,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -8169,7 +8271,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2052,
+                            "id": 1106,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -8195,7 +8297,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2053,
+                            "id": 1107,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -8221,7 +8323,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2054,
+                            "id": 1108,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8247,7 +8349,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2058,
+                            "id": 1112,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8273,7 +8375,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2062,
+                            "id": 1116,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8299,7 +8401,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2066,
+                            "id": 1120,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8325,7 +8427,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2070,
+                            "id": 1124,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8351,7 +8453,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2045,
+                    "id": 1099,
                     "name": "StoneOnStone",
                     "transform": {
                         "position": [
@@ -8379,7 +8481,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2075,
+                            "id": 1129,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -8405,7 +8507,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2074,
+                    "id": 1128,
                     "name": "BigRock",
                     "transform": {
                         "position": [
@@ -8433,7 +8535,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2077,
+                            "id": 1131,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -8459,7 +8561,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2078,
+                            "id": 1132,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -8485,7 +8587,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2079,
+                            "id": 1133,
                             "name": "Seagrass_3_5",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_5.json",
                             "transform": {
@@ -8511,7 +8613,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2080,
+                            "id": 1134,
                             "name": "Seagrass_1_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_1.json",
                             "transform": {
@@ -8537,7 +8639,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2081,
+                            "id": 1135,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -8563,7 +8665,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2082,
+                            "id": 1136,
                             "name": "Seagrass_3_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_2.json",
                             "transform": {
@@ -8589,7 +8691,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2083,
+                            "id": 1137,
                             "name": "Seagrass_1_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_1_3.json",
                             "transform": {
@@ -8615,7 +8717,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2084,
+                            "id": 1138,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -8641,7 +8743,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2085,
+                            "id": 1139,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8667,7 +8769,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2089,
+                            "id": 1143,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8693,7 +8795,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2093,
+                            "id": 1147,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8719,7 +8821,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2097,
+                            "id": 1151,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8745,7 +8847,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2101,
+                            "id": 1155,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -8771,7 +8873,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2076,
+                    "id": 1130,
                     "name": "StoneOnStone2",
                     "transform": {
                         "position": [
@@ -8796,7 +8898,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 1907,
+            "id": 961,
             "name": "UpperCave",
             "transform": {
                 "position": [
@@ -8837,6 +8939,7 @@
                         "tesName": "",
                         "textureDisplayName": "underwater_lab2_base",
                         "textureGUID": 17525405162226008434,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -8846,7 +8949,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2105,
+            "id": 1159,
             "name": "SecretLab",
             "transform": {
                 "position": [
@@ -8887,6 +8990,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeColor",
                         "textureGUID": 4599309985099221335,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -8902,7 +9006,8 @@
                             0.0,
                             0.0,
                             1.0
-                        ]
+                        ],
+                        "zone": 1
                     },
                     "id": 2,
                     "type": "HazardComponent"
@@ -8944,7 +9049,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2106,
+            "id": 1160,
             "name": "DeepSeaFreeze",
             "transform": {
                 "position": [
@@ -8971,7 +9076,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2107,
+            "id": 1161,
             "name": "VolcanoFish",
             "transform": {
                 "position": [
@@ -9002,7 +9107,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2110,
+                            "id": 1164,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -9028,7 +9133,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2111,
+                            "id": 1165,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -9054,7 +9159,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2112,
+                            "id": 1166,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -9080,7 +9185,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2113,
+                            "id": 1167,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -9106,7 +9211,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2114,
+                            "id": 1168,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -9132,7 +9237,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2115,
+                            "id": 1169,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9158,7 +9263,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2119,
+                            "id": 1173,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9184,7 +9289,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2123,
+                            "id": 1177,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9210,7 +9315,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2127,
+                            "id": 1181,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9236,7 +9341,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2131,
+                            "id": 1185,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9262,7 +9367,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2135,
+                            "id": 1189,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9288,7 +9393,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2139,
+                            "id": 1193,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9314,7 +9419,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2143,
+                            "id": 1197,
                             "name": "Kelp",
                             "prefab": "GameData\\Prefabs\\Kelp.json",
                             "transform": {
@@ -9340,7 +9445,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2109,
+                    "id": 1163,
                     "name": "Right",
                     "transform": {
                         "position": [
@@ -9368,7 +9473,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2148,
+                            "id": 1202,
                             "name": "Seagrass_2_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_3.json",
                             "transform": {
@@ -9394,7 +9499,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2149,
+                            "id": 1203,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -9420,7 +9525,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2150,
+                            "id": 1204,
                             "name": "Seagrass_2_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_1.json",
                             "transform": {
@@ -9446,7 +9551,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2151,
+                            "id": 1205,
                             "name": "Seagrass_2_2",
                             "prefab": "GameData\\Prefabs\\Seagrass_2_2.json",
                             "transform": {
@@ -9472,7 +9577,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2152,
+                            "id": 1206,
                             "name": "Seagrass_3_3",
                             "prefab": "GameData\\Prefabs\\Seagrass_3_3.json",
                             "transform": {
@@ -9498,7 +9603,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2147,
+                    "id": 1201,
                     "name": "Left",
                     "transform": {
                         "position": [
@@ -9523,7 +9628,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2108,
+            "id": 1162,
             "name": "SlopeFoliage",
             "transform": {
                 "position": [
@@ -9550,7 +9655,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2153,
+            "id": 1207,
             "name": "SlopeFih",
             "transform": {
                 "position": [
@@ -9581,7 +9686,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2156,
+                            "id": 1210,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -9607,7 +9712,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2157,
+                            "id": 1211,
                             "name": "Seagrass_4_1",
                             "prefab": "GameData\\Prefabs\\Seagrass_4_1.json",
                             "transform": {
@@ -9633,7 +9738,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2158,
+                            "id": 1212,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9659,7 +9764,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2159,
+                            "id": 1213,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9685,7 +9790,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2160,
+                            "id": 1214,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9711,7 +9816,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2161,
+                            "id": 1215,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9737,7 +9842,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2162,
+                            "id": 1216,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9763,7 +9868,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2163,
+                            "id": 1217,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9789,7 +9894,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2155,
+                    "id": 1209,
                     "name": "Opening",
                     "transform": {
                         "position": [
@@ -9814,7 +9919,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2154,
+            "id": 1208,
             "name": "LowerCave",
             "transform": {
                 "position": [
@@ -9845,7 +9950,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2166,
+                            "id": 1220,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9871,7 +9976,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2167,
+                            "id": 1221,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9897,7 +10002,7 @@
                             "active": true,
                             "collisionLayerMask": 1,
                             "drawLayer": 1,
-                            "id": 2168,
+                            "id": 1222,
                             "name": "Stone",
                             "prefab": "GameData\\Prefabs\\Stone.json",
                             "transform": {
@@ -9923,7 +10028,7 @@
                     "collisionLayerMask": 1,
                     "components": [],
                     "drawLayer": 1,
-                    "id": 2165,
+                    "id": 1219,
                     "name": "Rocks",
                     "transform": {
                         "position": [
@@ -9948,7 +10053,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2164,
+            "id": 1218,
             "name": "Slope",
             "transform": {
                 "position": [
@@ -9976,7 +10081,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 2170,
+                    "id": 1224,
                     "name": "Stone",
                     "prefab": "GameData\\Prefabs\\Stone.json",
                     "transform": {
@@ -10002,7 +10107,7 @@
                     "active": true,
                     "collisionLayerMask": 1,
                     "drawLayer": 1,
-                    "id": 2171,
+                    "id": 1225,
                     "name": "Seagrass_1_4",
                     "prefab": "GameData\\Prefabs\\Seagrass_1_4.json",
                     "transform": {
@@ -10028,7 +10133,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2169,
+            "id": 1223,
             "name": "RepairPartSection",
             "transform": {
                 "position": [
@@ -10053,7 +10158,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2172,
+            "id": 1226,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10079,7 +10184,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2174,
+            "id": 1228,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10105,7 +10210,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2176,
+            "id": 1230,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10131,7 +10236,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2178,
+            "id": 1232,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10157,7 +10262,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2180,
+            "id": 1234,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10183,7 +10288,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2182,
+            "id": 1236,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10209,7 +10314,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2184,
+            "id": 1238,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10235,7 +10340,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2186,
+            "id": 1240,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10261,7 +10366,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2188,
+            "id": 1242,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10287,7 +10392,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2190,
+            "id": 1244,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10313,7 +10418,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2192,
+            "id": 1246,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10339,7 +10444,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2194,
+            "id": 1248,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10365,7 +10470,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2196,
+            "id": 1250,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10391,7 +10496,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2198,
+            "id": 1252,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10417,7 +10522,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2200,
+            "id": 1254,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10443,7 +10548,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2202,
+            "id": 1256,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10469,7 +10574,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2204,
+            "id": 1258,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10495,7 +10600,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2206,
+            "id": 1260,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10521,7 +10626,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2208,
+            "id": 1262,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10547,7 +10652,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2210,
+            "id": 1264,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10573,7 +10678,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2212,
+            "id": 1266,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10599,7 +10704,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2214,
+            "id": 1268,
             "name": "Fish_Metal",
             "prefab": "GameData\\Prefabs\\Fish_Metal.json",
             "transform": {
@@ -10625,7 +10730,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2216,
+            "id": 1270,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10651,7 +10756,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2218,
+            "id": 1272,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10677,7 +10782,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2220,
+            "id": 1274,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10703,7 +10808,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2222,
+            "id": 1276,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10729,7 +10834,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2224,
+            "id": 1278,
             "name": "WoodRoach",
             "prefab": "GameData\\Prefabs\\WoodRoach.json",
             "transform": {
@@ -10755,7 +10860,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2226,
+            "id": 1280,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10781,7 +10886,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2228,
+            "id": 1282,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10807,7 +10912,7 @@
             "active": true,
             "collisionLayerMask": 1,
             "drawLayer": 1,
-            "id": 2230,
+            "id": 1284,
             "name": "Fish",
             "prefab": "GameData\\Prefabs\\Fish.json",
             "transform": {
@@ -10849,6 +10954,7 @@
                         "tesName": "",
                         "textureDisplayName": "Engine_wheel_base",
                         "textureGUID": 17241713306127645820,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 6846475175127286139,
                         "vsName": "wavy.VS"
@@ -10877,7 +10983,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2232,
+            "id": 1286,
             "name": "RepairPart",
             "transform": {
                 "position": [
@@ -10918,6 +11024,7 @@
                         "tesName": "",
                         "textureDisplayName": "No need to be upset",
                         "textureGUID": 15632834734540059112,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -10953,7 +11060,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2233,
+            "id": 1287,
             "name": "No-need-to-be-upset",
             "transform": {
                 "position": [
@@ -10994,6 +11101,7 @@
                         "tesName": "",
                         "textureDisplayName": "No need to be upset",
                         "textureGUID": 15632834734540059112,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -11029,7 +11137,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 2234,
+            "id": 1288,
             "name": "No-need-to-be-upset",
             "transform": {
                 "position": [
@@ -11061,17 +11169,20 @@
                         {
                             "active": true,
                             "data": {
+                                "friction": 0.20000000298023224,
                                 "h": 0.0,
                                 "halfExtentsX": 134.78399658203125,
                                 "halfExtentsY": 119.33999633789063,
                                 "halfExtentsZ": 22.0,
                                 "layer": 0,
+                                "mass": 1.0,
                                 "meshGUID": 0,
                                 "motionType": 0,
                                 "offsetX": 0.0,
                                 "offsetY": 0.0,
                                 "offsetZ": 0.0,
                                 "r": 0.0,
+                                "restitution": 0.0,
                                 "shapeType": 1
                             },
                             "id": 1,
@@ -11079,7 +11190,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2236,
+                    "id": 1290,
                     "name": "Physics Node",
                     "transform": {
                         "position": [
@@ -11108,17 +11219,20 @@
                         {
                             "active": true,
                             "data": {
+                                "friction": 0.20000000298023224,
                                 "h": 0.0,
                                 "halfExtentsX": 134.78399658203125,
                                 "halfExtentsY": 119.33999633789063,
                                 "halfExtentsZ": 22.0,
                                 "layer": 0,
+                                "mass": 1.0,
                                 "meshGUID": 0,
                                 "motionType": 0,
                                 "offsetX": 0.0,
                                 "offsetY": 0.0,
                                 "offsetZ": 0.0,
                                 "r": 0.0,
+                                "restitution": 0.0,
                                 "shapeType": 1
                             },
                             "id": 1,
@@ -11126,7 +11240,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2237,
+                    "id": 1291,
                     "name": "Physics Node",
                     "transform": {
                         "position": [
@@ -11155,17 +11269,20 @@
                         {
                             "active": true,
                             "data": {
+                                "friction": 0.20000000298023224,
                                 "h": 0.0,
                                 "halfExtentsX": 134.78399658203125,
                                 "halfExtentsY": 119.33999633789063,
                                 "halfExtentsZ": 22.0,
                                 "layer": 0,
+                                "mass": 1.0,
                                 "meshGUID": 0,
                                 "motionType": 0,
                                 "offsetX": 0.0,
                                 "offsetY": 0.0,
                                 "offsetZ": 0.0,
                                 "r": 0.0,
+                                "restitution": 0.0,
                                 "shapeType": 1
                             },
                             "id": 1,
@@ -11173,7 +11290,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2238,
+                    "id": 1292,
                     "name": "Physics Node",
                     "transform": {
                         "position": [
@@ -11202,17 +11319,20 @@
                         {
                             "active": true,
                             "data": {
+                                "friction": 0.20000000298023224,
                                 "h": 0.0,
                                 "halfExtentsX": 134.78399658203125,
                                 "halfExtentsY": 119.33999633789063,
                                 "halfExtentsZ": 22.0,
                                 "layer": 0,
+                                "mass": 1.0,
                                 "meshGUID": 0,
                                 "motionType": 0,
                                 "offsetX": 0.0,
                                 "offsetY": 0.0,
                                 "offsetZ": 0.0,
                                 "r": 0.0,
+                                "restitution": 0.0,
                                 "shapeType": 1
                             },
                             "id": 1,
@@ -11220,7 +11340,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2239,
+                    "id": 1293,
                     "name": "Physics Node",
                     "transform": {
                         "position": [
@@ -11249,17 +11369,20 @@
                         {
                             "active": true,
                             "data": {
+                                "friction": 0.20000000298023224,
                                 "h": 0.0,
                                 "halfExtentsX": 134.78399658203125,
                                 "halfExtentsY": 119.33999633789063,
                                 "halfExtentsZ": 22.0,
                                 "layer": 0,
+                                "mass": 1.0,
                                 "meshGUID": 0,
                                 "motionType": 0,
                                 "offsetX": 0.0,
                                 "offsetY": 0.0,
                                 "offsetZ": 0.0,
                                 "r": 0.0,
+                                "restitution": 0.0,
                                 "shapeType": 1
                             },
                             "id": 1,
@@ -11267,7 +11390,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 2240,
+                    "id": 1294,
                     "name": "Physics Node",
                     "transform": {
                         "position": [
@@ -11292,7 +11415,7 @@
             "collisionLayerMask": 1,
             "components": [],
             "drawLayer": 1,
-            "id": 2235,
+            "id": 1289,
             "name": "Bounds",
             "transform": {
                 "position": [

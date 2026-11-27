@@ -21,6 +21,7 @@
                         "tesName": "",
                         "textureDisplayName": "Drone",
                         "textureGUID": 1365390299680718017,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -30,7 +31,7 @@
                 }
             ],
             "drawLayer": 64,
-            "id": 684,
+            "id": 858,
             "name": "Mesh",
             "transform": {
                 "position": [
@@ -71,6 +72,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeColor",
                         "textureGUID": 4599309985099221335,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -89,7 +91,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 685,
+            "id": 859,
             "name": "currenthealth",
             "transform": {
                 "position": [
@@ -130,6 +132,7 @@
                         "tesName": "",
                         "textureDisplayName": "White",
                         "textureGUID": 13855953862202670664,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -139,7 +142,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 686,
+            "id": 860,
             "name": "Healthbar",
             "transform": {
                 "position": [
@@ -180,6 +183,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_1",
                         "textureGUID": 13378112930153838476,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -212,7 +216,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 687,
+            "id": 861,
             "name": "Freeze UI Level 1",
             "transform": {
                 "position": [
@@ -253,6 +257,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_2",
                         "textureGUID": 16967291178797757359,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -285,7 +290,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 688,
+            "id": 862,
             "name": "Freeze UI Level 2",
             "transform": {
                 "position": [
@@ -326,6 +331,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_3",
                         "textureGUID": 7860564897902025064,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -358,7 +364,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 689,
+            "id": 863,
             "name": "Freeze UI Level 3",
             "transform": {
                 "position": [
@@ -399,6 +405,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_4",
                         "textureGUID": 7653706612453229096,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -431,7 +438,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 690,
+            "id": 864,
             "name": "Freeze UI Level 4",
             "transform": {
                 "position": [
@@ -472,6 +479,7 @@
                         "tesName": "",
                         "textureDisplayName": "FreezeEffect_ver3_5",
                         "textureGUID": 4120819183314893811,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -504,7 +512,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 691,
+            "id": 865,
             "name": "Freeze UI Level 5",
             "transform": {
                 "position": [
@@ -534,6 +542,8 @@
                 "autoRender": true,
                 "camera": {
                     "fov": 75.0,
+                    "orthographic": false,
+                    "orthographicHeight": 10.0,
                     "planes": [
                         0.10000000149011612,
                         500.0
@@ -551,7 +561,8 @@
                 "resolution": [
                     1920,
                     1080
-                ]
+                ],
+                "targetId": 875232968622374453
             },
             "id": 9,
             "type": "CameraComponent"
@@ -682,8 +693,8 @@
         {
             "active": true,
             "data": {
-                "data": "",
-                "filepath": "FreezeControl.lua"
+                "data": "{\"ambientTempVariation\":3,\"ambientChangeIntervalMin\":5,\"ambientChangeIntervalMax\":12,\"baseThawRate\":30,\"temperatureThawScaling\":0.10000000149012,\"defaultOutsideTemp\":5,\"outsideTempRecoveryRate\":50,\"droneTempRecoveryRate\":10}",
+                "filepath": "TempControl.lua"
             },
             "id": 18,
             "type": "ScriptComponent"
@@ -732,7 +743,7 @@
         }
     ],
     "drawLayer": 1,
-    "id": 683,
+    "id": 857,
     "name": "Drone",
     "transform": {
         "position": [
