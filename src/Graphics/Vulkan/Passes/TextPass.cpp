@@ -139,8 +139,9 @@ Droplet::Graphics::Vulkan::GraphicsPipelineDesc Droplet::Graphics::Vulkan::TextP
 	desc.raster.cullMode = vk::CullModeFlagBits::eNone;
 	desc.raster.polygonMode = vk::PolygonMode::eFill;
 	
+	desc.depth.testEnable = p_depthFormat != vk::Format::eUndefined;
 	desc.depth.writeEnable = false;
-	desc.depth.compareOp = vk::CompareOp::eLess;
+	desc.depth.compareOp = vk::CompareOp::eLessOrEqual;
 	
 	desc.colorFormats = {p_colorFormat};
 	desc.colorBlend = {BlendMode::AlphaBlend};
