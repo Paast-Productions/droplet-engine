@@ -84,6 +84,8 @@ void TransitionComponent::RenderUIImpl()
         }
     }
 
+    ImGui::Checkbox("Unload the scene on transition", &m_shouldUnloadScene);
+
     ImGui::Separator();
     ImGui::Text("To use me:\n"
         "- Have an interactableComponent\n"
@@ -97,6 +99,8 @@ nlohmann::json Droplet::Scene::TransitionComponent::SerializeImpl()
 {
     nlohmann::json json;
 
+    json["shouldUnloadScene"] = m_shouldUnloadScene;
+
     json["targetSceneName"] = m_targetSceneName;
 
     return json;
@@ -108,6 +112,11 @@ void Droplet::Scene::TransitionComponent::DeserializeImpl(const nlohmann::json p
     {
         m_targetSceneName = p_compJson["targetSceneName"];
     }
+
+    if (p_compJson.contains("shouldUnloadScene"))
+    {
+        m_shouldUnloadScene = p_compJson["shouldUnloadScene"];
+    }
 }
 
 void TransitionComponent::BeginTransition()
@@ -116,7 +125,8 @@ void TransitionComponent::BeginTransition()
     {
         transitionBehaviour->BeginTransition(
             m_targetSceneName,
-            GetOwner()->GetScene()
+            GetOwner()->GetScene(),
+            m_shouldUnloadScene
         );  
     }
 }

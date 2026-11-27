@@ -51,5 +51,6 @@ namespace Droplet::Scene
 
         std::string m_targetSceneName;
 		bool m_targetSceneLoaded = false;
+        bool m_shouldUnloadScene = false;
     };
 }

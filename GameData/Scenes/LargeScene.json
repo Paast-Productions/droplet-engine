@@ -1,0 +1,858 @@
+{
+    "name": "LargeScene",
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seafloor_internlevel",
+                        "meshGUID": 4598941969821183147,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "Seaflorr_base",
+                        "textureGUID": 6101051464888118377,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 4598941969821183147,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 206,
+            "name": "Floor",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 207,
+            "name": "Player",
+            "prefab": "GameData\\Prefabs\\Player.json",
+            "transform": {
+                "position": [
+                    30.065183639526367,
+                    1.4766546487808228,
+                    -16.566926956176758
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cube",
+                        "meshGUID": 15104664662864096133,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": null,
+                    "id": 2,
+                    "type": "InteractableComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": "Transition.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "shouldUnloadScene": true,
+                        "targetSceneName": "transition2"
+                    },
+                    "id": 4,
+                    "type": "TransitionComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 213,
+            "name": "TransistionNode",
+            "transform": {
+                "position": [
+                    29.312227249145508,
+                    0.45456463098526,
+                    -7.599730491638184
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 215,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            9.453634262084961,
+                            0.7119235992431641,
+                            -3.4643402099609375
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 217,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            5.8847808837890625,
+                            0.6642532348632813,
+                            -0.00331878662109375
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 219,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            4.525035858154297,
+                            0.42455291748046875,
+                            0.528228759765625
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 221,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            7.792245864868164,
+                            -0.44261741638183594,
+                            -5.718410491943359
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 223,
+                    "name": "Fish_Metal",
+                    "prefab": "GameData\\Prefabs\\Fish_Metal.json",
+                    "transform": {
+                        "position": [
+                            -0.19123268127441406,
+                            0.32236671447753906,
+                            4.544811248779297
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            5.0,
+                            5.0,
+                            5.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 225,
+                    "name": "Fish_Metal",
+                    "prefab": "GameData\\Prefabs\\Fish_Metal.json",
+                    "transform": {
+                        "position": [
+                            3.096101760864258,
+                            -0.8318691253662109,
+                            -4.665515899658203
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            5.0,
+                            5.0,
+                            5.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 227,
+                    "name": "Fish_Metal",
+                    "prefab": "GameData\\Prefabs\\Fish_Metal.json",
+                    "transform": {
+                        "position": [
+                            -7.302104949951172,
+                            0.7655124664306641,
+                            3.316986083984375
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            5.0,
+                            5.0,
+                            5.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 229,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            -3.199831008911133,
+                            0.16490936279296875,
+                            0.9869537353515625
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 231,
+                    "name": "Fish",
+                    "prefab": "GameData\\Prefabs\\Fish.json",
+                    "transform": {
+                        "position": [
+                            -1.1296672821044922,
+                            -0.4377861022949219,
+                            -2.4426116943359375
+                        ],
+                        "rotation": [
+                            1.9861630562445498e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 233,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -7.064985275268555,
+                            3.265512466430664,
+                            1.8269424438476563
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 235,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -7.203348159790039,
+                            -0.9617729187011719,
+                            -4.722339630126953
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 237,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -5.524286270141602,
+                            -0.08469772338867188,
+                            -0.89666748046875
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 239,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -7.195058822631836,
+                            0.10094451904296875,
+                            -0.2893867492675781
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 241,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -9.97080135345459,
+                            0.4969139099121094,
+                            0.8925056457519531
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 243,
+                    "name": "WoodRoach",
+                    "prefab": "GameData\\Prefabs\\WoodRoach.json",
+                    "transform": {
+                        "position": [
+                            -7.962623596191406,
+                            3.265512466430664,
+                            1.9078445434570313
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            0.0,
+                            1.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 214,
+            "name": "WhoToldYouYouCouldFishHere",
+            "transform": {
+                "position": [
+                    25.587793350219727,
+                    1.1504802703857422,
+                    48.383872985839844
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 246,
+                    "name": "VolcanoLarge",
+                    "prefab": "GameData\\Prefabs\\VolcanoLarge.json",
+                    "transform": {
+                        "position": [
+                            -7.801590919494629,
+                            -1.5246559381484985,
+                            4.1830902099609375
+                        ],
+                        "rotation": [
+                            0.8775825500488281,
+                            2.2374358650267823e-06,
+                            0.4794255495071411,
+                            1.2491359484556597e-06
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 264,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            17.42367172241211,
+                            0.5049819946289063,
+                            3.1170654296875
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 274,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            13.936277389526367,
+                            -0.008469581604003906,
+                            4.626579284667969
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 284,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            8.716232299804688,
+                            -1.5032386779785156,
+                            11.676002502441406
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 294,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            5.051946640014648,
+                            -1.0477218627929688,
+                            13.640663146972656
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 304,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            2.719247817993164,
+                            2.647289276123047,
+                            3.9348793029785156
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 314,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            23.763032913208008,
+                            3.4168872833251953,
+                            0.5907974243164063
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 324,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            24.737417221069336,
+                            2.486856460571289,
+                            -3.3447303771972656
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "collisionLayerMask": 1,
+                    "drawLayer": 1,
+                    "id": 334,
+                    "name": "VolcanoSmall",
+                    "prefab": "GameData\\Prefabs\\VolcanoSmall.json",
+                    "transform": {
+                        "position": [
+                            21.845075607299805,
+                            1.7684640884399414,
+                            -1.0891952514648438
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 245,
+            "name": "Volcanoes",
+            "transform": {
+                "position": [
+                    13.960283279418945,
+                    1.7687034606933594,
+                    49.96747589111328
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

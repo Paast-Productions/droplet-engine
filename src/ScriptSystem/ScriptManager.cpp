@@ -32,6 +32,8 @@ void Droplet::Script::ScriptManager::Shutdown()
 
 	for (auto &instance : m_scriptInstances)
 	{
+		if (instance == nullptr)
+			continue;
 		instance->OnDestroy();
 	}
 

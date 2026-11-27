@@ -52,7 +52,7 @@ void Droplet::Scene::TransitionBehaviour::RemoveTransitionComponent(TransitionCo
 	);
 }
 
-void Droplet::Scene::TransitionBehaviour::BeginTransition(const std::string &p_targetSceneName, std::weak_ptr<Scene> p_currentScene)
+void Droplet::Scene::TransitionBehaviour::BeginTransition(const std::string &p_targetSceneName, std::weak_ptr<Scene> p_currentScene, bool p_shouldUnloadScene)
 {
 	auto currentScene = p_currentScene.lock();
 
@@ -77,7 +77,16 @@ void Droplet::Scene::TransitionBehaviour::BeginTransition(const std::string &p_t
 
 	// Switch active scenes.
 	sceneManager->ActivateScene(targetScene->GetName());
-	sceneManager->DeactivateScene(currentScene->GetName());
+
+	// Should unload scene
+	if (p_shouldUnloadScene)
+	{
+		sceneManager->UnloadScene(currentScene->GetName());
+	}
+	else
+	{
+		sceneManager->DeactivateScene(currentScene->GetName());
+	}
 }
 
 void Droplet::Scene::TransitionBehaviour::LoadTargetScene(const std::string &p_targetSceneName)

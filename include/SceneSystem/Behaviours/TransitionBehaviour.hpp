@@ -36,7 +36,8 @@ namespace Droplet::Scene
         /// Starts a transition to another scene.
         void BeginTransition(
             const std::string &p_targetSceneName,
-            std::weak_ptr<Scene> p_currentScene
+            std::weak_ptr<Scene> p_currentScene,
+            bool p_shouldUnloadScene = false
         );
 
         void LoadTargetScene(const std::string &p_targetSceneName);
