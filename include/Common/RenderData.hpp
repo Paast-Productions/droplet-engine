@@ -133,6 +133,14 @@ namespace Droplet::Common
         // DEBUG
         bool debug = false;
     };
+    
+    struct alignas(16) LightData
+    {
+      glm::vec4 positionAndRange{};
+      glm::vec4 colorAndIntensity{}; 
+    };
+    
+    static_assert(sizeof(LightData) == 32);
 
 #ifdef _EDITOR
     // == ImGui ==

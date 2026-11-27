@@ -138,5 +138,11 @@ namespace Droplet::Graphics::Vulkan
         vk::DeviceSize m_viewUniformStride = 0; ///< sizeof(ViewProjectionBuffer), aligned for dynamic offsets
         std::uint32_t m_frameSlot = 0;
         float m_time = 0.0f; ///< the frame's PreparedFrame::time
+        
+        // == Per-light buffers
+        vk::raii::DescriptorSetLayout m_lightSetLayout{nullptr};
+        vk::raii::DescriptorPool m_lightPool{nullptr};
+        vk::raii::DescriptorSetLayout m_lightSets{nullptr};
+        std::vector<Buffer> m_lightBuffers;
     };
 }
