@@ -84,7 +84,7 @@ void HierarchyWindow::RenderToolbar()
 {
     auto scene = m_editorContext->GetActiveScene().lock();
 
-	bool isEnabled = scene && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode);
+	bool isEnabled = true; //scene && !EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode);
 
     if (ImGui::BeginMenu("Scene", isEnabled))
     {
