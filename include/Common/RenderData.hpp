@@ -112,6 +112,7 @@ namespace Droplet::Common
         glm::uvec4 bandMaxTexCoords;
     };
     
+    /// @brief Needed information to render a text component
     struct TextData
     {
         GUID fontGUID{C_INVALID_GUID};

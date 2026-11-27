@@ -5,6 +5,7 @@
 
 namespace Droplet::Graphics::Vulkan
 {
+    /// @brief Information shared across an entire TextComponent
     struct TextPushConstants
     {
         glm::mat4 model{1.0f};
