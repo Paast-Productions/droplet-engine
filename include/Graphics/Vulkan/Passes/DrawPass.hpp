@@ -22,7 +22,7 @@ namespace Droplet::Graphics::Vulkan
     class Context;
     class RenderDevice;
 
-    static_assert(sizeof(Common::PushConstantData) == 104, "the push constants game shaders declare");
+    static_assert(sizeof(Common::PushConstantData) == 120, "the push constants game shaders declare");
 
     enum class DrawFilter
     {

@@ -361,7 +361,8 @@ namespace Droplet::Graphics::Vulkan
 		Common::PushConstantData pushConstants{
 			.cameraDir = { list.cameraForward.x, list.cameraForward.y, list.cameraForward.z, 0.0f },
 			.cameraPos = { list.cameraPosition.x, list.cameraPosition.y, list.cameraPosition.z, 1.0f },
-			.time = m_time
+			.time = m_time,
+			.clearCol = { list.clearColor.x, list.clearColor.y, list.clearColor.y, 1.0 }
 		};
 		const auto push = [&](const glm::mat4& world, const Render::ImageBinding& material)
 		{
