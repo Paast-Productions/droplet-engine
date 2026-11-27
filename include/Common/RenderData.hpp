@@ -95,6 +95,31 @@ namespace Droplet::Common
         MeshTopology topology{ MeshTopology::Triangles };
         bool depthTest{ true };             ///< false -> drawn over everything
     };
+    
+    /// @brief Contains the per-glyph data required for instanced text rendering.
+    /// @details Stores the glyph's transformation, dimensions, color, and
+    /// band metadata used by the Slug rendering shader.
+    struct GlyphInstance
+    {
+        /// @brief Glyph quad scale (xy) and position (zw).
+        glm::vec4 scaleBias;
+
+        /// @brief Glyph dimensions (xy) and band scaling factors (zw).
+        glm::vec4 glyphBandScale;
+
+        /// @brief Maximum horizontal and vertical band indices (xy),
+        /// and starting coordinates in the band texture (zw).
+        glm::uvec4 bandMaxTexCoords;
+    };
+    
+    /// @brief Needed information to render a text component
+    struct TextData
+    {
+        GUID fontGUID{C_INVALID_GUID};
+        glm::vec4 color{1.0f};
+        
+        std::shared_ptr<const std::vector<GlyphInstance>> glyphInstances;
+    };
 
     struct RenderData
     {
@@ -114,6 +139,9 @@ namespace Droplet::Common
 
         /// drawn instead of meshData when set
         std::shared_ptr<const DynamicMeshData> dynamicMesh{};
+        
+        /// drawn instead of meshData and dynamicmeshdata when set
+        std::optional<TextData> textData{};
 
         // HACK: Sort based on transparency
         bool operator<(const RenderData& p_other) const

@@ -834,6 +834,8 @@ std::string ResourceBrowser::ResourceTypeToString(StaticResourceType p_type)
 			return "3D Texture";
 	    case StaticResourceType::Sound:
 	        return "Sound";
+	case StaticResourceType::Font:
+			return "Font";
 		default:
 			return "None";
 	}

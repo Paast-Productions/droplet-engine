@@ -14,7 +14,8 @@ namespace Droplet
         Animation,
         Shader,
         Material,
-        Sound
+        Sound,
+        Font
     };
     
     /// @brief Interface for all resources that can be loaded by the AssetManager. All resources must implement this interface.

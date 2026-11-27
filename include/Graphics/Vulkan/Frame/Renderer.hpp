@@ -21,6 +21,7 @@
 #include "Graphics/Vulkan/Passes/ImGuiPass.hpp"
 #include "Graphics/Vulkan/Passes/EffectPass.hpp"
 #include "Graphics/Vulkan/Passes/ImGuiPass.hpp"
+#include "Graphics/Vulkan/Passes/TextPass.hpp"
 #include "Graphics/Vulkan/Graph/GraphExecutor.hpp"
 #include "Graphics/Vulkan/Resources/PipelineLibrary.hpp"
 #include "Graphics/Vulkan/WSI/WSI.hpp"
@@ -144,6 +145,7 @@ namespace Droplet::Graphics::Vulkan
 
         // == Scene pass and pipelines ==
         DrawPass m_drawPass;               ///< Scene material interface and draw loop, shared by every view
+        TextPass m_textPass;
         PipelineLibrary m_pipelineLibrary; ///< Pipelines by description; requested in Prepare
         std::unordered_set<std::uint64_t> m_reportedMeshes; ///< dynamic meshes and shaders reported as not drawable (once each)
 

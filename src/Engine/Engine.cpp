@@ -30,6 +30,7 @@
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
 #include <Graphics/Debug/DebugDraw.hpp>
 
+#include "FontTexturePacking.hpp"
 #include "ResourceBridge/ResourceTransfer.hpp"
 
 using namespace Droplet;
@@ -129,6 +130,40 @@ namespace
             }
         });
     }
+    
+    void AddFont(ResourceManager& p_resMan, Bridge::ResourceUploads& p_uploads, GUID p_id)
+    {
+        ZoneScopedN("Text / Prepare font upload")
+        
+        if (p_resMan.GetState(p_id) != ResourceState::Ready)
+            return;
+        
+        const FontResource* font = p_resMan.GetResource<FontResource>(p_id);
+        if (!font)
+            return;
+        
+        auto packed = Graphics::Text::PackFontTexture(*font);
+        size_t byteCount = packed.texels.size() * sizeof(glm::vec4);
+        
+        auto& owned = p_uploads.ownedPixelData.emplace_back(byteCount);
+        
+        std::memcpy(owned.data(), packed.texels.data(), byteCount);
+        
+        p_uploads.textures.push_back(Bridge::TextureUpload{
+            .id = p_id,
+            .revision = 0,
+            .width = packed.width,
+            .height = packed.height,
+            .format = Common::PixelFormat::RGBA32_FLOAT,
+            .pixels = std::span<const std::byte>(owned),
+            .sampling = Common::TextureSampling{
+                .generateMips = false,
+                .filter = Common::TextureFilter::Nearest,
+                .maxAnisotropy = 1.0f,
+                .repeat = false
+            }
+        });
+    }
 
     /// @brief Adds the default scene shader; production's own shaders need bindless
     void AddShader(ResourceManager& resMan, Bridge::ResourceUploads& uploads, GUID id)
@@ -214,7 +249,12 @@ namespace
             {
                 RequestShader(requestedShaders, id);
                 AddShader(resMan, uploads, id);
+            }
         }
+        for (const GUID id : required.fonts)
+        {
+            if (!Find(resident.textures, id))
+                AddFont(resMan, uploads, id);
         }
         return uploads;
     }
@@ -281,13 +321,15 @@ Engine::Engine(EngineConfig p_config)
     resManInstance.RegisterAssetScanner({".png", ".jpg", ".jpeg", ".ktx", ".dds"}, IO::GliFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".slang"}, IO::SlangFormat::ScanAssetResources);
     resManInstance.RegisterAssetScanner({".ogg"}, IO::AudioFormat::ScanAssetResources);
-
+	resManInstance.RegisterAssetScanner({".slug"}, IO::FontFormat::ScanAssetResources);
+	
     // Register resources
     resManInstance.RegisterResourceType<Texture2DResource>();
     resManInstance.RegisterResourceType<MeshResource>();
     resManInstance.RegisterResourceType<SkinnedMeshResource>();
     resManInstance.RegisterResourceType<AnimationResource>();
     resManInstance.RegisterResourceType<ShaderResource>();
+    resManInstance.RegisterResourceType<FontResource>();
     // Don't register SoundResource for now /Arvid
 
     // Register base items and set the item registry for the scene manager

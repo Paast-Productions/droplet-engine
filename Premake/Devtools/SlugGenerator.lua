@@ -14,6 +14,8 @@ project "SlugGenerator"
         rootPath .. "/Devtools/SlugGenerator/include/**",
         targetBuildPath .. "/External/include/",
         vkPath .. "/Include",
+        "../../include",
+        "../../include/**",
     }
 
     files

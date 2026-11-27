@@ -138,6 +138,12 @@ void HierarchyWindow::RenderToolbar()
             newNode = scene->AddNode("Audio Emitter Node");
             newNode.lock()->AttachComponent("AudioEmitterComponent");
         }
+        
+        if (ImGui::Button(ICON_LC_TYPE " Add Text Node"))
+        {
+            newNode = scene->AddNode("Text Node");
+            newNode.lock()->AttachComponent("TextComponent");
+        }
 
         if (ImGui::Button(ICON_LC_PARTY_POPPER " Add Particle Emitter Node"))
         {

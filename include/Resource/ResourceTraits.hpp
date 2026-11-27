@@ -3,6 +3,7 @@
 #include "resource/io/AssimpFormat.hpp"
 #include "resource/io/GliFormat.hpp"
 #include "resource/io/SlangFormat.hpp"
+#include "resource/io/FontFormat.hpp"
 
 #include "resource/types/Texture2DResource.hpp"
 #include "resource/types/Texture3DResource.hpp"
@@ -11,6 +12,7 @@
 #include "resource/types/MeshResource.hpp"
 #include "resource/types/SkinnedMeshResource.hpp"
 #include "resource/types/ShaderResource.hpp"
+#include "resource/types/FontResource.hpp"
 
 #include <json/json.hpp>
 
@@ -208,6 +210,36 @@ namespace Droplet
         static std::unique_ptr<ShaderResource> CreateFallback()
         {
             return ShaderResource::CreateFallback();
+        }
+    };
+    
+    template<>
+    struct ResourceTraits<FontResource>
+    {
+        static StaticResourceType GetType()
+        {
+            return StaticResourceType::Font;
+        }
+        
+        static std::unique_ptr<FontResource> LoadCPU(
+           const std::filesystem::path &p_assetPath,
+           const std::string &p_sourceName,
+           const nlohmann::json &p_loadSettings)
+        {
+            try
+            {
+                return IO::FontFormat::LoadFont(p_assetPath);
+            }
+            catch (std::exception &)
+            {
+                // TODO: Log error
+                return nullptr;
+            }
+        }
+        
+        static std::unique_ptr<FontResource> CreateFallback()
+        {
+            return FontResource::CreateFallback();
         }
     };
 }

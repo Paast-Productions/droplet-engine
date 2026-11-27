@@ -33,6 +33,7 @@ namespace Droplet::Graphics::Vulkan
             {
             case Common::PixelFormat::RGBA8_SRGB: return vk::Format::eR8G8B8A8Srgb;
             case Common::PixelFormat::RGBA8_UNORM: return vk::Format::eR8G8B8A8Unorm;
+            case Common::PixelFormat::RGBA32_FLOAT: return vk::Format::eR32G32B32A32Sfloat;
             }
             throw std::invalid_argument("Unknown or unsupported PixelFormat");
         }

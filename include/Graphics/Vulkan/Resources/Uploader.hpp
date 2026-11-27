@@ -40,6 +40,8 @@ namespace Droplet::Graphics::Vulkan
          * @return created staging buffer
          */
         Buffer CreateStaging(const void* data, vk::DeviceSize size) const;
+        
+        [[nodiscard]] vk::DeviceSize BytesPerTexel(vk::Format format);
 
         /// Blocking submit; `name` labels the GPU zone the recording is timed in
         template <class Record>

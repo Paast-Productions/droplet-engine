@@ -50,10 +50,6 @@ project "Game"
             "../Game/resources.rc", 
             "../Game/drone-icon.ico" 
         }
-        
-        postbuildcommands {
-            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Game " .. "%{cfg.buildcfg}"
-        }
 
     else
 

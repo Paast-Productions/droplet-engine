@@ -110,7 +110,8 @@ namespace Droplet
             Int,
             Float,
             String,
-            Enum
+            Enum,
+            Font
         };
 
         /// @brief Describes a single JSON property inside the load settings of a meta entry.

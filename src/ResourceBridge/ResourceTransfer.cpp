@@ -38,6 +38,12 @@ namespace Droplet::Bridge
         {
             for (const Common::RenderData& object : camera.renderData)
             {
+                if (object.textData)
+                {
+                    AddUniqueId(required.fonts, object.textData->fontGUID);
+                    continue;
+                }
+                
                 AddUniqueId(required.meshes, object.meshData.GUID);
                 AddRequiredTexture(required, object.texData);
                 AddUniqueId(required.shaders, object.vsData.guid);

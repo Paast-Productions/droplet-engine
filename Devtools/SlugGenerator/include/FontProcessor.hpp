@@ -4,6 +4,7 @@
 #include <glm/vec2.hpp>
 
 #include "SlugHelper.hpp"
+#include "resource/types/FontResource.hpp"
 
 namespace Droplet::Devtools::SlugGenerator
 {
@@ -34,7 +35,7 @@ namespace Droplet::Devtools::SlugGenerator
 		/// @note Construction performs the complete generation process.
 		///       Initialization failures are reported through IsValid()
 		///       and GetError().
-		explicit FontProcessor(const std::filesystem::path& p_path, const std::filesystem::path& p_destination, uint32_t p_bandCount = 16, int p_asciiRangeStart = 33, int p_asciiRangeEnd = 126);
+		explicit FontProcessor(const std::filesystem::path& p_path, const std::filesystem::path& p_destination, int p_asciiRangeStart = 32, int p_asciiRangeEnd = 126, uint32_t p_bandCount = 16);
 		
 		FontProcessor(const FontProcessor&) = delete;
 		FontProcessor& operator=(const FontProcessor&) = delete;
@@ -148,10 +149,11 @@ namespace Droplet::Devtools::SlugGenerator
 		
 		bool m_isValid = false;
 		std::string m_err;
-		uint32_t m_bandCount = 16;
 		
 		stbtt_fontinfo m_fontInfo{};
 		std::filesystem::path m_path;
+		
+		uint32_t m_bandCount = 16;
 		
 		/// @brief Font bytes retained for the lifetime of m_fontInfo.
 		std::vector<char> m_fontData;
@@ -166,7 +168,10 @@ namespace Droplet::Devtools::SlugGenerator
 		std::vector<uint16_t> m_bandsTextureCurveOffsets;
 		
 		/// @brief Metadata describing successfully processed code points.
-		std::vector<SlugCodePoint> m_codePoints;
+		std::vector<FontResource::SlugGlyph> m_glyphs;
+		
+		/// @brief Metadata describing common font information
+		FontResource::SlugFontHeader m_fontHeader;
 	};
 	
 	/// @brief Custom deleter for glyph vertices allocated by stb_truetype.

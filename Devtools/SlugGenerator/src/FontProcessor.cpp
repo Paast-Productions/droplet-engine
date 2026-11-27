@@ -1,4 +1,4 @@
-// FontProcessor.cppo - Droplet Engine
+// FontProcessor.cpp - Droplet Engine
 //
 // Based on the Sluggish font generator by mightycow:
 // https://github.com/mightycow/Sluggish
@@ -17,7 +17,7 @@
 
 #include "SlugHelper.hpp"
 
-Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const std::filesystem::path &p_destination, const uint32_t p_bandCount, const int p_asciiRangeStart, const int p_asciiRangeEnd)
+Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesystem::path &p_path, const std::filesystem::path &p_destination, const int p_asciiRangeStart, const int p_asciiRangeEnd, const uint32_t p_bandCount)
 	: m_path(p_path), m_bandCount(p_bandCount)
 {
 	if (p_bandCount == 0)
@@ -41,7 +41,8 @@ Droplet::Devtools::SlugGenerator::FontProcessor::FontProcessor(const std::filesy
 	{
 		if (!ProcessCodePoint(codePoint))
 		{
-			missingChars += static_cast<char>(codePoint);
+			const std::string miss = std::to_string(codePoint) + "(" + static_cast<char>(codePoint) + ") "; 
+			missingChars += miss;
 			continue;
 		}
 		
@@ -103,286 +104,311 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 		return false;
 	}
 	
+	int advanceWidth, leftSideBearing;
+	stbtt_GetGlyphHMetrics(&m_fontInfo, glyphIdx, &advanceWidth, &leftSideBearing);
+	
+	FontResource::SlugGlyph cp{};
+	cp.codePoint = p_codePoint;
+	cp.advanceWidth = advanceWidth;
+	
 	// By using a unique_ptr with a custom deleter, the allocated memory for rawVertices is automatically freed.
 	stbtt_vertex* rawVertices = nullptr;
 	const int vertexCount = stbtt_GetGlyphShape(&m_fontInfo, glyphIdx, &rawVertices);
 	std::unique_ptr<stbtt_vertex, StbVertexDeleter> vertices (rawVertices, StbVertexDeleter{&m_fontInfo});
 	
-	if (vertexCount <= 0)
-	{
-		Logger::PrintError("No vertices found for code point {}.", p_codePoint);
-		return false;
-	}
-	
-	for (int v = 0; v < vertexCount; ++v)
-	{
-		// TODO: Add bicubic Bézier curve support
-		if (vertices.get()[v].type == STBTT_vcubic)
-		{
-			Logger::PrintError("Code point {} uses bicubic Bézier curves, which are not supported currently.", p_codePoint);
-			return false;
-		}
-	}
-	
-	GlyphBounds glyphBounds = GetGlyphBounds(glyphIdx);
-	
-	const glm::vec2 glyphOffset = { glyphBounds.GetMinX(), glyphBounds.GetMinY() };
-	std::vector<Curve> curves = ExtractCurves(vertices.get(), vertexCount, glyphOffset);
-	
-	// TODO: Evaluate whether bandDelta should be non-zero.
-	// bandDelta adds a margin to the curve selection, which may prove useful in some cases. Setting this to non-zero should be followed by thorough testing.
-	const float bandDelta = 0.0f;
-	const uint32_t bandsTexelIndex = static_cast<uint32_t>(m_bandsTextureBandOffsets.size()) / 2;
-
-	
 	// Start a transaction to rollback texture data in the case of a failure
-	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_codePoints);
+	GlyphTransaction transaction(m_curvesTexture, m_bandsTextureBandOffsets, m_bandsTextureCurveOffsets, m_glyphs);
 	
-	// Write the curve texture
-	for (Curve& curve : curves)
+	if (vertexCount > 0)
 	{
-		// The first curve of each contour must start on a texel boundary.
-		// Pad the unused components with -1.
-		if (curve.first && m_curvesTexture.size() % 4 != 0)
+		for (int v = 0; v < vertexCount; ++v)
 		{
-			const size_t toAdd = 4 - (m_curvesTexture.size() % 4);
-			for (size_t i = 0; i < toAdd; ++i)
+			// TODO: Add bicubic Bézier curve support
+			if (vertices.get()[v].type == STBTT_vcubic)
 			{
-				m_curvesTexture.push_back(-1.0f);
+				Logger::PrintError("Code point {} uses bicubic Bézier curves, which are not supported currently.", p_codePoint);
+				return false;
 			}
 		}
 		
-		// We don't currently support two texels in separate rows.
-		// A curve is later decoded	using two adjacent texels on the same row. Thus, if this curve's first texel is the
-		// last one on this row, pad with -1 to start on a new row.
-		const bool newRow = (m_curvesTexture.size() / 4) % TEXTURE_WIDTH == TEXTURE_WIDTH - 1;
-		if (newRow)
+		GlyphBounds glyphBounds = GetGlyphBounds(glyphIdx);
+		
+		const glm::vec2 glyphOffset = { glyphBounds.GetMinX(), glyphBounds.GetMinY() };
+		std::vector<Curve> curves = ExtractCurves(vertices.get(), vertexCount, glyphOffset);
+		
+		// TODO: Evaluate whether bandDelta should be non-zero.
+		// bandDelta adds a margin to the curve selection, which may prove useful in some cases. Setting this to non-zero should be followed by thorough testing.
+		const float bandDelta = 0.0f;
+		const uint32_t bandsTexelIndex = static_cast<uint32_t>(m_bandsTextureBandOffsets.size()) / 2;
+		
+		// Write the curve texture
+		for (Curve& curve : curves)
 		{
-			const size_t toAdd = 8 - (m_curvesTexture.size() % 4 );
-			for (size_t i = 0; i < toAdd; ++i)
+			// The first curve of each contour must start on a texel boundary.
+			// Pad the unused components with -1.
+			if (curve.first && m_curvesTexture.size() % 4 != 0)
 			{
-				m_curvesTexture.push_back(-1.0f);
+				const size_t toAdd = 4 - (m_curvesTexture.size() % 4);
+				for (size_t i = 0; i < toAdd; ++i)
+				{
+					m_curvesTexture.push_back(-1.0f);
+				}
+			}
+			
+			// We don't currently support two texels in separate rows.
+			// A curve is later decoded	using two adjacent texels on the same row. Thus, if this curve's first texel is the
+			// last one on this row, pad with -1 to start on a new row.
+			const bool newRow = (m_curvesTexture.size() / 4) % FontResource::TEXTURE_WIDTH == FontResource::TEXTURE_WIDTH - 1;
+			if (newRow)
+			{
+				const size_t toAdd = 8 - (m_curvesTexture.size() % 4 );
+				for (size_t i = 0; i < toAdd; ++i)
+				{
+					m_curvesTexture.push_back(-1.0f);
+				}
+			}
+			
+			// Connected curves share endpoints to reduce storage.
+			// Each bracket below represents one RGBA texel, and each point is a vec2
+			// 
+			// [P1 P2] [P3=(P1 of the next curve) P2] [P3=(P1 of the third curve) P2] ...
+			//
+			// curve.texelIndex represents the first texel to be used to decode the curve
+			if (curve.first || newRow)
+			{
+				curve.texelIndex = static_cast<uint32_t>(m_curvesTexture.size()) / 4;
+				
+				assert(m_curvesTexture.size() % 4 == 0);
+				
+				m_curvesTexture.push_back(curve.p1.x);
+				m_curvesTexture.push_back(curve.p1.y);
+			}
+			else
+			{
+				// Curves that are connected reuse the preceding end point as their start point.
+				// Thus, we can simply determine which texel contains this shared end point.
+				curve.texelIndex = ((static_cast<uint32_t>(m_curvesTexture.size()) / 2) - 1) / 2;
+			}
+			
+			assert(m_curvesTexture.size() % 2 == 0);
+			m_curvesTexture.push_back(curve.p2.x);
+			m_curvesTexture.push_back(curve.p2.y);
+			m_curvesTexture.push_back(curve.p3.x);
+			m_curvesTexture.push_back(curve.p3.y);
+		}
+		
+		// Calculate the glyph's dimensions
+		uint32_t sizeX = 1 + static_cast<uint32_t>(glyphBounds.xMax - glyphBounds.xMin);
+		uint32_t sizeY = 1 + static_cast<uint32_t>(glyphBounds.yMax - glyphBounds.yMin);
+		
+		uint32_t bandCount = m_bandCount;
+		if (sizeX < bandCount || sizeY < bandCount)
+			bandCount = std::min(sizeX, sizeY) / 2;
+		
+		if (bandCount == 0)
+		{
+			Logger::PrintError("Glyph U+{:04X} is too small for band generation.", p_codePoint);
+			return false;
+		}
+		
+		// Sort the curves based on their largest x-value, descending
+		// The renderer can then use this fact to stop testing curves once the remaining curves cannot contribute to the
+		// current sample.
+		std::ranges::stable_sort(
+			std::begin(curves),
+			std::end(curves),
+			[](const Curve& a, const Curve& b)
+			{
+				return	std::max({a.p1.x, a.p2.x, a.p3.x}) >
+						std::max({b.p1.x, b.p2.x, b.p3.x});
+		});
+
+		// Calculate the dimension of the band, and the y-value of the top and bottom boundaries 
+		const uint32_t bandDimY = (sizeY + bandCount - 1) / bandCount; // How wide is one band in the y-axis?
+		float bandMinY = -bandDelta;
+		float bandMaxY = static_cast<float>(bandDimY) + bandDelta;
+
+		// Generate the horizontal bands
+		for (uint32_t b = 0; b < bandCount; ++b)
+		{
+			size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
+			if (bandTexelOffset > UINT16_MAX)
+			{
+				Logger::PrintError("Band reference offset exceeds 16-bit range.");
+				return false;
+			}
+			
+			size_t curveCount = 0;
+			
+			for (const Curve& curve : curves)
+			{
+				// Reject perfectly horizontal curves.
+				if (curve.p1.y == curve.p2.y && curve.p2.y == curve.p3.y)
+					continue;
+				
+				// Reject curves that are wholly outside the band's edges
+				const float curveMinY = std::min({curve.p1.y, curve.p2.y, curve.p3.y});
+				const float curveMaxY = std::max({curve.p1.y, curve.p2.y, curve.p3.y});
+				if (curveMinY > bandMaxY || curveMaxY < bandMinY)
+					continue;
+				
+				// Store the curve's offset in the texture
+				const uint32_t texelIndex = curve.texelIndex;
+				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % FontResource::TEXTURE_WIDTH);
+				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / FontResource::TEXTURE_WIDTH);
+				m_bandsTextureCurveOffsets.push_back(curveOffsetX);
+				m_bandsTextureCurveOffsets.push_back(curveOffsetY);
+				
+				++curveCount;
+			}
+			
+			// There is an optimization possible here. If this band is the same as the previous one, we can skip adding the
+			// data to the list and simply reuse the reference index. This could save some space.
+			// TODO: Optimize to remove duplicate data entries in the band texture.
+			
+			if (curveCount > UINT16_MAX)
+			{
+				Logger::PrintError("Curve count exceeds 16-bit range.");
+				return false;
+			}
+			m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
+			
+			const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
+			m_bandsTextureBandOffsets.push_back(storedOffset);
+			
+			// Advance the band boundaries
+			bandMinY += static_cast<float>(bandDimY);
+			bandMaxY += static_cast<float>(bandDimY);
+			
+			if (bandTexelOffset >= 0xFFFF ||
+				m_bandsTextureCurveOffsets.size() / 2 >= 0xFFFF)
+			{
+				Logger::PrintError("Too much data generated to be indexed. Try a lower band count.");
+				return false;
 			}
 		}
 		
-		// Connected curves share endpoints to reduce storage.
-		// Each bracket below represents one RGBA texel, and each point is a vec2
-		// 
-		// [P1 P2] [P3=(P1 of the next curve) P2] [P3=(P1 of the third curve) P2] ...
-		//
-		// curve.texelIndex represents the first texel to be used to decode the curve
-		if (curve.first || newRow)
+		// Sort the curves based on their largest y-value, descending
+		// This allows the renderer to stop intersection tests early.
+		std::ranges::stable_sort(
+			std::begin(curves),
+			std::end(curves),
+			[](const Curve& a, const Curve& b)
+			{
+				return	std::max({a.p1.y, a.p2.y, a.p3.y}) >
+						std::max({b.p1.y, b.p2.y, b.p3.y});
+		});
+		
+		// Generate the vertical bands
+		const uint32_t bandDimX = (sizeX + bandCount - 1) / bandCount;
+		float bandMinX = -bandDelta;
+		float bandMaxX = static_cast<float>(bandDimX) + bandDelta;
+		
+		for (uint32_t b = 0; b < bandCount; ++b)
 		{
-			curve.texelIndex = static_cast<uint32_t>(m_curvesTexture.size()) / 4;
+			size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
+			if (bandTexelOffset > UINT16_MAX)
+			{
+				Logger::PrintError("Band reference offset exceeds 16-bit range.");
+				return false;
+			}
 			
-			assert(m_curvesTexture.size() % 4 == 0);
+			size_t curveCount = 0;
 			
-			m_curvesTexture.push_back(curve.p1.x);
-			m_curvesTexture.push_back(curve.p1.y);
-		}
-		else
-		{
-			// Curves that are connected reuse the preceding end point as their start point.
-			// Thus, we can simply determine which texel contains this shared end point.
-			curve.texelIndex = ((static_cast<uint32_t>(m_curvesTexture.size()) / 2) - 1) / 2;
+			for (const Curve& curve : curves)
+			{
+				// Reject perfectly vertical curves.
+				if (curve.p1.x == curve.p2.x && curve.p2.x == curve.p3.x)
+					continue;
+				
+				// Reject curves that are wholly outside the band's edges
+				const float curveMinX = std::min({curve.p1.x, curve.p2.x, curve.p3.x});
+				const float curveMaxX = std::max({curve.p1.x, curve.p2.x, curve.p3.x});
+				if (curveMinX > bandMaxX || curveMaxX < bandMinX)
+					continue;
+				
+				const uint32_t texelIndex = curve.texelIndex;
+				const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % FontResource::TEXTURE_WIDTH);
+				const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / FontResource::TEXTURE_WIDTH);
+				m_bandsTextureCurveOffsets.push_back(curveOffsetX);
+				m_bandsTextureCurveOffsets.push_back(curveOffsetY);
+				
+				++curveCount;
+			}
+			
+			m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
+			
+			const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
+			m_bandsTextureBandOffsets.push_back(storedOffset);
+			
+			// Advance the band boundaries
+			bandMinX += static_cast<float>(bandDimX);
+			bandMaxX += static_cast<float>(bandDimX);
+			
+			if (bandTexelOffset >= 0xFFFF ||
+				m_bandsTextureCurveOffsets.size() / 2 >= 0xFFFF)
+			{
+				Logger::PrintError("Too much data generated to be indexed. Try a lower band count.");
+				return false;
+			}
 		}
 		
-		assert(m_curvesTexture.size() % 2 == 0);
-		m_curvesTexture.push_back(curve.p2.x);
-		m_curvesTexture.push_back(curve.p2.y);
-		m_curvesTexture.push_back(curve.p3.x);
-		m_curvesTexture.push_back(curve.p3.y);
-	}
-	
-	// Calculate the glyph's dimensions
-	uint32_t sizeX = 1 + static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
-	uint32_t sizeY = 1 + static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
-	
-	uint32_t bandCount = m_bandCount;
-	if (sizeX < bandCount || sizeY < bandCount)
-		bandCount = std::min(sizeX, sizeY) / 2;
-	
-	if (bandCount == 0)
-	{
-		Logger::PrintError("Glyph U+{:04X} is too small for band generation.", p_codePoint);
-		return false;
-	}
-	
-	// Sort the curves based on their largest x-value, descending
-	// The renderer can then use this fact to stop testing curves once the remaining curves cannot contribute to the
-	// current sample.
-	std::ranges::stable_sort(
-		std::begin(curves),
-		std::end(curves),
-		[](const Curve& a, const Curve& b)
+		// Store glyph metadata
+		cp.width = static_cast<uint32_t>(glyphBounds.xMax - glyphBounds.xMin);
+		cp.height = static_cast<uint32_t>(glyphBounds.yMax - glyphBounds.yMin);
+		cp.xMin = glyphBounds.xMin;
+		cp.yMin = glyphBounds.yMin;
+		cp.bandCount = bandCount;
+		cp.bandDimX = bandDimX;
+		cp.bandDimY = bandDimY;
+		cp.bandsTexCoordX = static_cast<uint16_t>(bandsTexelIndex % FontResource::TEXTURE_WIDTH);
+		cp.bandsTexCoordY = static_cast<uint16_t>(bandsTexelIndex / FontResource::TEXTURE_WIDTH);
+		
+		if (bandsTexelIndex / FontResource::TEXTURE_WIDTH >= 0xFFFF)
 		{
-			return	std::max({a.p1.x, a.p2.x, a.p3.x}) >
-					std::max({b.p1.x, b.p2.x, b.p3.x});
-	});
+			Logger::PrintError("Too much curve data generated.");
+			return false;
+		}
+	
+		// Verify codepoint data
+		// We later assume that a single curve's data is present on one row only. If the curve data is present across several
+		// rows, this assumption will fail.
+		for (const Curve& c : curves)
+		{
+			if (c.texelIndex / FontResource::TEXTURE_WIDTH
+				!=
+				(c.texelIndex + 1) / FontResource::TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
+			{
+				Logger::PrintError("Encoding failed! Texel indices {} and {} are not in the same row.", c.texelIndex, c.texelIndex + 1);
+				return false;
+			}
+		
+		}
+	}
+	else
+	{
+		cp.width = 0;
+		cp.height = 0;
+		cp.bandCount = 0;
+		cp.bandDimX = 0;
+		cp.bandDimY = 0;
+	}
 
-	// Calculate the dimension of the band, and the y-value of the top and bottom boundaries 
-	const uint32_t bandDimY = (sizeY + bandCount - 1) / bandCount; // How wide is one band in the y-axis?
-	float bandMinY = -bandDelta;
-	float bandMaxY = static_cast<float>(bandDimY) + bandDelta;
-
-	// Generate the horizontal bands
-	for (uint32_t b = 0; b < bandCount; ++b)
-	{
-		size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
-		if (bandTexelOffset > UINT16_MAX)
-		{
-			Logger::PrintError("Band reference offset exceeds 16-bit range.");
-			return false;
-		}
-		
-		size_t curveCount = 0;
-		
-		for (const Curve& curve : curves)
-		{
-			// Reject perfectly horizontal curves.
-			if (curve.p1.y == curve.p2.y && curve.p2.y == curve.p3.y)
-				continue;
-			
-			// Reject curves that are wholly outside the band's edges
-			const float curveMinY = std::min({curve.p1.y, curve.p2.y, curve.p3.y});
-			const float curveMaxY = std::max({curve.p1.y, curve.p2.y, curve.p3.y});
-			if (curveMinY > bandMaxY || curveMaxY < bandMinY)
-				continue;
-			
-			// Store the curve's offset in the texture
-			const uint32_t texelIndex = curve.texelIndex;
-			const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % TEXTURE_WIDTH);
-			const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / TEXTURE_WIDTH);
-			m_bandsTextureCurveOffsets.push_back(curveOffsetX);
-			m_bandsTextureCurveOffsets.push_back(curveOffsetY);
-			
-			++curveCount;
-		}
-		
-		// There is an optimization possible here. If this band is the same as the previous one, we can skip adding the
-		// data to the list and simply reuse the reference index. This could save some space.
-		// TODO: Optimize to remove duplicate data entries in the band texture.
-		
-		if (curveCount > UINT16_MAX)
-		{
-			Logger::PrintError("Curve count exceeds 16-bit range.");
-			return false;
-		}
-		m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
-		
-		const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
-		m_bandsTextureBandOffsets.push_back(storedOffset);
-		
-		// Advance the band boundaries
-		bandMinY += static_cast<float>(bandDimY);
-		bandMaxY += static_cast<float>(bandDimY);
-		
-		if (bandTexelOffset >= 0xFFFF ||
-			m_bandsTextureCurveOffsets.size() / 2 >= 0xFFFF)
-		{
-			Logger::PrintError("Too much data generated to be indexed. Try a lower band count.");
-			return false;
-		}
-	}
+	// Get the font scaling factor
+	const float scaleFactor = stbtt_ScaleForMappingEmToPixels(&m_fontInfo, 1.0f);
+	const uint16_t unitsPerEm = static_cast<uint16_t>(std::lround(1.0f / scaleFactor));
 	
-	// Sort the curves based on their largest y-value, descending
-	// This allows the renderer to stop intersection tests early.
-	std::ranges::stable_sort(
-		std::begin(curves),
-		std::end(curves),
-		[](const Curve& a, const Curve& b)
-		{
-			return	std::max({a.p1.y, a.p2.y, a.p3.y}) >
-					std::max({b.p1.y, b.p2.y, b.p3.y});
-	});
+	int ascent, descent, lineGap;
+	stbtt_GetFontVMetrics(&m_fontInfo, &ascent, &descent, &lineGap);
 	
-	// Generate the vertical bands
-	const uint32_t bandDimX = (sizeX + bandCount - 1) / bandCount;
-	float bandMinX = -bandDelta;
-	float bandMaxX = static_cast<float>(bandDimX) + bandDelta;
+	// Store font metadata	
+	m_fontHeader.unitsPerEm = unitsPerEm;
+	m_fontHeader.ascent = ascent;
+	m_fontHeader.descent = descent;
+	m_fontHeader.lineGap = lineGap;
 	
-	for (uint32_t b = 0; b < bandCount; ++b)
-	{
-		size_t bandTexelOffset = m_bandsTextureCurveOffsets.size() / 2;
-		if (bandTexelOffset > UINT16_MAX)
-		{
-			Logger::PrintError("Band reference offset exceeds 16-bit range.");
-			return false;
-		}
-		
-		size_t curveCount = 0;
-		
-		for (const Curve& curve : curves)
-		{
-			// Reject perfectly vertical curves.
-			if (curve.p1.x == curve.p2.x && curve.p2.x == curve.p3.x)
-				continue;
-			
-			// Reject curves that are wholly outside the band's edges
-			const float curveMinX = std::min({curve.p1.x, curve.p2.x, curve.p3.x});
-			const float curveMaxX = std::max({curve.p1.x, curve.p2.x, curve.p3.x});
-			if (curveMinX > bandMaxX || curveMaxX < bandMinX)
-				continue;
-			
-			const uint32_t texelIndex = curve.texelIndex;
-			const uint16_t curveOffsetX = static_cast<uint16_t>(texelIndex % TEXTURE_WIDTH);
-			const uint16_t curveOffsetY = static_cast<uint16_t>(texelIndex / TEXTURE_WIDTH);
-			m_bandsTextureCurveOffsets.push_back(curveOffsetX);
-			m_bandsTextureCurveOffsets.push_back(curveOffsetY);
-			
-			++curveCount;
-		}
-		
-		m_bandsTextureBandOffsets.push_back(static_cast<uint16_t>(curveCount));
-		
-		const uint16_t storedOffset = static_cast<uint16_t>(bandTexelOffset);
-		m_bandsTextureBandOffsets.push_back(storedOffset);
-		
-		// Advance the band boundaries
-		bandMinX += static_cast<float>(bandDimX);
-		bandMaxX += static_cast<float>(bandDimX);
-		
-		if (bandTexelOffset >= 0xFFFF ||
-			m_bandsTextureCurveOffsets.size() / 2 >= 0xFFFF)
-		{
-			Logger::PrintError("Too much data generated to be indexed. Try a lower band count.");
-			return false;
-		}
-	}
 	
-	// Store glyph metadata
-	SlugCodePoint cp;
-	cp.codePoint = p_codePoint;
-	cp.width = static_cast<uint32_t>(glyphBounds.x2 - glyphBounds.x1);
-	cp.height = static_cast<uint32_t>(glyphBounds.y2 - glyphBounds.y1);
-	cp.bandCount = bandCount;
-	cp.bandDimX = bandDimX;
-	cp.bandDimY = bandDimY;
-	cp.bandsTexCoordX = static_cast<uint16_t>(bandsTexelIndex % TEXTURE_WIDTH);
-	cp.bandsTexCoordY = static_cast<uint16_t>(bandsTexelIndex / TEXTURE_WIDTH);
-	m_codePoints.push_back(cp);
-	
-	if (bandsTexelIndex / TEXTURE_WIDTH >= 0xFFFF)
-	{
-		Logger::PrintError("Too much curve data generated.");
-		return false;
-	}
-	
-	// Verify codepoint data
-	// We later assume that a single curve's data is present on one row only. If the curve data is present across several
-	// rows, this assumption will fail.
-	for (const Curve& c : curves)
-	{
-		if (c.texelIndex / TEXTURE_WIDTH
-			!=
-			(c.texelIndex + 1) / TEXTURE_WIDTH) // Since we can store a curve's three points in two texels, this is enough to check the assumption
-		{
-			Logger::PrintError("Encoding failed! Texel indices {} and {} are not in the same row.", c.texelIndex, c.texelIndex + 1);
-			return false;
-		}
-		
-	}
-	
+	m_glyphs.push_back(cp);
 	transaction.Commit();
 	return true;
 }
@@ -390,7 +416,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::ProcessCodePoint(const int
 bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesystem::path& p_outPath)
 {
 	// TODO: Handle endianness correctly
-	if (m_codePoints.empty())
+	if (m_glyphs.empty())
 	{
 		Logger::PrintError("No valid code point found.");
 		return false;
@@ -428,17 +454,19 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 		return false;
 	}
 	
-	// TODO: Store glyph advances and bearings for runtime text layout. The current metadata is primarily intended for rendering individually positioned glyphs.
+	if (!outFile.WriteBytes(FontResource::SLUG_HEADER_DATA, FontResource::SLUG_HEADER_LEN)) return false;
 	
-	if (!outFile.WriteBytes(SLUG_HEADER_DATA, SLUG_HEADER_LEN)) return false;
+	if (!outFile.WriteBytes(FontResource::SLUG_FILE_VERSION, FontResource::SLUG_FILE_VERSION_LEN)) return false;
 	
-	const uint16_t codePointCount = static_cast<uint16_t>(m_codePoints.size());
+	if (!outFile.WriteBytes(&m_fontHeader, sizeof(FontResource::SlugFontHeader))) return false;
+	
+	const uint16_t codePointCount = static_cast<uint16_t>(m_glyphs.size());
 	if (!outFile.WriteBytes(&codePointCount, sizeof(codePointCount))) return false;
-	if (!outFile.WriteBytes(m_codePoints.data(), codePointCount * sizeof(SlugCodePoint))) return false;
+	if (!outFile.WriteBytes(m_glyphs.data(), codePointCount * sizeof(FontResource::SlugGlyph))) return false;
 	
 	const uint32_t curvesTexTexels = m_curvesTexture.size() / 4;
 	const uint32_t curvesTexBytes = m_curvesTexture.size() * sizeof(m_curvesTexture.front());
-	const uint16_t curvesTexWidth = TEXTURE_WIDTH;
+	const uint16_t curvesTexWidth = FontResource::TEXTURE_WIDTH;
 	const uint16_t curvesTexHeight = (curvesTexTexels + curvesTexWidth - 1) / curvesTexWidth;
 	
 	if (!outFile.WriteBytes(&curvesTexWidth, sizeof(curvesTexWidth))) return false;
@@ -446,7 +474,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::SaveData(const std::filesy
 	if (!outFile.WriteBytes(&curvesTexBytes, sizeof(curvesTexBytes))) return false;
 	if (!outFile.WriteBytes(m_curvesTexture.data(), curvesTexBytes)) return false;
 	
-	const uint16_t bandsTexWidth = TEXTURE_WIDTH;
+	const uint16_t bandsTexWidth = FontResource::TEXTURE_WIDTH;
 	const uint16_t bandsTexHeight = (bandsTexTexels + bandsTexWidth - 1) / bandsTexWidth;
 	const uint32_t bandsTexBytes = bandsTexTexels * sizeof(uint16_t) * 2;
 	
@@ -470,7 +498,7 @@ bool Droplet::Devtools::SlugGenerator::FontProcessor::Error(const std::string &p
 Droplet::Devtools::SlugGenerator::GlyphBounds Droplet::Devtools::SlugGenerator::FontProcessor::GetGlyphBounds(int p_glyphIndex) const
 {
 	GlyphBounds bounds;
-    stbtt_GetGlyphBox(&m_fontInfo, p_glyphIndex, &bounds.x1, &bounds.y1, &bounds.x2, &bounds.y2);
+    stbtt_GetGlyphBox(&m_fontInfo, p_glyphIndex, &bounds.xMin, &bounds.yMin, &bounds.xMax, &bounds.yMax);
 	return bounds;
 }
 

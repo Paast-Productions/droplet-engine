@@ -1,0 +1,12 @@
+{
+    "resources": [
+        {
+            "displayName": "Freedom-10eM",
+            "guid": 7383971057144588190,
+            "loadFlags": 1,
+            "loadSettings": {},
+            "sourceName": "Freedom-10eM",
+            "type": 9
+        }
+    ]
+}
