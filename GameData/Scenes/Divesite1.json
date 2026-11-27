@@ -1,5 +1,8 @@
 {
     "name": "Divesite1",
+    "octreeExt": 400.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
     "roots": [
         {
             "active": true,
@@ -21,6 +24,7 @@
                         "tesName": "",
                         "textureDisplayName": "Divesite1Seafloor_base",
                         "textureGUID": 17823568432856794152,
+                        "textureIsRenderTarget": false,
                         "transparent": false,
                         "vs": 7809030845991192100,
                         "vsName": "Base.VS"
@@ -30,18 +34,247 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 1,
+            "id": 72,
             "name": "Mesh Node",
             "transform": {
                 "position": [
-                    13.028290748596191,
-                    17.55463218688965,
-                    24.53423309326172
+                    0.0,
+                    0.0,
+                    140.0
                 ],
                 "rotation": [
                     1.0,
                     0.0,
                     0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.6000000238418579,
+                    0.6000000238418579,
+                    0.6000000238418579
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Exterior",
+                                "meshGUID": 7445482948709711179,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "PodExterior",
+                                "textureGUID": 7599848563937726273,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        },
+                        {
+                            "active": true,
+                            "data": {
+                                "friction": 0.20000000298023224,
+                                "h": 0.0,
+                                "halfExtentsX": 0.0,
+                                "halfExtentsY": 0.0,
+                                "halfExtentsZ": 0.0,
+                                "layer": 0,
+                                "mass": 1.0,
+                                "meshGUID": 7445482948709711179,
+                                "motionType": 0,
+                                "offsetX": 0.0,
+                                "offsetY": 0.0,
+                                "offsetZ": 0.0,
+                                "r": 0.0,
+                                "restitution": 0.0,
+                                "shapeType": 4
+                            },
+                            "id": 2,
+                            "type": "PhysicsComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 74,
+                    "name": "Pod Exterior",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            -0.0,
+                            1.0,
+                            -0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Pod_Door",
+                                "meshGUID": 10773550875263732350,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "PodDoor",
+                                "textureGUID": 4743341834037859640,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 75,
+                    "name": "Door",
+                    "transform": {
+                        "position": [
+                            0.5379999876022339,
+                            1.0,
+                            1.2430000305175781
+                        ],
+                        "rotation": [
+                            -4.371138828673793e-08,
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [],
+            "drawLayer": 1,
+            "id": 73,
+            "name": "Pod",
+            "transform": {
+                "position": [
+                    16.392011642456055,
+                    5.093141555786133,
+                    103.33415222167969
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 33,
+            "drawLayer": 1,
+            "id": 76,
+            "name": "Drone",
+            "prefab": "GameData\\Prefabs\\Drone.json",
+            "transform": {
+                "position": [
+                    22.686176300048828,
+                    5.856415748596191,
+                    102.94747161865234
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Cylinder.004",
+                        "meshGUID": 17990721949996262870,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "underwater_lab2_base",
+                        "textureGUID": 17525405162226008434,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 85,
+            "name": "Secretlab",
+            "transform": {
+                "position": [
+                    -8.964863777160645,
+                    -230.2769775390625,
+                    -219.31109619140625
+                ],
+                "rotation": [
+                    -4.371138828673793e-08,
+                    0.0,
+                    1.0,
                     0.0
                 ],
                 "scale": [
