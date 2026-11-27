@@ -1231,7 +1231,8 @@ void SceneViewWindow::RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneVi
 
 	if (!EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode))
 	{
-		ImGui::BeginDisabled(!m_editorContext->GetActiveScene().lock()->AreResourcesLoaded());
+		//ImGui::BeginDisabled(!m_editorContext->GetActiveScene().lock()->AreResourcesLoaded());
+
 		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.7f, 0.0f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.2f, 0.6f, 0.2f, 1.0f));
 		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.7f, 0.4f, 1.0f));
@@ -1247,7 +1248,7 @@ void SceneViewWindow::RenderPlayControls(ImVec2 p_sceneViewMin, ImVec2 p_sceneVi
 
 		ImGui::PopStyleColor(4);
 		m_hoveringPlayButton = ImGui::IsItemHovered();
-		ImGui::EndDisabled();
+		//ImGui::EndDisabled();
 		return;
 	}
 
@@ -1666,7 +1667,7 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 	{
 		if (active && m_hoveringSceneView)
 		{
-			if (input.KeyHeld(Key::KeyLALT) && input.MousePressed(Mouse::LMB))
+			if ((input.KeyHeld(Key::KeyLALT) || input.MouseHeld(Mouse::MB4)) && input.MousePressed(Mouse::LMB))
 			{
 				m_cameraDrag = CameraDrag::Orbit;
 			}
@@ -1720,16 +1721,16 @@ void SceneViewWindow::ProcessCameraControls(float p_viewWidth)
 
 		if (input.KeyHeld(Key::KeyLALT))
 		{
-			// Zoom towards the pivot by changing the pivot radius
-			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
-			SetCameraPivot(m_cameraPivot, m_cameraPivotRadius * step);
+			// Move along camera view direction, leaving the pivot radius unchanged.
+			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
+			SetCameraPivot(m_cameraPivot + (camera.GetForward() * step), m_cameraPivotRadius);
 			ApplyCameraPivot();
 		}
 		else
 		{
-			// Move along camera view direction, leaving the pivot radius unchanged.
-			float step = io.MouseWheel * m_cameraPivotRadius * C_SCROLL_STEP;
-			SetCameraPivot(m_cameraPivot + (camera.GetForward() * step), m_cameraPivotRadius);
+			// Zoom towards the pivot by changing the pivot radius
+			float step = 1.0f - (io.MouseWheel * C_SCROLL_STEP);
+			SetCameraPivot(m_cameraPivot, m_cameraPivotRadius * step);
 			ApplyCameraPivot();
 		}
 

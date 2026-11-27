@@ -404,8 +404,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 							"    - F:             Focus view & pivot on selection\n"
 							"    - MMB:           Pan along view plane\n"
 							"    - Alt + LMB:     Rotate around pivot\n"
-							"    - Scroll:        Move along view normal at constant rate\n"
-							"    - Alt + Scroll:  Zoom towards pivot\n"
+							"    - Scroll:		  Zoom towards pivot\n"
+							"    - Alt + Scroll:  Move along view normal at constant rate\n"
 
 							"Nodes:\n"
 							"    - LMB:           Select node\n"

@@ -199,7 +199,7 @@ void HierarchyWindow::RenderImpl()
 
     ImGui::SeparatorText(scene->GetName().c_str());
 
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+    //ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Reserve a thin strip on the left for dropping nodes as roots.
     const float rootDropWidth = 6.0f;
@@ -269,7 +269,7 @@ void HierarchyWindow::RenderImpl()
     m_visibleNodeRects.clear();
     m_rangeSelectTarget.reset();
 
-    ImGui::EndDisabled();
+    //ImGui::EndDisabled();
 
     for (const auto &root : scene->GetRoots())
     {
@@ -287,7 +287,7 @@ void HierarchyWindow::RenderImpl()
         DrawNode(root);
     }
 
-    ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
+    //ImGui::BeginDisabled(EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InPlayMode));
 
     // Resolve a shift-click range selection now that the display order of all nodes is known
     if (auto target = m_rangeSelectTarget.lock())
@@ -443,7 +443,7 @@ void HierarchyWindow::RenderImpl()
         m_editorContext->GetInteractionState().ClearNodeSelection();
     }
 
-    ImGui::EndDisabled();
+    //ImGui::EndDisabled();
 }
 
 void HierarchyWindow::RefreshLoadedScenes(std::vector<std::string> &p_sceneFiles)
