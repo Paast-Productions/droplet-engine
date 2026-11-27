@@ -1,4 +1,5 @@
 #include <Graphics/Debug/DebugDraw.hpp>
+#include <resource/types/MeshResource.hpp>
 
 #include <Math/Bezier.hpp>
 #include <Math/Curves.hpp>
@@ -9,6 +10,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstddef>
+#include <cstring>
 #include <span>
 #undef _USE_MATH_DEFINES
 
@@ -828,6 +830,58 @@ void DebugDraw::DrawFrustum(const Frustum &p_frustum, glm::vec4 p_col, bool p_de
 		};
 		for (auto &triangle : triangles) triangle.color = p_col;
 		dbgDraw.m_fillLists[intOpt].insert(dbgDraw.m_fillLists[intOpt].end(), triangles.begin(), triangles.end());
+	}
+}
+
+void DebugDraw::DrawMesh(const MeshResource &p_mesh, const glm::mat4 &p_world, glm::vec4 p_col, bool p_depth, bool p_wire)
+{
+	std::size_t posOffset = 0;
+	std::size_t posSize = 0;
+	if (!p_mesh.FindVertexAttribute("POSITION", posOffset, posSize))
+		return;
+
+	const std::vector<std::byte> &vertexData = p_mesh.GetVertexData();
+	const std::vector<std::uint32_t> &indexData = p_mesh.GetIndexData();
+	const std::size_t vertexByteSize = p_mesh.GetVertexByteSize();
+	if (vertexByteSize == 0 || posSize < sizeof(glm::vec3))
+		return;
+
+	DebugDraw &dbgDraw = DebugDraw::Get();
+	InternalDrawOptions intOpt(p_depth);
+	std::vector<DbgLine> &lines = dbgDraw.m_wireLists[intOpt];
+	std::vector<DbgTri> &tris = dbgDraw.m_fillLists[intOpt];
+
+	for (std::size_t i = 0; i + 2 < indexData.size(); i += 3)
+	{
+		glm::vec3 v[3];
+		bool valid = true;
+		for (std::size_t j = 0; j < 3 && valid; ++j)
+		{
+			const std::size_t offset = static_cast<std::size_t>(indexData[i + j]) * vertexByteSize + posOffset;
+			if (offset + sizeof(glm::vec3) > vertexData.size())
+			{
+				valid = false;
+				break;
+			}
+
+			glm::vec3 local{};
+			std::memcpy(&local, &vertexData[offset], sizeof(glm::vec3));
+			v[j] = glm::vec3(p_world * glm::vec4(local, 1.0f));
+		}
+
+		if (!valid)
+			continue;
+
+		if (p_wire)
+		{
+			lines.emplace_back(v[0], v[1], p_col);
+			lines.emplace_back(v[1], v[2], p_col);
+			lines.emplace_back(v[2], v[0], p_col);
+		}
+		else
+		{
+			tris.emplace_back(v[0], v[1], v[2], p_col);
+		}
 	}
 }
 
