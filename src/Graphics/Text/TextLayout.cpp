@@ -116,6 +116,8 @@ Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayo
 
 std::vector<std::uint32_t> Droplet::Graphics::Text::DecodeUTF8(const std::string_view &p_text)
 {
+	constexpr uint32_t REPLACEMENT_CHARACTER = 0xFFFD;
+	
 	std::vector<std::uint32_t> codePoints;
 
 	for (std::size_t i = 0; i < p_text.size();)
@@ -147,36 +149,42 @@ std::vector<std::uint32_t> Droplet::Graphics::Text::DecodeUTF8(const std::string
 		}
 		else
 		{
-			codePoint = 0xFFFD;
+			codePoints.push_back(REPLACEMENT_CHARACTER);
+			++i;
 			continue;
 		}
 
-		if (i + length > p_text.size())
+		if (length> p_text.size() - i)
 		{
-			codePoint = 0xFFFD;
+			codePoints.push_back(REPLACEMENT_CHARACTER);
+			++i;
 			continue;
 		}
 
+		bool valid = true;
+		
 		for (std::size_t j = 1; j < length; ++j)
 		{
 			const auto byte = static_cast<std::uint8_t>(p_text[i + j]);
 
 			if ((byte & 0xC0) != 0x80)
 			{
-				codePoint = 0xFFFD;
-				continue;
+				valid = false;
+				break;
 			}
 
 			codePoint = (codePoint << 6) | (byte & 0x3F);
 		}
 
-		if ((length == 2 && codePoint < 0x80) ||
+		if (!valid ||
+			(length == 2 && codePoint < 0x80) ||
 			(length == 3 && codePoint < 0x800) ||
 			(length == 4 && codePoint < 0x10000) ||
 			(codePoint >= 0xD800 && codePoint <= 0xDFFF) ||
 			codePoint > 0x10FFFF)
 		{
-			codePoint = 0xFFFD;
+			codePoints.push_back(REPLACEMENT_CHARACTER);
+			++i;
 			continue;
 		}
 
