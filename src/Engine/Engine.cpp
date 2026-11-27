@@ -133,6 +133,8 @@ namespace
     
     void AddFont(ResourceManager& p_resMan, Bridge::ResourceUploads& p_uploads, GUID p_id)
     {
+        ZoneScopedN("Text / Prepare font upload")
+        
         if (p_resMan.GetState(p_id) != ResourceState::Ready)
             return;
         

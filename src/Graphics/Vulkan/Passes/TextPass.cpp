@@ -152,6 +152,8 @@ Droplet::Graphics::Vulkan::GraphicsPipelineDesc Droplet::Graphics::Vulkan::TextP
 
 void Droplet::Graphics::Vulkan::TextPass::BeginFrame(uint32_t p_frameSlot, const Render::PreparedFrame &p_frame)
 {
+	ZoneScopedN("Text / BeginFrame")
+	
 	m_frameSlot = p_frameSlot;
 	
 	const vk::DeviceSize viewBytes = std::max<size_t>(p_frame.views.size(), 1) * m_viewStride;
@@ -235,6 +237,8 @@ void Droplet::Graphics::Vulkan::TextPass::BeginFrame(uint32_t p_frameSlot, const
 void Droplet::Graphics::Vulkan::TextPass::Record(vk::CommandBuffer p_cmd, vk::Extent2D p_extent,
 	const Render::DrawList &p_view, uint32_t p_viewIndex, const PipelineLibrary &p_pipelines)
 {
+    ZoneScopedN("Text / Record")    
+	
 	if (p_view.textItems.empty())
 		return;
 	

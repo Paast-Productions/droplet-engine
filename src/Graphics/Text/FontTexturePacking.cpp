@@ -6,6 +6,8 @@ namespace Droplet::Graphics::Text
 {
     PackedFontTexture PackFontTexture(const FontResource& p_font)
     {
+	    ZoneScopedN("Text / PackFontTexture")
+        
         constexpr size_t width = FontResource::TEXTURE_WIDTH;
 
         const auto& curves = p_font.GetCurvesTextureData();

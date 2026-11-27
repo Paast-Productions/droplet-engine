@@ -319,6 +319,8 @@ Render::PreparedFrame Vulkan::Prepare(
         {
             if (source.textData)
             {
+                ZoneScopedN("Text / PrepareDraw")
+                
                 const Common::TextData& text = *source.textData;
                 
                 if (!text.glyphInstances || text.glyphInstances->empty())

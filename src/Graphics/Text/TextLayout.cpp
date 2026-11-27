@@ -3,6 +3,8 @@
 Droplet::Graphics::Text::TextLayoutResult Droplet::Graphics::Text::BuildTextLayout(const FontResource &p_font,
 	const std::string_view &p_text, float p_emSize)
 {
+	ZoneScopedN("Text / Layout")
+	
 	glm::vec2 minBounds{std::numeric_limits<float>::max()};
 	glm::vec2 maxBounds{std::numeric_limits<float>::lowest()};
 	
