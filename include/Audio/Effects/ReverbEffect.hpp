@@ -1,5 +1,7 @@
 #pragma once
 #include <Audio/Effect.hpp>
+#include <json/json.hpp>
+#include <dalia/Effect.hpp>
 
 
 namespace Droplet::Audio
@@ -12,13 +14,16 @@ namespace Droplet::Audio
 		~ReverbEffect() = default;
 
 		[[nodiscard]] std::string GetEffectTypeName() const override { return "ReverbEffect"; }
-		void Initilize();
 
 	protected:
 		void StartImpl();
 		void RenderUIImpl();
+		
+		nlohmann::json SerializeImpl() override;
+		void DeserializeImpl(nlohmann::json p_json) override;
+		
 	private:
-
+		dalia::FdnReverbParams m_params;
 	};
 
 

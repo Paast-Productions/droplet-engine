@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-#include <dalia/dalia.h>
+#include <dalia/dalia.hpp>
 
 
 namespace Droplet::Audio

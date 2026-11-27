@@ -10,7 +10,7 @@
 #include "SceneSystem/Components/AudioEmitterComponent.hpp"
 #include "SceneSystem/Components/AudioListenerComponent.hpp"
 
-#include <dalia/dalia.h>
+#include <dalia/dalia.hpp>
 
 #include "Node.hpp"
 
@@ -581,7 +581,7 @@ void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const
     });
 }
 
-bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params)
+bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, const dalia::BiquadParams& p_params)
 {
     dalia::Result res;
     res = m_daliaEngine->CreateEffect(p_handle, p_params);
@@ -592,6 +592,19 @@ bool Droplet::Audio::AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, da
     }
 
     return true;
+}
+
+bool AudioSystem::CreateEffect(dalia::EffectHandle &p_handle, const dalia::FdnReverbParams &p_params)
+{
+	dalia::Result res = m_daliaEngine->CreateEffect(p_handle, p_params);
+	if (res != dalia::Result::Ok)
+	{
+		Debug::Log(Debug::LogType::Error, "AudioSystem: Failed to create reverb effect (" +
+			std::string(dalia::GetResultString(res)) + ").");
+		return false;
+	}
+	
+	return true;
 }
 
 bool Droplet::Audio::AudioSystem::AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot)
@@ -679,11 +692,23 @@ bool Droplet::Audio::AudioSystem::ChangeEffectSetting(dalia::EffectHandle &p_eff
     return true;
 }
 
+bool AudioSystem::ChangeEffectSetting(dalia::EffectHandle &p_effect, dalia::FdnReverbParams &p_params)
+{
+	dalia::Result res = m_daliaEngine->SetEffectParams(p_effect, p_params);
+	if (res != dalia::Result::Ok)
+	{
+		Debug::Log(Debug::LogType::Error, "AudioSystem: Failed to modify reverb effect parameters (" +
+			std::string(dalia::GetResultString(res)) + ").");
+		return false;
+	}
+	return true;
+}
+
 void Droplet::Audio::AudioSystem::RegisterEffects()
 {
-    //TODO: (AUDIO) Every effect type that we create in droplet gets registered here to be used later
-    //EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
+    // (Every effect type that we create in droplet must be registered here to be used later
     EffectRegistry::RegisterEffect("LowPassEffect", []() {return std::make_unique<LowPassEffect>();});
     EffectRegistry::RegisterEffect("HighPassEffect", []() {return std::make_unique<HighPassEffect>();});
     EffectRegistry::RegisterEffect("BandPassEffect", []() {return std::make_unique<BandPassEffect>();});
+    EffectRegistry::RegisterEffect("ReverbEffect", []() {return std::make_unique<ReverbEffect>();});
 }

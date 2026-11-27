@@ -1,7 +1,7 @@
 #pragma once
 #include "resource/IStaticResource.hpp"
 
-#include <dalia/Sound.h>
+#include <dalia/Sound.hpp>
 
 namespace Droplet
 {

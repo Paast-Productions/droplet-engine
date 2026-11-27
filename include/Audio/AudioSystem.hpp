@@ -2,7 +2,7 @@
 #include "Audio/AudioMixer.hpp"
 #include "Resource/Types/SoundResource.hpp"
 #include "Audio/Constants.hpp"
-#include <dalia/dalia.h> // Ideally we don't include this here
+#include <dalia/dalia.hpp> // Ideally we don't include this here
 #include <glm/glm.hpp>
 
 #include <unordered_map>
@@ -103,12 +103,16 @@ namespace Droplet::Audio
 	        const glm::vec3& p_vel);
 	    
 	    // --- Effects ---
-	    bool CreateEffect(dalia::EffectHandle &p_handle, dalia::BiquadParams& p_params);
+	    bool CreateEffect(dalia::EffectHandle &p_handle, const dalia::BiquadParams &p_params);
+		bool CreateEffect(dalia::EffectHandle &p_handle, const dalia::FdnReverbParams &p_params);
+		
 	    bool AttachEffect(dalia::EffectHandle &p_effect, const std::string& p_busname, uint32_t p_slot);
 	    bool DetachEffect(dalia::EffectHandle &p_effect);
 		bool DestroyEffect(dalia::EffectHandle &p_effect);
+		
 		bool ChangeEffectSetting(dalia::EffectHandle &p_effect, dalia::BiquadParams &p_params);
-
+		bool ChangeEffectSetting(dalia::EffectHandle &p_effect, dalia::FdnReverbParams &p_params);
+	
 	private:
 	    struct PlaybackData
 	    {

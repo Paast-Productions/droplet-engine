@@ -3,7 +3,7 @@
 #include <json/json.hpp>
 #include <memory>
 #include <string_view>
-#include <dalia/dalia.h>
+#include <dalia/dalia.hpp>
 
 namespace Droplet::Audio
 {
