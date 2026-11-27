@@ -58,9 +58,9 @@ namespace Droplet::Scene
         //vi kan kolla om är i editorn eller inte
         if (EngineFlagsOwner::IsUpdateFlagSet(UpdateFlags::InEditor))
         {
-            //DOTO
+            //TODO
            //få storlek och pos funnktionen heter renderimpl som finns i sceneviewwindow
-            Engine::GetGameViewRect();
+            //Engine::GetGameViewRect();
         }
         else
         {
@@ -99,7 +99,7 @@ namespace Droplet::Scene
         {
             if (GameInput::Get().MousePressed(Mouse::LMB))
             {
-                //DOTO
+                //TODO
                 //Need do to something. But currently i do not know
             }
         }
@@ -115,6 +115,6 @@ namespace Droplet::Scene
 
     void UIComponent::DeserializeImpl(nlohmann::json p_compJson)
     {
-        if (p_compJson.contains("pressed")) m_pressed = p_compJson["pressed"];
+
     }
 }
