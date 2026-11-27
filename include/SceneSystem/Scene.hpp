@@ -284,6 +284,8 @@ namespace Droplet::Scene
 		/// @param p_node The camera component to be used for rendering
 		void QueueRenderer(std::shared_ptr<CameraComponent> p_node);
 
+    	void QueueLight(const Common::LightData &p_light);
+    	
 		const std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> &GetRenderables() { return m_renderables; }
 
 		void SetSceneManager(SceneManager *p_sceneManager) { m_sceneManager = p_sceneManager; }
@@ -310,6 +312,8 @@ namespace Droplet::Scene
 		/// @brief Gets the camera stack for the scene.
 		/// @return A vector of weak pointers to CameraComponent instances representing the camera stack for the scene.
         const std::vector<std::weak_ptr<CameraComponent>> GetCameraStack();
+    	
+    	const std::vector<Common::LightData> &GetLights() const;
 
     private:
 		friend class SceneManager;
@@ -326,6 +330,7 @@ namespace Droplet::Scene
 
         std::vector<std::pair<std::shared_ptr<Node>, std::shared_ptr<Component>>> m_renderables;
         std::vector<std::shared_ptr<CameraComponent>> m_renderers;
+    	std::vector<Common::LightData> m_lights;
 
         bool m_loaded = false;
         bool m_active = false;

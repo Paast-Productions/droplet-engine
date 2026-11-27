@@ -22,7 +22,7 @@ namespace Droplet::Graphics::Vulkan
     class Context;
     class RenderDevice;
 
-    static_assert(sizeof(Common::PushConstantData) == 104, "the push constants game shaders declare");
+    static_assert(sizeof(Common::PushConstantData) == 108, "the push constants game shaders declare");
 
     enum class DrawFilter
     {
@@ -124,25 +124,27 @@ namespace Droplet::Graphics::Vulkan
         TextureTable* m_textures;  ///< the device's; not owned
 
         vk::raii::DescriptorSetLayout m_viewSetLayout{nullptr};
-        vk::raii::DescriptorSetLayout m_reservedSetLayout{nullptr}; ///< set 1: empty for now
+        vk::raii::DescriptorSetLayout m_lightSetLayout{nullptr}; ///< replaced the reservedSetLayout
+        //vk::raii::DescriptorSetLayout m_reservedSetLayout{nullptr}; ///< set 1: empty for now
         vk::raii::PipelineLayout m_pipelineLayout{nullptr};
 
         // == Per-view uniforms == a buffer and a set per frame slot; the pool is declared before the sets
         vk::raii::DescriptorPool m_viewPool{nullptr};
         std::vector<vk::raii::DescriptorSet> m_viewSets;
         std::vector<Buffer> m_viewBuffers;
+        
+        // == Per-Frame lighting
+        vk::raii::DescriptorPool m_lightPool{nullptr};
+        std::vector<vk::raii::DescriptorSet> m_lightSets;
+        std::vector<Buffer> m_lightBuffers;
 
         // == Dynamic geometry == rewritten every frame, a vertex and an index buffer per frame slot
         std::vector<Buffer> m_dynamicVertexBuffers;
         std::vector<Buffer> m_dynamicIndexBuffers;
+        
         vk::DeviceSize m_viewUniformStride = 0; ///< sizeof(ViewProjectionBuffer), aligned for dynamic offsets
         std::uint32_t m_frameSlot = 0;
+        std::uint32_t m_lightCount = 0;
         float m_time = 0.0f; ///< the frame's PreparedFrame::time
-        
-        // == Per-light buffers
-        vk::raii::DescriptorSetLayout m_lightSetLayout{nullptr};
-        vk::raii::DescriptorPool m_lightPool{nullptr};
-        vk::raii::DescriptorSetLayout m_lightSets{nullptr};
-        std::vector<Buffer> m_lightBuffers;
     };
 }

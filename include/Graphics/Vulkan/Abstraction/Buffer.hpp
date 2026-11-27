@@ -120,6 +120,17 @@ namespace Droplet::Graphics::Vulkan
         {
             return For(size, vk::BufferUsageFlagBits::eTransferSrc, MemoryAccess::Staging);
         }
+        
+        static BufferCreateOptions Storage(
+            vk::DeviceSize size, 
+            MemoryAccess access = MemoryAccess::Dynamic,
+            vk::BufferUsageFlags extra = {})
+        {
+            return For(
+                size,
+                vk::BufferUsageFlagBits::eStorageBuffer | extra,
+                access);
+        }
     };
 
 

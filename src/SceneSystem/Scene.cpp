@@ -206,6 +206,7 @@ void Scene::PrepareRender()
 
     m_renderables.clear();
     m_renderers.clear();
+    m_lights.clear();
 
     for (const auto &root : m_roots)
     {
@@ -547,6 +548,11 @@ void Scene::QueueRenderer(std::shared_ptr<CameraComponent> p_node)
 	m_renderers.push_back(p_node);
 }
 
+void Scene::QueueLight(const Common::LightData &p_light)
+{
+    m_lights.push_back(p_light);
+}
+
 const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 {
 	std::vector<std::weak_ptr<CameraComponent>> cameraStack;
@@ -558,6 +564,11 @@ const std::vector<std::weak_ptr<CameraComponent>> Scene::GetCameraStack()
 		}
 	}
 	return cameraStack;
+}
+
+const std::vector<Droplet::Common::LightData> &Scene::GetLights() const
+{
+    return m_lights;
 }
 
 void Scene::RegisterNodeRecursive(const std::shared_ptr<Node> &p_node)

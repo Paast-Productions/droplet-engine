@@ -19,6 +19,7 @@ namespace Droplet::Common
         float cameraPos[4]{};
         glm::float32_t time{0};
         std::uint32_t textureID{0};
+        std::uint32_t lightCount{0};
     };
 
     /// @brief The view's matrices at set 0, binding 0 of the scene shaders

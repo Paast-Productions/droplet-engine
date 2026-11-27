@@ -78,9 +78,25 @@ namespace Droplet::Graphics::Vulkan
 				.bindingCount = 1,
 				.pBindings = &viewBinding
 			});
-		m_reservedSetLayout = vk::raii::DescriptorSetLayout(context.GetDevice(), vk::DescriptorSetLayoutCreateInfo{});
-
-		const std::array setLayouts{ *m_viewSetLayout, *m_reservedSetLayout, m_textures->Layout() };
+		//m_reservedSetLayout = vk::raii::DescriptorSetLayout(context.GetDevice(), vk::DescriptorSetLayoutCreateInfo{});
+		
+		constexpr vk::DescriptorSetLayoutBinding lightBinding{
+			.binding = 0,
+			.descriptorType = vk::DescriptorType::eStorageBuffer,
+			.descriptorCount = 1,
+			.stageFlags = vk::ShaderStageFlagBits::eFragment
+		};
+		
+		m_lightSetLayout = vk::raii::DescriptorSetLayout(
+			context.GetDevice(),
+			vk::DescriptorSetLayoutCreateInfo{
+			.bindingCount = 1,
+			.pBindings = &lightBinding
+			}
+		);
+		
+		//const std::array setLayouts{ *m_viewSetLayout, *m_reservedSetLayout, m_textures->Layout() };
+		const std::array setLayouts{ *m_viewSetLayout, *m_lightSetLayout, m_textures->Layout() };
 		constexpr vk::PushConstantRange pushRange{
 			.stageFlags = ALL_SHADER_STAGES,
 			.offset = 0,
@@ -111,6 +127,7 @@ namespace Droplet::Graphics::Vulkan
 				.poolSizeCount = 1,
 				.pPoolSizes = &viewPoolSize
 			});
+		
 		const std::vector<vk::DescriptorSetLayout> viewLayouts(info.framesInFlight, *m_viewSetLayout);
 		m_viewSets = vk::raii::DescriptorSets(context.GetDevice(), vk::DescriptorSetAllocateInfo{
 			.descriptorPool = *m_viewPool,
@@ -118,6 +135,38 @@ namespace Droplet::Graphics::Vulkan
 			.pSetLayouts = viewLayouts.data()
 		});
 		m_viewBuffers.resize(info.framesInFlight);
+		
+		const vk::DescriptorPoolSize lightPoolSize{
+			.type = vk::DescriptorType::eStorageBuffer,
+			.descriptorCount = info.framesInFlight
+		};
+		
+		m_lightPool = vk::raii::DescriptorPool(
+			context.GetDevice(),
+			vk::DescriptorPoolCreateInfo{
+			.flags = vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet,
+			.maxSets = info.framesInFlight,
+			.poolSizeCount = 1,
+			.pPoolSizes = &lightPoolSize
+			}
+		);
+		
+		const std::vector<vk::DescriptorSetLayout> lightLayouts(
+			info.framesInFlight,
+			*m_lightSetLayout
+		);
+		
+		m_lightSets = vk::raii::DescriptorSets(
+			context.GetDevice(),
+			vk::DescriptorSetAllocateInfo{
+			.descriptorPool = *m_lightPool,
+			.descriptorSetCount = info.framesInFlight,
+			.pSetLayouts = lightLayouts.data()
+			}
+		);
+		
+		m_lightBuffers.resize(info.framesInFlight);
+		
 		m_dynamicVertexBuffers.resize(info.framesInFlight);
 		m_dynamicIndexBuffers.resize(info.framesInFlight);
 	}
@@ -160,7 +209,33 @@ namespace Droplet::Graphics::Vulkan
 				.pBufferInfo = &bufferInfo
 			}, {});
 		}
-
+		Buffer& lightBuffer = m_lightBuffers[frameSlot];
+		
+		m_lightCount = static_cast<uint32_t>(frame.lights.size());
+		const vk::DeviceSize lightNeeded = m_lightCount * sizeof(Common::LightData);
+		if (!lightBuffer || lightBuffer.GetSize() < lightNeeded)
+		{
+			const vk::DeviceSize capacity = std::max<vk::DeviceSize>(lightNeeded * 2, 128 * sizeof(Common::LightData));
+			
+			lightBuffer = Buffer::Create(m_context->GetAllocator(),
+										 BufferCreateOptions::Storage(capacity));
+		
+			const vk::DescriptorBufferInfo lightBufferInfo{
+				.buffer = lightBuffer.Get(),
+				.offset = 0,
+				.range = lightBuffer.GetSize()
+			};
+			m_context->GetDevice().updateDescriptorSets(vk::WriteDescriptorSet{
+				.dstSet = *m_lightSets[frameSlot],
+				.dstBinding = 0,
+				.dstArrayElement = 0,
+				.descriptorCount = 1,
+				.descriptorType = vk::DescriptorType::eStorageBuffer,
+				.pBufferInfo = &lightBufferInfo
+			},{});
+			
+		}
+		lightBuffer.Write(frame.lights.data(), lightNeeded);
 		// the frame's dynamic geometry; the slot's buffers are not in use any more, so a small one is replaced
 		const auto writeStream = [this](Buffer& stream, const void* data, vk::DeviceSize byteSize, bool isIndex)
 		{
@@ -357,13 +432,15 @@ namespace Droplet::Graphics::Vulkan
 		// the view's uniforms and the texture table stay bound for every draw (one pipeline layout)
 		const std::uint32_t viewOffset = static_cast<std::uint32_t>(viewIndex * m_viewUniformStride);
 		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 0, *m_viewSets[m_frameSlot], viewOffset);
+		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 1, *m_lightSets[m_frameSlot], {});
 		cmd.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, *m_pipelineLayout, 2, m_textures->Set(m_frameSlot), {});
 
 		// what every draw of the view pushes besides its world matrix and texture
 		Common::PushConstantData pushConstants{
 			.cameraDir = { list.cameraForward.x, list.cameraForward.y, list.cameraForward.z, 0.0f },
 			.cameraPos = { list.cameraPosition.x, list.cameraPosition.y, list.cameraPosition.z, 1.0f },
-			.time = m_time
+			.time = m_time,
+			.lightCount = m_lightCount
 		};
 		const auto push = [&](const glm::mat4& world, const Render::ImageBinding& material)
 		{

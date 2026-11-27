@@ -83,5 +83,8 @@ namespace Droplet::Graphics::Render
         /// start of their group's vertices
         std::vector<std::byte> dynamicVertexData;
         std::vector<std::uint32_t> dynamicIndices;
+        
+        // lighting
+        std::vector<Common::LightData> lights;
     };
 }

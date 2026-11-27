@@ -215,7 +215,25 @@ Render::PreparedFrame Vulkan::Prepare(
 
     Render::PreparedFrame frame;
     frame.time = world.time;
-
+    
+    // Hardcoded light
+    
+    frame.lights = {
+        {
+            .positionAndRange = glm::vec4(-5, 5, 0, 20),
+            .colorAndIntensity = glm::vec4(1, 0, 0, 5)
+        },
+        {
+            .positionAndRange = glm::vec4(5, 5, 0, 20),
+            .colorAndIntensity = glm::vec4(0, 0, 1, 5)
+        },
+        {
+            .positionAndRange = glm::vec4(0, 5, 10, 20),
+            .colorAndIntensity = glm::vec4(0, 1, 0, 5)
+        }
+    };
+    
+    
     // 2. streamed dynamic meshes, packed once
     const auto packedStreamed = PackStreamedMeshes(world, plans, frame);
     const bool usesVertexColor = std::ranges::any_of(world.cameras, [](const Common::CameraRenderData& camera)
