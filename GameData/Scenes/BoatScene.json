@@ -197,6 +197,20 @@
                 {
                     "active": true,
                     "data": {
+                        "busName": "Master",
+                        "looping": false,
+                        "pitch": 1.0,
+                        "soundGuid": 10509046783078981096,
+                        "startTimeSeconds": 0.0,
+                        "stereoPan": 0.0,
+                        "volumeDb": 0.0
+                    },
+                    "id": 10,
+                    "type": "AudioPlayerComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
                         "data": "",
                         "filepath": "Engine_Side/PlayerController.lua"
                     },

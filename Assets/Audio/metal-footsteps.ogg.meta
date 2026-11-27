@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "metal-footsteps",
+            "guid": 10509046783078981096,
+            "loadFlags": 1,
+            "loadSettings": {
+                "sound_type": 0
+            },
+            "sourceName": "metal-footsteps",
+            "type": 8
+        }
+    ]
+}

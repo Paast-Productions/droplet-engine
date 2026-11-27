@@ -4,7 +4,7 @@
 #include <memory>
 #include <string_view>
 #include <SceneSystem/Bounds/NodeBounds.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 
 namespace Droplet::Scene
 {
@@ -66,7 +66,10 @@ namespace Droplet::Scene
     	void FixedUpdate();
 
 		/// @brief Updates the component in editor mode, regardless of wether in play mode or not.
-        ///
+        /// 
+		/// NOTE: REGARDLESS OF WETHER IN PLAY MODE OR NOT. Using this to call UpdateImpl will cause
+		/// update to run twice per frame in play mode.
+        /// 
         /// Called once per update for components attached to active Nodes.
     	void EditorUpdate();
 
@@ -78,7 +81,7 @@ namespace Droplet::Scene
 
 		/// @brief Retrieves any resources needed for rendering the component.
 		/// @return A RenderData object containing the component's rendering data.
-        [[nodiscard]] Droplet::Graphics::RenderData GetRenderData();
+        [[nodiscard]] Droplet::Common::RenderData GetRenderData();
 
 		/// @brief Called to render the default component UI wrapper as well as the overloaded RenderUIImpl() function.
         void RenderUI();
@@ -161,6 +164,10 @@ namespace Droplet::Scene
 
         std::shared_ptr<Scene> GetScene() const;
 
+        /// @brief Gets the Scene of the owning Node without throwing.
+        /// @return The Scene, or nullptr if the component has no owner yet.
+        std::shared_ptr<Scene> TryGetScene() const;
+
     protected:
 
         virtual void ConstructImpl() {}
@@ -181,7 +188,7 @@ namespace Droplet::Scene
         
 		virtual void DestroyImpl() {}
 
-        [[nodiscard]] virtual Droplet::Graphics::RenderData GetRenderDataImpl() { return {}; }
+        [[nodiscard]] virtual Droplet::Common::RenderData GetRenderDataImpl() { return {}; }
 
 		/// @brief Internal rendering function for the component's UI.
         /// 

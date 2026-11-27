@@ -3,17 +3,32 @@
 local mouseSensitivity = 0.0025   -- radians per pixel
 local moveSpeed = 5.0
 
+-- Variables for stepping sound
+local AudioPlayer = nil
+local StoppedMovingTime = 0
+local WalkSoundStopDelay = 0.25
+
 function OnStart()
     tracy.ZoneBeginN("PlayerController OnStart")
 
     print("New PlayerController")
 	trans = self:GetTransform()
+
+    AudioPlayer = self:GetAudioPlayer("metal-footsteps")
+    if AudioPlayer == nil then  
+        print("Unable to find AudioPlayer (PlayerController.lua)")
+    end
+
+    StoppedMovingTime = 0
 	
     tracy.ZoneEnd()
 end
 
 function OnUpdate(dt)
     tracy.ZoneBeginN("PlayerController OnUpdate")
+
+    local IsWalking = false
+    StoppedMovingTime = StoppedMovingTime + dt
 
     if trans == nil then
 	    trans = self:GetTransform()
@@ -51,6 +66,24 @@ function OnUpdate(dt)
     end
     walkDir.y = physComp:GetVelocity().y
     physComp:SetVelocity(walkDir)
+
+    if GLM.V3Length(walkDir) > 1 then
+        IsWalking = true
+        StoppedMovingTime = 0
+    end
+
+    -- Handle walking sound
+    if IsWalking == false then
+        if StoppedMovingTime > WalkSoundStopDelay then
+            if AudioPlayer:IsPlaying() then
+                AudioPlayer:Stop()
+            end
+        end
+    elseif IsWalking == true then
+        if not AudioPlayer:IsPlaying() then
+            AudioPlayer:Play()
+        end
+    end
     
     tracy.ZoneEnd()
 end

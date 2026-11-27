@@ -7,6 +7,8 @@ using namespace Droplet;
 
 JPH::MeshShapeSettings MeshColliderManager::GetMeshSettings(const GUID p_guid)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (m_shapeSettings.contains(p_guid))
     {
         m_shapeSettings[p_guid].AddRef();
@@ -15,6 +17,7 @@ JPH::MeshShapeSettings MeshColliderManager::GetMeshSettings(const GUID p_guid)
     
     StaticResourceHandle<MeshResource> meshHandle = ResourceManager::GetInstance().LoadResource<MeshResource>(p_guid, [this](StaticResourceHandle<MeshResource> p_handle)
     {
+        std::lock_guard<std::recursive_mutex> callbackLock(m_mutex);
         m_shapeSettings[p_handle.GetGUID()].meshShapeSettings = CreateMeshShapeSettings(p_handle.Get());
         m_shapeSettings[p_handle.GetGUID()].AddRef();
     });
@@ -24,6 +27,8 @@ JPH::MeshShapeSettings MeshColliderManager::GetMeshSettings(const GUID p_guid)
 
 void MeshColliderManager::UnloadMeshSetting(const GUID p_guid)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    
     if (!m_shapeSettings.contains(p_guid))
     {
         return;

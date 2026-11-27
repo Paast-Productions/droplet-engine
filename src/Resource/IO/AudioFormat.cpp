@@ -5,6 +5,7 @@ namespace Droplet::IO::AudioFormat
     std::vector<std::pair<StaticResourceType, std::string>> ScanAssetResources(const std::filesystem::path &p_assetPath)
     {
         ZoneScoped;
+        ZoneText(p_assetPath.generic_string().c_str(), p_assetPath.generic_string().size());
         
         std::vector<std::pair<StaticResourceType, std::string>> resourceList{};
         
