@@ -2,6 +2,8 @@
 #include <json/json.hpp>
 #include <stdexcept>
 
+namespace fs = std::filesystem;
+
 namespace Droplet::Core::JsonIO
 {
 		/// @brief Defines the type of modification action to perform on a JSON file.
@@ -14,6 +16,12 @@ namespace Droplet::Core::JsonIO
 		/// @brief Reads data from a JSON file.
 		/// @param p_path The name of the JSON file to read from.
 		nlohmann::json Read(const std::string &p_path);
+		
+		/// @brief Reads data from a JSON file using recursion.
+		/// @param p_root The root directory
+		/// @param p_path The name of the JSON file to read from. 
+		/// @return The json file found
+		nlohmann::json ReadRecursive(const fs::path &p_root, const std::string &p_path);
 
 		/// @brief Writes data to a JSON file.
 		/// @param p_path The name of the JSON file to write to.

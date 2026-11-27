@@ -188,7 +188,7 @@ void SceneSerializer::DeserializeNode(const nlohmann::json& p_json, std::shared_
 	{
 		std::string prefabPath = p_json["prefab"];
 
-        node = p_scene->LoadNodeFromFile(ROOT_PATH "/" + prefabPath);
+        node = p_scene->LoadNodeFromFile(prefabPath);
 		node->SetName(p_json["name"]);
 
         if (p_parentNode)
