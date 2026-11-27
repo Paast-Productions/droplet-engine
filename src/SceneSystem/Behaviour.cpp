@@ -30,7 +30,7 @@ void Behaviour::Start()
 
 			if (behaviour.get() != this)
 			{
-				m_sceneManager->ShutdownBehaviour(this);
+				m_sceneManager->ShutdownBehaviour(weak_from_this());
 				return;
 			}
 		}

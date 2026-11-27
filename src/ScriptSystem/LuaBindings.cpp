@@ -144,11 +144,10 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		"GetPlayerBehaviour",
 		[](Scene::Node &node) -> Scene::PlayerBehaviour*
 		{
-		    // Why are we fetching this through the player component?
 			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
 			if (playerComponent)
 			{
-				return playerComponent->GetPlayerBehaviourLua();
+				return playerComponent->GetPlayerBehaviourLua().get();
 			}
 			return nullptr;
 		},
