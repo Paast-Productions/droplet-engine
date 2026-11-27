@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Note_board",
+            "guid": 7656734543182503680,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Note_board",
+            "type": 3
+        }
+    ]
+}
