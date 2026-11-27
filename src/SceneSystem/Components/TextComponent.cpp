@@ -106,6 +106,9 @@ void Droplet::Scene::TextComponent::RenderUIImpl()
 		TableNextColumn();
 		if (InputFloat("##emSize", &m_emSize, 0.1f, 1.0f, "%.1f"))
 		{
+			if (m_emSize < 0.1f)
+				m_emSize = 0.1f;
+			
 			m_textIsDirty = true;
 		}
 		SameLine();
