@@ -52,9 +52,6 @@ project "Editor"
             "../Editor/engine-icon.ico" 
         }
         
-        postbuildcommands {
-            "call " .. AddQuotation(rootPath .. "/Assets/Shader/compile_debug_shaders.bat") .. " Editor " .. "%{cfg.buildcfg}"
-        }
     else
 
         includedirs

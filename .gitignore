@@ -34,7 +34,8 @@ src/Scripts/LuaHelper.d.lua
 # Assets
 !/Assets
 !/Assets/**
-/Assets/Fonts
+/Assets/Fonts/*.ttf
+
 
 # Test 
 !/Test
