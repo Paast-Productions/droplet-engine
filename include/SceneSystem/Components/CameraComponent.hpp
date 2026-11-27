@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string_view>
+#include <vector>
 
 #include <glm/glm.hpp>
 #include <json/json.hpp>
@@ -55,6 +56,10 @@ namespace Droplet::Scene
 		[[nodiscard]] glm::vec4 GetClearColor() const { return m_clearColor; }
 		void SetClearColor(const glm::vec4 &p_clearColor) { m_clearColor = p_clearColor; }
 
+		/// @brief The built-in post effects applied to the camera's image, in order
+		[[nodiscard]] const std::vector<Common::PostEffectDesc> &GetPostEffects() const { return m_postEffects; }
+		void SetPostEffects(const std::vector<Common::PostEffectDesc> &p_effects) { m_postEffects = p_effects; }
+
     protected:
         void StartImpl() override;
         void LateUpdateImpl() override;
@@ -84,6 +89,7 @@ namespace Droplet::Scene
 		float m_uiScale{ 1.0f };
 
 		glm::vec4 m_clearColor{ 0.0f, 0.0f, 0.3f, 1.0f };
+		std::vector<Common::PostEffectDesc> m_postEffects{ }; ///< applied in order
 
 		std::vector<Common::RenderData> m_renderData{ };
     };
