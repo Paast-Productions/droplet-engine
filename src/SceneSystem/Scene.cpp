@@ -513,7 +513,7 @@ std::weak_ptr<Droplet::Physics> Scene::GetPhysics()
 std::shared_ptr<Node> Scene::LoadNodeFromFile(const std::string& p_filepath, std::optional<glm::vec3> p_overridePosition)
 {
     SceneSerializer serializer;
-    nlohmann::json json = Droplet::Core::JsonIO::Read(p_filepath);
+    nlohmann::json json = Droplet::Core::JsonIO::ReadRecursive(std::filesystem::path(ROOT_PATH), p_filepath);
 
 	auto node = serializer.DeserializeLonsesomeNode(json, *this, p_overridePosition);
 
