@@ -67,8 +67,17 @@ std::unique_ptr<FontResource> IO::FontFormat::LoadFont(const std::filesystem::pa
 	const size_t curveTexTexels = static_cast<size_t>(data.curveTextureWidth * data.curveTextureHeight);
 	data.curvesTextureData.resize(curveTexTexels);
 	
+	size_t capacityBytes = data.curvesTextureData.size() * sizeof(glm::vec4);
+	if (curveTextureBytes > capacityBytes)
+	{
+		throw std::runtime_error("Curve payload exceeds allocated capacity.");
+	}
+	
 	memset(data.curvesTextureData.data(), 0, data.curvesTextureData.size() * sizeof(data.curvesTextureData.front()));
-	inFile.read(reinterpret_cast<char *>(data.curvesTextureData.data()), curveTextureBytes);
+	if (!inFile.read(reinterpret_cast<char *>(data.curvesTextureData.data()), curveTextureBytes))
+	{
+		throw std::runtime_error("Failed to read curve texture payload.");
+	}
 	
 	uint32_t bandsTextureBytes;
 	inFile.read(reinterpret_cast<char *>(&data.bandsTextureWidth), sizeof(data.bandsTextureWidth));
@@ -84,8 +93,17 @@ std::unique_ptr<FontResource> IO::FontFormat::LoadFont(const std::filesystem::pa
 	const size_t bandsTexTexels = static_cast<size_t>(data.bandsTextureWidth * data.bandsTextureHeight);
 	data.bandsTextureData.resize(bandsTexTexels);
 	
+	capacityBytes = data.bandsTextureData.size() * sizeof(glm::u16vec2);
+	if (bandsTextureBytes > capacityBytes)
+	{
+		throw std::runtime_error("Bands payload exceeds allocated capacity.");
+	}
+	
 	memset(data.bandsTextureData.data(), 0, data.bandsTextureData.size() * sizeof(data.bandsTextureData.front()));
-	inFile.read(reinterpret_cast<char *>(data.bandsTextureData.data()), bandsTextureBytes);
+	if (!inFile.read(reinterpret_cast<char *>(data.bandsTextureData.data()), bandsTextureBytes))
+	{
+		throw std::runtime_error("Failed to read curve texture payload.");
+	}
 	
 	return std::make_unique<FontResource>(std::move(data));
 }
