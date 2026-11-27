@@ -6,7 +6,7 @@ local damageComp = nil
 -- Freeze configuration
 local freezeConfig = {}
 freezeConfig.maxFreeze = 1000.0
-freezeConfig.minSpeedMultiplier = 0.2
+freezeConfig.minSpeedMultiplier = 0.8
 
 local freezeRate = 50
 local damageScaling = 5
@@ -87,28 +87,43 @@ function OnTrigger(dt, node)
         -- Normalize temperature difference.
         local freezeSeverity = math.min(freezeDifference / 50.0, 1.0)
 
-        -- Increase freeze level.
+        -- Increase freeze level, but never exceed maximum.
+        local currentFreeze = pb:GetFreezeLevel()
+
         local freezeIncrease = freezeRate * freezeSeverity * dt
-        pb:IncreaseFreezeLevel(freezeIncrease)
+
+        currentFreeze = math.min(
+            currentFreeze + freezeIncrease,
+            freezeConfig.maxFreeze
+        )
+
+        pb:SetFreezeLevel(currentFreeze)
 
         local currentFreeze = math.min(
             pb:GetFreezeLevel(),
             freezeConfig.maxFreeze
         )
 
-        -- Apply progressive movement slowdown.
-        local freezePercent = currentFreeze / freezeConfig.maxFreeze
+       -- Apply progressive movement slowdown and handling changes.
+        local freezePercent = math.min(
+            currentFreeze / freezeConfig.maxFreeze,
+            1.0
+        )
 
         local speedMultiplier = 1.0 -
             freezePercent * (1.0 - freezeConfig.minSpeedMultiplier)
 
+        -- Freeze makes the drone harder to accelerate and control.
+        local handlingMultiplier = 1.0 - freezePercent * 0.65
+
         MovementModifiers.SetSlow(speedMultiplier)
+        MovementModifiers.SetHandling(handlingMultiplier)
 
         -- Apply progressively increasing damage.
         local damagePerSecond = 1.0 +
             damageScaling * freezeSeverity * freezeSeverity
 
-        health:TakeDamage(damagePerSecond * dt)
+        --health:TakeDamage(damagePerSecond * dt)
     end
 
     -- Prevent immediate recovery after leaving the hazard.
