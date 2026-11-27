@@ -134,7 +134,7 @@ function OnUpdate(dt)
         pb:IncreaseFreezeLevel(-decrease)
     end
 
-    -- Update movement speed.
+    -- Update movement modifiers based on current freeze level.
     currentFreeze = pb:GetFreezeLevel()
 
     local freezePercent = math.min(
@@ -145,7 +145,11 @@ function OnUpdate(dt)
     local speedMultiplier = 1.0 -
         freezePercent * (1.0 - freezeConfig.minSpeedMultiplier)
 
+    local handlingMultiplier = 1.0 -
+        freezePercent * 0.75
+
     MovementModifiers.SetSlow(speedMultiplier)
+    MovementModifiers.SetHandling(handlingMultiplier)
 end
 
 function RenderUI()
