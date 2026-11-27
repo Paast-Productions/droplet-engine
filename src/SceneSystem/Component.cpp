@@ -114,14 +114,14 @@ void Component::QueueRender()
 	QueueRenderImpl();
 }
 
-Droplet::Graphics::RenderData Component::GetRenderData()
+Droplet::Common::RenderData Component::GetRenderData()
 {
 	if (!IsActiveSelf() || !m_started)
 	{
 		return {};
 	}
 
-	Droplet::Graphics::RenderData rData = GetRenderDataImpl();
+	Droplet::Common::RenderData rData = GetRenderDataImpl();
 	rData.transform = GetOwner()->GetTransform().GetMatrix(Transform::Space::World);
 
 	return rData;
@@ -265,6 +265,12 @@ Transform &Component::GetTransform()
 		throw std::runtime_error("Component has no owner.");
 	}
 	return owner->GetTransform();
+}
+
+std::shared_ptr<Scene> Component::TryGetScene() const
+{
+	auto owner = m_owner.lock();
+	return owner ? owner->GetScene() : nullptr;
 }
 
 std::shared_ptr<Scene> Component::GetScene() const

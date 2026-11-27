@@ -12,12 +12,13 @@ namespace Droplet
 {
     bool ResourceSlot(
         const char *p_label,
-        Droplet::GUID p_current,
+        GUID p_current,
         const std::string &p_currentDisplayName,
-        Droplet::GUID &p_outGUID,
+        GUID &p_outGUID,
         std::string &p_outDisplayName,
         Droplet::StaticResourceType p_expectedType,
-        Droplet::ShaderResource::ShaderType p_expectedShader)
+        Droplet::ShaderResource::ShaderType p_expectedShader,
+        std::span<const ResourceSlotChoice> p_choices)
     {
         using namespace ImGui;
         using namespace Droplet::Editor;
@@ -41,6 +42,24 @@ namespace Droplet
         if (Button(text.c_str(), ImVec2(-(clearW + gap), 0.0f)))
         {
             OpenPopup("pick");
+        }
+
+        if (BeginPopup("pick"))
+        {
+            for (const ResourceSlotChoice &choice : p_choices)
+            {
+                if (Selectable(choice.displayName.c_str(), choice.guid == p_current))
+                {
+                    p_outGUID = choice.guid;
+                    p_outDisplayName = choice.displayName;
+                    changed = true;
+                }
+            }
+            if (p_choices.empty())
+            {
+                TextDisabled("Drop a resource here");
+            }
+            EndPopup();
         }
 
         if (BeginDragDropTarget())

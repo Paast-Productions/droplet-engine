@@ -19,7 +19,7 @@ void Behaviour::Start()
 	if (IsSingleton())
 	{
 		// Ensure this is the only instance of this behaviour type in the scene.
-		auto &behaviours = m_sceneManager->GetBehaviours();
+		auto behaviours = m_sceneManager->GetBehaviours();
 
 		for (const auto &behaviour : behaviours)
 		{

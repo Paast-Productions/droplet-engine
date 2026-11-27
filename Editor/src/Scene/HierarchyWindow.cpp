@@ -94,6 +94,14 @@ void HierarchyWindow::RenderToolbar()
 
     if (ImGui::BeginMenu("Nodes", isEnabled))
     {
+        bool collapseNodesOnLoad = EditorConfig::LoadBool("Editor.CollapseNodesOnLoad", false);
+        if (ImGui::Checkbox("Collapse Hierarchy", &collapseNodesOnLoad))
+        {
+            EditorConfig::StoreBool("Editor.CollapseNodesOnLoad", collapseNodesOnLoad);
+        }
+
+		ImGui::Separator();
+
         std::weak_ptr<Node> newNode{};
 
         if (ImGui::Button(ICON_LC_CIRCLE_PLUS" Add Empty Node " ))
@@ -129,6 +137,12 @@ void HierarchyWindow::RenderToolbar()
         {
             newNode = scene->AddNode("Audio Emitter Node");
             newNode.lock()->AttachComponent("AudioEmitterComponent");
+        }
+
+        if (ImGui::Button(ICON_LC_PARTY_POPPER " Add Particle Emitter Node"))
+        {
+            newNode = scene->AddNode("Particle Emitter Node");
+            newNode.lock()->AttachComponent("ParticleEmitterComponent");
         }
 
 		if (!newNode.expired())
@@ -385,13 +399,6 @@ void HierarchyWindow::RenderImpl()
                 continue;
             }
 
-            auto oldParent = node.lock()->GetParent();
-
-            if (!oldParent.expired())
-            {
-                oldParent.lock()->RemoveChild(node.lock(), true);
-            }
-
             m_newParent.lock()->AddChild(node.lock(), true);
         }
     }
@@ -492,8 +499,8 @@ void HierarchyWindow::DrawSceneWindow()
         const std::string sceneName = activeScene->GetName();
         std::strncpy(fileName, sceneName.c_str(), sizeof(fileName) - 1);
         fileName[sizeof(fileName) - 1] = '\0';
+        previousScene = activeScene;
     }
-    previousScene = activeScene;
     hasPreviousScene = true;
 
     ImGui::InputText("Scene name", fileName, sizeof(fileName));
@@ -575,7 +582,12 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 
     ImGuiTreeNodeFlags flags = 
         ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_OpenOnArrow | 
-        ImGuiTreeNodeFlags_SpanAvailWidth | ImGuiTreeNodeFlags_DefaultOpen;
+        ImGuiTreeNodeFlags_SpanAvailWidth;
+
+    if (!EditorConfig::LoadBool("Editor.CollapseNodesOnLoad", false))
+    {
+        flags |= ImGuiTreeNodeFlags_DefaultOpen;
+	}
 
     if (p_node.lock()->GetChildren().empty())
     {

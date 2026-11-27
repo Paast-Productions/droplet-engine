@@ -15,13 +15,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     glm::vec2 windowSize = C_INITSIZE;
 
     Droplet::EngineConfig config{
-        Droplet::Graphics::SDL::WindowConfig{
-            static_cast<int>(windowSize.x),
-            static_cast<int>(windowSize.y),
-            {SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN},
-            "Drone Boy Adventures: THALASSA"
+        .WindowConfig = {
+            .title = "Drone Boy Journey: Deep Sea Discoveries",
+            .width = static_cast<int>(windowSize.x),
+            .height = static_cast<int>(windowSize.y)
         },
-        Droplet::UpdateFlags::EditorFlags
+        .UpdateFlags = Droplet::UpdateFlags::EditorFlags
     };
     Droplet::Engine engine(config);
 
@@ -36,11 +35,15 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
     // Set the script path for where the engine will look for scripts.
     Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/BoatScene.json");
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
-    engine.GetSceneManager().LoadFromFile(ROOT_PATH "/GameData/Scenes/PodScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/BoatScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/InsideBoatScene.json");
+    engine.GetSceneManager().LoadFromFileAsync(ROOT_PATH "/GameData/Scenes/PodScene.json");
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    while (!engine.GetSceneManager().IsLoadingComplete())
+    {
+        engine.Update();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 
     engine.GetSceneManager().ActivateScene("BoatScene");
 
@@ -89,7 +92,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
             break;
         }
 
-        switch (engine.Render())
+        std::vector<Droplet::Common::CameraRenderData> cameras = engine.GetSceneManager().GetRenderData();
+
+        switch (engine.Render(cameras))
         {
         case Droplet::DROPLET_RETURNTYPE::OK:
             break;

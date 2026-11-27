@@ -5,10 +5,12 @@
 #include <Behaviour.hpp>
 
 #include <Core/IoManager.hpp>
+#include <Core/ThreadPool.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
+#include <iostream>
 #include <EngineFlags.hpp>
 #include <Time.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
+#include <Common/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
 
 using namespace Droplet::Scene;
@@ -58,6 +60,59 @@ void SceneManager::UnloadScene(const std::string &p_name)
     it->second->Unload();
 
     m_scenes.erase(it);
+}
+
+void SceneManager::UnloadSceneAsync(const std::string &p_name, std::function<void()> p_onUnloaded)
+{
+    ZoneScoped;
+    ZoneText(p_name.c_str(), p_name.size());
+
+    auto it = m_scenes.find(p_name);
+
+    if (it == m_scenes.end())
+    {
+        throw std::runtime_error("Cannot unload Scene '" + p_name + "': Scene does not exist.");
+    }
+
+    std::shared_ptr<Scene> scene = it->second;
+
+    if (scene->IsActive())
+    {
+        DeactivateScene(p_name);
+    }
+
+    scene->Unload();
+    m_scenes.erase(it);
+
+    ++m_pendingAsyncSceneUnloads;
+
+    // Dropping the last reference here destroys the Scene on a worker thread
+    ThreadPool::GetInstance().PushTask([this, scene = std::move(scene), onUnloaded = std::move(p_onUnloaded)]() mutable
+    {
+        scene.reset();
+        m_asyncSceneUnloadResults.Push(AsyncSceneUnloadResult{ std::move(onUnloaded) });
+    });
+}
+
+bool SceneManager::HasPendingAsyncUnloads() const
+{
+    return m_pendingAsyncSceneUnloads.load() > 0;
+}
+
+void SceneManager::FinalizeAsyncSceneUnloads()
+{
+    ZoneScoped;
+
+    AsyncSceneUnloadResult result;
+    while (m_asyncSceneUnloadResults.Pop(result))
+    {
+        --m_pendingAsyncSceneUnloads;
+
+        if (result.onUnloaded)
+        {
+            result.onUnloaded();
+        }
+    }
 }
 
 void SceneManager::ActivateScene(const std::string &p_name)
@@ -152,6 +207,9 @@ void SceneManager::Update()
 {
     ZoneScoped;
 
+    FinalizeAsyncSceneLoads();
+    FinalizeAsyncSceneUnloads();
+
     Droplet::Time &time = Droplet::Time::Get();
 
 	// Pre-Update all active Behaviours
@@ -159,7 +217,9 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(behaviourPreUpdateZone, "Behaviour Pre-Update", tracy::Color::Green, true);
 
-        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+        // Iterate a snapshot so behaviours can be started or shut down during the update
+        std::vector<std::shared_ptr<Behaviour>> behaviours = GetBehaviours();
+        for (auto it = behaviours.begin(); it != behaviours.end(); )
         {
             auto &behaviour = *it;
 
@@ -234,7 +294,8 @@ void SceneManager::Update()
     {
 		ZoneNamedNC(behaviourPostUpdateZone, "Behaviour Post-Update", tracy::Color::Red, true);
 
-        for (auto it = m_behaviours.begin(); it != m_behaviours.end(); )
+        std::vector<std::shared_ptr<Behaviour>> behaviours = GetBehaviours();
+        for (auto it = behaviours.begin(); it != behaviours.end(); )
         {
             auto &behaviour = *it;
 
@@ -274,11 +335,12 @@ void SceneManager::PrepareRender()
     }
 }
 
-std::vector<Droplet::Graphics::CameraRenderData> SceneManager::GetRenderData()
+std::vector<Droplet::Common::CameraRenderData> SceneManager::GetRenderData()
 {
     ZoneScoped;
 
 	using namespace Droplet::Graphics;
+using namespace Droplet::Common;
 
     std::vector<CameraRenderData> renderViews{};
     
@@ -357,31 +419,129 @@ void SceneManager::LoadFromFile(const std::string &p_filePath)
 {
     ZoneScoped;
 
-    SceneSerializer serializer;
     nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+    std::shared_ptr<Scene> scene = CreateSceneFromJson(json);
+    const std::string name = json["name"].get<std::string>();
 
-    if (!json.contains("name"))
+    if (m_scenes.contains(name))
+    {
+        UnloadScene(name);
+    }
+
+    m_scenes[name] = scene;
+}
+
+void SceneManager::LoadFromFileAsync(const std::string &p_filePath, std::function<void(std::shared_ptr<Scene>)> p_onLoaded)
+{
+    ZoneScoped;
+
+    ++m_pendingAsyncSceneLoads;
+
+    ThreadPool::GetInstance().PushTask([this, p_filePath, onLoaded = std::move(p_onLoaded)]() mutable
+    {
+        AsyncSceneLoadResult result{ p_filePath, {}, nullptr, {}, std::move(onLoaded) };
+
+        try
+        {
+            nlohmann::json json = Droplet::Core::JsonIO::Read(p_filePath);
+
+            if (!json.contains("name"))
+            {
+                throw std::runtime_error("Scene json has no 'name' field");
+            }
+
+            result.sceneName = json["name"].get<std::string>();
+            result.scene = CreateSceneFromJson(json);
+        }
+        catch (const std::exception &e)
+        {
+            result.error = e.what();
+        }
+
+        m_asyncSceneReadResults.Push(std::move(result));
+    });
+}
+
+bool SceneManager::HasPendingAsyncLoads() const
+{
+    return m_pendingAsyncSceneLoads.load() > 0;
+}
+
+bool SceneManager::IsLoadingComplete() const
+{
+    if (HasPendingAsyncLoads())
+    {
+        return false;
+    }
+
+    for (const auto &[name, scene] : m_scenes)
+    {
+        if (!scene->AreResourcesLoaded())
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void SceneManager::FinalizeAsyncSceneLoads()
+{
+    ZoneScoped;
+
+    AsyncSceneLoadResult result;
+    while (m_asyncSceneReadResults.Pop(result))
+    {
+        --m_pendingAsyncSceneLoads;
+
+        if (!result.error.empty())
+        {
+            std::cerr << "Failed to load Scene from '" << result.filePath << "': " << result.error << '\n';
+
+            if (result.onLoaded)
+            {
+                result.onLoaded(nullptr);
+            }
+            continue;
+        }
+
+        if (m_scenes.contains(result.sceneName))
+        {
+            UnloadScene(result.sceneName);
+        }
+
+        m_scenes[result.sceneName] = result.scene;
+
+        if (result.onLoaded)
+        {
+            result.onLoaded(result.scene);
+        }
+    }
+}
+
+std::shared_ptr<Scene> SceneManager::CreateSceneFromJson(const nlohmann::json &p_json)
+{
+    ZoneScoped;
+
+    SceneSerializer serializer;
+
+    if (!p_json.contains("name"))
     {
         throw std::runtime_error("Invalid json was sent to LoadFromFile");
     }
 
-    if (m_scenes.contains(json["name"]))
-    {
-        UnloadScene(json["name"]);
-        //throw std::runtime_error("Cannot load Scene '" + p_name + "': Scene already exists.");
-    }
-
-    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(json["name"]);
-    scene->SetSceneManager(this);
+    std::shared_ptr<Scene> scene = SceneFactory::CreateScene(p_json["name"]);
     if (!scene)
     {
-        throw std::runtime_error("Cannot load Scene "+ json["name"]);
+        throw std::runtime_error("Cannot load Scene "+ p_json["name"].get<std::string>());
     }
+    scene->SetSceneManager(this);
     scene->Load();
-    serializer.DeserializeScene(json, scene);
+    serializer.DeserializeScene(p_json, scene);
 
-    m_scenes[json["name"]] = scene;
+    return scene;
 }
+
 
 void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePath)
 {
@@ -403,88 +563,101 @@ void SceneManager::SerializeNodeToFile(Node &p_node, const std::string &p_filePa
 
 void SceneManager::SerializeBehaviours()
 {
-    nlohmann::json data;
+	nlohmann::json data;
     
-    data["behaviours"] = nlohmann::json::array();
-    for (const auto& behaviour : m_behaviours)
-    {
-        data["behaviours"].push_back(behaviour->Serialize());
-    }
+	data["behaviours"] = nlohmann::json::array();
+	for (const auto& behaviour : m_behaviours)
+	{
+		data["behaviours"].push_back(behaviour->Serialize());
+	}
     
-    if (!std::filesystem::exists(std::filesystem::path(BEHAVIOUR_SAVE_PATH)))
-    {
-        Core::JsonIO::CreateFile(std::string(BEHAVIOUR_SAVE_PATH));
-    }
+	if (!std::filesystem::exists(std::filesystem::path(BEHAVIOUR_SAVE_PATH)))
+	{
+		Core::JsonIO::CreateFile(std::string(BEHAVIOUR_SAVE_PATH));
+	}
 
-    try
-    {
-        Core::JsonIO::Write(std::string(BEHAVIOUR_SAVE_PATH), data);
-    }
-    catch (const std::runtime_error& e)
-    {
-        Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to save behaviour data: ") + e.what());
-    }
+	try
+	{
+		Core::JsonIO::Write(std::string(BEHAVIOUR_SAVE_PATH), data);
+	}
+	catch (const std::runtime_error& e)
+	{
+		Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to save behaviour data: ") + e.what());
+	}
 }
 
 void SceneManager::DeserializeBehaviours()
 {
-    m_behaviours.clear();
+	m_behaviours.clear();
     
-    nlohmann::json data;
-    try
-    {
-         data = Core::JsonIO::Read(std::string(BEHAVIOUR_SAVE_PATH));
-    }
-    catch (const std::runtime_error &e)
-    {
-        Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to read saved behaviour data: ") + e.what());
-        return;
-    }
+	nlohmann::json data;
+	try
+	{
+		data = Core::JsonIO::Read(std::string(BEHAVIOUR_SAVE_PATH));
+	}
+	catch (const std::runtime_error &e)
+	{
+		Debug::Log(Debug::LogType::Error, std::string("SceneManager: Failed to read saved behaviour data: ") + e.what());
+		return;
+	}
     
-    if (data.contains("behaviours"))
-    {
-        for (const auto &entry : data["behaviours"])
-        {
-            if (entry.contains("type"))
-            {
-                std::string type = entry["type"];
-                auto behaviour = BehaviourFactory::CreateBehaviour(type);
-                if (!behaviour)
-                {
-                    Debug::Log(Debug::LogType::Warning, "SceneManager: Failed to deserialize unknown behaviour type: "+ type);
-                    continue;
-                }
-                behaviour->SetSceneManager(this);
-                m_behaviours.push_back(std::move(behaviour));   
-                m_behaviours.back()->Deserialize(entry);
-                m_behaviours.back()->Start();
-            }
-        }
-    }
+	if (data.contains("behaviours"))
+	{
+		for (const auto &entry : data["behaviours"])
+		{
+			if (entry.contains("type"))
+			{
+				std::string type = entry["type"];
+				auto behaviour = BehaviourFactory::CreateBehaviour(type);
+				if (!behaviour)
+				{
+					Debug::Log(Debug::LogType::Warning, "SceneManager: Failed to deserialize unknown behaviour type: "+ type);
+					continue;
+				}
+				behaviour->SetSceneManager(this);
+				m_behaviours.push_back(std::move(behaviour));   
+				m_behaviours.back()->Deserialize(entry);
+				m_behaviours.back()->Start();
+			}
+		}
+	}
 }
 
-Behaviour *SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
+std::weak_ptr<Behaviour> SceneManager::StartBehaviour(const std::string &p_behaviourTypeName)
 {
-	auto behaviour = BehaviourFactory::CreateBehaviour(p_behaviourTypeName);
+	std::shared_ptr<Behaviour> behaviour = std::move(BehaviourFactory::CreateBehaviour(p_behaviourTypeName));
 
     behaviour->SetSceneManager(this);
-    m_behaviours.push_back(std::move(behaviour));
-    m_behaviours.back()->Start();
+    {
+        std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
+        m_behaviours.push_back(behaviour);
+    }
 
-	return m_behaviours.back().get();
+    behaviour->Start();
+
+	return behaviour;
 }
 
-void SceneManager::ShutdownBehaviour(Behaviour *p_behaviour)
+void SceneManager::ShutdownBehaviour(std::weak_ptr<Behaviour> p_behaviour)
 {
-    if (!p_behaviour)
+    auto behaviour = p_behaviour.lock();
+    if (!behaviour)
     {
 		return;
     }
 
-    auto it = std::erase_if(m_behaviours, [p_behaviour](const auto& behaviour)
+    std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
+    auto it = std::find(m_behaviours.begin(), m_behaviours.end(), behaviour);
+    if (it != m_behaviours.end())
     {
-        return behaviour.get() == p_behaviour;
-    });
+        m_behaviours.erase(it);
+	}
+}
+
+std::vector<std::shared_ptr<Behaviour>> SceneManager::GetBehaviours() const
+{
+    std::lock_guard<std::recursive_mutex> lock(m_behavioursMutex);
+    return m_behaviours;
 }
 
 std::weak_ptr<CameraComponent> SceneManager::GetMainCamera() const

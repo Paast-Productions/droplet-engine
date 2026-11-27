@@ -60,6 +60,12 @@ void EditorWindow::ToggleToolbar(bool p_visible)
 
 void EditorWindow::OpenWindow()
 {
+	if (m_shouldGiveFocus)
+	{
+		ImGui::SetNextWindowFocus();
+		m_shouldGiveFocus = false;
+	}
+
 	ImGui::Begin(m_name.c_str(), nullptr, m_windowFlags);
 
 	m_hasFocus = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
