@@ -271,7 +271,7 @@ function OnStart()
 
      for _, child in ipairs(self:GetChildren()) do
         if child:GetName() == "Suction Particles" then
-            SuctionParticles.Initialize(child)
+            SuctionParticles.Initialize(child, interactionRange)
             break
         end
     end
