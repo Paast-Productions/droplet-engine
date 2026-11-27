@@ -3,6 +3,7 @@
 #include "Core/ThreadPool.hpp"
 
 #include <fstream>
+#include <filesystem>
 #include <tracy/public/tracy/Tracy.hpp>
 
 namespace Droplet::Core::JsonIO
@@ -28,6 +29,27 @@ namespace Droplet::Core::JsonIO
 			return nlohmann::json::value_t::discarded;
 		}
 		return j;
+	}
+
+	nlohmann::json ReadRecursive(const fs::path &p_root, const std::string &p_path)
+	{
+		ZoneScoped;
+
+		// Get the file name we are looking for
+		const fs::path targetPath(p_path);
+		const std::string targetFilename = targetPath.filename().string();
+
+		// Search recursivley from the root directory
+		for (const auto &entry : fs::recursive_directory_iterator(p_root))
+		{
+			if (entry.is_regular_file() && entry.path().filename() == targetFilename)
+			{
+				// Found the file, now read it
+				return Read(entry.path().string());
+			}
+		}
+
+		return nlohmann::json();
 	}
 
 	void Write(const std::string &p_path, const nlohmann::json &p_data)
