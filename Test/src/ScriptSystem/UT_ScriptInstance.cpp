@@ -4,7 +4,7 @@
 #include <ScriptSystem/LuaBindings.hpp>
 #include <SceneSystem/Node.hpp>
 #include <SceneSystem/SceneManager.hpp>
-#include "GameInput.hpp"
+#include "Platform/GameInput.hpp"
  
  using namespace Droplet::Script;
  using namespace Droplet::Script::Bindings;

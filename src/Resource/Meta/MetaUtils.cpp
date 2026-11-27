@@ -89,38 +89,40 @@ namespace Droplet::MetaUtils
 
     ShaderResource::ShaderType EvaluateShaderTypeFromPath(const std::filesystem::path &p_shaderPath)
     {
-        std::string shaderFileName = p_shaderPath.filename().generic_string();
-        StringUtils::ToLowerInPlace(shaderFileName);
+		// Assumed name convention: "type_name.ext" "name.type.ext"
+
+        std::string shaderFileNameNoExt = p_shaderPath.filename().replace_extension().generic_string();
+        StringUtils::ToLowerInPlace(shaderFileNameNoExt);
         
-        if (shaderFileName.starts_with("vs_"))
+        if (shaderFileNameNoExt.starts_with("vs_") || shaderFileNameNoExt.ends_with(".vs"))
         {
             return ShaderResource::ShaderType::Vertex;
         }
-        if (shaderFileName.starts_with("fs_"))
+        if (shaderFileNameNoExt.starts_with("fs_") || shaderFileNameNoExt.ends_with(".fs"))
         {
             return ShaderResource::ShaderType::Fragment;
         }
-        if (shaderFileName.starts_with("gs_"))
+        if (shaderFileNameNoExt.starts_with("gs_") || shaderFileNameNoExt.ends_with(".gs"))
         {
             return ShaderResource::ShaderType::Geometry;
         }
-        if (shaderFileName.starts_with("cs_"))
+        if (shaderFileNameNoExt.starts_with("cs_") || shaderFileNameNoExt.ends_with(".cs"))
         {
             return ShaderResource::ShaderType::Compute;
         }
-        if (shaderFileName.starts_with("tcs_"))
+        if (shaderFileNameNoExt.starts_with("tcs_") || shaderFileNameNoExt.ends_with(".tcs"))
         {
             return ShaderResource::ShaderType::TessellationControl;
         }
-        if (shaderFileName.starts_with("tes_"))
+        if (shaderFileNameNoExt.starts_with("tes_") || shaderFileNameNoExt.ends_with(".tes"))
         {
             return ShaderResource::ShaderType::TessellationEvaluation;
         }
-        if (shaderFileName.starts_with("ms_"))
+        if (shaderFileNameNoExt.starts_with("ms_") || shaderFileNameNoExt.ends_with(".ms"))
         {
             return ShaderResource::ShaderType::Mesh;
         }
-        if (shaderFileName.starts_with("ts_"))
+        if (shaderFileNameNoExt.starts_with("ts_") || shaderFileNameNoExt.ends_with(".ts"))
         {
             return ShaderResource::ShaderType::Task;
         }

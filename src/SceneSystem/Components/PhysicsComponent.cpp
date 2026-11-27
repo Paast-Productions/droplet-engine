@@ -13,10 +13,11 @@
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <SceneSystem/Physics/MeshColliderManager.hpp>
 #include <resource/GuidUtils.hpp>
 #include <Editor/ResourceSlot.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Graphics::Debug;
@@ -87,7 +88,6 @@ void PhysicsComponent::SetMeshCollider(const Droplet::GUID p_meshGuid, const JPH
 	
 	JPH::Ref<JPH::MeshShapeSettings> meshSettings = new JPH::MeshShapeSettings(MeshColliderManager::Get().GetMeshSettings(p_meshGuid));
 	
-	std::cout << "SetMeshCollider this: " << this << '\n';
 	CreateCollider(meshSettings, p_offset);
 	m_shapeType = ShapeType::Mesh;
 	m_meshGuid = p_meshGuid;
@@ -1198,7 +1198,6 @@ void PhysicsComponent::DeserializeImpl(nlohmann::json p_compJson)
 			m_function = std::function<void(Droplet::GUID, JPH::Vec3, float)>(
 				[this](Droplet::GUID p_meshGuid, JPH::Vec3 p_offset, float p_r)
 				{
-					std::cout << "Callback this: " << this << '\n';
 				    SetMeshCollider(p_meshGuid, p_offset);
 				});
 			break;
@@ -1237,10 +1236,12 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	{
 		throw std::runtime_error("Physics system is null");
 	}
-
-	JPH::RotatedTranslatedShapeSettings offsetSettings(p_offset, JPH::Quat::sIdentity(), p_shapeSettings);
 	
-	JPH::ShapeSettings::ShapeResult result = offsetSettings.Create();
+	Transform &t = GetTransform();
+	JPH::Ref<JPH::ScaledShapeSettings> scaledSettings = new JPH::ScaledShapeSettings(p_shapeSettings, GLMtoJPH(t.GetScale()));
+	JPH::Ref<JPH::RotatedTranslatedShapeSettings> offsetSettings = new JPH::RotatedTranslatedShapeSettings(p_offset, JPH::Quat::sIdentity(), scaledSettings);
+	
+	JPH::ShapeSettings::ShapeResult result = offsetSettings->Create();
 
 	if (result.HasError())
 	{
@@ -1248,8 +1249,8 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	}
 
 	m_shape = result.Get();
-	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(GetTransform().GetPosition(Transform::Space::World)), 
-		GLMtoJPH(GetTransform().GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
+	JPH::BodyCreationSettings bodySettings(m_shape, GLMtoJPH(t.GetPosition(Transform::Space::World)), 
+		GLMtoJPH(t.GetRotation(Transform::Space::World)), JPH::EMotionType::Static, Layers::NON_MOVING);
 	bodySettings.mFriction = 0.2f;
 	bodySettings.mAllowDynamicOrKinematic = true;
 	bodySettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
@@ -1268,11 +1269,11 @@ void PhysicsComponent::CreateCollider(JPH::ShapeSettings *p_shapeSettings, const
 	SetMotionType(m_motion);
 	SetObjectLayer(m_layer);
 	
-	m_currentPos = GetTransform().GetPosition(Transform::Space::World);
+	m_currentPos = t.GetPosition(Transform::Space::World);
 	m_previousPos = m_currentPos;
 
-	m_transformPositionVersion = GetTransform().GetPositionVersion();
-	m_transformRotationVersion = GetTransform().GetRotationVersion();
+	m_transformPositionVersion = t.GetPositionVersion();
+	m_transformRotationVersion = t.GetRotationVersion();
 }
 
 void PhysicsComponent::PushTransformToPhysics(TransformSync p_syncFlags)

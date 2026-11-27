@@ -9,6 +9,8 @@
 #include <SceneSystem/Behaviour.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
+#include <mutex>
+
 namespace Droplet::Script
 {
 	/// @brief Provides the main interface for the engine's Lua scripting system.
@@ -16,6 +18,10 @@ namespace Droplet::Script
 	/// Lua state and the ScriptManager. It is responsible for starting and
 	/// updating the scripting system, loading and unloading script files, and
 	/// creating, activating, deactivating, and destroying script instances.
+	///
+	/// All public functions are thread-safe. A single recursive mutex serializes
+	/// access to the Lua state and to all script bookkeeping. It is recursive so
+	/// that Lua bindings may re-enter the script system on the same thread.
 	class ScriptSystem
 	{
 	public:
@@ -164,6 +170,9 @@ namespace Droplet::Script
 			Droplet::Scene::Behaviour *p_scriptBehavior, const std::string& p_functionName, Args&&... p_args);
 
 	private:
+		/// @brief Guards the Lua state and all script manager bookkeeping.
+		std::recursive_mutex m_mutex;
+
 		/// @brief Handles the Lua state used by the scripting system.
 		LuaStateHandler m_luaStateHandler;
 
@@ -183,6 +192,7 @@ namespace Droplet::Script
 	inline sol::protected_function_result ScriptSystem::Call(
 		Droplet::Scene::Component *p_scriptComponent, const std::string &p_functionName, Args&&... p_args)
 	{
+		std::lock_guard<std::recursive_mutex> lock(m_mutex);
 		return m_scriptManager.Call(p_scriptComponent, p_functionName, std::forward<Args>(p_args)...);
 	}
 
@@ -196,6 +206,7 @@ namespace Droplet::Script
 	inline sol::protected_function_result ScriptSystem::Call(
 		Droplet::Scene::Behaviour *p_scriptBehaviour, const std::string& p_functionName, Args&&... p_args)
 	{
+		std::lock_guard<std::recursive_mutex> lock(m_mutex);
 		return m_scriptManager.Call(p_scriptBehaviour, p_functionName, std::forward<Args>(p_args)...);
 	}
 }

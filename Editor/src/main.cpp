@@ -12,8 +12,8 @@
 #include "Graphics/RenderSettings.hpp"
 
 #include <ScriptSystem/ScriptSystem.hpp>
-#include <Graphics/Vulkan/Camera.hpp>
-#include <Graphics/DebugDraw.hpp>
+#include <Common/Camera.hpp>
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <tracy/public/tracy/Tracy.hpp>
 #include <GameInput.hpp>
 #include <EditorContext.hpp>
@@ -39,13 +39,12 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	Droplet::EngineConfig config{
-		Droplet::Graphics::SDL::WindowConfig{
-			static_cast<int>(windowSize.x),
-			static_cast<int>(windowSize.y),
-			{ SDL_WINDOW_VULKAN | SDL_WINDOW_RESIZABLE },
-			"Droplet Editor"
+		.WindowConfig = {
+			.title = "Droplet Editor",
+			.width = static_cast<int>(windowSize.x),
+			.height = static_cast<int>(windowSize.y)
 		},
-		Droplet::UpdateFlags::EditorFlags
+		.UpdateFlags = Droplet::UpdateFlags::EditorFlags
 	};
 	Droplet::Engine engine(config);
 
@@ -58,13 +57,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 	// Set the script path for where the engine will look for scripts.
 	Droplet::Script::ScriptSystem::Get().SetScriptPath(ROOT_PATH "/src/Scripts");
 
-	// Setup SDL polling listener
-	engine.AddEventListener([](SDL_Event &event)
-	{
-		// ImGui listener callback
-		ImGui_ImplSDL3_ProcessEvent(&event);
-	});
-
+	// Setup SDL polling listener (the engine passes every event to ImGui first)
 	engine.AddEventListener([](SDL_Event &event)
 	{
 		// Window state event callback
@@ -196,6 +189,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
+		std::vector<EditorWindow *> toFocus = { &resourceBrowser, &hierarchyWindow, &nodeInspectorWindow, &sceneViewWindow };
+
 		// Run main loop
 		bool run = true;
 		while (run)
@@ -237,9 +232,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			}
 
 			// ImGui
-			ImGui_ImplVulkan_NewFrame();
-			ImGui_ImplSDL3_NewFrame();
-			ImGui::NewFrame();
+			engine.BeginFrame(); // the renderer's and SDL's ImGui backends, then ImGui::NewFrame
 			ImGui::DockSpaceOverViewport();
 			ImGuizmo::BeginFrame();
 
@@ -510,18 +503,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				}
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
+			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
 			{
-				hierarchyWindow.Render();
-			}
-			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
-			{
-				nodeInspectorWindow.Render();
+				mixerWindow.Render();
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
 			{
-				behaviourInspector.Render();
+				busInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowRenderSettings", true))
+			{
+				renderSettingsWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowSceneInspector", true))
+			{
+				sceneInspectorWindow.Render();
 			}
 
 			if (EditorConfig::LoadBool("Editor.ShowScripts", true))
@@ -539,30 +538,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				resourceBrowser.Render();
 			}
 
+			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			{
+				behaviourInspector.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
+			{
+				nodeInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
+			{
+				hierarchyWindow.Render();
+			}
 
 			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
-			{
-				mixerWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
-			{
-				busInspectorWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowSceneInspector", true))
-			{
-				sceneInspectorWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowRenderSettings", true))
-			{
-				renderSettingsWindow.Render();
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
@@ -572,26 +565,23 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				EditorConfig::LoadBool("Editor.ShowEditorView", true) && 
 				!sceneViewWindow.IsRenderingGameView();
 
-			std::vector<Droplet::Graphics::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
+			std::vector<Droplet::Common::CameraRenderData> queuedEditorCameras = editorContext.GetQueuedEditorCameras();
 
 			if (renderEditorView)
 			{
 				ZoneScopedN("Editor Camera Render Data");
 
-				using namespace Droplet::Graphics::Vulkan;
-
-				Droplet::Graphics::CameraRenderData camRenderData{ };
+				Droplet::Common::CameraRenderData camRenderData{ };
 				camRenderData.debug = true;
 
-				IntermediaryStorage &instance = IntermediaryStorage::GetInstance();
 				auto &editorCamera = editorContext.GetEditorCamera();
 				auto activeScene = editorContext.GetActiveScene().lock();
 
 				if (activeScene)
 				{
 					camRenderData.clearColor = editorCamera.GetClearColor();
-					camRenderData.camera = static_cast<Droplet::Graphics::Camera>(editorCamera);
-					camRenderData.renderTarget = editorCamera.GetTarget();
+					camRenderData.camera = static_cast<Droplet::Common::Camera>(editorCamera);
+					camRenderData.target = editorCamera.GetTarget();
 
 					auto &renderables = activeScene->GetRenderables();
 
@@ -639,8 +629,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				}
 			}
 
-			// Render the engine
-			switch (engine.Render(queuedEditorCameras.empty() ? nullptr : &queuedEditorCameras))
+			// render the scene's cameras and the editor's, then the ImGui frame
+			switch (engine.Render(queuedEditorCameras))
 			{
 			case Droplet::DROPLET_RETURNTYPE::OK:
 				break;
@@ -656,6 +646,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			}
 
 			editorContext.ClearQueuedEditorCameras();
+
+			if (!toFocus.empty())
+			{
+				toFocus.front()->GiveFocus();
+				toFocus.erase(toFocus.begin());
+			}
+      
+			FrameMark;
 		}
 	}
 

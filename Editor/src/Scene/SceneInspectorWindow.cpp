@@ -34,13 +34,41 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 	// }
 	
 	ImGui::SeparatorText("Octree");
+	Octree &octree = scene->GetOctree();
+	
+	static int octreeExt = static_cast<int>(octree.GetExtentLength());
+	static int maxNodes = octree.GetMaxNodes();
+	static int maxDepth = octree.GetMaxDepth();
+	
+	// Update config display when changing scene
+	static std::string_view tempStr = scene->GetName();
+	if (tempStr != scene->GetName())
+	{
+		tempStr = scene->GetName();
+		octreeExt = static_cast<int>(octree.GetExtentLength());
+		maxNodes = octree.GetMaxNodes();
+		maxDepth = octree.GetMaxDepth();
+	}
 	
 	// Octree configurations
-	static int octreeExt = 100;
 	ImGui::DragInt("Octree extent size", &octreeExt, 1, 10);
 	if (ImGui::Button("Apply new octree extents"))
 	{
 		scene->InitializeOctree(static_cast<float>(octreeExt));
+	}
+	
+	ImGui::DragInt("Octree max nodes", &maxNodes, 1, 8);
+	if (ImGui::Button("Apply new max nodes"))
+	{
+		octree.SetMaxNodes(static_cast<std::uint8_t>(maxNodes));
+		scene->RebuildOctree();
+	}
+	
+	ImGui::DragInt("Octree max depth", &maxDepth, 1, 1);
+	if (ImGui::Button("Apply new max depth"))
+	{
+		octree.SetMaxDepth(static_cast<std::uint8_t>(maxDepth));
+		scene->RebuildOctree();
 	}
 	
 	if (ImGui::Button("Rebuild octree"))
@@ -51,6 +79,7 @@ void Droplet::Editor::SceneInspectorWindow::RenderImpl()
 	ImGui::NewLine();
 	
 	// Render octree options
+	ImGui::Text("Render options");
 	static bool rOctant = true;
 	static bool rNode = true;
 	ImGui::Checkbox("Octant", &rOctant);

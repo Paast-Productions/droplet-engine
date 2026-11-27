@@ -1,0 +1,181 @@
+{
+    "name": "TestPhysicsScale",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Boat",
+                        "meshGUID": 6902259134965776716,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 6902259134965776716,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 17,
+            "name": "Boat",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 18,
+            "name": "BasePlayer",
+            "prefab": "GameData\\Prefabs\\BasePlayer.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    3.157625913619995,
+                    2.0028021335601807
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Seal",
+                        "meshGUID": 14447431378323535218,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "White",
+                        "textureGUID": 13855953862202670664,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.8767739534378052,
+                        "halfExtentsY": 2.1625704765319824,
+                        "halfExtentsZ": 1.109634518623352,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 0,
+                        "motionType": 0,
+                        "offsetX": -0.006785005331039429,
+                        "offsetY": 0.6626715064048767,
+                        "offsetZ": -0.28846946358680725,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 1
+                    },
+                    "id": 3,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 24,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    4.289184093475342,
+                    0.46979156136512756,
+                    3.506145477294922
+                ],
+                "rotation": [
+                    0.9095655679702759,
+                    0.0,
+                    0.4155605137348175,
+                    0.0
+                ],
+                "scale": [
+                    0.9999997615814209,
+                    0.30000001192092896,
+                    0.49999988079071045
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

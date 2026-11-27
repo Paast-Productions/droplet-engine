@@ -35,6 +35,9 @@ local fovTime = 0.0
 local fovTransitionTimeFrac = 0.2 -- % of pulseFadeOutTime
 local transitionTime = fovTransitionTimeFrac * pulseFadeOutTime
 
+-- Pulse sound
+local AudioPlayer = nil
+
 -- Camera settings
 local mouseSensitivity = 0.0025   -- radians per pixel
 local maxPitch = math.rad(80.0)   -- pitch limit up/down
@@ -174,6 +177,11 @@ function UpdateMovement(dt)
 		if camera ~= nil then
 			camera:SetFOV(pulseFov)
 		end
+
+        -- Pulse-jet Sound
+        if not AudioPlayer:IsPlaying() then
+            AudioPlayer:Play()
+        end
 	end
 
     -- Dedicated vertical movement in world space
@@ -312,6 +320,12 @@ function OnStart()
 	if physicsComponent == nil then
 		print("No PhysicsComponent found in DroneControl.lua")
 	end
+
+    AudioPlayer = self:GetAudioPlayer("pulse-jet")
+    if AudioPlayer == nil then
+        print("Unable to find pulse-jet sound (DroneControl.lua)")
+        return
+    end
 
     tracy.ZoneEnd()
 end

@@ -10,6 +10,7 @@ freezeConfig.minSpeedMultiplier = 0.2
 
 local freezeRate = 50
 local damageScaling = 5
+local recoveryDelay = 3.0
 
 -- Temperature configuration
 local temperatureChangeRate = 2.0
@@ -111,7 +112,7 @@ function OnTrigger(dt, node)
     end
 
     -- Prevent immediate recovery after leaving the hazard.
-    pb:SetFreezeTimer(3.0)
+    pb:SetFreezeTimer(recoveryDelay)
 end
 
 function RenderUI()

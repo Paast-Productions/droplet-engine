@@ -105,13 +105,17 @@ namespace Droplet
         /// @brief Loads a resource specified by a guid.
         /// @tparam T The resource type.
         /// @param p_guid The guid of the resource.
-        /// @param p_onLoadCallback Callback triggered (on main thread) when the resource's state is ready.
+        /// @param p_onLoadCallback Callback invoked once the resource is ready. If the resource is already ready, it is invoked
+        /// synchronously on the calling thread (after the internal lock is released). Otherwise it is invoked from Update() on the main thread.
         /// @return A handle to the resource. Make sure to check its validity before use.
         template<typename T>
         [[nodiscard]] StaticResourceHandle<T> LoadResource(GUID p_guid, std::function<void(StaticResourceHandle<T>)> p_onLoadCallback = nullptr)
         {
             static_assert(std::is_base_of_v<IStaticResource, T>, "T must inherit from IResource");
             assert(m_isInitialized && "ResourceManager is not initialized.");
+
+            std::unique_lock<std::recursive_mutex> lock(m_mutex);
+            std::function<void()> readyCallback;
 
             MetaEntry metaEntry;
             if (!m_registry.GetResourceMetaData(p_guid, metaEntry))
@@ -140,7 +144,11 @@ namespace Droplet
 			{
 				if (it->second.state == ResourceState::Ready)
 				{
-					p_onLoadCallback(handle);
+					// Deferred until the lock is released so user code never runs under m_mutex
+					readyCallback = [p_onLoadCallback, handle]()
+					{
+						p_onLoadCallback(handle);
+					};
 				}
 				else if (it->second.state != ResourceState::Failed)
 				{
@@ -182,6 +190,8 @@ namespace Droplet
 			    }
 			}
 			
+			lock.unlock();
+			if (readyCallback) readyCallback();
 			return handle;
 		}
 
@@ -272,6 +282,7 @@ namespace Droplet
 		{
 			assert(m_isInitialized && "AssetManager is not initialized.");
 			
+			std::lock_guard<std::recursive_mutex> lock(m_mutex);
 			auto it = m_liveResources.find(p_guid);
 		    
 		    if constexpr (std::is_same_v<T, SoundResource>)
@@ -346,6 +357,10 @@ namespace Droplet
             });
         }
         
+        // Guards m_registry, m_liveResources, m_pendingSoundLoads, m_reloadCallbacks and editor state.
+        // Lock order: MeshColliderManager -> this -> AudioSystem. User callbacks must run after releasing it.
+        mutable std::recursive_mutex m_mutex;
+
         bool m_isInitialized = false;
         std::filesystem::path m_rootDirectory; // Absolute path to the root directory
         

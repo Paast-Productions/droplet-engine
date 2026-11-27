@@ -1,13 +1,17 @@
 #pragma once
 
 #include <memory>
+#include <mutex>
 #include <string>
+#include <unordered_set>
 #include <vector>
+
+#include <resource/GuidUtils.hpp>
 
 #include <Math/Bounds/Intersection.hpp>
 #include <SceneSystem/Octree.hpp>
 #include <SceneSystem/Physics/Physics.hpp>
-#include <Graphics/RenderData.hpp>
+#include <Common/RenderData.hpp>
 #include <SceneSystem/SceneManager.hpp>
 
 
@@ -132,7 +136,7 @@ namespace Droplet::Scene
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
 		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
-		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: (SCENE) Make weak pointer
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot, bool p_skipActiveChange = false); // TODO: (SCENE) Make weak pointer
 
         /// @brief Removes a root Node from the Scene.
         ///
@@ -145,7 +149,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_node is nullptr.
         /// @throws std::runtime_error if the Node is not a root of this Scene.
-        void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
+        void RemoveRoot(const std::shared_ptr<Node> &p_node, bool p_skipActiveChange = false); // TODO: Make weak pointer
 
 		/// @brief Notifies the Scene that a Node is being destructed.
 		/// @param p_node The Node being destructed.
@@ -172,6 +176,22 @@ namespace Droplet::Scene
         ///
         /// @return true if the Scene is loaded, otherwise false.
         bool IsLoaded() const;
+
+        /// @brief Notifies the Scene that a resource it depends on has started loading.
+        ///
+        /// Tracking is per guid, so repeated loads of the same guid count once. Must be paired with
+        /// EndResourceLoad(). Prefer LoadTrackedResource(), which handles the pairing. Thread safe.
+        /// @param p_guid The guid of the resource.
+        void BeginResourceLoad(GUID p_guid);
+
+        /// @brief Notifies the Scene that a resource it depends on has finished loading or has failed. Thread safe.
+        /// @param p_guid The guid of the resource.
+        void EndResourceLoad(GUID p_guid);
+
+        /// @brief Checks whether all resources the Scene depends on have finished loading.
+        ///
+        /// @return true if no tracked resource loads are pending, otherwise false.
+        [[nodiscard]] bool AreResourcesLoaded() const;
 
         /// @brief Checks whether the Scene is active.
         ///
@@ -204,6 +224,8 @@ namespace Droplet::Scene
     	
     	/// @brief Rebuilds the octree
     	void RebuildOctree();
+    	
+    	Octree &GetOctree();
     
 		/// @brief Render octree
 		/// @param p_renderOctants True to render octants
@@ -279,7 +301,7 @@ namespace Droplet::Scene
             return nullptr;
         }
 
-        const std::vector<std::shared_ptr<Behaviour>> &GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
+        std::vector<std::shared_ptr<Behaviour>> GetBehaviours() { return m_sceneManager->GetBehaviours(); } // TODO: (SCENE) Make weak pointer
 
         std::weak_ptr<Behaviour> StartBehaviour(const std::string &p_behaviourTypeName) { return m_sceneManager->StartBehaviour(p_behaviourTypeName); }
 
@@ -307,6 +329,9 @@ namespace Droplet::Scene
 
         bool m_loaded = false;
         bool m_active = false;
+
+        std::unordered_set<GUID> m_pendingResourceLoads;
+        mutable std::mutex m_resourceLoadMutex;
 
 		SceneManager *m_sceneManager = nullptr;
     };     

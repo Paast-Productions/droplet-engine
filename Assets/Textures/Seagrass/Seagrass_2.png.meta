@@ -5,7 +5,7 @@
             "guid": 3979492177554091074,
             "loadFlags": 3,
             "loadSettings": {
-                "generate_mipmaps": false
+                "generate_mipmaps": true
             },
             "sourceName": "Seagrass_2",
             "type": 1

@@ -32,6 +32,7 @@ bool Droplet::Audio::AudioSystem::Initialize()
     config.streamCapacity = 64;
     config.voiceCapacity = 128;
     config.busCapacity = 128;
+    config.logLevel = dalia::LogLevel::None;
 	dalia::Result res = m_daliaEngine->Initialize(config);
 	if (res != dalia::Result::Ok) return false;
     RegisterEffects();
@@ -56,6 +57,7 @@ void Droplet::Audio::AudioSystem::Shutdown()
 
 void AudioSystem::Update()
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     ProcessFinishedPlaybacks(); // Clean up finished handles
     
     // Sync emitters
@@ -183,6 +185,7 @@ double AudioSystem::GetSoundLenghtInSeconds(SoundResource *sound) const
 
 PlaybackID AudioSystem::Play2D(SoundResource *p_sound, const PlaybackConfig &p_config)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (!p_sound || m_isGamePaused) return C_INVALID_PLAYBACK_ID;
 
     PlaybackID newId = m_nextPlaybackId++;
@@ -190,6 +193,7 @@ PlaybackID AudioSystem::Play2D(SoundResource *p_sound, const PlaybackConfig &p_c
 
     auto exitCallback = [this, newId](dalia::PlaybackHandle, dalia::PlaybackExitCondition)
     {
+        std::lock_guard<std::mutex> finishedLock(m_finishedMutex);
         m_finishedPlaybacks.push_back(newId);
     };
 
@@ -219,6 +223,7 @@ PlaybackID AudioSystem::Play2D(SoundResource *p_sound, const PlaybackConfig &p_c
 
 void AudioSystem::SetPlaybackVolumeDb(PlaybackID p_id, float p_volumeDb)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(p_id);
     if (it != m_playbacks.end())
     {
@@ -229,6 +234,7 @@ void AudioSystem::SetPlaybackVolumeDb(PlaybackID p_id, float p_volumeDb)
 
 void AudioSystem::SetPlaybackPitch(PlaybackID p_id, float p_pitch)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(p_id);
     if (it != m_playbacks.end())
     {
@@ -239,6 +245,7 @@ void AudioSystem::SetPlaybackPitch(PlaybackID p_id, float p_pitch)
 
 void AudioSystem::SetPlaybackStereoPan(PlaybackID p_id, float p_pan)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(p_id);
     if (it != m_playbacks.end())
     {
@@ -249,6 +256,7 @@ void AudioSystem::SetPlaybackStereoPan(PlaybackID p_id, float p_pan)
 
 void AudioSystem::SetPlaybackLooping(PlaybackID p_id, bool p_looping)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(p_id);
     if (it != m_playbacks.end())
     {
@@ -258,6 +266,7 @@ void AudioSystem::SetPlaybackLooping(PlaybackID p_id, bool p_looping)
 
 bool AudioSystem::RoutePlayback(PlaybackID p_id, const std::string& p_busName)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(p_id);
     if (it == m_playbacks.end()) return false;
 
@@ -273,12 +282,14 @@ bool AudioSystem::RoutePlayback(PlaybackID p_id, const std::string& p_busName)
 
 void AudioSystem::RegisterPlayerComponent(Scene::AudioPlayerComponent *player)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = std::find(m_playerComponents.begin(), m_playerComponents.end(), player);
     if (it == m_playerComponents.end()) m_playerComponents.push_back(player);
 }
 
 void AudioSystem::UnregisterPlayerComponent(Scene::AudioPlayerComponent *player)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = std::find(m_playerComponents.begin(), m_playerComponents.end(), player);
     if (it != m_playerComponents.end())
     {
@@ -295,12 +306,14 @@ void AudioSystem::UnregisterPlayerComponent(Scene::AudioPlayerComponent *player)
 
 void AudioSystem::RegisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = std::find(m_emitterComponents.begin(), m_emitterComponents.end(), emitter);
     if (it == m_emitterComponents.end()) m_emitterComponents.push_back(emitter);
 }
 
 void AudioSystem::UnregisterEmitterComponent(Scene::AudioEmitterComponent *emitter)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = std::find(m_emitterComponents.begin(), m_emitterComponents.end(), emitter);
     if (it != m_emitterComponents.end())
     {
@@ -317,6 +330,7 @@ void AudioSystem::UnregisterEmitterComponent(Scene::AudioEmitterComponent *emitt
 
 void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (listener->GetListenerId() != C_INVALID_LISTENER_ID) return;
     
     for (uint32_t i = 1; i < 4; i++)
@@ -341,6 +355,7 @@ void AudioSystem::RegisterListenerComponent(Scene::AudioListenerComponent *liste
 
 void AudioSystem::UnregisterListenerComponent(Scene::AudioListenerComponent *listener)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     ListenerID id = listener->GetListenerId();
     if (id == C_INVALID_LISTENER_ID) return;
     
@@ -368,6 +383,7 @@ void AudioSystem::UnregisterListenerComponent(Scene::AudioListenerComponent *lis
 
 void AudioSystem::SetListenerActive(ListenerID p_id, bool p_active)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (p_id < C_LISTENERS_MAX && m_listeners[p_id].taken)
     {
         m_listeners[p_id].active = p_active;
@@ -377,6 +393,7 @@ void AudioSystem::SetListenerActive(ListenerID p_id, bool p_active)
 
 PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource *sound)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (m_isGamePaused) return C_INVALID_PLAYBACK_ID; // Game is paused -> do not allow new play calls
     
     PlaybackID newId = m_nextPlaybackId++;
@@ -385,6 +402,7 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
     // Callback that fires once the playback has finished
     auto exitCallback = [this, newId] (dalia::PlaybackHandle handle, dalia::PlaybackExitCondition condition)
     {
+        std::lock_guard<std::mutex> finishedLock(m_finishedMutex);
         m_finishedPlaybacks.push_back(newId);
     };
     
@@ -418,6 +436,7 @@ PlaybackID AudioSystem::Play(Scene::AudioPlayerComponent *player, SoundResource 
 
 PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, SoundResource *sound)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (m_isGamePaused) return C_INVALID_PLAYBACK_ID; // Game is paused -> do not allow new play calls
     
     PlaybackID newId = m_nextPlaybackId++;
@@ -426,6 +445,7 @@ PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, Sound
     // Callback that fires once the playback has finished
     auto exitCallback = [this, newId] (dalia::PlaybackHandle handle, dalia::PlaybackExitCondition condition)
     {
+        std::lock_guard<std::mutex> finishedLock(m_finishedMutex);
         m_finishedPlaybacks.push_back(newId);
     };
     
@@ -467,6 +487,7 @@ PlaybackID AudioSystem::PlaySpatial(Scene::AudioEmitterComponent *emitter, Sound
 
 void AudioSystem::Pause(PlaybackID id)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(id);
     if (it != m_playbacks.end()) 
     {
@@ -477,6 +498,7 @@ void AudioSystem::Pause(PlaybackID id)
 
 void AudioSystem::Resume(PlaybackID id)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(id);
     if (it != m_playbacks.end()) 
     {
@@ -490,6 +512,7 @@ void AudioSystem::Resume(PlaybackID id)
 
 void AudioSystem::Stop(PlaybackID id)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(id);
     if (it != m_playbacks.end()) 
     {
@@ -500,6 +523,7 @@ void AudioSystem::Stop(PlaybackID id)
 
 PlaybackState AudioSystem::GetPlaybackState(PlaybackID id) const
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     auto it = m_playbacks.find(id); 
     if (it != m_playbacks.end()) return it->second.state;
     return PlaybackState::Inactive;
@@ -507,6 +531,7 @@ PlaybackState AudioSystem::GetPlaybackState(PlaybackID id) const
 
 void AudioSystem::SetMode(bool p_isGameMode)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     m_isGameMode = p_isGameMode;
     
     // Stop all active playbacks in dalia
@@ -532,6 +557,7 @@ void AudioSystem::SetMode(bool p_isGameMode)
 
 void AudioSystem::SetGamePaused(bool p_paused)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     m_isGamePaused = p_paused;
     
     for (auto& [id, data] : m_playbacks)
@@ -547,6 +573,7 @@ void AudioSystem::SetGamePaused(bool p_paused)
 void AudioSystem::UpdateEditorListener3DAttributes(const glm::vec3 &p_pos, const glm::vec3 &p_fwd,
                                                    const glm::vec3 &p_up, const glm::vec3 &p_vel)
 {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
     m_daliaEngine->SetListener3DAttributes(C_EDITOR_LISTENER_ID, { 
         .position = { p_pos.x, p_pos.y, p_pos.z },
         .forward = { p_fwd.x, p_fwd.y, p_fwd.z },
@@ -593,7 +620,14 @@ bool Droplet::Audio::AudioSystem::AttachEffect(dalia::EffectHandle &p_effect, co
 
 void AudioSystem::ProcessFinishedPlaybacks()
 {
-    for (PlaybackID id : m_finishedPlaybacks)
+    // Swap out the queue so component callbacks run without holding the dalia callback lock
+    std::vector<PlaybackID> finished;
+    {
+        std::lock_guard<std::mutex> finishedLock(m_finishedMutex);
+        finished.swap(m_finishedPlaybacks);
+    }
+
+    for (PlaybackID id : finished)
     {
         m_playbacks.erase(id);
         
