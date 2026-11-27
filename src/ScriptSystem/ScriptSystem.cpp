@@ -113,6 +113,7 @@ void Droplet::Script::ScriptSystem::DeserializeBehaviour(Droplet::Scene::Behavio
 	ZoneScoped;
 	std::lock_guard<std::recursive_mutex> lock(m_mutex);
 
+	m_scriptManager.DeserializeBehaviour(p_scriptBehaviour, p_data);
 }
 
 void ScriptSystem::TriggerComponentScript(Droplet::Scene::Component *p_scriptComponent, float p_deltaTime, const std::shared_ptr<Droplet::Scene::Node> &p_otherNode )

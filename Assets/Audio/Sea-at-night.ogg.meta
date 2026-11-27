@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Sea-at-night",
+            "guid": 15367218493954547915,
+            "loadFlags": 1,
+            "loadSettings": {
+                "sound_type": 0
+            },
+            "sourceName": "Sea-at-night",
+            "type": 8
+        }
+    ]
+}

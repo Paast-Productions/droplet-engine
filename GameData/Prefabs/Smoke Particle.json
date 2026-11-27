@@ -1,0 +1,50 @@
+{
+    "active": true,
+    "children": [],
+    "collisionLayerMask": 64,
+    "components": [
+        {
+            "active": true,
+            "data": {
+                "fs": 13680123319807966343,
+                "fsName": "Base.FS",
+                "gs": 0,
+                "gsName": "",
+                "meshDisplayName": "Particle",
+                "meshGUID": 1127962353778719569,
+                "tcs": 0,
+                "tcsName": "",
+                "tes": 0,
+                "tesName": "",
+                "textureDisplayName": "White",
+                "textureGUID": 13855953862202670664,
+                "transparent": false,
+                "vs": 7809030845991192100,
+                "vsName": "Base.VS"
+            },
+            "id": 1,
+            "type": "MeshComponent"
+        }
+    ],
+    "drawLayer": 4,
+    "id": 63,
+    "name": "Smoke Particle",
+    "transform": {
+        "position": [
+            0.00010943412780761719,
+            9.09566879272461e-05,
+            0.00016689300537109375
+        ],
+        "rotation": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+        ],
+        "scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "name": "BrineLake",
+    "roots": [
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 1,
+            "name": "BrinePoolSurface",
+            "prefab": "GameData\\Prefabs\\BrinePoolSurface.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    -0.45479828119277954,
+                    0.22049742937088013
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    10.454999923706055,
+                    0.47999998927116394,
+                    10.609000205993652
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "TestBrineLake",
+                        "meshGUID": 18225382335867298609,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "DeepSeaFloor",
+                        "textureGUID": 12438710227993555912,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 5,
+            "name": "BrineLake",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    4.76837158203125e-07
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    5.482769966125488,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}

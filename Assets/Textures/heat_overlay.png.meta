@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "heat_overlay",
+            "guid": 14044838112203778529,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": false
+            },
+            "sourceName": "heat_overlay",
+            "type": 1
+        }
+    ]
+}

@@ -3,18 +3,23 @@
 #include <SceneSystem/Components/MeshComponent.hpp>
 #include <SceneSystem/Components/PhysicsComponent.hpp>
 #include <SceneSystem/Components/HealthComponent.hpp>
-#include <SceneSystem/Components/DamageComponent.hpp>
+#include <SceneSystem/Components/HazardComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
+#include <SceneSystem/Components/CollectibleTypeComponent.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
+#include <SceneSystem/Components/ScriptComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
 #include <LuaBindings.hpp>
 #include <Item.hpp>
 #include <ItemRegistry.hpp>
-
+#include <Component.hpp>
 #include "ItemRegistry.hpp"
-
+#include <SceneSystem/Components/LadderComponent.hpp>
+#include <SceneSystem/Node.hpp>
+#include <SceneSystem/Components/InteractableComponent.hpp>
 
 using namespace Droplet::Scene;
 using namespace Droplet::Script;
@@ -25,9 +30,15 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterHealthComponent(p_luaState);
 	RegisterPlayerComponent(p_luaState);
 	RegisterPlayerBehaviour(p_luaState);
-	RegisterDamageComponent(p_luaState);
+	RegisterHazardComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+    RegisterAudioPlayerComponent(p_luaState);
     RegisterAudioEmitterComponent(p_luaState);
+	RegisterMeshComponent(p_luaState);
+    RegisterInteractableComponent(p_luaState);
+	RegisterLadderComponent(p_luaState);
+	RegisterCollectibleTypeComponent(p_luaState);
+    RegisterScriptComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -76,7 +87,10 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 		"TriggerRender", &Scene::CameraComponent::TriggerRender,
 
 		"GetTarget", &Scene::CameraComponent::GetTarget,
-		"SetTarget", &Scene::CameraComponent::SetTarget
+		"SetTarget", &Scene::CameraComponent::SetTarget,
+
+		"GetTexture", &Scene::CameraComponent::GetTexture,
+		"SetTexture", &Scene::CameraComponent::SetTexture
 	);
 
     LuaClassDefinition classDef;
@@ -304,23 +318,27 @@ void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
 
 void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::MeshComponent>(
-		"MeshComponent",
-		"SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
-		"GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
-		"SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
-		"GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
-		"SetVSGUID", &Scene::MeshComponent::SetVSGUID,
-		"GetVSGUID", &Scene::MeshComponent::GetVSGUID,
-		"SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
-		"GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
-		"SetTESGUID", &Scene::MeshComponent::SetTESGUID,
+    p_luaState.new_usertype<Scene::MeshComponent>(
+        "MeshComponent",
+        "SetMeshGUID", &Scene::MeshComponent::SetMeshGUID,
+        "GetMeshGUID", &Scene::MeshComponent::GetMeshGUID,
+        "SetTextureGUID", &Scene::MeshComponent::SetTextureGUID,
+        "GetTextureGUID", &Scene::MeshComponent::GetTextureGUID,
+        "SetVSGUID", &Scene::MeshComponent::SetVSGUID,
+        "GetVSGUID", &Scene::MeshComponent::GetVSGUID,
+        "SetTCSGUID", &Scene::MeshComponent::SetTCSGUID,
+        "GetTCSGUID", &Scene::MeshComponent::GetTCSGUID,
+        "SetTESGUID", &Scene::MeshComponent::SetTESGUID,
         "GetTESGUID", &Scene::MeshComponent::GetTESGUID,
-		"SetGSGUID", &Scene::MeshComponent::SetGSGUID,
-		"GetGSGUID", &Scene::MeshComponent::GetGSGUID,
-		"HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
-		"GetsBounds", &Scene::MeshComponent::GetBounds
-	);
+        "SetGSGUID", &Scene::MeshComponent::SetGSGUID,
+        "GetGSGUID", &Scene::MeshComponent::GetGSGUID,
+        "HasBoundsOverride", &Scene::MeshComponent::HasBoundsOverride,
+        "GetBounds", &Scene::MeshComponent::GetBounds,
+
+        // Inherited Component functionality.
+        "SetActiveSelf", &Scene::Component::SetActiveSelf,
+        "IsActive", &Scene::Component::IsActive
+    );
 
     LuaClassDefinition classDef;
     classDef.name = "MeshComponent";
@@ -346,11 +364,11 @@ void Bindings::RegisterMeshComponent(sol::state_view p_luaState)
         {"SetGSGUID", "void", {{"guid", "GUID"}}},
         {"GetGSGUID", "GUID", {}},
 
-        {"SetFSGUID", "void", {{"guid", "GUID"}}},
-        {"GetFSGUID", "GUID", {}},
-
         {"HasBoundsOverride", "boolean", {}},
-        {"GetBounds", "NodeBounds", {}}
+        {"GetBounds", "NodeBounds", {}},
+
+        {"SetActiveSelf", "void", {{"active", "boolean"}}},
+        {"IsActive", "boolean", {}}
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -533,7 +551,9 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		"TakeDamage", &Scene::HealthComponent::TakeDamage,
 		"Heal", &Scene::HealthComponent::Heal,
 		"SetHealth", &Scene::HealthComponent::SetHealth,
-		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth
+		"SetMaxHealth", &Scene::HealthComponent::SetMaxHealth,
+
+		"TakeDamageHullIntergrity", & Scene::HealthComponent::TakeDamageHullIntergrity
 	);
 
 	LuaClassDefinition classDef;
@@ -546,26 +566,37 @@ void Bindings::RegisterHealthComponent(sol::state_view p_luaState)
 		{ "TakeDamage", "void", { { "amount", "number" } } },
 		{ "Heal", "void", { { "amount", "number" } } },
 		{ "SetHealth", "void", { { "amount", "number" } } },
-		{ "SetMaxHealth", "void", { { "amount", "number" } } }
+		{ "SetMaxHealth", "void", { { "amount", "number" } } },
+	
+		{ "TakeDamageHullIntergrity", "void", { { "amount", "number" } } }
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
-
 }
 
-void Bindings::RegisterDamageComponent(sol::state_view p_luaState)
+void Bindings::RegisterHazardComponent(sol::state_view p_luaState)
 {
-	p_luaState.new_usertype<Scene::DamageComponent>(
-		"DamageComponent",
-		"GetDamage", &Scene::DamageComponent::GetDamageLua
+	p_luaState.new_usertype<Scene::HazardComponent>(
+		"HazardComponent",
+		"GetDamage", &Scene::HazardComponent::GetDamage,
+        "GetZone", &Scene::HazardComponent::GetZone,
+		"GetDirection", &HazardComponent::GetDirection,
+		
+		"SetDamage", &HazardComponent::SetDamage,
+		"SetDirection", &HazardComponent::SetDirection
 	);
 
     LuaClassDefinition classDef;
-    classDef.name = "DamageComponent";
+    classDef.name = "HazardComponent";
 
     classDef.functions =
     {
         { "GetDamage", "float", {} },
+        { "GetDirection", "float", {} },
+        
+        { "SetDamage", "void", {{"damage", "number"}} },
+        { "SetDirection", "void", {{"direction", "Vec3"}} },
+        { "GetZone", "int",{} },
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -620,6 +651,10 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 	p_luaState.new_usertype<Scene::PlayerBehaviour>(
 		"PlayerBehaviour",
 		"GetMaxHealth", &Scene::PlayerBehaviour::GetMaxHealth,
+
+        "GetHullIntegrity", &Scene::PlayerBehaviour::GetHullIntegrity,
+        "SetHullIntegrity", &Scene::PlayerBehaviour::SetHullIntegrity,
+        "IncreaseHullIntegrity", &Scene::PlayerBehaviour::IncreaseHullIntegrity,
 		
         "GetHeatResistance", &Scene::PlayerBehaviour::GetHeatResistance,
 		"SetHeatResistance", & Scene::PlayerBehaviour::SetHeatResistance,
@@ -634,6 +669,10 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         "SetFreezeLevel", &Scene::PlayerBehaviour::SetFreezeLevel,
         "SetFreezeTimer", &Scene::PlayerBehaviour::SetFreezeTimer,
         "GetFreezeTimer", &Scene::PlayerBehaviour::GetFreezeTimer,
+		"GetDroneTemp", &Scene::PlayerBehaviour::GetDroneTemp,
+		"SetDroneTemp", &Scene::PlayerBehaviour::SetDroneTemp,
+		"GetOutsideTemp", &Scene::PlayerBehaviour::GetOutsideTemp,
+		"SetOutsideTemp", &Scene::PlayerBehaviour::SetOutsideTemp,
 
         "GetPressureResistance", &Scene::PlayerBehaviour::GetPressureResistance,
         "SetPressureResistance", &Scene::PlayerBehaviour::SetPressureResistance,
@@ -649,12 +688,13 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
 
         "SetDroneInventorySize", &Scene::PlayerBehaviour::SetDroneInventorySize,
         "GetDroneInventorySize", &Scene::PlayerBehaviour::GetDroneInventorySize,
+        "ClearDroneInventory", &Scene::PlayerBehaviour::ClearDroneInventory,
+        "TransferDroneInventoryToPlayer", &Scene::PlayerBehaviour::TransferDroneInventoryToPlayer,
 
 		"SetDroneMaxSpeed", &Scene::PlayerBehaviour::SetDroneMaxSpeed,
         "GetDroneMaxSpeed", &Scene::PlayerBehaviour::GetDroneMaxSpeed,
         "SetDroneMaxRange", &Scene::PlayerBehaviour::SetDroneMaxRange,
         "GetDroneMaxRange", &Scene::PlayerBehaviour::GetDroneMaxRange
-
 	);
 
     // PlayerBehaviour API metadata.
@@ -663,6 +703,9 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     classDef.functions =
     {
         { "GetMaxHealth", "float", {} },
+        { "GetHullIntegrity", "float",{} },
+        { "SetHullIntegrity", "void",{ { "resistance", "number" } } },
+        { "IncreaseHullIntegrity",   "void",{ { "amount", "number" } } },
         { "GetHeatResistance", "float", {} },
         { "GetHeatLevel", "float", {} },
         { "IncreaseHeatLevel", "void", { { "amount", "number" } } },
@@ -683,18 +726,15 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetPressureLevel", "float", {} },
         { "SetPressureLevel", "void", { { "amount", "number" } } },
         { "IncreasePressureLevel", "void", { { "amount", "number" } } },
-        { "GetRadiationResistance", "float", {} },
-        { "SetRadiationResistance", "void", { { "amount", "number" } } },
-        { "GetRadiationLevel", "float", {} },
-        { "SetRadiationLevel", "void", { { "amount", "number" } } },
-		{ "IncreaseRadiationLevel", "void", { { "amount", "number" } } },
 		{ "SetDroneInventorySize", "void", { { "amount", "number" } } },
 		{ "GetDroneInventorySize", "float", {} },
 		{ "SetDroneMaxSpeed", "void", { { "amount", "number" } } },
         { "GetDroneMaxSpeed", "float", {} },
 		{ "SetDroneMaxRange", "void", { { "amount", "number" } } },
         { "GetDroneMaxRange", "float", {} },
-		
+        { "ClearDroneInventory", "void", {} },
+        { "TransferDroneInventoryToPlayer", "number", {} },
+	
 	};
 
 	LuaBindings::PushLuaClassDefinition(classDef);
@@ -709,6 +749,94 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(registryDef);
+}
+
+void Bindings::RegisterInteractableComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::InteractableComponent>(
+        "InteractableComponent",
+        "Interact",
+        [](Scene::InteractableComponent &p_component, Scene::Node *p_node)
+        {
+            if (p_node == nullptr)
+            {
+                return;
+            }
+
+            auto node = p_node->shared_from_this();
+
+            p_component.Interact(node);
+        }
+    );
+
+
+    LuaClassDefinition classDef;
+    classDef.name = "InteractableComponent";
+
+    classDef.functions =
+    {
+        {
+            "Interact",
+            "void",
+            {
+                {"interactingNode", "Node"}
+            }
+        }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterLadderComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<Scene::LadderComponent>(
+        "LadderComponent",
+        "BeginTransition", &Scene::LadderComponent::BeginTransition
+    );
+
+    LuaClassDefinition classDef;
+    classDef.name = "LadderComponent";
+
+    classDef.functions =
+    {
+        { "BeginTransition", "void", {} }
+    };
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+void Droplet::Script::Bindings::RegisterCollectibleTypeComponent(sol::state_view p_luaState)
+{
+	p_luaState.new_enum<Scene::CollectibleType>(
+		"CollectibleType",
+		{
+			{"Fish", Scene::CollectibleType::Fish},
+		    {"Upgrade", Scene::CollectibleType::Upgrade},
+		    {"BrokenPart", Scene::CollectibleType::BrokenPart}
+		}
+	);
+
+	p_luaState.new_usertype<Scene::CollectibleTypeComponent>(
+		"CollectibleTypeComponent",
+		"GetCollectibleType", &Scene::CollectibleTypeComponent::GetCollectibleType,
+		"SetCollectibleType", &Scene::CollectibleTypeComponent::SetCollectibleType,
+		"GetItemId", &Scene::CollectibleTypeComponent::GetItemId,
+		"SetItemId", &Scene::CollectibleTypeComponent::SetItemId,
+		"GetAmount", &Scene::CollectibleTypeComponent::GetAmount,
+		"SetAmount", &Scene::CollectibleTypeComponent::SetAmount
+	);
+
+	LuaClassDefinition classDef;
+	classDef.name = "CollectibleTypeComponent";
+	classDef.functions =
+	{
+		{ "GetCollectibleType", "string", {} },
+		{ "SetCollectibleType", "void", { { "collectibleType", "string" } } },
+		{ "GetItemId", "ItemId", {} },
+		{ "SetItemId", "void", { { "itemId", "ItemId" } } },
+		{ "GetAmount", "integer", {} },
+		{ "SetAmount", "void", { { "amount", "integer" } } }
+	};
+	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
 void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
@@ -813,7 +941,25 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         {"GetVolumeDb", "float", {}},
         {"GetPitch", "float",{}},
         {"IsLooping", "bool", {}},
-        {"GetStereoPan", "float", {}},
+        {"GetStereoPan", "float", {}}
+    }; 
+
+    LuaBindings::PushLuaClassDefinition(classDef);
+}
+
+void Bindings::RegisterScriptComponent(sol::state_view p_luaState)
+{
+    p_luaState.new_usertype<ScriptComponent>(
+        "ScriptComponent",
+        "GetScriptPath", &Scene::ScriptComponent::GetScriptPath,
+        "SetActiveSelf", &Scene::ScriptComponent::SetActiveSelf
+        );
+    LuaClassDefinition classDef;
+    classDef.name = "ScriptComponent";
+
+    classDef.functions =
+    {
+        {"SetActiveSelf", "void", {{"active", "boolean"}}}
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);

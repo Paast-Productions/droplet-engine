@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "BrinePoolLayer1",
+            "guid": 1592583097579035018,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "BrinePoolLayer1",
+            "type": 3
+        }
+    ]
+}

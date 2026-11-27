@@ -1,8 +1,8 @@
 {
     "resources": [
         {
-            "displayName": "Cube",
-            "guid": 11826856059252580296,
+            "displayName": "metal_fish",
+            "guid": 5755047849884764840,
             "loadFlags": 3,
             "loadSettings": {
                 "generate_normals": true,
