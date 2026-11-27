@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Divesite2",
+            "guid": 14885139381323770206,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "BombRoom",
+            "type": 3
+        }
+    ]
+}

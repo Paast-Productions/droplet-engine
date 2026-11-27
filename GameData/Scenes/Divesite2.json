@@ -1,0 +1,250 @@
+{
+    "name": "Divesite2",
+    "octreeExt": 500.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
+    "roots": [
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "Divesite2",
+                        "meshGUID": 14885139381323770206,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "RockV2_base",
+                        "textureGUID": 2617992142281023542,
+                        "textureIsRenderTarget": false,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 0.20000000298023224,
+                        "h": 0.0,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 0,
+                        "mass": 1.0,
+                        "meshGUID": 14885139381323770206,
+                        "motionType": 0,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 0.0,
+                        "restitution": 0.0,
+                        "shapeType": 4
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 1,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    -8.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Drone",
+                                "meshGUID": 11502053657790986835,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "Drone",
+                                "textureGUID": 1365390299680718017,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 64,
+                    "id": 3,
+                    "name": "Mesh",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            -0.09999960660934448,
+                            -0.09999960660934448
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "autoRender": true,
+                        "camera": {
+                            "fov": 90.0,
+                            "orthographic": false,
+                            "orthographicHeight": 10.0,
+                            "planes": [
+                                0.10000000149011612,
+                                1000.0
+                            ]
+                        },
+                        "clearColor": [
+                            0.0,
+                            0.0,
+                            0.30000001192092896,
+                            1.0
+                        ],
+                        "debugDraw": false,
+                        "drawLayerMask": 65471,
+                        "priority": 0,
+                        "resolution": [
+                            1280,
+                            720
+                        ],
+                        "targetId": 6025896698841222744
+                    },
+                    "id": 4,
+                    "type": "CameraComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "data": "",
+                        "filepath": "DroneControl.lua"
+                    },
+                    "id": 3,
+                    "type": "ScriptComponent"
+                },
+                {
+                    "active": true,
+                    "data": {
+                        "friction": 1.0,
+                        "h": 0.10000000149011612,
+                        "halfExtentsX": 0.0,
+                        "halfExtentsY": 0.0,
+                        "halfExtentsZ": 0.0,
+                        "layer": 1,
+                        "mass": 80.0,
+                        "meshGUID": 0,
+                        "motionType": 2,
+                        "offsetX": 0.0,
+                        "offsetY": 0.0,
+                        "offsetZ": 0.0,
+                        "r": 1.0,
+                        "restitution": 0.0,
+                        "shapeType": 7
+                    },
+                    "id": 2,
+                    "type": "PhysicsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 2,
+            "name": "BaseDrone",
+            "transform": {
+                "position": [
+                    0.0,
+                    -107.17053985595703,
+                    425.4923400878906
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000039339065552,
+                    1.0000039339065552
+                ]
+            }
+        },
+        {
+            "active": true,
+            "collisionLayerMask": 1,
+            "drawLayer": 1,
+            "id": 4,
+            "name": "Pod",
+            "prefab": "GameData\\Prefabs\\Pod.json",
+            "transform": {
+                "position": [
+                    0.0,
+                    -115.2021713256836,
+                    425.4923400878906
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
