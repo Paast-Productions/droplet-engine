@@ -147,18 +147,25 @@ std::vector<std::uint32_t> Droplet::Graphics::Text::DecodeUTF8(const std::string
 		}
 		else
 		{
-			throw std::runtime_error("Invalid UTF-8");
+			codePoint = 0xFFFD;
+			continue;
 		}
 
 		if (i + length > p_text.size())
-			throw std::runtime_error("Incomplete UTF-8 sequence");
+		{
+			codePoint = 0xFFFD;
+			continue;
+		}
 
 		for (std::size_t j = 1; j < length; ++j)
 		{
 			const auto byte = static_cast<std::uint8_t>(p_text[i + j]);
 
 			if ((byte & 0xC0) != 0x80)
-				throw std::runtime_error("Invalid UTF-8 continuation byte");
+			{
+				codePoint = 0xFFFD;
+				continue;
+			}
 
 			codePoint = (codePoint << 6) | (byte & 0x3F);
 		}
@@ -169,7 +176,8 @@ std::vector<std::uint32_t> Droplet::Graphics::Text::DecodeUTF8(const std::string
 			(codePoint >= 0xD800 && codePoint <= 0xDFFF) ||
 			codePoint > 0x10FFFF)
 		{
-			throw std::runtime_error("Invalid UTF-8 code point");
+			codePoint = 0xFFFD;
+			continue;
 		}
 
 		codePoints.push_back(codePoint);
