@@ -123,9 +123,9 @@ namespace
             .format = ::Common::PixelFormat::RGBA8_UNORM, // as production's targets
             .pixels = pixels.first(topLevelBytes),
             .sampling = ::Common::TextureSampling{
-                .generateMips = true, // the renderer builds the chain from the top level
+                .generateMips = texture->GetGenerateMipmaps(), // the renderer builds the chain from the top level
                 .filter = ::Common::TextureFilter::Linear,
-                .maxAnisotropy = 1.0f,
+                .maxAnisotropy = 8.0f,
                 .repeat = true
             }
         });
@@ -177,11 +177,17 @@ namespace
             return;
         }
 
-        // the renderer reports other stages once (tessellation and geometry are not supported)
+        // compute, mesh and task stages have no graphics pipeline slot: skipped
         const ShaderResource::ShaderType type = shader->GetType();
-        if (type != ShaderResource::ShaderType::Vertex && type != ShaderResource::ShaderType::Fragment)
+        Bridge::ShaderStage stage{};
+        switch (type)
         {
-            return;
+        case ShaderResource::ShaderType::Vertex: stage = Bridge::ShaderStage::Vertex; break;
+        case ShaderResource::ShaderType::TessellationControl: stage = Bridge::ShaderStage::TessControl; break;
+        case ShaderResource::ShaderType::TessellationEvaluation: stage = Bridge::ShaderStage::TessEvaluation; break;
+        case ShaderResource::ShaderType::Geometry: stage = Bridge::ShaderStage::Geometry; break;
+        case ShaderResource::ShaderType::Fragment: stage = Bridge::ShaderStage::Fragment; break;
+        default: return;
         }
 
         // no byte code (released from RAM): uploaded empty, the renderer reports it and draws with the defaults
@@ -193,7 +199,7 @@ namespace
         uploads.shaders.push_back({
             .id = id,
             .revision = 0, // no revisions yet
-            .stage = type == ShaderResource::ShaderType::Vertex ? Bridge::ShaderStage::Vertex : Bridge::ShaderStage::Fragment,
+            .stage = stage,
             .spirv = spirv,
             .entryPoint = "main"
         });
@@ -347,6 +353,8 @@ Engine::Engine(EngineConfig p_config)
     Audio::AudioSystem::GetInstance().Initialize();
 
     GameInput::Get().SetMainWindow(m_window.GetSDLWindow());
+	
+	m_sceneManager.DeserializeBehaviours(); // Placing this here for now
 }
 
 Engine::~Engine()
@@ -490,15 +498,19 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
         world, Vulkan::Renderer::ImGuiImages(*overlay));
     m_renderer.SetCompositeScene(false); // the editor's windows show the cameras
 #else
-    const BridgeRequiredAssets required = Bridge::RequiredResourcesOf(world);
+    // In game mode we don't render to imgui, so we pick the camera in the world with the highest priority.
+    const auto presented = std::ranges::max_element(world.cameras, {}, &Common::CameraRenderData::priority);
+    if(presented != world.cameras.end())
+    {
+        world.presentedId = presented->target.id;
+    }
+    const Bridge::RequiredResources required = Bridge::RequiredResourcesOf(world);
 #endif
     m_renderer.Upload(ProvideAssets(required, m_renderer.Residents(), m_requestedShaders));
 
     m_renderer.Render(world, overlay);
 
     m_sceneManager.PostRender(); // clears the cameras' render data
-    
-    // ResourceManager::GetInstance().Update();
 
     return DROPLET_RETURNTYPE::OK;
 }

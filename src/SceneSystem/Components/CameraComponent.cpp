@@ -91,10 +91,27 @@ void CameraComponent::RenderUIImpl()
 
 	Checkbox("Auto Render", &m_autoRender);
 
-	float fov = m_camera.GetFOV();
-	if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
+	bool orthographic = m_camera.GetProjection() == Projection::Orthographic;
+	if (Checkbox("Orthographic", &orthographic))
 	{
-		m_camera.SetFOV(fov);
+		m_camera.SetProjection(orthographic ? Projection::Orthographic : Projection::Perspective);
+	}
+
+	if (orthographic)
+	{
+		float height = m_camera.GetOrthographicHeight();
+		if (DragFloat("Ortho Height", &height, 0.1f, 0.01f, 100000.0f))
+		{
+			m_camera.SetOrthographicHeight(std::max(0.01f, height));
+		}
+	}
+	else
+	{
+		float fov = m_camera.GetFOV();
+		if (SliderFloat("FOV", &fov, 1.0f, 179.0f))
+		{
+			m_camera.SetFOV(fov);
+		}
 	}
 
 	glm::ivec2 res = m_resolution;
@@ -206,6 +223,8 @@ nlohmann::json CameraComponent::SerializeImpl()
 	{
 		cameraJson["fov"] = m_camera.GetFOV();
 		cameraJson["planes"] = { m_camera.GetPlanes().x, m_camera.GetPlanes().y };
+		cameraJson["orthographic"] = m_camera.GetProjection() == Projection::Orthographic;
+		cameraJson["orthographicHeight"] = m_camera.GetOrthographicHeight();
 	}
 	compJson["camera"] = cameraJson;
 
@@ -241,6 +260,16 @@ void CameraComponent::DeserializeImpl(nlohmann::json p_compJson)
 				float farPlane = planes[1].get<float>();
 				m_camera.SetPlanes(nearPlane, farPlane);
 			}
+		}
+
+		if (cameraJson.contains("orthographic"))
+		{
+			m_camera.SetProjection(cameraJson["orthographic"].get<bool>() ? Projection::Orthographic : Projection::Perspective);
+		}
+
+		if (cameraJson.contains("orthographicHeight"))
+		{
+			m_camera.SetOrthographicHeight(cameraJson["orthographicHeight"].get<float>());
 		}
 	}
 

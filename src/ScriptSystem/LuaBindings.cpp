@@ -25,6 +25,7 @@
 #include <PhysicsComponent.hpp>
 #include <Behaviour.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Behaviours/AudioBehaviour.hpp>
 #include <SceneSystem/Items/Item.hpp>
 #include <SceneSystem/Items/ItemRegistry.hpp>
 
@@ -33,6 +34,8 @@
 #include <tuple>
 #include <algorithm>
 #include <vector>
+
+#include "AudioBehaviour.hpp"
 
 using namespace Droplet::Script;
 using namespace Droplet::Script::Bindings;
@@ -139,14 +142,34 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 			return node.GetComponent<Scene::PlayerComponent>();
 		},
 		"GetPlayerBehaviour",
-		[](Scene::Node &node)
+		[](Scene::Node &node) -> Scene::PlayerBehaviour*
 		{
 			auto playerComponent = node.GetComponent<Scene::PlayerComponent>();
 			if (playerComponent)
 			{
-				return playerComponent->GetPlayerBehaviourLua();
+				return playerComponent->GetPlayerBehaviourLua().get();
 			}
-			return std::shared_ptr<Scene::PlayerBehaviour>(nullptr);
+			return nullptr;
+		},
+		"GetAudioBehaviour",
+		[](Scene::Node &node, const std::string &p_name) -> Scene::AudioBehaviour*
+		{
+			// Retrieve an audio behaviour by name
+			
+			auto scene = node.GetScene();
+			if (!scene) return nullptr;
+			
+		    const auto& behaviours = scene->GetBehaviours();
+		    for (const auto& behaviour : behaviours)
+		    {
+		    	if (behaviour && behaviour->GetTypeName() == "AudioBehaviour")
+		    	{
+		    		auto* audioBehaviour = static_cast<Scene::AudioBehaviour*>(behaviour.get());
+		    		if (audioBehaviour->GetName() == p_name) return audioBehaviour;
+		    	}
+		    }
+			
+			return nullptr;
 		},
 		"GetAudioEmitter",
 		[](Scene::Node &node, const std::string& p_name)
@@ -158,9 +181,6 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{
 			return node.GetAudioPlayer(p_name).lock();
 		}
-
-
-
 	);
 
 	LuaClassDefinition classDef;
@@ -178,7 +198,8 @@ void LuaBindings::RegisterNode(sol::state_view p_luaState)
 		{"GetPhysicsComponent", "PhysicsComponent", {}},
 		{"GetHealthComponent", "HealthComponent", {}},
 		{"GetPlayerComponent", "PlayerComponent", {}},
-		{"GetPlayerBehaviour", "PlayerBehaviour", {}}
+		{"GetPlayerBehaviour", "PlayerBehaviour", {}},
+		{"GetAudioBehaviour", "AudioBehaviour", {}}
 	};
 
 	LuaBindings::m_luaClassDefinitions.push_back(classDef);

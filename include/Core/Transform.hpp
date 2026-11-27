@@ -118,7 +118,7 @@ namespace Droplet::Scene
 		void MakeDirty();
 		
 		/// @brief Mark the transform as dirty, indicating that it has been modified by physics.
-		void MakePhysicsDirty();
+		void MakePhysicsDirty(bool p_thisOnly = false);
 
 		/// @brief Runs at the end of scene update and resets the transform's "was changed" state for the next frame. 
 		/// This is used to track if the transform was ever modified during the frame.

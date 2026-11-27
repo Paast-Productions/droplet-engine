@@ -19,7 +19,7 @@ void Behaviour::Start()
 	if (IsSingleton())
 	{
 		// Ensure this is the only instance of this behaviour type in the scene.
-		auto &behaviours = m_sceneManager->GetBehaviours();
+		auto behaviours = m_sceneManager->GetBehaviours();
 
 		for (const auto &behaviour : behaviours)
 		{
@@ -30,7 +30,7 @@ void Behaviour::Start()
 
 			if (behaviour.get() != this)
 			{
-				m_sceneManager->ShutdownBehaviour(shared_from_this());
+				m_sceneManager->ShutdownBehaviour(weak_from_this());
 				return;
 			}
 		}
@@ -127,12 +127,10 @@ nlohmann::json Behaviour::Serialize()
 
 	behJson["data"] = SerializeImpl();
 
-	return SerializeImpl();
+	return behJson;
 }
 
 void Behaviour::Deserialize(const nlohmann::json p_behJson)
 {
-	const nlohmann::json dataJson = p_behJson["data"];
-
-	DeserializeImpl(dataJson);
+	DeserializeImpl(p_behJson["data"]);
 }

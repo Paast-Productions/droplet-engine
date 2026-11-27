@@ -1,0 +1,32 @@
+{
+    "behaviours": [
+        {
+            "data": {
+                "droneInventory": [],
+                "heatLevel": 10.0,
+                "heatResistance": 50.0,
+                "maxHealth": 100.0,
+                "playerInventory": [],
+                "pressure": 0.0
+            },
+            "type": "PlayerBehaviour"
+        },
+        {
+            "data": {
+                "busName": "Music",
+                "name": "Music",
+                "tracks": [
+                    {
+                        "looping": false,
+                        "name": "The big blue intro",
+                        "pitch": 1.0,
+                        "soundGuid": 9356498125252159434,
+                        "stereoPan": 0.0,
+                        "volumeDb": 3.009999990463257
+                    }
+                ]
+            },
+            "type": "AudioBehaviour"
+        }
+    ]
+}

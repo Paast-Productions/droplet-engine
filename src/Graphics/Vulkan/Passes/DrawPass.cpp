@@ -47,6 +47,17 @@ namespace
 
 namespace Droplet::Graphics::Vulkan
 {
+	namespace
+	{
+		/// Every stage a built-in or asset shader can run in: the view UBO and push constants are visible to all of them
+		constexpr vk::ShaderStageFlags ALL_SHADER_STAGES =
+			vk::ShaderStageFlagBits::eVertex |
+			vk::ShaderStageFlagBits::eTessellationControl |
+			vk::ShaderStageFlagBits::eTessellationEvaluation |
+			vk::ShaderStageFlagBits::eGeometry |
+			vk::ShaderStageFlagBits::eFragment;
+	}
+
 	DrawPass::DrawPass(
 		const Context& context,
 		RenderDevice& device,
@@ -60,7 +71,7 @@ namespace Droplet::Graphics::Vulkan
 			.binding = 0,
 			.descriptorType = vk::DescriptorType::eUniformBufferDynamic,
 			.descriptorCount = 1,
-			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment };
+			.stageFlags = ALL_SHADER_STAGES };
 		m_viewSetLayout = vk::raii::DescriptorSetLayout(
 			context.GetDevice(),
 			vk::DescriptorSetLayoutCreateInfo{
@@ -71,7 +82,7 @@ namespace Droplet::Graphics::Vulkan
 
 		const std::array setLayouts{ *m_viewSetLayout, *m_reservedSetLayout, m_textures->Layout() };
 		constexpr vk::PushConstantRange pushRange{
-			.stageFlags = vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment,
+			.stageFlags = ALL_SHADER_STAGES,
 			.offset = 0,
 			.size = sizeof(Common::PushConstantData)
 		};
@@ -176,7 +187,8 @@ namespace Droplet::Graphics::Vulkan
 		}
 	}
 
-	GraphicsPipelineDesc DrawPass::MakePipelineDesc(GUID vertexShader, GUID fragmentShader,
+	GraphicsPipelineDesc DrawPass::MakePipelineDesc(
+		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
 		ZoneScoped
@@ -185,17 +197,25 @@ namespace Droplet::Graphics::Vulkan
 
 		// Depth range 0..1, cleared to 1.0, so "less" keeps the nearest fragment
 		const bool hasDepth = depthFormat != vk::Format::eUndefined;
+		// tessellation draws patches, not triangles
+		const bool tessellation = tessCtrlShader != C_INVALID_GUID || tessEvalShader != C_INVALID_GUID;
 
 		return GraphicsPipelineDesc{
 			.vertexShader = vertexShader,
 			.fragmentShader = fragmentShader,
+			.tessCtrlShader = tessCtrlShader,
+			.tessEvalShader = tessEvalShader,
+			.geometryShader = geometryShader,
 			.hasFragmentShader = true,
+			.hasTessCtrlShader = tessCtrlShader != C_INVALID_GUID,
+			.hasTessEvalShader = tessEvalShader != C_INVALID_GUID,
+			.hasGeometryShader = geometryShader != C_INVALID_GUID,
 			.layout = *m_pipelineLayout,
 			.vertexLayout = VertexLayout{
 				.bindings = {binding},
 				.attributes = {attributes.begin(), attributes.end()}
 			},
-			.topology = vk::PrimitiveTopology::eTriangleList,
+			.topology = tessellation ? vk::PrimitiveTopology::ePatchList : vk::PrimitiveTopology::eTriangleList,
 			.raster = RasterState{
 				.polygonMode = vk::PolygonMode::eFill,
 				.cullMode = vk::CullModeFlagBits::eBack,
@@ -231,18 +251,27 @@ namespace Droplet::Graphics::Vulkan
 			return MeshInterface::None;
 		if (formatAt(1) == VertexFormat::Float3 && formatAt(2) == VertexFormat::Float2)
 			return MeshInterface::Scene;
+		// particles: centre, colour, size (width, height), rotation; must precede VertexColor, which also matches colour at 1
+		if (mesh.topology == Common::MeshTopology::Points &&
+			formatAt(1) == VertexFormat::Float4 && formatAt(2) == VertexFormat::Float2 && formatAt(3) == VertexFormat::Float1)
+			return MeshInterface::Particle;
 		if (formatAt(1) == VertexFormat::Float4 || formatAt(1) == VertexFormat::UNorm8x4)
 			return MeshInterface::VertexColor;
 		return MeshInterface::None;
 	}
 
 	GraphicsPipelineDesc DrawPass::MakeMeshPipelineDesc(
-		GUID vertexShader, GUID fragmentShader, const Common::DynamicMeshData& mesh,
+		GUID vertexShader, GUID fragmentShader, GUID tessCtrlShader, GUID tessEvalShader, GUID geometryShader,
+		const Common::DynamicMeshData& mesh,
 		vk::Format colorFormat, vk::Format depthFormat, bool transparent) const
 	{
 		ZoneScoped
-		const bool vertexColor = InterfaceOf(mesh) == MeshInterface::VertexColor;
-		GraphicsPipelineDesc desc = MakePipelineDesc(vertexShader, fragmentShader, colorFormat, depthFormat, transparent || vertexColor);
+		const MeshInterface meshInterface = InterfaceOf(mesh);
+		const bool vertexColor = meshInterface == MeshInterface::VertexColor;
+		const bool particle = meshInterface == MeshInterface::Particle;
+		GraphicsPipelineDesc desc = MakePipelineDesc(
+			vertexShader, fragmentShader, tessCtrlShader, tessEvalShader, geometryShader, colorFormat, depthFormat,
+			transparent || vertexColor || particle);
 
 		desc.vertexLayout.bindings = { vk::VertexInputBindingDescription{
 			.binding = 0, .stride = mesh.vertexStride, .inputRate = vk::VertexInputRate::eVertex } };
@@ -251,6 +280,13 @@ namespace Droplet::Graphics::Vulkan
 		{
 			desc.vertexLayout.attributes.push_back({
 				.location = attribute.location, .binding = 0, .format = ToVk(attribute.format), .offset = attribute.offset });
+		}
+		if (mesh.topology == Common::MeshTopology::Points)
+			desc.topology = vk::PrimitiveTopology::ePointList;
+		if (particle)
+		{
+			// the geometry shader expands each point into a quad facing the view: both faces are visible
+			desc.raster.cullMode = vk::CullModeFlagBits::eNone;
 		}
 		if (mesh.topology == Common::MeshTopology::Lines)
 		{
@@ -334,7 +370,7 @@ namespace Droplet::Graphics::Vulkan
 			pushConstants.world = world;
 			pushConstants.textureID = TextureIndexOf(material);
 			cmd.pushConstants<Common::PushConstantData>(
-				*m_pipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, pushConstants);
+				*m_pipelineLayout, ALL_SHADER_STAGES, 0, pushConstants);
 		};
 
 		Render::PipelineHandle boundPipeline{};
@@ -376,11 +412,15 @@ namespace Droplet::Graphics::Vulkan
 				cmd.drawIndexed(mesh->indexCount, 1, 0, 0, 0);
 			}
 		};
-		drawItems(list.items);
+		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw kept meshes"};
+			drawItems(list.items);
+		}
 
 		// dynamic geometry, from this frame's stream buffers (BeginFrame)
 		if (!list.dynamicItems.empty())
 		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw streamed meshes"};
 			const Buffer& vertexStream = m_dynamicVertexBuffers[m_frameSlot];
 			const Buffer& indexStream = m_dynamicIndexBuffers[m_frameSlot];
 			if (indexStream)
@@ -407,6 +447,9 @@ namespace Droplet::Graphics::Vulkan
 		}
 
 		// kept dynamic meshes without depth test, over everything
-		drawItems(list.lateItems);
+		{
+			const GpuZone zone{m_context->GetGpuProfiler(), QueueKind::Graphics, cmd, "Draw late meshes (no depth)"};
+			drawItems(list.lateItems);
+		}
 	}
 }

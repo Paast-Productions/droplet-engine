@@ -11,6 +11,7 @@ namespace Droplet::IO::SlangFormat
     std::unique_ptr<ShaderResource> CompileAndLoad(const std::filesystem::path &p_shaderPath, const json &p_loadSettings)
     {
         ZoneScoped;
+        ZoneText(p_shaderPath.generic_string().c_str(), p_shaderPath.generic_string().size());
 
         ShaderResource::ShaderType type = p_loadSettings.value(MetaLoadSettings::C_SHADER_TYPE.key, MetaLoadSettings::C_SHADER_TYPE.defaultValue);
         
@@ -29,6 +30,7 @@ namespace Droplet::IO::SlangFormat
         const std::filesystem::path &p_shaderPath)
     {
         ZoneScoped;
+        ZoneText(p_shaderPath.generic_string().c_str(), p_shaderPath.generic_string().size());
 
         std::vector<std::pair<StaticResourceType, std::string>> resources{};
         

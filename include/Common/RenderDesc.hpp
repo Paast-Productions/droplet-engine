@@ -106,6 +106,9 @@ namespace Droplet::Common
         std::string moduleName;               ///< Slang module name
         std::filesystem::path sourcePath;     ///< relative to the working directory
         std::string vertexEntry = "vMain";
+        std::string tessCtrlEntry = "tcMain";
+        std::string tessEvalEntry = "teMain";
+		std::string geometryEntry = "gMain";
         std::string fragmentEntry = "fMain";
     };
 }

@@ -43,10 +43,10 @@ namespace
 using namespace Droplet::Graphics::Vulkan;
 
 RenderDevice::RenderDevice(const Context& context, std::uint32_t framesInFlight)
-    : m_frameSubmitter(context.GetDevice(), MakeQueueSlots(context), framesInFlight),
+    : m_frameSubmitter(context.GetDevice(), MakeQueueSlots(context), framesInFlight, context.GetGpuProfiler()),
       m_textureTable(context, framesInFlight),
       m_resources(context, m_deletionQueue, m_textureTable),
-      m_shaders(context.GetDevice())
+      m_shaders(context.GetDevice(), context.HasGeometryShader(), context.HasTessellationShader())
 {
 }
 

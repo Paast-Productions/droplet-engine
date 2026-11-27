@@ -15,9 +15,11 @@
 
 namespace Droplet::Graphics::Vulkan
 {
-    ShaderLibrary::ShaderLibrary(const vk::raii::Device& device)
+    ShaderLibrary::ShaderLibrary(const vk::raii::Device& device, bool geometryShaders, bool tessellationShaders)
         : m_device(device),
-          m_compiler(std::make_unique<Droplet::IO::ShaderCompiler>())
+          m_compiler(std::make_unique<Droplet::IO::ShaderCompiler>()),
+          m_geometryShaders(geometryShaders),
+          m_tessellationShaders(tessellationShaders)
     {
     }
 
@@ -25,9 +27,25 @@ namespace Droplet::Graphics::Vulkan
 
     bool ShaderLibrary::Upload(const Bridge::ShaderUpload& upload)
     {
-        const vk::ShaderStageFlagBits stage = upload.stage == Bridge::ShaderStage::Vertex
-                                                  ? vk::ShaderStageFlagBits::eVertex
-                                                  : vk::ShaderStageFlagBits::eFragment;
+        vk::ShaderStageFlagBits stage{};
+        switch (upload.stage)
+        {
+        case Bridge::ShaderStage::Vertex: stage = vk::ShaderStageFlagBits::eVertex; break;
+        case Bridge::ShaderStage::TessControl: stage = vk::ShaderStageFlagBits::eTessellationControl; break;
+        case Bridge::ShaderStage::TessEvaluation: stage = vk::ShaderStageFlagBits::eTessellationEvaluation; break;
+        case Bridge::ShaderStage::Geometry: stage = vk::ShaderStageFlagBits::eGeometry; break;
+        case Bridge::ShaderStage::Fragment: stage = vk::ShaderStageFlagBits::eFragment; break;
+        default:
+            std::println("ShaderLibrary: shader {:016x} has an unknown stage; not uploaded", upload.id);
+            return false;
+        }
+        // not recorded as failed: m_failed is per GUID, which would also block the shader's supported stages
+        if ((stage == vk::ShaderStageFlagBits::eGeometry && !m_geometryShaders)
+            || ((stage == vk::ShaderStageFlagBits::eTessellationControl || stage == vk::ShaderStageFlagBits::eTessellationEvaluation) && !m_tessellationShaders))
+        {
+            std::println("ShaderLibrary: shader {:016x} needs a stage the device does not support; not uploaded", upload.id);
+            return false;
+        }
         if (IsReady(upload.id, stage))
         {
             const std::uint64_t created = m_revisions[upload.id];
@@ -104,17 +122,28 @@ namespace Droplet::Graphics::Vulkan
         m_builtInResource = std::move(builtIn);
     }
 
-    ShaderPair ShaderLibrary::ResolveDefault(ShaderPair defaultShaders)
+    ShaderGroup ShaderLibrary::ResolveDefault(ShaderGroup defaultShaders)
     {
         const GUID builtIn = m_builtInDefault;
-        const ShaderPair fallback = GetOrCreate(builtIn, m_builtInResource) ? ShaderPair{ builtIn, builtIn } : ShaderPair{};
+		const ShaderGroup builtInFallback = ShaderGroup(builtIn, builtIn);
+
+        const ShaderGroup fallback = GetOrCreate(builtIn, m_builtInResource) ? builtInFallback : ShaderGroup();
         return Resolve(defaultShaders, fallback);
     }
 
-    ShaderPair ShaderLibrary::Resolve(ShaderPair shaders, ShaderPair fallback) const
+    ShaderGroup ShaderLibrary::Resolve(ShaderGroup shaders, ShaderGroup fallback) const
     {
-        const bool ready = IsReady(shaders.vertex, vk::ShaderStageFlagBits::eVertex)
-                           && IsReady(shaders.fragment, vk::ShaderStageFlagBits::eFragment);
+        // a group without a vertex stage cannot be drawn, so it must fall back
+        bool ready = shaders.vertex.used && IsReady(shaders.vertex.id, vk::ShaderStageFlagBits::eVertex);
+		if (shaders.tessCtrl.used)
+			ready = ready && IsReady(shaders.tessCtrl.id, vk::ShaderStageFlagBits::eTessellationControl);
+		if (shaders.tessEval.used)
+			ready = ready && IsReady(shaders.tessEval.id, vk::ShaderStageFlagBits::eTessellationEvaluation);
+		if (shaders.geometry.used)
+			ready = ready && IsReady(shaders.geometry.id, vk::ShaderStageFlagBits::eGeometry);
+		if (shaders.fragment.used)
+			ready = ready && IsReady(shaders.fragment.id, vk::ShaderStageFlagBits::eFragment);
+
         return ready ? shaders : fallback;
     }
 
@@ -167,12 +196,21 @@ namespace Droplet::Graphics::Vulkan
 
         const Shader& vertex = m_shaders.Get(desc.vertexShader, vk::ShaderStageFlagBits::eVertex);
         const Shader* fragment = desc.hasFragmentShader
-                                     ? &m_shaders.Get(desc.fragmentShader, vk::ShaderStageFlagBits::eFragment)
-                                     : nullptr;
+            ? &m_shaders.Get(desc.fragmentShader, vk::ShaderStageFlagBits::eFragment)
+            : nullptr;
+		const Shader *tessCtrl = desc.hasTessCtrlShader
+			? &m_shaders.Get(desc.tessCtrlShader, vk::ShaderStageFlagBits::eTessellationControl)
+			: nullptr;
+		const Shader *tessEval = desc.hasTessEvalShader
+			? &m_shaders.Get(desc.tessEvalShader, vk::ShaderStageFlagBits::eTessellationEvaluation)
+			: nullptr;
+		const Shader *geometry = desc.hasGeometryShader
+			? &m_shaders.Get(desc.geometryShader, vk::ShaderStageFlagBits::eGeometry)
+			: nullptr;
 
         const Render::PipelineHandle handle = m_pipelines.Add(Entry{
             .desc = desc,
-            .pipeline = GraphicsPipeline(m_device, desc, vertex, fragment, &m_vkCache)});
+            .pipeline = GraphicsPipeline(m_device, desc, vertex, fragment, tessCtrl, tessEval, geometry, &m_vkCache)});
         candidates.push_back(handle);
         return handle;
     }

@@ -46,25 +46,12 @@ namespace
         return gpu.PlaceholderTexture(); // never rendered
     }
 
-    /**
-     * @brief Whether an object uses a tessellation or geometry stage, which the renderer does not support
-     * @param object The object to check
-     * @returns The first such stage's GUID, or C_INVALID_GUID
-     */
-    GUID UnsupportedStageOf(const Common::RenderData& object)
-    {
-        for (const GUID stage : { object.tcsData.guid, object.tesData.guid, object.gsData.guid })
-            if (stage != C_INVALID_GUID)
-                return stage;
-        return C_INVALID_GUID;
-    }
-
     /// @brief What is drawn for an object's GUIDs; mesh and base colour are always valid
     struct ResolvedObject
     {
         Render::MeshHandle mesh;
         Render::ImageBinding baseColor;
-        Vulkan::ShaderPair shaders; ///< compiled stages; invalid: not even the default compiled
+        Vulkan::ShaderGroup shaders; ///< compiled stages; invalid: not even the default compiled
     };
 
     /// @brief A target that a view samples as its history (last frame's copy) instead.
@@ -213,7 +200,7 @@ Render::PreparedFrame Vulkan::Prepare(
     GpuResourceManager& gpu = context.gpu;
 
     // the default shaders: the world's once they have arrived, else the built-in ones
-    const ShaderPair defaultShaders = context.shaders.ResolveDefault({ world.defaultVertexShader, world.defaultFragmentShader });
+    const ShaderGroup defaultShaders = context.shaders.ResolveDefault(ShaderGroup(world.defaultVertexShader, world.defaultFragmentShader));
 
     // 1. render targets: one per drawn camera
     std::unordered_map<GUID, Render::TargetHandle> targetHandles;
@@ -222,8 +209,8 @@ Render::PreparedFrame Vulkan::Prepare(
         if (plans[cameraIndex].drawn)
         {
             const Droplet::Common::RenderTargetDesc& desc = world.cameras[cameraIndex].target;
-        targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
-    }
+            targetHandles.emplace(desc.id, gpu.GetOrCreateTarget(desc));
+        }
     }
 
     Render::PreparedFrame frame;
@@ -364,37 +351,8 @@ Render::PreparedFrame Vulkan::Prepare(
                 continue;
             }
             
-            if (const GUID unsupported = UnsupportedStageOf(source); unsupported != C_INVALID_GUID)
-            {
-                if (context.reportedMeshes.insert(unsupported).second)
-                    std::println("Prepare: shader {:016x} is a tessellation or geometry stage, which is not supported. "
-                                 "Objects using it are not drawn", unsupported);
-                continue;
-            }
-            const ShaderPair objectShaders{ source.vsData.guid, source.fsData.guid };
+            const ShaderGroup objectShaders{ source.vsData.guid, source.fsData.guid, source.gsData.guid, source.tcsData.guid, source.tesData.guid };
 
-            if (source.textData)
-            {
-                const auto& text = *source.textData;
-                
-                if (!text.glyphInstances || text.glyphInstances->empty())
-                    continue;
-                
-                const auto& glyphInstances = *text.glyphInstances;
-                
-                const uint32_t firstInstance = static_cast<uint32_t>(frame.glyphInstances.size());
-                
-                frame.glyphInstances.insert(frame.glyphInstances.end(), glyphInstances.begin(), glyphInstances.end());
-                
-                list.textItems.push_back(Render::TextDrawItem{
-                    .model = source.transform,
-                    .color = text.color,
-                    /// .fontTexture = text.fontGUID,
-                    .firstInstance = firstInstance,
-                    .instanceCount = static_cast<uint32_t>(glyphInstances.size())
-                });
-            }
-            
             if (source.dynamicMesh)
             {
                 const Common::DynamicMeshData& mesh = *source.dynamicMesh;
@@ -408,18 +366,21 @@ Render::PreparedFrame Vulkan::Prepare(
                     continue;
                 }
                 const bool vertexColor = meshInterface == DrawPass::MeshInterface::VertexColor;
+                const bool particle = meshInterface == DrawPass::MeshInterface::Particle;
                 if (vertexColor && !vertexColorReady)
                     continue;
-                const ShaderPair shaders = vertexColor
-                    ? ShaderPair{ DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER }
-                    : context.shaders.Resolve(objectShaders, defaultShaders);
+                // particles have their own vertex layout, so scene shaders cannot stand in for them
+                const ShaderGroup shaders = vertexColor
+                    ? ShaderGroup(DrawPass::VERTEX_COLOR_SHADER, DrawPass::VERTEX_COLOR_SHADER)
+                    : context.shaders.Resolve(objectShaders, particle ? ShaderGroup() : defaultShaders);
                 if (!shaders.IsValid())
                     continue;
 
                 const Render::ImageBinding material = vertexColor ? Render::ImageBinding{ gpu.WhiteTexture() } : materialOf(source.texData);
                 const Render::PipelineHandle pipeline = context.pipelines.GetOrCreate(context.scenePass.MakeMeshPipelineDesc(
-                    shaders.vertex, shaders.fragment, mesh, colorFormat, context.depthFormat, source.transparent));
-                const bool blended = vertexColor || source.transparent;
+					shaders.vertex.id, shaders.fragment.id, shaders.tessCtrl.id, shaders.tessEval.id, shaders.geometry.id,
+                    mesh, colorFormat, context.depthFormat, source.transparent));
+                const bool blended = vertexColor || particle || source.transparent;
 
                 if (mesh.id != C_INVALID_GUID)
                 {
@@ -473,7 +434,8 @@ Render::PreparedFrame Vulkan::Prepare(
             Render::DrawItem item{
                 .model = source.transform,
                 .pipeline = context.pipelines.GetOrCreate(context.scenePass.MakePipelineDesc(
-                    object.shaders.vertex, object.shaders.fragment, colorFormat, context.depthFormat, source.transparent)),
+                    object.shaders.vertex.id, object.shaders.fragment.id, object.shaders.tessCtrl.id, object.shaders.tessEval.id, object.shaders.geometry.id, 
+                    colorFormat, context.depthFormat, source.transparent)),
                 .mesh = object.mesh,
                 .material = material
             };

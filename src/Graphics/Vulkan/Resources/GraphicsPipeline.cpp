@@ -38,7 +38,7 @@ namespace
                 .dstColorBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
                 .colorBlendOp = vk::BlendOp::eAdd,
                 .srcAlphaBlendFactor = vk::BlendFactor::eOne,
-                .dstAlphaBlendFactor = vk::BlendFactor::eZero,
+                .dstAlphaBlendFactor = vk::BlendFactor::eOneMinusSrcAlpha,
                 .alphaBlendOp = vk::BlendOp::eAdd,
                 .colorWriteMask = ALL_COMPONENTS
             };
@@ -107,6 +107,9 @@ namespace Droplet::Graphics::Vulkan
         const GraphicsPipelineDesc& desc,
         const Shader& vertex,
         const Shader* fragment,
+        const Shader* tessCtrl,
+        const Shader* tessEval,
+        const Shader* geometry,
         const vk::raii::PipelineCache* cache)
         : m_layout(desc.layout)
     {
@@ -114,15 +117,27 @@ namespace Droplet::Graphics::Vulkan
             throw std::invalid_argument("GraphicsPipeline: vertex shader has wrong stage");
         if (fragment && fragment->Stage() != vk::ShaderStageFlagBits::eFragment)
             throw std::invalid_argument("GraphicsPipeline: fragment shader has wrong stage");
+        if (tessCtrl && tessCtrl->Stage() != vk::ShaderStageFlagBits::eTessellationControl)
+            throw std::invalid_argument("GraphicsPipeline: tessellation control shader has wrong stage");
+        if (tessEval && tessEval->Stage() != vk::ShaderStageFlagBits::eTessellationEvaluation)
+            throw std::invalid_argument("GraphicsPipeline: tessellation evaluation shader has wrong stage");
+        if (geometry && geometry->Stage() != vk::ShaderStageFlagBits::eGeometry)
+            throw std::invalid_argument("GraphicsPipeline: geometry shader has wrong stage");
         if (!desc.layout)
             throw std::invalid_argument("GraphicsPipeline: pipeline layout is null");
         if (desc.colorBlend.size() != desc.colorFormats.size())
             throw std::invalid_argument("GraphicsPipeline: colorBlend and colorFormats size mismatch");
 
-        std::array<vk::PipelineShaderStageCreateInfo, 2> stages{vertex.StageInfo()};
+        std::array<vk::PipelineShaderStageCreateInfo, 5> stages{vertex.StageInfo()};
         std::uint32_t stageCount = 1;
         if (fragment)
             stages[stageCount++] = fragment->StageInfo();
+        if (tessCtrl)
+            stages[stageCount++] = tessCtrl->StageInfo();
+        if (tessEval)
+            stages[stageCount++] = tessEval->StageInfo();
+        if (geometry)
+            stages[stageCount++] = geometry->StageInfo();
 
         constexpr std::array dynamicStates{vk::DynamicState::eViewport, vk::DynamicState::eScissor};
         const vk::PipelineDynamicStateCreateInfo dynamicInfo{
@@ -177,12 +192,18 @@ namespace Droplet::Graphics::Vulkan
             .pAttachments = blendStates.data()
         };
 
+        // triangle patches: a tessellation pipeline's topology is patch list with 3 control points per triangle
+        constexpr std::uint32_t TRIANGLE_PATCH_CONTROL_POINTS = 3;
+        const vk::PipelineTessellationStateCreateInfo tessellationInfo{ .patchControlPoints = TRIANGLE_PATCH_CONTROL_POINTS };
+        const bool tessellation = tessCtrl || tessEval;
+
         const vk::StructureChain<vk::GraphicsPipelineCreateInfo, vk::PipelineRenderingCreateInfo> chain{
             {
                 .stageCount = stageCount,
                 .pStages = stages.data(),
                 .pVertexInputState = &vertexInputInfo,
                 .pInputAssemblyState = &inputAssemblyInfo,
+                .pTessellationState = tessellation ? &tessellationInfo : nullptr,
                 .pViewportState = &viewportInfo,
                 .pRasterizationState = &rasterInfo,
                 .pMultisampleState = &multisampleInfo,

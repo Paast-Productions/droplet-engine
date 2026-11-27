@@ -78,6 +78,20 @@ namespace
     }
 
     /**
+     * @brief True if `name` is among a GPU's device extensions
+     * @param availableExtensions the GPU's extensions (enumerateDeviceExtensionProperties)
+     * @param name the extension's name
+     */
+    bool HasExtension(const std::vector<vk::ExtensionProperties>& availableExtensions, const char* name)
+    {
+        return std::ranges::any_of(availableExtensions,
+            [name](const vk::ExtensionProperties& extension)
+            {
+                return std::strcmp(extension.extensionName, name) == 0;
+            });
+    }
+
+    /**
      * @brief True if `candidate` meets everything listed in Device's class description.
      * @param candidate GPU to check
      * @param surface   surface a queue family must be able to present to
@@ -101,12 +115,7 @@ namespace
             config.requiredDeviceExtensions,
             [&availableDeviceExtensions](const char* requiredExtension)
             {
-                return std::ranges::any_of(
-                    availableDeviceExtensions,
-                    [requiredExtension](const vk::ExtensionProperties& availableExtension)
-                    {
-                        return std::strcmp(availableExtension.extensionName, requiredExtension) == 0;
-                    });
+                return HasExtension(availableDeviceExtensions, requiredExtension);
             });
 
         const auto features = candidate.getFeatures2<
@@ -211,6 +220,12 @@ namespace Droplet::Graphics::Vulkan
         const bool hasWideLines = m_physicalDevice.getFeatures().wideLines == vk::True;
         m_maxLineWidth = hasWideLines ? m_physicalDevice.getProperties().limits.lineWidthRange[1] : 1.0f;
 
+        // geometry and tessellation stages are optional too: particles need the geometry stage
+        const bool hasGeometryShader = m_physicalDevice.getFeatures().geometryShader == vk::True;
+        const bool hasTessellationShader = m_physicalDevice.getFeatures().tessellationShader == vk::True;
+        m_hasGeometryShader = hasGeometryShader;
+        m_hasTessellationShader = hasTessellationShader;
+
         // features to enable, checked by IsDeviceSuitable
         const vk::StructureChain<
             vk::PhysicalDeviceFeatures2,
@@ -218,7 +233,9 @@ namespace Droplet::Graphics::Vulkan
             vk::PhysicalDeviceVulkan12Features,
             vk::PhysicalDeviceVulkan13Features,
             vk::PhysicalDeviceExtendedDynamicStateFeaturesEXT> featureChain{
-            {.features = {.wideLines = hasWideLines ? vk::True : vk::False,
+            {.features = {.geometryShader = hasGeometryShader ? vk::True : vk::False,
+                          .tessellationShader = hasTessellationShader ? vk::True : vk::False,
+                          .wideLines = hasWideLines ? vk::True : vk::False,
                           .samplerAnisotropy = hasSamplerAnisotropy ? vk::True : vk::False}}, // Features2
             {.shaderDrawParameters = vk::True}, // vk::PhysicalDeviceVulkan11Features
             {
@@ -227,7 +244,7 @@ namespace Droplet::Graphics::Vulkan
                 .descriptorBindingPartiallyBound = vk::True,
                 .descriptorBindingVariableDescriptorCount = vk::True,
                 .runtimeDescriptorArray = vk::True,
-                .timelineSemaphore = vk::True
+                                .timelineSemaphore = vk::True
             }, // vk::PhysicalDeviceVulkan12Features
             {
                 .synchronization2 = vk::True,
@@ -260,13 +277,24 @@ namespace Droplet::Graphics::Vulkan
                 .pQueuePriorities = &queuePriority
             });
         }
+        
+        // == Extensions ==
+        // Look for calibrated timestamps for the sake of profiling timings
+        std::vector<const char*> extensions = config.requiredDeviceExtensions;
+        m_calibratedTimestamps = HasExtension(m_physicalDevice.enumerateDeviceExtensionProperties(),
+                                                 VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+        if (m_calibratedTimestamps)
+        {
+            extensions.push_back(VK_EXT_CALIBRATED_TIMESTAMPS_EXTENSION_NAME);
+        }
+        
 
         const vk::DeviceCreateInfo deviceCreateInfo{
             .pNext = &featureChain.get<vk::PhysicalDeviceFeatures2>(),
             .queueCreateInfoCount = static_cast<std::uint32_t>(queueCreateInfos.size()),
             .pQueueCreateInfos = queueCreateInfos.data(),
-            .enabledExtensionCount = static_cast<std::uint32_t>(config.requiredDeviceExtensions.size()),
-            .ppEnabledExtensionNames = config.requiredDeviceExtensions.data(),
+            .enabledExtensionCount = static_cast<std::uint32_t>(extensions.size()),
+            .ppEnabledExtensionNames = extensions.data(),
         };
 
         m_device = vk::raii::Device{m_physicalDevice, deviceCreateInfo};

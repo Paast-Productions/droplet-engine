@@ -26,12 +26,16 @@ namespace Droplet::Scene
     {
     public:
         std::string_view GetTypeName() override { return "AudioBehaviour"; }
-        bool IsSingleton() override { return true; }
+        bool IsSingleton() override { return false; }
+        
+        void SetName(const std::string &p_name) { m_name = p_name; }
+        const std::string &GetName() const { return m_name; }
         
         void PlayTrack(const std::string& p_name, float p_fadeSeconds = 0.0f);
         void StopTracks(float p_fadeSeconds = 0.0f);
         
         void SetTargetVolumeDb(float p_volumeDb);
+        
         void SetBusName(const std::string& p_busName) { m_busName = p_busName; }
         
     protected:
@@ -46,6 +50,8 @@ namespace Droplet::Scene
     private:
         AudioTrack* FindTrack(const std::string& p_name);
         
+        std::string m_name{};
+        
         std::vector<AudioTrack> m_tracks;
         std::string m_currentTrackName;
         std::string m_busName = "Master";
@@ -53,11 +59,11 @@ namespace Droplet::Scene
         Audio::PlaybackID m_currentId   = Audio::C_INVALID_PLAYBACK_ID;
         Audio::PlaybackID m_fadingOutId = Audio::C_INVALID_PLAYBACK_ID;
         
-        float m_targetVolumeDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_currentTrackPeakDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_currentInDb         = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        float m_fadeOutStartDb      = Audio::C_VOLUME_DECIBEL_DEFAULT;
+        
         float m_fadeDuration    = 0.0f;
         float m_fadeElapsed     = 0.0f;
-        
-        float m_currentTrackPeakDb  = Audio::C_VOLUME_DECIBEL_DEFAULT;
-        float m_fadingOutStartDb    = Audio::C_VOLUME_DECIBEL_DEFAULT;
     };
 }

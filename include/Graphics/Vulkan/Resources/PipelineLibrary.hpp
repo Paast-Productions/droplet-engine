@@ -28,13 +28,35 @@ namespace Droplet::IO
 
 namespace Droplet::Graphics::Vulkan
 {
-    /// @brief A vertex and a fragment stage drawn together
-    struct ShaderPair
+	/// @brief A group of shaders for a pipeline
+    struct ShaderGroup
     {
-        GUID vertex{ C_INVALID_GUID };
-        GUID fragment{ C_INVALID_GUID };
+		struct ShaderVariant
+		{
+            GUID id{ C_INVALID_GUID };
+			bool used = false;
 
-        [[nodiscard]] bool IsValid() const noexcept { return vertex != C_INVALID_GUID && fragment != C_INVALID_GUID; }
+            [[nodiscard]] bool IsValid() const noexcept { return !used || (used && id != C_INVALID_GUID); }
+		};
+
+        ShaderVariant vertex{ C_INVALID_GUID, true };
+		ShaderVariant tessCtrl{ C_INVALID_GUID, false };
+		ShaderVariant tessEval{ C_INVALID_GUID, false };
+        ShaderVariant geometry{ C_INVALID_GUID, false };
+        ShaderVariant fragment{ C_INVALID_GUID, true };
+
+		ShaderGroup() = default;
+        ShaderGroup(GUID vertexId, GUID fragmentId = C_INVALID_GUID, GUID geometryId = C_INVALID_GUID, GUID tessCtrlId = C_INVALID_GUID, GUID tessEvalId = C_INVALID_GUID)
+            : vertex{ vertexId, vertexId != C_INVALID_GUID },
+            tessCtrl{ tessCtrlId, tessCtrlId != C_INVALID_GUID },
+            tessEval{ tessEvalId, tessEvalId != C_INVALID_GUID },
+            geometry{ geometryId, geometryId != C_INVALID_GUID },
+            fragment{ fragmentId, fragmentId != C_INVALID_GUID } {}
+
+        [[nodiscard]] bool IsValid() const noexcept 
+        {
+            return vertex.IsValid() && tessCtrl.IsValid() && tessEval.IsValid() && fragment.IsValid() && geometry.IsValid();
+        }
     };
 
     /**
@@ -46,7 +68,7 @@ namespace Droplet::Graphics::Vulkan
     class ShaderLibrary
     {
     public:
-        explicit ShaderLibrary(const vk::raii::Device& device);
+        explicit ShaderLibrary(const vk::raii::Device& device, bool geometryShaders, bool tessellationShaders);
         ~ShaderLibrary();
 
         ShaderLibrary(const ShaderLibrary&) = delete;
@@ -71,14 +93,14 @@ namespace Droplet::Graphics::Vulkan
         void SetBuiltInDefault(GUID builtInId, Common::ShaderDesc builtIn);
 
         /**
-         * @brief The default pair to draw with this frame
-         * @param defaultShaders The pair production names (RenderWorld)
-         * @returns It once both stages are created, else the built-in default; invalid if not even that compiles
+         * @brief The default group to draw with this frame
+         * @param defaultShaders The group production names (RenderWorld)
+         * @returns It once all stages are created, else the built-in default; invalid if not even that compiles
          */
-        [[nodiscard]] ShaderPair ResolveDefault(ShaderPair defaultShaders);
+        [[nodiscard]] ShaderGroup ResolveDefault(ShaderGroup defaultShaders);
 
-        /// @brief `shaders` if both stages are created, else `fallback`
-        [[nodiscard]] ShaderPair Resolve(ShaderPair shaders, ShaderPair fallback) const;
+        /// @brief `shaders` if all stages are created, else `fallback`
+        [[nodiscard]] ShaderGroup Resolve(ShaderGroup shaders, ShaderGroup fallback) const;
 
         /// @brief Adds the created shaders and the failed ones, with their revisions, to `resident`.
         void AppendResident(Bridge::ResidentResources& resident) const;
@@ -107,7 +129,9 @@ namespace Droplet::Graphics::Vulkan
 
         const vk::raii::Device& m_device;
         std::unique_ptr<IO::ShaderCompiler> m_compiler;
-        std::unordered_map<std::pair<GUID, vk::ShaderStageFlagBits>, std::unique_ptr<Shader>, StageKeyHash> m_shaders; ///< hashes shader pairs to stage bits
+        bool m_geometryShaders; ///< the device has the geometry stage
+        bool m_tessellationShaders; ///< the device has the tessellation stages
+        std::unordered_map<std::pair<GUID, vk::ShaderStageFlagBits>, std::unique_ptr<Shader>, StageKeyHash> m_shaders; ///< hashes shader groups to stage bits
         std::unordered_map<GUID, std::uint64_t> m_failed; ///< assets that did not compile, at this revision
         std::unordered_map<GUID, std::uint64_t> m_revisions; ///< revision each compiled asset was compiled from
         std::unordered_map<GUID, std::uint64_t> m_ignored; ///< newest ignored revision per asset (reported once)

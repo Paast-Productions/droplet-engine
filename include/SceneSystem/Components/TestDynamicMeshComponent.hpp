@@ -5,7 +5,7 @@
 #pragma once
 
 #include <SceneSystem/Component.hpp>
-#include <SceneSystem/DefaultNodeBounds.hpp>
+#include <SceneSystem/Bounds/DefaultNodeBounds.hpp>
 #include <Common/RenderData.hpp>
 #include <Resource/StaticResourceHandle.hpp>
 #include <Resource/Types/Texture2DResource.hpp>

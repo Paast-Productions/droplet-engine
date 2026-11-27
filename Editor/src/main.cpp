@@ -189,6 +189,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 		ImGui::SetNextWindowPos(ImVec2(1000.0f, 100.0f), ImGuiCond_Always);
 		ImGui::SetNextWindowSize(ImVec2(600.0f, 600.0f), ImGuiCond_Always);
 
+		std::vector<EditorWindow *> toFocus = { &resourceBrowser, &hierarchyWindow, &nodeInspectorWindow, &sceneViewWindow };
+
 		// Run main loop
 		bool run = true;
 		while (run)
@@ -501,18 +503,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				}
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
+			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
 			{
-				hierarchyWindow.Render();
-			}
-			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
-			{
-				nodeInspectorWindow.Render();
+				mixerWindow.Render();
 			}
 
-			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
 			{
-				behaviourInspector.Render();
+				busInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowRenderSettings", true))
+			{
+				renderSettingsWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowSceneInspector", true))
+			{
+				sceneInspectorWindow.Render();
 			}
 
 			if (EditorConfig::LoadBool("Editor.ShowScripts", true))
@@ -530,30 +538,24 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 				resourceBrowser.Render();
 			}
 
+			if (EditorConfig::LoadBool("Editor.ShowBehaviourInspector", true))
+			{
+				behaviourInspector.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowNodeInspector", true))
+			{
+				nodeInspectorWindow.Render();
+			}
+
+			if (EditorConfig::LoadBool("Editor.ShowNodeHierarchy", true))
+			{
+				hierarchyWindow.Render();
+			}
 
 			if (EditorConfig::LoadBool("Editor.ShowEditorView", true))
 			{
 				sceneViewWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowAudioMixer", true))
-			{
-				mixerWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowBusInspector", true))
-			{
-				busInspectorWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowSceneInspector", true))
-			{
-				sceneInspectorWindow.Render();
-			}
-
-			if (EditorConfig::LoadBool("Editor.ShowRenderSettings", true))
-			{
-				renderSettingsWindow.Render();
 			}
 
 			// Set the game camera to the last camera in the active scene's camera stack before rendering
@@ -644,6 +646,13 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 			}
 
 			editorContext.ClearQueuedEditorCameras();
+
+			if (!toFocus.empty())
+			{
+				toFocus.front()->GiveFocus();
+				toFocus.erase(toFocus.begin());
+			}
+      
 			FrameMark;
 		}
 	}

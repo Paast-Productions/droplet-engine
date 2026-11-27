@@ -6,6 +6,7 @@
 #include <SceneSystem/Components/DamageComponent.hpp>
 #include <SceneSystem/Components/PlayerComponent.hpp>
 #include <SceneSystem/Behaviours/PlayerBehaviour.hpp>
+#include <SceneSystem/Behaviours/AudioBehaviour.hpp>
 #include <SceneSystem/Components/AudioEmitterComponent.hpp>
 #include <SceneSystem/Components/AudioPlayerComponent.hpp>
 #include <SceneSystem/Components/AudioListenerComponent.hpp>
@@ -27,7 +28,10 @@ void Bindings::RegisterComponents(sol::state_view p_luaState)
 	RegisterPlayerBehaviour(p_luaState);
 	RegisterDamageComponent(p_luaState);
     RegisterPhysicsComponent(p_luaState);
+    
+    RegisterAudioBehaviour(p_luaState);
     RegisterAudioEmitterComponent(p_luaState);
+    RegisterAudioPlayerComponent(p_luaState);
 }
 
 void Bindings::RegisterCameraComponent(sol::state_view p_luaState)
@@ -672,7 +676,7 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
         { "GetFreezeLevel", "float", {} },
         { "IncreaseFreezeLevel", "void", { { "amount", "number" } } },
         { "SetFreezeLevel", "FreezeResistance", { { "amount", "number" } } },
-        { "SetFreezeTimer", "Freezetimer", {{"amount", "number" } } },
+        { "SetFreezeTimer", "FreezeTimer", {{"amount", "number" } } },
         { "GetFreezeTimer", "float", {} },
 		{ "GetItemRegistry", "ItemRegistry", {} },
         { "AddItem", "number", {{ "inventory", "InventoryType" },{ "itemId", "ItemId" },{ "count", "number" }} },
@@ -709,6 +713,28 @@ void Bindings::RegisterPlayerBehaviour(sol::state_view p_luaState)
     };
 
     LuaBindings::PushLuaClassDefinition(registryDef);
+}
+
+void Bindings::RegisterAudioBehaviour(sol::state_view p_luaState)
+{
+	p_luaState.new_usertype<AudioBehaviour>(
+		"AudioBehaviour",
+		"PlayTrack", &AudioBehaviour::PlayTrack,
+		"StopTracks", &AudioBehaviour::StopTracks,
+		"SetTargetVolumeDb", &AudioBehaviour::SetTargetVolumeDb
+	);
+
+    // AudioBehaviour API metadata.
+    LuaClassDefinition classDef;
+    classDef.name = "AudioBehaviour";
+    classDef.functions =
+    {
+        // { "PlayTrack", "void", {} },
+        // { "StopTracks", "void", {} },
+        // { "SetTargetVolumeDb", "void", {"volumeDb", "number"} }
+	};
+
+	LuaBindings::PushLuaClassDefinition(classDef);
 }
 
 void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
@@ -761,14 +787,14 @@ void Bindings::RegisterAudioEmitterComponent(sol::state_view p_luaState)
         {"SetPitch", "void", {{"pitch", "float"}} },
         {"SetLooping", "void", {{"isLooping", "bool"}}},
         {"SetMinMaxDistance", "void",{} },
-        {"SetAttenuationCurve", "void", {{"daliaAttenuationcurve", "daliaattenuationCurve"}} },
+        {"SetAttenuationCurve", "void", {{"daliaAttenuationCurve", "daliaAttenuationCurve"}} },
         {"GetStartTimeSeconds", "double", {}},
         {"GetVolumeDb", "float", {}},
         {"GetPitch", "float", {}},
         {"IsLooping", "bool", {}},
         {"GetMinDistance", "float", {}},
         {"GetMaxDistance", "float", {}},
-        {"GetAttenuationCurve", "daliaattenuationCurve",{}},
+        {"GetAttenuationCurve", "daliaAttenuationCurve",{}},
     };
 
     LuaBindings::PushLuaClassDefinition(classDef);
@@ -809,7 +835,7 @@ void Bindings::RegisterAudioPlayerComponent(sol::state_view p_luaState)
         {"SetVolumeDb", "void", {{"volume", "float"}}},
         {"SetPitch", "void", {{"pitch", "float"}}},
         {"SetLooping", "void", {{"islooping", "bool"}}},
-        {"GetStartTimeseconds", "float", {}},
+        {"GetStartTimeSeconds", "float", {}},
         {"GetVolumeDb", "float", {}},
         {"GetPitch", "float",{}},
         {"IsLooping", "bool", {}},

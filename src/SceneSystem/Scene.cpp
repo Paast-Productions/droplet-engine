@@ -72,6 +72,33 @@ void Scene::Unload()
     m_loaded = false;
 }
 
+void Scene::BeginResourceLoad(GUID p_guid)
+{
+    if (p_guid == C_INVALID_GUID)
+        return;
+
+    std::scoped_lock lock(m_resourceLoadMutex);
+    m_pendingResourceLoads.insert(p_guid);
+}
+
+void Scene::EndResourceLoad(GUID p_guid)
+{
+    if (p_guid == C_INVALID_GUID)
+        return;
+
+    std::scoped_lock lock(m_resourceLoadMutex);
+	if (m_pendingResourceLoads.find(p_guid) == m_pendingResourceLoads.end())
+        return;
+
+    m_pendingResourceLoads.erase(p_guid);
+}
+
+bool Scene::AreResourcesLoaded() const
+{
+    std::scoped_lock lock(m_resourceLoadMutex);
+    return m_pendingResourceLoads.empty();
+}
+
 void Scene::Update()
 {
     if (!m_loaded || !m_active)
@@ -237,14 +264,14 @@ std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: (SCENE)
     return node;
 }
 
-void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TODO: (SCENE) Make weak pointer
+void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot, bool p_skipActiveChange) // TODO: (SCENE) Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
 
     if (!p_makeRoot)
     {
-        RemoveRoot(p_node);
+        RemoveRoot(p_node, p_skipActiveChange);
         return;
     }
 
@@ -267,7 +294,7 @@ void Scene::SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot) // TOD
     m_roots.push_back(p_node);
 }
    
-void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: (SCENE) Make weak pointer
+void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node, bool p_skipActiveChange) // TODO: (SCENE) Make weak pointer
 {
     ZoneScoped;
     ZoneText(m_name.c_str(), m_name.size());
@@ -284,7 +311,11 @@ void Scene::RemoveRoot(const std::shared_ptr<Node> &p_node) // TODO: (SCENE) Mak
         throw std::runtime_error( "Cannot remove Node '" + p_node->GetName() + "': Node is not a root of this Scene.");
     }
 
-    p_node->SetActiveSelf(false);
+	if (!p_skipActiveChange)
+	{
+        p_node->SetActiveSelf(false);
+	}
+
     m_roots.erase(it);
 }
 
