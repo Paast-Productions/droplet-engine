@@ -136,7 +136,7 @@ namespace Droplet::Scene
 		/// @brief Sets whether a Node is a root Node of the Scene.
 		/// @param p_node Node to set as a root Node.
 		/// @param p_makeRoot true to set the Node as a root Node, false to remove it from the root Nodes.
-		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot); // TODO: (SCENE) Make weak pointer
+		void SetRoot(const std::shared_ptr<Node> &p_node, bool p_makeRoot, bool p_skipActiveChange = false); // TODO: (SCENE) Make weak pointer
 
         /// @brief Removes a root Node from the Scene.
         ///
@@ -149,7 +149,7 @@ namespace Droplet::Scene
         ///
         /// @throws std::invalid_argument if p_node is nullptr.
         /// @throws std::runtime_error if the Node is not a root of this Scene.
-        void RemoveRoot(const std::shared_ptr<Node> &p_node); // TODO: Make weak pointer
+        void RemoveRoot(const std::shared_ptr<Node> &p_node, bool p_skipActiveChange = false); // TODO: Make weak pointer
 
 		/// @brief Notifies the Scene that a Node is being destructed.
 		/// @param p_node The Node being destructed.
