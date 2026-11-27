@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Divesite2",
+            "guid": 7934478325690915029,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "Divesite2",
+            "type": 1
+        }
+    ]
+}
