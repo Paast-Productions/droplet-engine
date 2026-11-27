@@ -141,7 +141,7 @@ void SceneManager::ActivateScene(const std::string &p_name)
     {
         throw std::runtime_error("Cannot activate Scene '" + p_name + "': Scene is not loaded.");
     }
-
+     
     if (scene->IsActive())
     {
 		return; // Scene is already active
