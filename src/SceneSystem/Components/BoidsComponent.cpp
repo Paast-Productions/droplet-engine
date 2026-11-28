@@ -4,9 +4,11 @@
 #include <cmath>
 #include <limits>
 #include <string>
+#include <unordered_map>
 
 #include <ImGui/imgui.h>
 
+#include <Core/DeferredTask.hpp>
 #include <Core/ParallelFor.hpp>
 
 #ifdef _EDITOR
@@ -400,6 +402,49 @@ namespace Droplet::Scene
         bool hasPathTarget = false;
     };
 
+    struct BoidsComponent::Tuning
+    {
+        BoidsMode mode;
+        bool multithreaded;
+        float perceptionRadius;
+        float separationRadius;
+        float separationWeight;
+        float alignmentWeight;
+        float cohesionWeight;
+        float boundsWeight;
+        float boundsMargin;
+        float pathWeight;
+        float pathLookahead;
+        float maxSpeed;
+        float maxSteeringForce;
+    };
+
+    struct BoidsComponent::SteeringJob
+    {
+        Tuning tuning;
+        Flock flock;
+        std::vector<SteeringForces> forces;
+    };
+
+    BoidsComponent::Tuning BoidsComponent::MakeTuning() const
+    {
+        return Tuning{
+            m_mode,
+            m_multithreaded,
+            m_perceptionRadius,
+            m_separationRadius,
+            m_separationWeight,
+            m_alignmentWeight,
+            m_cohesionWeight,
+            m_boundsWeight,
+            m_boundsMargin,
+            m_pathWeight,
+            m_pathLookahead,
+            m_maxSpeed,
+            m_maxSteeringForce
+        };
+    }
+
     BoidsComponent::Flock BoidsComponent::GatherFlock()
     {
         const std::size_t boidCount = m_fish.size();
@@ -486,100 +531,135 @@ namespace Droplet::Scene
     void BoidsComponent::ComputeSteering(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces)
     {
         p_forces.assign(p_flock.nodes.size(), SteeringForces{});
+        ComputeAvoidanceForces(p_scene, p_flock, p_forces);
+        ComputeFlockingForces(MakeTuning(), p_flock, p_forces);
+    }
+
+    void BoidsComponent::ComputeAvoidanceForces(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces)
+    {
+        if (m_avoidanceDistance <= EPSILON)
+        {
+            return;
+        }
+
+        const auto computeFish = [this, &p_scene, &p_flock, &p_forces](std::size_t p_liveIndex)
+        {
+            ZoneNamed(avoidanceZone, "Compute Avoidance");
+
+            const std::size_t i = p_flock.live[p_liveIndex];
+            p_forces[i].avoidance = ComputeAvoidance(p_scene, p_flock.positions[i], p_flock.headings[i], p_flock.ignoreNodes, m_avoidanceDistance, m_avoidanceLayerMask) * m_avoidanceWeight;
+        };
 
         if (m_multithreaded)
         {
             WarmTransforms(p_scene);
-
-            ParallelFor(p_flock.live.size(), [this, &p_scene, &p_flock, &p_forces](std::size_t p_liveIndex)
-            {
-                const std::size_t i = p_flock.live[p_liveIndex];
-                ComputeFishSteering(p_scene, p_flock, i, p_forces[i]);
-            });
+            ParallelFor(p_flock.live.size(), computeFish);
         }
         else
         {
-            for (std::size_t i : p_flock.live)
+            for (std::size_t liveIndex = 0; liveIndex < p_flock.live.size(); ++liveIndex)
             {
-                ComputeFishSteering(p_scene, p_flock, i, p_forces[i]);
+                computeFish(liveIndex);
             }
         }
     }
 
-    void BoidsComponent::ComputeFishSteering(Scene &p_scene, Flock &p_flock, std::size_t p_index, SteeringForces &p_forces)
+    void BoidsComponent::ComputeFlockingForces(const Tuning &p_tuning, const Flock &p_flock, std::vector<SteeringForces> &p_forces)
     {
-        ZoneNamed(computeSteeringZone, "Compute Steering");
-
-        const float perceptionRadiusSq = m_perceptionRadius * m_perceptionRadius;
-        const float separationRadiusSq = m_separationRadius * m_separationRadius;
-
-        const std::size_t i = p_index;
-        const glm::vec3 position = p_flock.positions[i];
-        const glm::vec3 velocity = p_flock.velocities[i];
-        const glm::vec3 heading = p_flock.headings[i];
-
-        glm::vec3 separation(0.0f);
-        glm::vec3 averageVelocity(0.0f);
-        glm::vec3 centre(0.0f);
-        std::size_t neighbourCount = 0;
-
-        for (std::size_t j : p_flock.live)
+        const auto computeFish = [&p_tuning, &p_flock, &p_forces](std::size_t p_liveIndex)
         {
-            if (j == i)
+            ZoneNamed(computeSteeringZone, "Compute Steering");
+
+            const float perceptionRadiusSq = p_tuning.perceptionRadius * p_tuning.perceptionRadius;
+            const float separationRadiusSq = p_tuning.separationRadius * p_tuning.separationRadius;
+
+            const std::size_t i = p_flock.live[p_liveIndex];
+            SteeringForces &forces = p_forces[i];
+            const glm::vec3 position = p_flock.positions[i];
+            const glm::vec3 velocity = p_flock.velocities[i];
+
+            glm::vec3 separation(0.0f);
+            glm::vec3 averageVelocity(0.0f);
+            glm::vec3 centre(0.0f);
+            std::size_t neighbourCount = 0;
+
+            for (std::size_t j : p_flock.live)
             {
-                continue;
+                if (j == i)
+                {
+                    continue;
+                }
+
+                const glm::vec3 offset = position - p_flock.positions[j];
+                const float distanceSq = glm::dot(offset, offset);
+                if (distanceSq > perceptionRadiusSq)
+                {
+                    continue;
+                }
+
+                ++neighbourCount;
+                averageVelocity += p_flock.velocities[j];
+                centre += p_flock.positions[j];
+
+                if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
+                {
+                    separation += offset / distanceSq;
+                }
             }
 
-            const glm::vec3 offset = position - p_flock.positions[j];
-            const float distanceSq = glm::dot(offset, offset);
-            if (distanceSq > perceptionRadiusSq)
+            forces.separation = separation * p_tuning.separationWeight;
+            forces.neighbourCount = neighbourCount;
+            if (neighbourCount > 0)
             {
-                continue;
+                const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
+                forces.neighbourCentre = centre * inverseCount;
+                forces.alignment = (averageVelocity * inverseCount - velocity) * p_tuning.alignmentWeight;
+                forces.cohesion = (forces.neighbourCentre - position) * p_tuning.cohesionWeight;
             }
 
-            ++neighbourCount;
-            averageVelocity += p_flock.velocities[j];
-            centre += p_flock.positions[j];
-
-            if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
+            if (p_tuning.mode == BoidsMode::Bounds)
             {
-                separation += offset / distanceSq;
+                forces.bounds = ComputeBoundsSteer(p_flock.boxes, position, velocity, p_tuning.boundsMargin, p_tuning.maxSpeed) * p_tuning.boundsWeight;
+            }
+            else if (p_tuning.mode == BoidsMode::Path && !p_flock.pathPoints.empty())
+            {
+                forces.pathTarget = SamplePathTarget(p_flock.pathPoints, position, p_tuning.pathLookahead);
+                forces.hasPathTarget = true;
+                forces.path = SeekSteer(forces.pathTarget, position, velocity, p_tuning.maxSpeed) * p_tuning.pathWeight;
+            }
+
+            glm::vec3 steering = forces.separation + forces.alignment + forces.cohesion + forces.avoidance + forces.bounds + forces.path;
+            const float steeringLength = glm::length(steering);
+            if (steeringLength > p_tuning.maxSteeringForce && steeringLength > EPSILON)
+            {
+                steering *= p_tuning.maxSteeringForce / steeringLength;
+            }
+            forces.total = steering;
+        };
+
+        if (p_tuning.multithreaded)
+        {
+            ParallelFor(p_flock.live.size(), computeFish);
+        }
+        else
+        {
+            for (std::size_t liveIndex = 0; liveIndex < p_flock.live.size(); ++liveIndex)
+            {
+                computeFish(liveIndex);
             }
         }
+    }
 
-        p_forces.separation = separation * m_separationWeight;
-        p_forces.neighbourCount = neighbourCount;
-        if (neighbourCount > 0)
-        {
-            const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
-            p_forces.neighbourCentre = centre * inverseCount;
-            p_forces.alignment = (averageVelocity * inverseCount - velocity) * m_alignmentWeight;
-            p_forces.cohesion = (p_forces.neighbourCentre - position) * m_cohesionWeight;
-        }
+    std::shared_ptr<DeferredTask<BoidsComponent::SteeringJob>> BoidsComponent::StartSteeringJob(Scene &p_scene, const Flock &p_flock)
+    {
+        SteeringJob job{ MakeTuning(), p_flock, std::vector<SteeringForces>(p_flock.nodes.size()) };
+        ComputeAvoidanceForces(p_scene, job.flock, job.forces);
 
-        if (m_avoidanceDistance > EPSILON)
+        // Captureless, and it only touches the job, so it stays valid after this component is gone.
+        return DeferredTask<SteeringJob>::Launch(std::move(job), [](SteeringJob &p_job)
         {
-            p_forces.avoidance = ComputeAvoidance(p_scene, position, heading, p_flock.ignoreNodes, m_avoidanceDistance, m_avoidanceLayerMask) * m_avoidanceWeight;
-        }
-
-        if (m_mode == BoidsMode::Bounds)
-        {
-            p_forces.bounds = ComputeBoundsSteer(p_flock.boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
-        }
-        else if (m_mode == BoidsMode::Path && !p_flock.pathPoints.empty())
-        {
-            p_forces.pathTarget = SamplePathTarget(p_flock.pathPoints, position, m_pathLookahead);
-            p_forces.hasPathTarget = true;
-            p_forces.path = SeekSteer(p_forces.pathTarget, position, velocity, m_maxSpeed) * m_pathWeight;
-        }
-
-        glm::vec3 steering = p_forces.separation + p_forces.alignment + p_forces.cohesion + p_forces.avoidance + p_forces.bounds + p_forces.path;
-        const float steeringLength = glm::length(steering);
-        if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
-        {
-            steering *= m_maxSteeringForce / steeringLength;
-        }
-        p_forces.total = steering;
+            ComputeFlockingForces(p_job.tuning, p_job.flock, p_job.forces);
+        });
     }
 
     void BoidsComponent::UpdateImpl()
@@ -597,27 +677,63 @@ namespace Droplet::Scene
         }
 
         Flock flock = GatherFlock();
-        std::vector<SteeringForces> forces;
-        ComputeSteering(*scene, flock, forces);
+
+        if (m_multithreaded)
+        {
+            // Apply last update's result before queueing the next, so the new snapshot sees the fish after they moved.
+            if (m_pendingJob)
+            {
+                m_pendingJob->Wait();
+                ApplySteering(flock, m_pendingJob->Get().flock, m_pendingJob->Get().forces, deltaTime);
+                m_pendingJob.reset();
+                flock = GatherFlock();
+            }
+
+            m_pendingJob = StartSteeringJob(*scene, flock);
+        }
+        else
+        {
+            m_pendingJob.reset();
+
+            std::vector<SteeringForces> forces;
+            ComputeSteering(*scene, flock, forces);
+            ApplySteering(flock, flock, forces, deltaTime);
+        }
+    }
+
+    void BoidsComponent::ApplySteering(const Flock &p_flock, const Flock &p_source, const std::vector<SteeringForces> &p_sourceForces, float p_deltaTime)
+    {
+        std::unordered_map<const Node *, const SteeringForces *> forcesByNode;
+        forcesByNode.reserve(p_source.live.size());
+        for (std::size_t i : p_source.live)
+        {
+            forcesByNode.emplace(p_source.nodes[i].get(), &p_sourceForces[i]);
+        }
 
         m_velocities.clear();
-        for (std::size_t i : flock.live)
+        for (std::size_t i : p_flock.live)
         {
             ZoneNamed(applySteeringZone, "Apply Steering");
 
-            const glm::vec3 newVelocity = flock.velocities[i] + forces[i].total * deltaTime;
+            glm::vec3 total(0.0f);
+            if (const auto forcesIt = forcesByNode.find(p_flock.nodes[i].get()); forcesIt != forcesByNode.end())
+            {
+                total = forcesIt->second->total;
+            }
+
+            const glm::vec3 newVelocity = p_flock.velocities[i] + total * p_deltaTime;
             const float newSpeed = glm::length(newVelocity);
-            const glm::vec3 newHeading = newSpeed > EPSILON ? newVelocity / newSpeed : flock.headings[i];
+            const glm::vec3 newHeading = newSpeed > EPSILON ? newVelocity / newSpeed : p_flock.headings[i];
             glm::vec3 velocity = newHeading * std::min(std::max(newSpeed, m_minSpeed), m_maxSpeed);
 
-            glm::vec3 newPosition = flock.positions[i] + velocity * deltaTime;
+            glm::vec3 newPosition = p_flock.positions[i] + velocity * p_deltaTime;
             if (m_mode == BoidsMode::Bounds)
             {
-                ConstrainToBoxes(flock.boxes, newPosition, velocity);
+                ConstrainToBoxes(p_flock.boxes, newPosition, velocity);
             }
-            m_velocities[flock.nodes[i].get()] = velocity;
+            m_velocities[p_flock.nodes[i].get()] = velocity;
 
-            Transform &transform = flock.nodes[i]->GetTransform();
+            Transform &transform = p_flock.nodes[i]->GetTransform();
             transform.SetPosition(newPosition, Transform::Space::World);
 
             const float speed = glm::length(velocity);

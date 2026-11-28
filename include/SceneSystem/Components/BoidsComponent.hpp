@@ -9,6 +9,12 @@
 #include <Component.hpp>
 #include <SceneSystem/Scene.hpp>
 
+namespace Droplet
+{
+    template <typename Payload>
+    class DeferredTask;
+}
+
 namespace Droplet::Scene
 {
     /// @brief How the flock is constrained.
@@ -62,16 +68,31 @@ namespace Droplet::Scene
     private:
         struct Flock;
         struct SteeringForces;
+        struct Tuning;
+        struct SteeringJob;
 
         /// Collects the live fish, their velocities and the scenery to ignore for one update.
         [[nodiscard]] Flock GatherFlock();
 
-        /// Fills p_forces with one entry per fish in p_flock. Terms are weighted; total is clamped to m_maxSteeringForce.
-        /// Runs on the thread pool when m_multithreaded is set.
+        /// Copies the settings that the flocking math reads, so a job can run without touching the component.
+        [[nodiscard]] Tuning MakeTuning() const;
+
+        /// Fills p_forces with one entry per fish in p_flock, computed on this thread. Terms are weighted; total is clamped to m_maxSteeringForce.
         void ComputeSteering(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces);
 
-        /// Computes the steering terms for the fish at p_index in p_flock. Only reads shared state, so it is safe to run concurrently.
-        void ComputeFishSteering(Scene &p_scene, Flock &p_flock, std::size_t p_index, SteeringForces &p_forces);
+        /// Sets the avoidance term for each live fish. Raycasts run in parallel when m_multithreaded is set, after the transforms are warmed.
+        void ComputeAvoidanceForces(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces);
+
+        /// Sets the flocking, bounds and path terms, then the clamped total that includes the avoidance term already in p_forces.
+        /// Reads only its arguments, so it is safe to run on any thread. Runs in parallel when p_tuning.multithreaded is set.
+        static void ComputeFlockingForces(const Tuning &p_tuning, const Flock &p_flock, std::vector<SteeringForces> &p_forces);
+
+        /// Starts the flocking steer for p_flock on the thread pool. Avoidance is raycast on this thread first, since scenery must not change while rays run.
+        [[nodiscard]] std::shared_ptr<DeferredTask<SteeringJob>> StartSteeringJob(Scene &p_scene, const Flock &p_flock);
+
+        /// Moves each live fish in p_flock by the total steering found for it in p_source, which may be a snapshot from an earlier update.
+        /// Fish missing from p_source get no steering. Positions and velocities come from p_flock.
+        void ApplySteering(const Flock &p_flock, const Flock &p_source, const std::vector<SteeringForces> &p_sourceForces, float p_deltaTime);
 
         /// Draws the bounds boxes and the path loop.
         void DrawBoundsAndPath();
@@ -85,8 +106,11 @@ namespace Droplet::Scene
         /// Draws the steering data in the editor.
         bool m_debugInfo{ false };
 
-        /// Computes the per-fish steering on the engine thread pool.
+        /// Runs the flocking steer on the engine thread pool. Its result is applied on the next update, so the fish steer one frame late.
         bool m_multithreaded{ false };
+
+        /// Flocking steer started on the last update, applied on the next one.
+        std::shared_ptr<DeferredTask<SteeringJob>> m_pendingJob;
 
         /// Editor slots, so entries can be empty while the user is still filling the list.
         std::vector<std::weak_ptr<Node>> m_fish;
