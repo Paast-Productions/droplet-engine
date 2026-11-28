@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "dirt_01",
+            "guid": 3930453210281188815,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "dirt_01",
+            "type": 1
+        }
+    ]
+}

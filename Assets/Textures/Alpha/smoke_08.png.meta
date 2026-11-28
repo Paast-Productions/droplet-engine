@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "smoke_08",
+            "guid": 1387460176363329668,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "smoke_08",
+            "type": 1
+        }
+    ]
+}

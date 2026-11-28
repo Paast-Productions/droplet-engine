@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "muzzle_01",
+            "guid": 1506090616500875789,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "muzzle_01",
+            "type": 1
+        }
+    ]
+}

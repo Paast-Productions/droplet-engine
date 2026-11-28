@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "scorch_03",
+            "guid": 2098971399570132399,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "scorch_03",
+            "type": 1
+        }
+    ]
+}

@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "trace_04",
+            "guid": 6615484292216598537,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "trace_04",
+            "type": 1
+        }
+    ]
+}

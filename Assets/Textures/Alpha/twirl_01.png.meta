@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "twirl_01",
+            "guid": 6757147029622598132,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "twirl_01",
+            "type": 1
+        }
+    ]
+}

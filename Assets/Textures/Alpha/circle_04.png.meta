@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "circle_04",
+            "guid": 5965926629539573276,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "circle_04",
+            "type": 1
+        }
+    ]
+}

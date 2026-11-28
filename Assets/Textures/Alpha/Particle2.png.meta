@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "Particle2",
+            "guid": 4458026237732665319,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "Particle2",
+            "type": 1
+        }
+    ]
+}

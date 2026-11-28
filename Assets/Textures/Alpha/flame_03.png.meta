@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "flame_03",
+            "guid": 3251811364503221352,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "flame_03",
+            "type": 1
+        }
+    ]
+}

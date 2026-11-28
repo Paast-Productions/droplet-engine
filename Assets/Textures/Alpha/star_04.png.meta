@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "star_04",
+            "guid": 4409917612431467242,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "star_04",
+            "type": 1
+        }
+    ]
+}
