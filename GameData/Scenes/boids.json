@@ -10,7 +10,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -37,7 +37,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 29,
+                    "id": 41,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -61,7 +61,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -88,7 +88,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 30,
+                    "id": 42,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -112,7 +112,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -139,7 +139,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 31,
+                    "id": 43,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -163,7 +163,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -190,7 +190,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 32,
+                    "id": 44,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -214,7 +214,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -241,7 +241,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 33,
+                    "id": 45,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -265,7 +265,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -292,7 +292,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 34,
+                    "id": 46,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -316,7 +316,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -343,7 +343,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 35,
+                    "id": 47,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -367,7 +367,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -394,7 +394,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 36,
+                    "id": 48,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -418,7 +418,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -445,7 +445,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 37,
+                    "id": 49,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -469,7 +469,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -496,7 +496,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 38,
+                    "id": 50,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -520,7 +520,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -547,7 +547,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 39,
+                    "id": 51,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -571,7 +571,7 @@
                 {
                     "active": true,
                     "children": [],
-                    "collisionLayerMask": 1,
+                    "collisionLayerMask": 512,
                     "components": [
                         {
                             "active": true,
@@ -598,7 +598,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 40,
+                    "id": 52,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -618,35 +618,147 @@
                             0.9999997615814209
                         ]
                     }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 128,
+                            "id": 54,
+                            "name": "Fish Bounds",
+                            "transform": {
+                                "position": [
+                                    0.19062352180480957,
+                                    -0.23023968935012817,
+                                    1.4782520532608032
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    10.16848373413086,
+                                    7.658222675323486,
+                                    7.791508197784424
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 128,
+                            "id": 55,
+                            "name": "Fish Bounds",
+                            "transform": {
+                                "position": [
+                                    -0.10801053047180176,
+                                    0.06402939558029175,
+                                    -3.7986490726470947
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    5.733963966369629,
+                                    4.195003032684326,
+                                    3.832958221435547
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 128,
+                            "id": 56,
+                            "name": "Fish Bounds",
+                            "transform": {
+                                "position": [
+                                    -0.1069793701171875,
+                                    -0.8235589265823364,
+                                    -11.05689811706543
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    11.351625442504883,
+                                    10.410316467285156,
+                                    11.964263916015625
+                                ]
+                            }
+                        }
+                    ],
+                    "collisionLayerMask": 512,
+                    "components": [],
+                    "drawLayer": 128,
+                    "id": 53,
+                    "name": "Bounds",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
                 }
             ],
-            "collisionLayerMask": 1,
+            "collisionLayerMask": 512,
             "components": [
                 {
                     "active": true,
                     "data": {
                         "alignmentWeight": 1.0,
                         "avoidanceDistance": 3.0,
+                        "avoidanceLayerMask": 64559,
                         "avoidanceWeight": 4.0,
                         "bounds": [
-                            41
+                            54,
+                            55,
+                            56
                         ],
                         "boundsMargin": 1.0,
                         "boundsWeight": 4.0,
                         "cohesionWeight": 1.0,
                         "fish": [
-                            29,
-                            30,
-                            31,
-                            32,
-                            33,
-                            34,
-                            35,
-                            36,
-                            37,
-                            38,
-                            39,
-                            40
+                            41,
+                            42,
+                            43,
+                            44,
+                            45,
+                            46,
+                            47,
+                            48,
+                            49,
+                            50,
+                            51,
+                            52
                         ],
                         "maxSpeed": 3.0,
                         "maxSteeringForce": 6.0,
@@ -664,8 +776,8 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 28,
-            "name": "Empty Node",
+            "id": 40,
+            "name": "Boids Bounds",
             "transform": {
                 "position": [
                     0.0,
@@ -687,15 +799,944 @@
         },
         {
             "active": true,
-            "children": [],
-            "collisionLayerMask": 16,
-            "components": [],
-            "drawLayer": 128,
-            "id": 41,
-            "name": "Fish Bounds",
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 58,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.13291659951210022,
+                            0.8800445199012756,
+                            0.13245007395744324
+                        ],
+                        "rotation": [
+                            0.9786325097084045,
+                            0.0,
+                            0.2056172788143158,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999988079071045,
+                            1.0,
+                            0.9999987483024597
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 59,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.36309632658958435,
+                            -0.14128439128398895,
+                            -0.4831986427307129
+                        ],
+                        "rotation": [
+                            0.16869691014289856,
+                            0.0,
+                            0.9856680035591125,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000027418136597,
+                            1.0,
+                            1.0000027418136597
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 60,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.3767632842063904,
+                            0.26937076449394226,
+                            -0.69364994764328
+                        ],
+                        "rotation": [
+                            0.33806559443473816,
+                            0.0,
+                            0.9411226511001587,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000022649765015,
+                            1.0,
+                            1.0000022649765015
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 61,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.08706843852996826,
+                            0.435442179441452,
+                            -0.1485140323638916
+                        ],
+                        "rotation": [
+                            0.5619133710861206,
+                            0.0,
+                            0.8271960616111755,
+                            0.0
+                        ],
+                        "scale": [
+                            1.000003695487976,
+                            1.0,
+                            1.000003695487976
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 62,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.3392941951751709,
+                            0.435442179441452,
+                            -0.5811812877655029
+                        ],
+                        "rotation": [
+                            0.9513658881187439,
+                            0.0,
+                            0.3080633282661438,
+                            0.0
+                        ],
+                        "scale": [
+                            1.000001311302185,
+                            1.0,
+                            1.000001311302185
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 63,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.031007200479507446,
+                            0.4354425072669983,
+                            0.21923455595970154
+                        ],
+                        "rotation": [
+                            -0.30595076084136963,
+                            0.0,
+                            0.9520473480224609,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000272989273071,
+                            1.0,
+                            1.0000272989273071
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 64,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.974536120891571,
+                            0.4354424774646759,
+                            0.1428396850824356
+                        ],
+                        "rotation": [
+                            0.4598867893218994,
+                            0.0,
+                            0.8879776000976563,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000009536743164,
+                            1.0,
+                            1.0000009536743164
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 65,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.974536120891571,
+                            0.9420489072799683,
+                            0.1428396850824356
+                        ],
+                        "rotation": [
+                            0.07168968766927719,
+                            0.0,
+                            0.9974269866943359,
+                            0.0
+                        ],
+                        "scale": [
+                            0.999997079372406,
+                            1.0,
+                            0.999997079372406
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 66,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.49047374725341797,
+                            0.43544214963912964,
+                            -1.0641498565673828
+                        ],
+                        "rotation": [
+                            0.8107621073722839,
+                            0.0,
+                            -0.5853758454322815,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 67,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.7183069586753845,
+                            -0.6941719055175781,
+                            0.4962681829929352
+                        ],
+                        "rotation": [
+                            0.7635746598243713,
+                            0.0,
+                            -0.645719587802887,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999999403953552,
+                            1.0,
+                            0.9999999403953552
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 68,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.5031715631484985,
+                            0.4354422092437744,
+                            -0.22640226781368256
+                        ],
+                        "rotation": [
+                            0.956786572933197,
+                            0.0,
+                            -0.2907911539077759,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999989867210388,
+                            1.0,
+                            0.9999988675117493
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 512,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 69,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.6545071005821228,
+                            0.4354422092437744,
+                            -0.712647557258606
+                        ],
+                        "rotation": [
+                            0.9788457155227661,
+                            0.0,
+                            0.20459991693496704,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999997615814209,
+                            1.0,
+                            0.9999997615814209
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 71,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 72,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -1.9767084121704102,
+                                    -0.6820085048675537,
+                                    4.378556251525879
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 73,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -6.0784502029418945,
+                                    1.1381185054779053,
+                                    5.646651268005371
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 74,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -10.525681495666504,
+                                    -2.2941980361938477,
+                                    4.746419906616211
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 75,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -12.209343910217285,
+                                    2.260244607925415,
+                                    -1.140525460243225
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 76,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -7.486233711242676,
+                                    5.194094657897949,
+                                    -5.494010925292969
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        },
+                        {
+                            "active": true,
+                            "children": [],
+                            "collisionLayerMask": 512,
+                            "components": [],
+                            "drawLayer": 1,
+                            "id": 77,
+                            "name": "point",
+                            "transform": {
+                                "position": [
+                                    -0.47525787353515625,
+                                    3.9966416358947754,
+                                    -6.565683841705322
+                                ],
+                                "rotation": [
+                                    1.0,
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "scale": [
+                                    1.0,
+                                    1.0,
+                                    1.0
+                                ]
+                            }
+                        }
+                    ],
+                    "collisionLayerMask": 512,
+                    "components": [],
+                    "drawLayer": 1,
+                    "id": 70,
+                    "name": "Path",
+                    "transform": {
+                        "position": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 3,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "Cube",
+                                "meshGUID": 15104664662864096133,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "White",
+                                "textureGUID": 13855953862202670664,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 78,
+                    "name": "Obstacle",
+                    "transform": {
+                        "position": [
+                            -11.509343147277832,
+                            0.08480755984783173,
+                            1.4364681243896484
+                        ],
+                        "rotation": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "scale": [
+                            2.266207218170166,
+                            1.6585174798965454,
+                            0.12729161977767944
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 512,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "alignmentWeight": 0.6000000238418579,
+                        "avoidanceDistance": 4.5,
+                        "avoidanceLayerMask": 64559,
+                        "avoidanceWeight": 14.350000381469727,
+                        "bounds": [],
+                        "boundsMargin": 1.0,
+                        "boundsWeight": 4.0,
+                        "cohesionWeight": 1.0,
+                        "fish": [
+                            58,
+                            59,
+                            60,
+                            61,
+                            62,
+                            63,
+                            64,
+                            65,
+                            66,
+                            67,
+                            68,
+                            69
+                        ],
+                        "maxSpeed": 4.150000095367432,
+                        "maxSteeringForce": 6.0,
+                        "minSpeed": 1.0,
+                        "mode": "path",
+                        "path": [
+                            71,
+                            72,
+                            73,
+                            74,
+                            75,
+                            76,
+                            77
+                        ],
+                        "pathLookahead": 3.049999952316284,
+                        "pathWeight": 0.4000000059604645,
+                        "perceptionRadius": 4.0,
+                        "separationRadius": 1.5,
+                        "separationWeight": 1.0
+                    },
+                    "id": 1,
+                    "type": "BoidsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 57,
+            "name": "BoidsPath",
             "transform": {
                 "position": [
-                    0.0,
+                    -10.646540641784668,
                     0.0,
                     0.0
                 ],
@@ -706,9 +1747,9 @@
                     0.0
                 ],
                 "scale": [
-                    4.835000038146973,
-                    4.835003852844238,
-                    4.835003852844238
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }

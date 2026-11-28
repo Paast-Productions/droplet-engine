@@ -11,7 +11,9 @@
 #include <Editor/NodeSlot.hpp>
 #endif
 
+#include <Graphics/Debug/DebugDraw.hpp>
 #include <Math/Bounds/OBB.hpp>
+#include <Math/Bounds/Sphere.hpp>
 #include <Node.hpp>
 #include <Time.hpp>
 #include <Transform.hpp>
@@ -28,6 +30,8 @@ namespace
     constexpr float TAU = 6.2831853f;
     constexpr int AVOIDANCE_RAY_COUNT = 8;
     constexpr float AVOIDANCE_CONE_ANGLE = 0.6109f; // 35 degrees, in radians
+    constexpr float DEBUG_FORCE_SCALE = 0.25f; ///< Length in world units per unit of steering force.
+    constexpr float DEBUG_MARKER_RADIUS = 0.25f;
 
     template<typename T>
     void ReadValue(const nlohmann::json &p_json, const char *p_key, T &p_value)
@@ -49,12 +53,12 @@ namespace
     /// Returns a steer that turns the heading toward the side ray with the most free distance,
     /// or zero when the heading is clear within the range.
     glm::vec3 ComputeAvoidance(Scene &p_scene, const glm::vec3 &p_position, const glm::vec3 &p_heading,
-        std::vector<std::weak_ptr<Node>> &p_ignoreNodes, float p_range)
+        std::vector<std::weak_ptr<Node>> &p_ignoreNodes, float p_range, Droplet::CollisionLayer p_avoidanceLayerMask)
     {
         ZoneScoped;
 
         RayHit forwardHit;
-        if (p_scene.RaycastNode(Ray(p_position, p_heading), &forwardHit, &p_ignoreNodes, Droplet::CollisionLayer::All, p_range).expired())
+        if (p_scene.RaycastNode(Ray(p_position, p_heading), &forwardHit, &p_ignoreNodes, p_avoidanceLayerMask, p_range).expired())
         {
             return glm::vec3(0.0f);
         }
@@ -73,7 +77,7 @@ namespace
             const glm::vec3 direction = glm::normalize(p_heading * std::cos(AVOIDANCE_CONE_ANGLE) + lateral * std::sin(AVOIDANCE_CONE_ANGLE));
 
             RayHit sideHit;
-            const bool blocked = !p_scene.RaycastNode(Ray(p_position, direction), &sideHit, &p_ignoreNodes, Droplet::CollisionLayer::All, p_range).expired();
+            const bool blocked = !p_scene.RaycastNode(Ray(p_position, direction), &sideHit, &p_ignoreNodes, p_avoidanceLayerMask, p_range).expired();
             const float freeDistance = blocked ? sideHit.distance : p_range;
             if (freeDistance > bestDistance)
             {
@@ -348,6 +352,200 @@ namespace Droplet::Scene
         return fish;
     }
 
+    struct BoidsComponent::Flock
+    {
+        std::vector<std::shared_ptr<Node>> nodes;
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> velocities;
+        std::vector<glm::vec3> headings;
+        std::vector<std::size_t> live;
+        std::vector<std::weak_ptr<Node>> ignoreNodes;
+        std::vector<OBB> boxes;
+        std::vector<glm::vec3> pathPoints;
+    };
+
+    struct BoidsComponent::SteeringForces
+    {
+        /// Weighted terms. The total is their sum, clamped to the max steering force.
+        glm::vec3 separation{0.0f};
+        glm::vec3 alignment{0.0f};
+        glm::vec3 cohesion{0.0f};
+        glm::vec3 avoidance{0.0f};
+        glm::vec3 bounds{0.0f};
+        glm::vec3 path{0.0f};
+        glm::vec3 total{0.0f};
+
+        glm::vec3 neighbourCentre{0.0f};
+        std::size_t neighbourCount = 0;
+
+        glm::vec3 pathTarget{0.0f};
+        bool hasPathTarget = false;
+    };
+
+    BoidsComponent::Flock BoidsComponent::GatherFlock()
+    {
+        const std::size_t boidCount = m_fish.size();
+        Flock flock;
+        flock.nodes.resize(boidCount);
+        flock.positions.resize(boidCount);
+        flock.velocities.resize(boidCount);
+        flock.headings.resize(boidCount);
+        flock.live.reserve(boidCount);
+
+        flock.ignoreNodes.push_back(GetOwner());
+
+        if (m_mode == BoidsMode::Bounds)
+        {
+            ZoneNamed(computeBoundsZone, "Compute Bounds");
+
+            for (const std::weak_ptr<Node> &weakBound : m_bounds)
+            {
+                if (std::shared_ptr<Node> bound = weakBound.lock())
+                {
+                    flock.boxes.push_back(GetNodeBox(*bound));
+                    flock.ignoreNodes.push_back(bound);
+                    for (const std::shared_ptr<Node> &child : bound->GetChildren(true))
+                    {
+                        flock.ignoreNodes.push_back(child);
+                    }
+                }
+            }
+        }
+
+        if (m_mode == BoidsMode::Path)
+        {
+            ZoneNamed(computePathZone, "Compute Path");
+
+            for (const std::weak_ptr<Node> &weakPoint : m_path)
+            {
+                if (const std::shared_ptr<Node> point = weakPoint.lock())
+                {
+                    flock.pathPoints.push_back(point->GetTransform().GetPosition(Transform::Space::World));
+                    flock.ignoreNodes.push_back(point);
+                    for (const std::shared_ptr<Node> &child : point->GetChildren(true))
+                    {
+                        flock.ignoreNodes.push_back(child);
+                    }
+                }
+            }
+        }
+
+        for (std::size_t i = 0; i < boidCount; ++i)
+        {
+            ZoneNamed(fetchBoidZone, "Fetch Boid");
+
+            flock.nodes[i] = m_fish[i].lock();
+            if (!flock.nodes[i])
+            {
+                continue;
+            }
+
+            flock.live.push_back(i);
+            const Transform &transform = flock.nodes[i]->GetTransform();
+            flock.positions[i] = transform.GetPosition(Transform::Space::World);
+
+            const auto velocityIt = m_velocities.find(flock.nodes[i].get());
+            glm::vec3 velocity = velocityIt != m_velocities.end() ? velocityIt->second : glm::vec3(0.0f);
+            if (glm::dot(velocity, velocity) < EPSILON)
+            {
+                velocity = transform.GetForward(Transform::Space::World) * m_minSpeed;
+            }
+            flock.velocities[i] = velocity;
+
+            const float speed = glm::length(velocity);
+            flock.headings[i] = speed > EPSILON ? velocity / speed : transform.GetForward(Transform::Space::World);
+
+            flock.ignoreNodes.push_back(flock.nodes[i]);
+            for (const std::shared_ptr<Node> &child : flock.nodes[i]->GetChildren(true))
+            {
+                flock.ignoreNodes.push_back(child);
+            }
+        }
+
+        return flock;
+    }
+
+    void BoidsComponent::ComputeSteering(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces)
+    {
+        p_forces.assign(p_flock.nodes.size(), SteeringForces{});
+
+        const float perceptionRadiusSq = m_perceptionRadius * m_perceptionRadius;
+        const float separationRadiusSq = m_separationRadius * m_separationRadius;
+
+        for (std::size_t i : p_flock.live)
+        {
+            ZoneNamed(computeSteeringZone, "Compute Steering");
+
+            const glm::vec3 position = p_flock.positions[i];
+            const glm::vec3 velocity = p_flock.velocities[i];
+            const glm::vec3 heading = p_flock.headings[i];
+
+            glm::vec3 separation(0.0f);
+            glm::vec3 averageVelocity(0.0f);
+            glm::vec3 centre(0.0f);
+            std::size_t neighbourCount = 0;
+
+            for (std::size_t j : p_flock.live)
+            {
+                if (j == i)
+                {
+                    continue;
+                }
+
+                const glm::vec3 offset = position - p_flock.positions[j];
+                const float distanceSq = glm::dot(offset, offset);
+                if (distanceSq > perceptionRadiusSq)
+                {
+                    continue;
+                }
+
+                ++neighbourCount;
+                averageVelocity += p_flock.velocities[j];
+                centre += p_flock.positions[j];
+
+                if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
+                {
+                    separation += offset / distanceSq;
+                }
+            }
+
+            SteeringForces &forces = p_forces[i];
+            forces.separation = separation * m_separationWeight;
+            forces.neighbourCount = neighbourCount;
+            if (neighbourCount > 0)
+            {
+                const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
+                forces.neighbourCentre = centre * inverseCount;
+                forces.alignment = (averageVelocity * inverseCount - velocity) * m_alignmentWeight;
+                forces.cohesion = (forces.neighbourCentre - position) * m_cohesionWeight;
+            }
+
+            if (m_avoidanceDistance > EPSILON)
+            {
+                forces.avoidance = ComputeAvoidance(p_scene, position, heading, p_flock.ignoreNodes, m_avoidanceDistance, m_avoidanceLayerMask) * m_avoidanceWeight;
+            }
+
+            if (m_mode == BoidsMode::Bounds)
+            {
+                forces.bounds = ComputeBoundsSteer(p_flock.boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
+            }
+            else if (m_mode == BoidsMode::Path && !p_flock.pathPoints.empty())
+            {
+                forces.pathTarget = SamplePathTarget(p_flock.pathPoints, position, m_pathLookahead);
+                forces.hasPathTarget = true;
+                forces.path = SeekSteer(forces.pathTarget, position, velocity, m_maxSpeed) * m_pathWeight;
+            }
+
+            glm::vec3 steering = forces.separation + forces.alignment + forces.cohesion + forces.avoidance + forces.bounds + forces.path;
+            const float steeringLength = glm::length(steering);
+            if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
+            {
+                steering *= m_maxSteeringForce / steeringLength;
+            }
+            forces.total = steering;
+        }
+    }
+
     void BoidsComponent::UpdateImpl()
     {
         const float deltaTime = std::min(Droplet::Time::Get().GetDeltaTime(), MAX_DELTA_TIME);
@@ -362,173 +560,28 @@ namespace Droplet::Scene
             return;
         }
 
-        const std::size_t boidCount = m_fish.size();
-        std::vector<std::shared_ptr<Node>> nodes(boidCount);
-        std::vector<glm::vec3> velocities(boidCount);
-        std::vector<glm::vec3> positions(boidCount);
-        std::vector<std::size_t> live;
-        live.reserve(boidCount);
-
-        std::vector<std::weak_ptr<Node>> ignoreNodes;
-        ignoreNodes.push_back(GetOwner());
-
-        std::vector<OBB> boxes;
-        if (m_mode == BoidsMode::Bounds)
-        {
-			ZoneNamed(computeBoundsZone, "Compute Bounds");
-
-            for (const std::weak_ptr<Node> &weakBound : m_bounds)
-            {
-                if (std::shared_ptr<Node> bound = weakBound.lock())
-                {
-                    boxes.push_back(GetNodeBox(*bound));
-                    ignoreNodes.push_back(bound);
-                    for (const std::shared_ptr<Node> &child : bound->GetChildren(true))
-                    {
-                        ignoreNodes.push_back(child);
-                    }
-                }
-            }
-        }
-
-        std::vector<glm::vec3> pathPoints;
-        if (m_mode == BoidsMode::Path)
-        {
-            ZoneNamed(computePathZone, "Compute Path");
-
-            for (const std::weak_ptr<Node> &weakPoint : m_path)
-            {
-                if (const std::shared_ptr<Node> point = weakPoint.lock())
-                {
-                    pathPoints.push_back(point->GetTransform().GetPosition(Transform::Space::World));
-                    ignoreNodes.push_back(point);
-                    for (const std::shared_ptr<Node> &child : point->GetChildren(true))
-                    {
-                        ignoreNodes.push_back(child);
-                    }
-                }
-            }
-        }
-
-        for (std::size_t i = 0; i < boidCount; ++i)
-        {
-            ZoneNamed(fetchBoidZone, "Fetch Boid");
-
-            nodes[i] = m_fish[i].lock();
-            if (!nodes[i])
-            {
-                continue;
-            }
-
-            live.push_back(i);
-            const Transform &transform = nodes[i]->GetTransform();
-            positions[i] = transform.GetPosition(Transform::Space::World);
-
-            const auto velocityIt = m_velocities.find(nodes[i].get());
-            glm::vec3 velocity = velocityIt != m_velocities.end() ? velocityIt->second : glm::vec3(0.0f);
-            if (glm::dot(velocity, velocity) < EPSILON)
-            {
-                velocity = transform.GetForward(Transform::Space::World) * m_minSpeed;
-            }
-            velocities[i] = velocity;
-
-            ignoreNodes.push_back(nodes[i]);
-            for (const std::shared_ptr<Node> &child : nodes[i]->GetChildren(true))
-            {
-                ignoreNodes.push_back(child);
-            }
-        }
-
-        const float perceptionRadiusSq = m_perceptionRadius * m_perceptionRadius;
-        const float separationRadiusSq = m_separationRadius * m_separationRadius;
-        std::vector<glm::vec3> newVelocities(boidCount);
-
-        for (std::size_t i : live)
-        {
-            ZoneNamed(computeSteeringZone, "Compute Steering");
-
-            const glm::vec3 position = positions[i];
-            const glm::vec3 velocity = velocities[i];
-            const float speed = glm::length(velocity);
-            const glm::vec3 heading = speed > EPSILON ? velocity / speed : nodes[i]->GetTransform().GetForward(Transform::Space::World);
-
-            glm::vec3 separation(0.0f);
-            glm::vec3 averageVelocity(0.0f);
-            glm::vec3 centre(0.0f);
-            std::size_t neighbourCount = 0;
-
-            for (std::size_t j : live)
-            {
-                if (j == i)
-                {
-                    continue;
-                }
-
-                const glm::vec3 offset = position - positions[j];
-                const float distanceSq = glm::dot(offset, offset);
-                if (distanceSq > perceptionRadiusSq)
-                {
-                    continue;
-                }
-
-                ++neighbourCount;
-                averageVelocity += velocities[j];
-                centre += positions[j];
-
-                if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
-                {
-                    separation += offset / distanceSq;
-                }
-            }
-
-            glm::vec3 steering = separation * m_separationWeight;
-            if (neighbourCount > 0)
-            {
-                const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
-                steering += (averageVelocity * inverseCount - velocity) * m_alignmentWeight;
-                steering += (centre * inverseCount - position) * m_cohesionWeight;
-            }
-
-            if (m_avoidanceDistance > EPSILON)
-            {
-                steering += ComputeAvoidance(*scene, position, heading, ignoreNodes, m_avoidanceDistance) * m_avoidanceWeight;
-            }
-
-            if (m_mode == BoidsMode::Bounds)
-            {
-                steering += ComputeBoundsSteer(boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
-            }
-            else if (m_mode == BoidsMode::Path && !pathPoints.empty())
-            {
-                steering += SeekSteer(SamplePathTarget(pathPoints, position, m_pathLookahead), position, velocity, m_maxSpeed) * m_pathWeight;
-            }
-
-            const float steeringLength = glm::length(steering);
-            if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
-            {
-                steering *= m_maxSteeringForce / steeringLength;
-            }
-
-            const glm::vec3 newVelocity = velocity + steering * deltaTime;
-            const float newSpeed = glm::length(newVelocity);
-            const glm::vec3 newHeading = newSpeed > EPSILON ? newVelocity / newSpeed : heading;
-            newVelocities[i] = newHeading * std::min(std::max(newSpeed, m_minSpeed), m_maxSpeed);
-        }
+        Flock flock = GatherFlock();
+        std::vector<SteeringForces> forces;
+        ComputeSteering(*scene, flock, forces);
 
         m_velocities.clear();
-        for (std::size_t i : live)
+        for (std::size_t i : flock.live)
         {
-			ZoneNamed(applySteeringZone, "Apply Steering");
+            ZoneNamed(applySteeringZone, "Apply Steering");
 
-            glm::vec3 velocity = newVelocities[i];
-            glm::vec3 newPosition = positions[i] + velocity * deltaTime;
+            const glm::vec3 newVelocity = flock.velocities[i] + forces[i].total * deltaTime;
+            const float newSpeed = glm::length(newVelocity);
+            const glm::vec3 newHeading = newSpeed > EPSILON ? newVelocity / newSpeed : flock.headings[i];
+            glm::vec3 velocity = newHeading * std::min(std::max(newSpeed, m_minSpeed), m_maxSpeed);
+
+            glm::vec3 newPosition = flock.positions[i] + velocity * deltaTime;
             if (m_mode == BoidsMode::Bounds)
             {
-                ConstrainToBoxes(boxes, newPosition, velocity);
+                ConstrainToBoxes(flock.boxes, newPosition, velocity);
             }
-            m_velocities[nodes[i].get()] = velocity;
+            m_velocities[flock.nodes[i].get()] = velocity;
 
-            Transform &transform = nodes[i]->GetTransform();
+            Transform &transform = flock.nodes[i]->GetTransform();
             transform.SetPosition(newPosition, Transform::Space::World);
 
             const float speed = glm::length(velocity);
@@ -538,6 +591,113 @@ namespace Droplet::Scene
                 const glm::vec3 up = std::abs(direction.y) < 0.99f ? glm::vec3(0.0f, 1.0f, 0.0f) : glm::vec3(0.0f, 0.0f, 1.0f);
                 transform.LookAt(newPosition + direction, up, Transform::Space::World);
             }
+        }
+    }
+
+    void BoidsComponent::EditorUpdateImpl()
+    {
+        const bool selected = m_uiSelected;
+        m_uiSelected = false;
+
+        if (m_debugInfo)
+        {
+            DrawBoundsAndPath();
+            DrawSteeringDebug();
+        }
+        else if (selected)
+        {
+            DrawBoundsAndPath();
+        }
+    }
+
+    void BoidsComponent::DrawBoundsAndPath()
+    {
+        using Droplet::Graphics::Debug::DebugDraw;
+
+        const glm::vec4 boundsColour(1.0f, 0.6f, 0.0f, 1.0f);
+        for (const std::weak_ptr<Node> &weakBound : m_bounds)
+        {
+            if (const std::shared_ptr<Node> bound = weakBound.lock())
+            {
+                DebugDraw::DrawBox(GetNodeBox(*bound), boundsColour, true, true);
+            }
+        }
+
+        const glm::vec4 pathColour(0.0f, 0.8f, 1.0f, 1.0f);
+        std::vector<glm::vec3> points;
+        for (const std::weak_ptr<Node> &weakPoint : m_path)
+        {
+            if (const std::shared_ptr<Node> point = weakPoint.lock())
+            {
+                points.push_back(point->GetTransform().GetPosition(Transform::Space::World));
+            }
+        }
+
+        for (std::size_t i = 0; i < points.size(); ++i)
+        {
+            DebugDraw::DrawLine(points[i], points[(i + 1) % points.size()], pathColour);
+            DebugDraw::DrawWireSphere(Sphere(points[i], DEBUG_MARKER_RADIUS), pathColour, 8);
+        }
+    }
+
+    void BoidsComponent::DrawSteeringDebug()
+    {
+        using Droplet::Graphics::Debug::DebugDraw;
+
+        const std::shared_ptr<Scene> scene = TryGetScene();
+        if (!scene)
+        {
+            return;
+        }
+
+        Flock flock = GatherFlock();
+        std::vector<SteeringForces> forces;
+        ComputeSteering(*scene, flock, forces);
+
+        const glm::vec4 perceptionColour(0.5f, 0.5f, 0.5f, 0.5f);
+        const glm::vec4 clusterColour(1.0f, 1.0f, 1.0f, 0.6f);
+        const glm::vec4 separationColour(1.0f, 0.2f, 0.2f, 1.0f);
+        const glm::vec4 alignmentColour(0.2f, 1.0f, 0.2f, 1.0f);
+        const glm::vec4 cohesionColour(0.2f, 0.4f, 1.0f, 1.0f);
+        const glm::vec4 avoidanceColour(1.0f, 1.0f, 0.2f, 1.0f);
+        const glm::vec4 boundsColour(1.0f, 0.2f, 1.0f, 1.0f);
+        const glm::vec4 pathColour(0.2f, 1.0f, 1.0f, 1.0f);
+        const glm::vec4 totalColour(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glm::vec3 flockCentre(0.0f);
+        for (std::size_t i : flock.live)
+        {
+            const glm::vec3 position = flock.positions[i];
+            const SteeringForces &steer = forces[i];
+            flockCentre += position;
+
+            DebugDraw::DrawWireSphere(Sphere(position, m_perceptionRadius), perceptionColour, 12);
+            if (steer.neighbourCount > 0)
+            {
+                DebugDraw::DrawLine(position, steer.neighbourCentre, clusterColour);
+            }
+            if (steer.hasPathTarget)
+            {
+                DebugDraw::DrawLine(position, steer.pathTarget, pathColour);
+            }
+
+            const auto drawForce = [&position](const glm::vec3 &p_force, const glm::vec4 &p_colour)
+            {
+                DebugDraw::DrawLine(position, position + p_force * DEBUG_FORCE_SCALE, p_colour);
+            };
+            drawForce(steer.separation, separationColour);
+            drawForce(steer.alignment, alignmentColour);
+            drawForce(steer.cohesion, cohesionColour);
+            drawForce(steer.avoidance, avoidanceColour);
+            drawForce(steer.bounds, boundsColour);
+            drawForce(steer.path, pathColour);
+            drawForce(steer.total, totalColour);
+        }
+
+        if (!flock.live.empty())
+        {
+            flockCentre /= static_cast<float>(flock.live.size());
+            DebugDraw::DrawWireSphere(Sphere(flockCentre, DEBUG_MARKER_RADIUS), clusterColour, 8);
         }
     }
 
@@ -553,12 +713,15 @@ namespace Droplet::Scene
 #ifdef _EDITOR
         ImGui::PushID(this);
 
+        m_uiSelected = true;
+
         int mode = static_cast<int>(m_mode);
         const char *modes[] = {"Free", "Bounds", "Path"};
         if (ImGui::Combo("Mode", &mode, modes, IM_COUNTOF(modes)))
         {
             m_mode = static_cast<BoidsMode>(mode);
         }
+        ImGui::Checkbox("Debug Info", &m_debugInfo);
 
         const auto acceptFish = [this](Node *p_node)
         {
@@ -598,6 +761,8 @@ namespace Droplet::Scene
         ImGui::DragFloat("Avoidance Distance", &m_avoidanceDistance, 0.05f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat("Avoidance Weight", &m_avoidanceWeight, 0.05f, 0.0f, 0.0f, "%.2f");
 
+		CollisionLayerUtility::SetLayerMaskUI("Avoidance Layer Mask", m_avoidanceLayerMask);
+
         ImGui::PopID();
 #endif
     }
@@ -608,6 +773,7 @@ namespace Droplet::Scene
         WriteNodeIDs(json, "fish", m_fish, m_unresolvedFishIDs);
         WriteNodeIDs(json, "bounds", m_bounds, m_unresolvedBoundIDs);
         WriteNodeIDs(json, "path", m_path, m_unresolvedPathIDs);
+        json["avoidanceLayerMask"] = static_cast<std::underlying_type_t<Droplet::CollisionLayer>>(m_avoidanceLayerMask);
 
         if (m_mode == BoidsMode::Bounds)
         {
@@ -653,6 +819,11 @@ namespace Droplet::Scene
         ReadNodeIDs(p_compJson, "fish", m_unresolvedFishIDs);
         ReadNodeIDs(p_compJson, "bounds", m_unresolvedBoundIDs);
         ReadNodeIDs(p_compJson, "path", m_unresolvedPathIDs);
+
+        if (p_compJson.contains("avoidanceLayerMask"))
+        {
+            m_avoidanceLayerMask = static_cast<Droplet::CollisionLayer>(p_compJson.at("avoidanceLayerMask").get<std::uint16_t>());
+		}
 
         if (p_compJson.contains("mode"))
         {

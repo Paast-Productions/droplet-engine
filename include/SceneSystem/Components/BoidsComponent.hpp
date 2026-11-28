@@ -49,6 +49,8 @@ namespace Droplet::Scene
     protected:
         void UpdateImpl() override;
 
+        void EditorUpdateImpl() override;
+
         void ResolveReferences(SerializationContext &p_context) override;
 
         void RenderUIImpl() override;
@@ -58,6 +60,27 @@ namespace Droplet::Scene
         void DeserializeImpl(const nlohmann::json p_compJson) override;
 
     private:
+        struct Flock;
+        struct SteeringForces;
+
+        /// Collects the live fish, their velocities and the scenery to ignore for one update.
+        [[nodiscard]] Flock GatherFlock();
+
+        /// Fills p_forces with one entry per fish in p_flock. Terms are weighted; total is clamped to m_maxSteeringForce.
+        void ComputeSteering(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces);
+
+        /// Draws the bounds boxes and the path loop.
+        void DrawBoundsAndPath();
+
+        /// Draws the cluster and steering data for the flock.
+        void DrawSteeringDebug();
+
+        /// Set while the inspector shows this component, so bounds and path are drawn in the editor.
+        bool m_uiSelected{ false };
+
+        /// Draws the steering data in the editor.
+        bool m_debugInfo{ false };
+
         /// Editor slots, so entries can be empty while the user is still filling the list.
         std::vector<std::weak_ptr<Node>> m_fish;
 
@@ -90,5 +113,7 @@ namespace Droplet::Scene
         float m_maxSteeringForce = 6.0f;
         float m_avoidanceDistance = 3.0f;
         float m_avoidanceWeight = 4.0f;
+
+		Droplet::CollisionLayer m_avoidanceLayerMask = Droplet::CollisionLayer::All;
     };
 }
