@@ -126,7 +126,7 @@ namespace
                 .generateMips = texture->GetGenerateMipmaps(), // the renderer builds the chain from the top level
                 .filter = ::Common::TextureFilter::Linear,
                 .maxAnisotropy = 8.0f,
-                .repeat = true
+                .repeat = false
             }
         });
     }

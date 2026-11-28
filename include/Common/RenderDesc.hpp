@@ -82,7 +82,7 @@ namespace Droplet::Common
         bool generateMips = true;                     ///< a full mip chain is built when the texture is uploaded
         TextureFilter filter = TextureFilter::Linear; ///< @copydoc Common::TextureFilter
         float maxAnisotropy = 1.0f;                   ///< 1: off; clamped to what the device supports
-        bool repeat = true;                           ///< false: clamp to the edge
+        bool repeat = false;                           ///< false: clamp to the edge
 
         friend bool operator==(const TextureSampling&, const TextureSampling&) = default;
     };
