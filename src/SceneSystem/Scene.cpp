@@ -455,14 +455,14 @@ void Scene::PrintOctreeTree()
     std::cout << m_octree.ToGraphvizTree();
 }
 
-std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask)
+std::weak_ptr<Node> Scene::RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit, std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask, float p_maxLength)
 {
-	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes, p_layerMask);
+	return m_octree.GetNodeFromRaycast(p_ray, p_hit, p_ignoreNodes, p_layerMask, p_maxLength);
 }
 
-std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask)
+std::vector<std::weak_ptr<Node>> Scene::RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask, float p_maxLength)
 {
-    return m_octree.GetNodesFromRaycast(p_ray, p_layerMask);
+    return m_octree.GetNodesFromRaycast(p_ray, p_layerMask, p_maxLength);
 }
 
 std::vector<std::weak_ptr<Node>> Scene::GetNodesIntersectingFrustum(const Math::Frustum &p_frustum, CollisionLayer p_layerMask)

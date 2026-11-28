@@ -167,6 +167,19 @@ bool Droplet::Editor::NodeListSlot(
 					p_nodes.push_back(droppedNode->shared_from_this());
 				}
 			}
+
+			if (const ImGuiPayload *payload = AcceptDragDropPayload("SCENE_NODE_MULTI"))
+			{
+				Node **draggedNodes = static_cast<Node **>(payload->Data);
+				size_t count = payload->DataSize / sizeof(Node *);
+				for (size_t i = 0; i < count; ++i)
+				{
+					if (auto draggedNodeShared = draggedNodes[i]->weak_from_this().lock())
+					{
+						p_nodes.push_back(draggedNodeShared);
+					}
+				}
+			}
 		}
 		else
 		{

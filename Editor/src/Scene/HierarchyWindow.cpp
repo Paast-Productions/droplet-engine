@@ -240,6 +240,24 @@ void HierarchyWindow::RenderImpl()
             }
         }
 
+        if (const ImGuiPayload *payload =
+            ImGui::AcceptDragDropPayload("SCENE_NODE_MULTI"))
+        {
+            Node **draggedNodes = static_cast<Node **>(payload->Data);
+            size_t count = payload->DataSize / sizeof(Node *);
+            for (size_t i = 0; i < count; ++i)
+            {
+                if (auto draggedNodeShared = draggedNodes[i]->weak_from_this().lock())
+                {
+                    auto oldParent = draggedNodeShared->GetParent();
+                    if (!oldParent.expired())
+                    {
+                        oldParent.lock()->RemoveChild(draggedNodeShared, true);
+                    }
+                }
+            }
+		}
+
         ImGui::EndDragDropTarget();
     }
 
@@ -371,6 +389,23 @@ void HierarchyWindow::RenderImpl()
                     }
                 }
             }
+
+            if (const ImGuiPayload *payload = ImGui::AcceptDragDropPayload("SCENE_NODE_MULTI"))
+            {
+                Node **draggedNodes = static_cast<Node **>(payload->Data);
+                size_t count = payload->DataSize / sizeof(Node *);
+                for (size_t i = 0; i < count; ++i)
+                {
+                    if (auto draggedNodeShared = draggedNodes[i]->weak_from_this().lock())
+                    {
+                        auto oldParent = draggedNodeShared->GetParent();
+                        if (!oldParent.expired())
+                        {
+                            oldParent.lock()->RemoveChild(draggedNodeShared, true);
+                        }
+                    }
+                }
+			}
 
             ImGui::EndDragDropTarget();
         }
@@ -681,19 +716,32 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
 
         if (ImGui::BeginDragDropSource())
         {
-			auto node = p_node.lock();
-            Node *draggedNode = node.get();
+            InteractionState &interactionState = m_editorContext->GetInteractionState();
 
-            ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
-
-            const size_t draggedCount = GetDraggedNodes(m_editorContext->GetInteractionState(), node).size();
-
-            if (draggedCount > 1)
+            if (interactionState.GetSelectionCount() > 1)
             {
-                ImGui::Text("%s (+%zu more)", node->GetName().c_str(), draggedCount - 1);
+                // Handle multi-selection drag
+				auto selectedNodes = interactionState.GetSelectedNodes();
+
+                std::vector<Node *> draggedNodes;
+                for (const auto &weakNode : selectedNodes)
+                {
+                    if (auto node = weakNode.lock())
+                    {
+                        draggedNodes.push_back(node.get());
+                    }
+                }
+                ImGui::SetDragDropPayload("SCENE_NODE_MULTI", draggedNodes.data(), draggedNodes.size() * sizeof(Node *));
+
+                ImGui::Text("%s (+%zu more)", draggedNodes[0]->GetName().c_str(), draggedNodes.size() - 1);
             }
             else
             {
+				// Handle single node drag
+			    auto node = p_node.lock();
+                Node *draggedNode = node.get();
+                ImGui::SetDragDropPayload("SCENE_NODE", &draggedNode, sizeof(Node *));
+
                 ImGui::Text("%s", node->GetName().c_str());
             }
 
@@ -756,6 +804,29 @@ void HierarchyWindow::DrawNode(const std::weak_ptr<Node> &p_node)
                     }
                 }
             }
+
+            if (const ImGuiPayload *payload =
+                ImGui::AcceptDragDropPayload("SCENE_NODE_MULTI"))
+            {
+                Node **draggedNodes = static_cast<Node **>(payload->Data);
+                size_t count = payload->DataSize / sizeof(Node *);
+                for (size_t i = 0; i < count; ++i)
+                {
+                    if (auto draggedNodeShared = draggedNodes[i]->weak_from_this().lock())
+                    {
+                        if (draggedNodeShared != p_node.lock() &&
+                            !p_node.lock()->IsDescendantOf(draggedNodeShared))
+                        {
+                            m_nodesToReparent.push_back(draggedNodeShared);
+                        }
+                    }
+                }
+
+                if (!m_nodesToReparent.empty())
+                {
+                    m_newParent = p_node;
+                }
+			}
 
             if (const ImGuiPayload *payload =
                 ImGui::AcceptDragDropPayload(PAYLOAD_COMPONENT.data()))

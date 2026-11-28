@@ -278,13 +278,30 @@ void Octree::CollectContained(std::vector<std::weak_ptr<Node>> &p_nodes, const F
 	}
 }
 
+// Octants containing the ray origin report distance 0. Raycast would return the exit point instead,
+// which can exceed a max length and wrongly prune an octant that still holds nodes in range.
+static RayHit RaycastOctant(const Ray &p_ray, const AABB &p_octant)
+{
+	if (Contains(p_octant, p_ray.pos))
+	{
+		return RayHit{
+			.point = p_ray.pos,
+			.normal = -p_ray.dir,
+			.distance = 0.0f,
+			.didHit = true
+		};
+	}
+
+	return Raycast(p_ray, p_octant);
+}
+
 std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit, 
-	std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask)
+	std::vector<std::weak_ptr<Node>> *p_ignoreNodes, CollisionLayer p_layerMask, float p_maxLength)
 {
 	RayHit hit{};
 	std::weak_ptr<Node> node{};
 
-	RaycastNode(node, hit, p_ray, m_root, p_layerMask, p_ignoreNodes);
+	RaycastNode(node, hit, p_ray, m_root, p_layerMask, p_ignoreNodes, p_maxLength);
 
 	if (p_hit != nullptr)
 	{
@@ -294,10 +311,10 @@ std::weak_ptr<Node> Octree::GetNodeFromRaycast(const Ray &p_ray, RayHit *p_hit,
 	return node;
 }
 
-std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray, CollisionLayer p_layerMask)
+std::vector<std::weak_ptr<Node>> Octree::GetNodesFromRaycast(const Ray &p_ray, CollisionLayer p_layerMask, float p_maxLength)
 {
 	std::vector<std::weak_ptr<Node>> nodes{};
-	RaycastNodes(nodes, p_ray, m_root, p_layerMask);
+	RaycastNodes(nodes, p_ray, m_root, p_layerMask, p_maxLength);
 	return nodes;
 }
 
@@ -885,7 +902,7 @@ void Octree::CheckIntersection(std::vector<std::weak_ptr<Node>> &p_nodes, const 
 }
 
 void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const Math::Ray &p_ray, 
-	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, std::vector<std::weak_ptr<Node>> *p_ignoreNodes)
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, std::vector<std::weak_ptr<Node>> *p_ignoreNodes, float p_maxLength)
 {
 	if (p_treeNode == nullptr)
 	{
@@ -906,26 +923,13 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 				continue;
 			}
 
-			if (Contains(child->octant, p_ray.pos))
+			RayHit octantHit = RaycastOctant(p_ray, child->octant);
+			if (!octantHit.didHit || octantHit.distance > p_maxLength)
 			{
-				RayHit defaultHit = {
-					.point = p_ray.pos,
-					.normal = -p_ray.dir,
-					.distance = 0.0f,
-					.didHit = true
-				};
-				octantHits.emplace_back(defaultHit, &child);
+				continue;
 			}
-			else
-			{
-				RayHit octantHit = Raycast(p_ray, child->octant);
-				if (!octantHit.didHit)
-				{
-					continue;
-				}
 
-				octantHits.emplace_back(octantHit, &child);
-			}
+			octantHits.emplace_back(octantHit, &child);
 		}
 
 		// Sort the octant hits by distance to ensure we check the closest octants first
@@ -934,28 +938,15 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 				return a.first.distance < b.first.distance;
 			});
 
-		for (int i = 0; i < octantHits.size(); ++i)
+		for (const auto &[octantHit, child] : octantHits)
 		{
-			const RayHit &octantHit = octantHits[i].first;
-
-			RaycastNode(p_node, p_hit, p_ray, *octantHits[i].second, p_layerMask, p_ignoreNodes);
-
-			if (!p_hit.didHit)
+			// Octants are sorted by entry distance, so once one starts past the closest hit or max length, the rest do too
+			if (octantHit.distance > std::min(p_maxLength, p_hit.distance))
 			{
-				continue;
+				break;
 			}
 
-			if (i < octantHits.size() - 1)
-			{
-				// If we hit a node, and the hit distance is less than the next octant's distance, we can stop checking further octants
-
-				const RayHit &nextOctantHit = octantHits[i + 1].first;
-
-				if (p_hit.distance < nextOctantHit.distance)
-				{
-					break;
-				}
-			}
+			RaycastNode(p_node, p_hit, p_ray, *child, p_layerMask, p_ignoreNodes, p_maxLength);
 		}
 
 		return;
@@ -991,7 +982,7 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 
 		RayHit nodeHit = nodePtr->GetBounds()->Raycast(p_ray, nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 
-		if (!nodeHit.didHit)
+		if (!nodeHit.didHit || nodeHit.distance > p_maxLength)
 		{
 			continue;
 		}
@@ -1005,15 +996,15 @@ void Octree::RaycastNode(std::weak_ptr<Node> &p_node, Math::RayHit &p_hit, const
 }
 
 void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math::Ray &p_ray, 
-	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask)
+	const std::unique_ptr<TreeNode> &p_treeNode, CollisionLayer p_layerMask, float p_maxLength)
 {
 	if (p_treeNode == nullptr)
 	{
 		return;
 	}
 
-	RayHit octantHit = Raycast(p_ray, p_treeNode->octant);
-	if (!octantHit.didHit)
+	RayHit octantHit = RaycastOctant(p_ray, p_treeNode->octant);
+	if (!octantHit.didHit || octantHit.distance > p_maxLength)
 	{
 		return;
 	}
@@ -1029,7 +1020,7 @@ void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math:
 				continue;
 			}
 
-			RaycastNodes(p_nodes, p_ray, child, p_layerMask);
+			RaycastNodes(p_nodes, p_ray, child, p_layerMask, p_maxLength);
 		}
 
 		return;
@@ -1051,7 +1042,7 @@ void Octree::RaycastNodes(std::vector<std::weak_ptr<Node>> &p_nodes, const Math:
 
 		RayHit nodeHit = nodePtr->GetBounds()->Raycast(p_ray, nodePtr->GetTransform().GetMatrix(Transform::Space::World));
 
-		if (!nodeHit.didHit)
+		if (!nodeHit.didHit || nodeHit.distance > p_maxLength)
 		{
 			continue;
 		}
