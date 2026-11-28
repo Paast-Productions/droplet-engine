@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Branch12",
+            "guid": 16360728028875845644,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Branch12",
+            "type": 3
+        }
+    ]
+}
