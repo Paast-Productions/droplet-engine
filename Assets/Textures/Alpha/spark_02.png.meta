@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "spark_02",
+            "guid": 2563713669587327624,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "spark_02",
+            "type": 1
+        }
+    ]
+}

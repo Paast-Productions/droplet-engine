@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "slash_02",
+            "guid": 122993022231831542,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "slash_02",
+            "type": 1
+        }
+    ]
+}

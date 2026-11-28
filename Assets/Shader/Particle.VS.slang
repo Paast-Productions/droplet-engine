@@ -17,6 +17,7 @@ struct VSInput
     [[vk::location(2)]] float2 size : SIZE;
     [[vk::location(3)]] float rotation : ROTATION;
     [[vk::location(4)]] float2 billboardOffset : BILLBOARDOFFSET;
+    [[vk::location(5)]] float4 uvRect : TEXCOORD1;
 };
 
 struct VSOutput
@@ -26,6 +27,7 @@ struct VSOutput
     [[vk::location(2)]] float2 size : SIZE;
     [[vk::location(3)]] float rotation : ROTATION;
     [[vk::location(4)]] float2 billboardOffset : BILLBOARDOFFSET;
+    [[vk::location(5)]] float4 uvRect : TEXCOORD1;
 };
 
 [shader("vertex")]
@@ -39,5 +41,6 @@ VSOutput main(VSInput input)
     output.billboardOffset = input.billboardOffset * scale;
     output.color = input.color;
     output.rotation = input.rotation;
+    output.uvRect = input.uvRect;
     return output;
 }

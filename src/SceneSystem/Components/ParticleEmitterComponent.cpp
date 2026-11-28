@@ -558,7 +558,48 @@ void ParticleEmitterComponent::SpawnParticle()
 	particle.color = startColor;
 	particle.baseColor = startColor;
 	particle.lifetime = lifetime;
+	if (m_particleSheet && m_tileSelection == TileSelection::Random)
+		particle.tileRoll = RandomFloat(0.0f, 1.0f);
 	m_particles.push_back(particle);
+}
+
+glm::vec4 ParticleEmitterComponent::TileUVRect(const Particle &p_particle) const
+{
+	if (!m_particleSheet)
+		return glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+
+	const uint64_t columns = std::max(1u, m_sheetColumns);
+	const uint64_t rows = std::max(1u, m_sheetRows);
+	const uint64_t count = columns * rows;
+	const uint64_t rangeMin = std::min(m_tileRange.min, m_tileRange.max);
+	const uint64_t rangeMax = std::max(m_tileRange.min, m_tileRange.max);
+	const uint64_t span = rangeMax - rangeMin + 1;
+
+	uint64_t tile = m_tileIndex;
+	switch (m_tileSelection)
+	{
+	case TileSelection::Random:
+		tile = rangeMin + std::min(static_cast<uint64_t>(p_particle.tileRoll * static_cast<float>(span)), span - 1);
+		break;
+	case TileSelection::OverLifetime:
+	{
+		const float normalizedLife = std::clamp(p_particle.age / p_particle.lifetime, 0.0f, 1.0f);
+		tile = rangeMin + std::min(static_cast<uint64_t>(normalizedLife * static_cast<float>(span)), span - 1);
+		break;
+	}
+	case TileSelection::Fixed:
+	default:
+		break;
+	}
+	tile = std::min(tile, count - 1);
+
+	const float column = static_cast<float>(tile % columns);
+	const float row = static_cast<float>(tile / columns);
+	return glm::vec4(
+		column / static_cast<float>(columns),
+		row / static_cast<float>(rows),
+		(column + 1.0f) / static_cast<float>(columns),
+		(row + 1.0f) / static_cast<float>(rows));
 }
 
 float ParticleEmitterComponent::EvaluateCurve(const ScalarCurve &curve, float normalizedTime) const
@@ -1058,6 +1099,12 @@ nlohmann::json ParticleEmitterComponent::SerializeImpl()
 	json["debugDraw"] = m_debugDraw;
 	json["textureGUID"] = GetTextureGUID();
 	json["textureDisplayName"] = m_textureDisplayName;
+	json["particleSheet"] = m_particleSheet;
+	json["sheetColumns"] = m_sheetColumns;
+	json["sheetRows"] = m_sheetRows;
+	json["tileSelection"] = static_cast<int>(m_tileSelection);
+	json["tileIndex"] = m_tileIndex;
+	json["tileRange"] = { m_tileRange.min, m_tileRange.max };
 	json["vsGUID"] = m_vs.GetGUID();
 	json["vsDisplayName"] = m_vsDisplayName;
 	json["gsGUID"] = m_gs.GetGUID();
@@ -1152,6 +1199,17 @@ void ParticleEmitterComponent::DeserializeImpl(const nlohmann::json p_compJson)
 	if (p_compJson.contains("debugDraw")) SetDebugDraw(p_compJson["debugDraw"].get<bool>());
 	if (p_compJson.contains("textureGUID")) SetTextureGUID(p_compJson["textureGUID"].get<GUID>());
 	if (p_compJson.contains("textureDisplayName")) m_textureDisplayName = p_compJson["textureDisplayName"].get<std::string>();
+	if (p_compJson.contains("particleSheet")) SetParticleSheet(p_compJson["particleSheet"].get<bool>());
+	if (p_compJson.contains("sheetColumns")) SetSheetColumns(p_compJson["sheetColumns"].get<uint32_t>());
+	if (p_compJson.contains("sheetRows")) SetSheetRows(p_compJson["sheetRows"].get<uint32_t>());
+	if (p_compJson.contains("tileSelection"))
+		SetTileSelection(static_cast<TileSelection>(p_compJson["tileSelection"].get<int>()));
+	if (p_compJson.contains("tileIndex")) SetTileIndex(p_compJson["tileIndex"].get<uint32_t>());
+	if (p_compJson.contains("tileRange"))
+	{
+		const auto &v = p_compJson["tileRange"];
+		SetTileRange({ v[0].get<uint32_t>(), v[1].get<uint32_t>() });
+	}
 	if (p_compJson.contains("vsGUID")) SetVSGUID(p_compJson["vsGUID"].get<GUID>());
 	if (p_compJson.contains("vsDisplayName")) m_vsDisplayName = p_compJson["vsDisplayName"].get<std::string>();
 	if (p_compJson.contains("gsGUID")) SetGSGUID(p_compJson["gsGUID"].get<GUID>());
@@ -1894,6 +1952,57 @@ void ParticleEmitterComponent::RenderUIImpl()
 				SetFSGUID(newGUID);
 			EndTable();
 		}
+
+		Checkbox("Particle Sheet", &m_particleSheet);
+		SetItemTooltip("The texture is a grid of tiles. Each particle shows one tile instead of the whole texture.");
+		ResetOnRightClick([&] { SetParticleSheet(false); });
+
+		if (m_particleSheet)
+		{
+			int columns = static_cast<int>(m_sheetColumns);
+			if (DragInt("Sheet Columns", &columns, 0.25f, 1, static_cast<int>(MaxSheetDimension)))
+				SetSheetColumns(static_cast<uint32_t>(columns));
+			SetItemTooltip("Number of tile columns in the texture.");
+			ResetOnRightClick([&] { SetSheetColumns(1); });
+
+			int rows = static_cast<int>(m_sheetRows);
+			if (DragInt("Sheet Rows", &rows, 0.25f, 1, static_cast<int>(MaxSheetDimension)))
+				SetSheetRows(static_cast<uint32_t>(rows));
+			SetItemTooltip("Number of tile rows in the texture.");
+			ResetOnRightClick([&] { SetSheetRows(1); });
+
+			const uint32_t tileCount = m_sheetColumns * m_sheetRows;
+			const char *selectionNames[] = { "Fixed", "Random", "Over Lifetime" };
+			int selection = static_cast<int>(m_tileSelection);
+			if (Combo("Tile Selection", &selection, selectionNames, IM_ARRAYSIZE(selectionNames)))
+				SetTileSelection(static_cast<TileSelection>(selection));
+			SetItemTooltip("Fixed: every particle shows one tile. Random: each particle picks a tile from the range when it spawns. Over Lifetime: particles play through the range from birth to death.");
+			ResetOnRightClick([&] { SetTileSelection(TileSelection::Fixed); });
+
+			if (m_tileSelection == TileSelection::Fixed)
+			{
+				int tile = static_cast<int>(m_tileIndex);
+				if (DragInt("Tile", &tile, 0.25f, 0, static_cast<int>(tileCount) - 1))
+					SetTileIndex(static_cast<uint32_t>(std::max(0, tile)));
+				SetItemTooltip("Tile to show, counted from 0 at the top-left, left to right, then top to bottom.");
+				ResetOnRightClick([&] { SetTileIndex(0); });
+			}
+			else
+			{
+				int range[2] = { static_cast<int>(m_tileRange.min), static_cast<int>(m_tileRange.max) };
+				if (DragInt2("Tile Range", range, 0.25f, 0, static_cast<int>(tileCount) - 1))
+				{
+					// Only the end that changed may move, and it must not cross the other one
+					if (range[0] != static_cast<int>(m_tileRange.min))
+						range[0] = std::min(range[0], range[1]);
+					else
+						range[1] = std::max(range[1], range[0]);
+					SetTileRange({ static_cast<uint32_t>(std::max(0, range[0])), static_cast<uint32_t>(std::max(0, range[1])) });
+				}
+				SetItemTooltip("First and last tile of the range, counted from 0 at the top-left, left to right, then top to bottom.");
+				ResetOnRightClick([&] { SetTileRange({ 0, 0 }); });
+			}
+		}
 	}
 
 	if (CollapsingHeader("Debug"))
@@ -1921,6 +2030,7 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 		glm::vec2 size;
 		float rotation;
 		glm::vec2 billboardOffset;
+		glm::vec4 uvRect;
 	};
 	
 	std::vector<ParticleVertex> vertices;
@@ -1958,7 +2068,8 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 			p.color,
 			size,
 			rot,
-			m_billboardOffset
+			m_billboardOffset,
+			TileUVRect(p)
 		);
 		indices.emplace_back(index++);
 	}
@@ -1972,7 +2083,9 @@ void ParticleEmitterComponent::GenerateParticleMesh()
 			{.location = 1, .format = Common::VertexFormat::Float4, .offset = offsetof(ParticleVertex, color)},
 			{.location = 2, .format = Common::VertexFormat::Float2, .offset = offsetof(ParticleVertex, size)},
 			{.location = 3, .format = Common::VertexFormat::Float1, .offset = offsetof(ParticleVertex, rotation)},
-			{.location = 4, .format = Common::VertexFormat::Float2, .offset = offsetof(ParticleVertex, billboardOffset)}
+			{.location = 4, .format = Common::VertexFormat::Float2, .offset = offsetof(ParticleVertex, billboardOffset)},
+			// location 4 is the billboard offset, which the shaders do not read
+			{.location = 5, .format = Common::VertexFormat::Float4, .offset = offsetof(ParticleVertex, uvRect)}
 		},
 		.vertexData = { bytes.begin(), bytes.end() },
 		.indices = std::move(indices),

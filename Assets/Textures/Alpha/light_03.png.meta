@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "light_03",
+            "guid": 4237967329947541916,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "light_03",
+            "type": 1
+        }
+    ]
+}

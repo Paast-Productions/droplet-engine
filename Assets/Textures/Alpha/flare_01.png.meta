@@ -1,0 +1,14 @@
+{
+    "resources": [
+        {
+            "displayName": "flare_01",
+            "guid": 3312506312678706498,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_mipmaps": true
+            },
+            "sourceName": "flare_01",
+            "type": 1
+        }
+    ]
+}
