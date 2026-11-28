@@ -33,11 +33,13 @@ workspace "DropletEngine"
     filter "configurations:release"
         runtime "Release"
         defines { "NDEBUG" }
-        optimize "On"
+        optimize "Full"
+        linktimeoptimization "On"
     filter "configurations:deploy"
         runtime "Release"
         defines { "NDEBUG", "DEPLOY" }
 		optimize "Full"
+        linktimeoptimization "On"
 		symbols "Off"
     filter {}
 
