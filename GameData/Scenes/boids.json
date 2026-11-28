@@ -1,0 +1,681 @@
+{
+    "name": "boids",
+    "octreeExt": 100.0,
+    "octreeMaxDepth": 6,
+    "octreeMaxNodes": 32,
+    "roots": [
+        {
+            "active": true,
+            "children": [
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 15,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.13291659951210022,
+                            0.8800445199012756,
+                            0.13245007395744324
+                        ],
+                        "rotation": [
+                            0.9786325097084045,
+                            0.0,
+                            0.2056172788143158,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999988079071045,
+                            1.0,
+                            0.9999987483024597
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 16,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.36309632658958435,
+                            -0.14128439128398895,
+                            -0.4831986427307129
+                        ],
+                        "rotation": [
+                            0.16869691014289856,
+                            0.0,
+                            0.9856680035591125,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000027418136597,
+                            1.0,
+                            1.0000027418136597
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 17,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.3767632842063904,
+                            0.26937076449394226,
+                            -0.69364994764328
+                        ],
+                        "rotation": [
+                            0.33806556463241577,
+                            0.0,
+                            0.9411225318908691,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000022649765015,
+                            1.0,
+                            1.0000022649765015
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 18,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.08706843852996826,
+                            0.435442179441452,
+                            -0.1485140323638916
+                        ],
+                        "rotation": [
+                            0.5619133710861206,
+                            0.0,
+                            0.8271960616111755,
+                            0.0
+                        ],
+                        "scale": [
+                            1.000003695487976,
+                            1.0,
+                            1.000003695487976
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 19,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.3392941951751709,
+                            0.435442179441452,
+                            -0.5811812877655029
+                        ],
+                        "rotation": [
+                            0.9513658881187439,
+                            0.0,
+                            0.3080633282661438,
+                            0.0
+                        ],
+                        "scale": [
+                            1.000001311302185,
+                            1.0,
+                            1.000001311302185
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 20,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.031007200479507446,
+                            0.4354425072669983,
+                            0.21923455595970154
+                        ],
+                        "rotation": [
+                            -0.30595076084136963,
+                            0.0,
+                            0.9520473480224609,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000272989273071,
+                            1.0,
+                            1.0000272989273071
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 21,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.974536120891571,
+                            0.4354424774646759,
+                            0.1428396850824356
+                        ],
+                        "rotation": [
+                            0.4598867893218994,
+                            0.0,
+                            0.8879776000976563,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0000009536743164,
+                            1.0,
+                            1.0000009536743164
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 22,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.974536120891571,
+                            0.9420489072799683,
+                            0.1428396850824356
+                        ],
+                        "rotation": [
+                            0.07168968766927719,
+                            0.0,
+                            0.9974269866943359,
+                            0.0
+                        ],
+                        "scale": [
+                            0.999997079372406,
+                            1.0,
+                            0.999997079372406
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 23,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            -0.49047374725341797,
+                            0.43544214963912964,
+                            -1.0641498565673828
+                        ],
+                        "rotation": [
+                            0.8107621073722839,
+                            0.0,
+                            -0.5853758454322815,
+                            0.0
+                        ],
+                        "scale": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 24,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.7183069586753845,
+                            -0.6941719055175781,
+                            0.4962681829929352
+                        ],
+                        "rotation": [
+                            0.7635746598243713,
+                            0.0,
+                            -0.645719587802887,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999999403953552,
+                            1.0,
+                            0.9999999403953552
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 25,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.5031715631484985,
+                            0.4354422092437744,
+                            -0.22640226781368256
+                        ],
+                        "rotation": [
+                            0.956786572933197,
+                            0.0,
+                            -0.2907911539077759,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999989867210388,
+                            1.0,
+                            0.9999988675117493
+                        ]
+                    }
+                },
+                {
+                    "active": true,
+                    "children": [],
+                    "collisionLayerMask": 1,
+                    "components": [
+                        {
+                            "active": true,
+                            "data": {
+                                "fs": 13680123319807966343,
+                                "fsName": "Base.FS",
+                                "gs": 0,
+                                "gsName": "",
+                                "meshDisplayName": "BaseFish",
+                                "meshGUID": 6487672309164947188,
+                                "tcs": 0,
+                                "tcsName": "",
+                                "tes": 0,
+                                "tesName": "",
+                                "textureDisplayName": "BaseFish",
+                                "textureGUID": 7280437410301382172,
+                                "textureIsRenderTarget": false,
+                                "transparent": false,
+                                "vs": 7809030845991192100,
+                                "vsName": "Base.VS"
+                            },
+                            "id": 1,
+                            "type": "MeshComponent"
+                        }
+                    ],
+                    "drawLayer": 1,
+                    "id": 26,
+                    "name": "Fish-oid",
+                    "transform": {
+                        "position": [
+                            0.6545071005821228,
+                            0.4354422092437744,
+                            -0.712647557258606
+                        ],
+                        "rotation": [
+                            0.9788457155227661,
+                            0.0,
+                            0.20459991693496704,
+                            0.0
+                        ],
+                        "scale": [
+                            0.9999997615814209,
+                            1.0,
+                            0.9999997615814209
+                        ]
+                    }
+                }
+            ],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "alignmentWeight": 1.0,
+                        "avoidanceDistance": 3.0,
+                        "avoidanceWeight": 4.0,
+                        "cohesionWeight": 1.0,
+                        "fish": [
+                            15,
+                            16,
+                            17,
+                            18,
+                            19,
+                            20,
+                            21,
+                            22,
+                            23,
+                            24,
+                            25,
+                            26
+                        ],
+                        "maxSpeed": 3.0,
+                        "maxSteeringForce": 6.0,
+                        "minSpeed": 1.0,
+                        "perceptionRadius": 4.0,
+                        "separationRadius": 1.5,
+                        "separationWeight": 1.5
+                    },
+                    "id": 1,
+                    "type": "BoidsComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 14,
+            "name": "Empty Node",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ],
+    "version": 1
+}
