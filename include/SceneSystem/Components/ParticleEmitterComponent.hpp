@@ -47,10 +47,25 @@ namespace Droplet::Scene
 			RandomPointInShape	///< Every particle is aimed at a random point inside the emission shape
 		};
 
+		/// @brief How a particle picks its tile when the texture is a particle sheet
+		enum class TileSelection
+		{
+			Fixed,			///< Every particle uses the tile index
+			Random,			///< Each particle picks a random tile from the tile range when it spawns
+			OverLifetime	///< Each particle steps through the tile range from birth to death
+		};
+
 		struct FloatRange
 		{
 			float min = 1.0f;
 			float max = 1.0f;
+		};
+
+		/// @brief Inclusive range of tile indices, row-major from the top-left tile
+		struct TileRange
+		{
+			uint32_t min = 0;
+			uint32_t max = 0;
 		};
 
 		struct ColorRange
@@ -97,6 +112,7 @@ namespace Droplet::Scene
 			float angularVelocity = 0.0f;
 			float age = 0.0f;
 			float lifetime = 1.0f;
+			float tileRoll = 0.0f;	///< Random in [0, 1], chosen at spawn to pick a tile from the tile range
 		};
 
 		using ScalarCurve = Droplet::Math::Curves::Curve<glm::vec2>;
@@ -218,6 +234,20 @@ namespace Droplet::Scene
 		void SetTextureGUID(GUID guid);
 		[[nodiscard]] GUID GetTextureGUID() const { return m_texture.GetGUID(); }
 
+		static constexpr uint32_t MaxSheetDimension = 256;
+		void SetParticleSheet(bool particleSheet) { m_particleSheet = particleSheet; }
+		[[nodiscard]] bool GetParticleSheet() const { return m_particleSheet; }
+		void SetSheetColumns(uint32_t columns) { m_sheetColumns = std::clamp(columns, 1u, MaxSheetDimension); }
+		[[nodiscard]] uint32_t GetSheetColumns() const { return m_sheetColumns; }
+		void SetSheetRows(uint32_t rows) { m_sheetRows = std::clamp(rows, 1u, MaxSheetDimension); }
+		[[nodiscard]] uint32_t GetSheetRows() const { return m_sheetRows; }
+		void SetTileSelection(TileSelection selection) { m_tileSelection = selection; }
+		[[nodiscard]] TileSelection GetTileSelection() const { return m_tileSelection; }
+		void SetTileIndex(uint32_t index) { m_tileIndex = index; }
+		[[nodiscard]] uint32_t GetTileIndex() const { return m_tileIndex; }
+		void SetTileRange(const TileRange &range) { m_tileRange = range; }
+		[[nodiscard]] TileRange GetTileRange() const { return m_tileRange; }
+
 		void SetVSGUID(GUID guid);
 		void SetGSGUID(GUID guid);
 		void SetFSGUID(GUID guid);
@@ -239,6 +269,7 @@ namespace Droplet::Scene
 
 		float EvaluateCurve(const ScalarCurve &curve, float normalizedTime) const;
 		glm::vec4 EvaluateColorOverLifetime(float normalizedTime) const;
+		glm::vec4 TileUVRect(const Particle &p_particle) const;
 		float RandomFloat(float min, float max);
 		void RollEmissionRate();
 		glm::vec4 RandomStartColor();
@@ -326,6 +357,12 @@ namespace Droplet::Scene
 
 		StaticResourceHandle<Texture2DResource> m_texture{};
 		std::string m_textureDisplayName = "None";
+		bool m_particleSheet = false;
+		uint32_t m_sheetColumns = 1;
+		uint32_t m_sheetRows = 1;
+		TileSelection m_tileSelection = TileSelection::Fixed;
+		uint32_t m_tileIndex = 0;
+		TileRange m_tileRange{ 0, 0 };
 
 		StaticResourceHandle<ShaderResource> m_vs{};
 		std::string m_vsDisplayName = "None";

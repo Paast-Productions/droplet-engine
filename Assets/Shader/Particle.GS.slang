@@ -14,6 +14,7 @@ struct GSInput
     [[vk::location(2)]] float2 size : SIZE;
     [[vk::location(3)]] float rotation : ROTATION;
     [[vk::location(4)]] float2 billboardOffset : BILLBOARDOFFSET;
+    [[vk::location(5)]] float4 uvRect : TEXCOORD1;
 };
 
 struct GSOutput
@@ -45,8 +46,9 @@ void main(point GSInput input[1], inout TriangleStream<GSOutput> stream)
 
         GSOutput vertex;
         vertex.position = mul(viewProjection.proj, float4(centerView + float3(shifted, 0.0), 1.0));
-        // image top (v = 0) is the quad's top
-        vertex.uv = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);
+        // image top (v = 0) is the quad's top; the particle's tile rect selects the part of the image shown
+        const float2 unitUV = float2(corner.x * 0.5 + 0.5, 0.5 - corner.y * 0.5);
+        vertex.uv = lerp(particle.uvRect.xy, particle.uvRect.zw, unitUV);
         vertex.color = particle.color;
         stream.Append(vertex);
     }
