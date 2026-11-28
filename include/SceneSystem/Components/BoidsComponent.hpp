@@ -67,7 +67,11 @@ namespace Droplet::Scene
         [[nodiscard]] Flock GatherFlock();
 
         /// Fills p_forces with one entry per fish in p_flock. Terms are weighted; total is clamped to m_maxSteeringForce.
+        /// Runs on the thread pool when m_multithreaded is set.
         void ComputeSteering(Scene &p_scene, Flock &p_flock, std::vector<SteeringForces> &p_forces);
+
+        /// Computes the steering terms for the fish at p_index in p_flock. Only reads shared state, so it is safe to run concurrently.
+        void ComputeFishSteering(Scene &p_scene, Flock &p_flock, std::size_t p_index, SteeringForces &p_forces);
 
         /// Draws the bounds boxes and the path loop.
         void DrawBoundsAndPath();
@@ -80,6 +84,9 @@ namespace Droplet::Scene
 
         /// Draws the steering data in the editor.
         bool m_debugInfo{ false };
+
+        /// Computes the per-fish steering on the engine thread pool.
+        bool m_multithreaded{ false };
 
         /// Editor slots, so entries can be empty while the user is still filling the list.
         std::vector<std::weak_ptr<Node>> m_fish;

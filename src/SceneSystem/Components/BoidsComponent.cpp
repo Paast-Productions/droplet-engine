@@ -7,6 +7,8 @@
 
 #include <ImGui/imgui.h>
 
+#include <Core/ParallelFor.hpp>
+
 #ifdef _EDITOR
 #include <Editor/NodeSlot.hpp>
 #endif
@@ -48,6 +50,22 @@ namespace
         {
             return p_weak.lock().get() == p_node;
         });
+    }
+
+    /// Brings every node's cached world matrix up to date on the calling thread.
+    /// Transform::GetMatrix recalculates dirty matrices in place, so this must run before raycasts are shared across threads.
+    void WarmTransforms(Scene &p_scene)
+    {
+        ZoneScoped;
+
+        for (const std::shared_ptr<Node> &root : p_scene.GetRoots())
+        {
+            static_cast<void>(root->GetTransform().GetMatrix(Transform::Space::World));
+            for (const std::shared_ptr<Node> &child : root->GetChildren(true))
+            {
+                static_cast<void>(child->GetTransform().GetMatrix(Transform::Space::World));
+            }
+        }
     }
 
     /// Returns a steer that turns the heading toward the side ray with the most free distance,
@@ -469,81 +487,99 @@ namespace Droplet::Scene
     {
         p_forces.assign(p_flock.nodes.size(), SteeringForces{});
 
+        if (m_multithreaded)
+        {
+            WarmTransforms(p_scene);
+
+            ParallelFor(p_flock.live.size(), [this, &p_scene, &p_flock, &p_forces](std::size_t p_liveIndex)
+            {
+                const std::size_t i = p_flock.live[p_liveIndex];
+                ComputeFishSteering(p_scene, p_flock, i, p_forces[i]);
+            });
+        }
+        else
+        {
+            for (std::size_t i : p_flock.live)
+            {
+                ComputeFishSteering(p_scene, p_flock, i, p_forces[i]);
+            }
+        }
+    }
+
+    void BoidsComponent::ComputeFishSteering(Scene &p_scene, Flock &p_flock, std::size_t p_index, SteeringForces &p_forces)
+    {
+        ZoneNamed(computeSteeringZone, "Compute Steering");
+
         const float perceptionRadiusSq = m_perceptionRadius * m_perceptionRadius;
         const float separationRadiusSq = m_separationRadius * m_separationRadius;
 
-        for (std::size_t i : p_flock.live)
+        const std::size_t i = p_index;
+        const glm::vec3 position = p_flock.positions[i];
+        const glm::vec3 velocity = p_flock.velocities[i];
+        const glm::vec3 heading = p_flock.headings[i];
+
+        glm::vec3 separation(0.0f);
+        glm::vec3 averageVelocity(0.0f);
+        glm::vec3 centre(0.0f);
+        std::size_t neighbourCount = 0;
+
+        for (std::size_t j : p_flock.live)
         {
-            ZoneNamed(computeSteeringZone, "Compute Steering");
-
-            const glm::vec3 position = p_flock.positions[i];
-            const glm::vec3 velocity = p_flock.velocities[i];
-            const glm::vec3 heading = p_flock.headings[i];
-
-            glm::vec3 separation(0.0f);
-            glm::vec3 averageVelocity(0.0f);
-            glm::vec3 centre(0.0f);
-            std::size_t neighbourCount = 0;
-
-            for (std::size_t j : p_flock.live)
+            if (j == i)
             {
-                if (j == i)
-                {
-                    continue;
-                }
-
-                const glm::vec3 offset = position - p_flock.positions[j];
-                const float distanceSq = glm::dot(offset, offset);
-                if (distanceSq > perceptionRadiusSq)
-                {
-                    continue;
-                }
-
-                ++neighbourCount;
-                averageVelocity += p_flock.velocities[j];
-                centre += p_flock.positions[j];
-
-                if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
-                {
-                    separation += offset / distanceSq;
-                }
+                continue;
             }
 
-            SteeringForces &forces = p_forces[i];
-            forces.separation = separation * m_separationWeight;
-            forces.neighbourCount = neighbourCount;
-            if (neighbourCount > 0)
+            const glm::vec3 offset = position - p_flock.positions[j];
+            const float distanceSq = glm::dot(offset, offset);
+            if (distanceSq > perceptionRadiusSq)
             {
-                const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
-                forces.neighbourCentre = centre * inverseCount;
-                forces.alignment = (averageVelocity * inverseCount - velocity) * m_alignmentWeight;
-                forces.cohesion = (forces.neighbourCentre - position) * m_cohesionWeight;
+                continue;
             }
 
-            if (m_avoidanceDistance > EPSILON)
-            {
-                forces.avoidance = ComputeAvoidance(p_scene, position, heading, p_flock.ignoreNodes, m_avoidanceDistance, m_avoidanceLayerMask) * m_avoidanceWeight;
-            }
+            ++neighbourCount;
+            averageVelocity += p_flock.velocities[j];
+            centre += p_flock.positions[j];
 
-            if (m_mode == BoidsMode::Bounds)
+            if (distanceSq < separationRadiusSq && distanceSq > EPSILON)
             {
-                forces.bounds = ComputeBoundsSteer(p_flock.boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
+                separation += offset / distanceSq;
             }
-            else if (m_mode == BoidsMode::Path && !p_flock.pathPoints.empty())
-            {
-                forces.pathTarget = SamplePathTarget(p_flock.pathPoints, position, m_pathLookahead);
-                forces.hasPathTarget = true;
-                forces.path = SeekSteer(forces.pathTarget, position, velocity, m_maxSpeed) * m_pathWeight;
-            }
-
-            glm::vec3 steering = forces.separation + forces.alignment + forces.cohesion + forces.avoidance + forces.bounds + forces.path;
-            const float steeringLength = glm::length(steering);
-            if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
-            {
-                steering *= m_maxSteeringForce / steeringLength;
-            }
-            forces.total = steering;
         }
+
+        p_forces.separation = separation * m_separationWeight;
+        p_forces.neighbourCount = neighbourCount;
+        if (neighbourCount > 0)
+        {
+            const float inverseCount = 1.0f / static_cast<float>(neighbourCount);
+            p_forces.neighbourCentre = centre * inverseCount;
+            p_forces.alignment = (averageVelocity * inverseCount - velocity) * m_alignmentWeight;
+            p_forces.cohesion = (p_forces.neighbourCentre - position) * m_cohesionWeight;
+        }
+
+        if (m_avoidanceDistance > EPSILON)
+        {
+            p_forces.avoidance = ComputeAvoidance(p_scene, position, heading, p_flock.ignoreNodes, m_avoidanceDistance, m_avoidanceLayerMask) * m_avoidanceWeight;
+        }
+
+        if (m_mode == BoidsMode::Bounds)
+        {
+            p_forces.bounds = ComputeBoundsSteer(p_flock.boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
+        }
+        else if (m_mode == BoidsMode::Path && !p_flock.pathPoints.empty())
+        {
+            p_forces.pathTarget = SamplePathTarget(p_flock.pathPoints, position, m_pathLookahead);
+            p_forces.hasPathTarget = true;
+            p_forces.path = SeekSteer(p_forces.pathTarget, position, velocity, m_maxSpeed) * m_pathWeight;
+        }
+
+        glm::vec3 steering = p_forces.separation + p_forces.alignment + p_forces.cohesion + p_forces.avoidance + p_forces.bounds + p_forces.path;
+        const float steeringLength = glm::length(steering);
+        if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
+        {
+            steering *= m_maxSteeringForce / steeringLength;
+        }
+        p_forces.total = steering;
     }
 
     void BoidsComponent::UpdateImpl()
@@ -722,6 +758,7 @@ namespace Droplet::Scene
             m_mode = static_cast<BoidsMode>(mode);
         }
         ImGui::Checkbox("Debug Info", &m_debugInfo);
+        ImGui::Checkbox("Multithreaded", &m_multithreaded);
 
         const auto acceptFish = [this](Node *p_node)
         {
@@ -774,6 +811,7 @@ namespace Droplet::Scene
         WriteNodeIDs(json, "bounds", m_bounds, m_unresolvedBoundIDs);
         WriteNodeIDs(json, "path", m_path, m_unresolvedPathIDs);
         json["avoidanceLayerMask"] = static_cast<std::underlying_type_t<Droplet::CollisionLayer>>(m_avoidanceLayerMask);
+        json["multithreaded"] = m_multithreaded;
 
         if (m_mode == BoidsMode::Bounds)
         {
@@ -824,6 +862,11 @@ namespace Droplet::Scene
         {
             m_avoidanceLayerMask = static_cast<Droplet::CollisionLayer>(p_compJson.at("avoidanceLayerMask").get<std::uint16_t>());
 		}
+
+        if (p_compJson.contains("multithreaded"))
+        {
+            m_multithreaded = p_compJson.at("multithreaded").get<bool>();
+        }
 
         if (p_compJson.contains("mode"))
         {
