@@ -218,7 +218,8 @@ Render::PreparedFrame Vulkan::Prepare(
     
     // Hardcoded light
     
-    frame.lights = {
+    frame.lights = world.lights;
+    /*{
         {
             .positionAndRange = glm::vec4(-5, 5, 0, 20),
             .colorAndIntensity = glm::vec4(1, 0, 0, 5)
@@ -232,7 +233,7 @@ Render::PreparedFrame Vulkan::Prepare(
             .colorAndIntensity = glm::vec4(0, 1, 0, 5)
         }
     };
-    
+    */
     
     // 2. streamed dynamic meshes, packed once
     const auto packedStreamed = PackStreamedMeshes(world, plans, frame);

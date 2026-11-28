@@ -243,6 +243,7 @@ void Scene::PostRender()
     }
 
     m_renderers.clear();
+    m_lights.clear();
 }
 
 std::shared_ptr<Node> Scene::AddNode(const std::string &p_name) // TODO: (SCENE) Make weak pointer

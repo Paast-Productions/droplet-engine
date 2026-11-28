@@ -429,7 +429,8 @@ DROPLET_RETURNTYPE Engine::Render(std::span<const Common::CameraRenderData> p_ca
         .cameras = m_sceneManager.GetRenderData(),
         .defaultVertexShader = m_defaultVertexShader.GetGUID(),
         .defaultFragmentShader = m_defaultFragmentShader.GetGUID(),
-        .time = Time::Get().GetRuntime() // seconds since start, for shaders
+        .time = Time::Get().GetRuntime(), // seconds since start, for shaders
+        .lights = m_sceneManager.GetLightData()
     };
     world.cameras.insert(world.cameras.end(), p_cameras.begin(), p_cameras.end());
 

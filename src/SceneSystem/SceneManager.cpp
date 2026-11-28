@@ -12,6 +12,7 @@
 #include <Time.hpp>
 #include <Common/Camera.hpp>
 #include <SceneSystem/Components/CameraComponent.hpp>
+#include <SceneSystem/Components/LightComponent.hpp>
 
 using namespace Droplet::Scene;
 
@@ -391,6 +392,39 @@ using namespace Droplet::Common;
 	});
 
     return renderViews;
+}
+
+std::vector<Droplet::Common::LightData> SceneManager::GetLightData()
+{
+    ZoneScoped;
+
+    using namespace Droplet::Common;
+    std::vector<LightData> lightData;
+
+    for (auto it = m_activeScenes.begin(); it != m_activeScenes.end();)
+    {
+
+        auto scene = it->lock();
+        if (!scene)
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+
+        if (!scene->IsActive())
+        {
+            it = m_activeScenes.erase(it);
+            continue;
+        }
+        
+        const auto &sceneLights = scene->GetLights();
+        
+        lightData.insert(lightData.end(), sceneLights.begin(), sceneLights.end());
+
+        ++it;
+    }
+
+    return lightData;
 }
 
 void SceneManager::PostRender()

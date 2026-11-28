@@ -129,6 +129,9 @@ namespace Droplet::Scene
         /// @brief Returns Renderdata for all active scenes
         [[nodiscard]] std::vector<Droplet::Common::CameraRenderData> GetRenderData();
 
+        /// @brief Returns LightData for all lights in all active scenes
+        [[nodiscard]] std::vector<Droplet::Common::LightData> GetLightData();
+
 		/// @brief Performs post-rendering operations for all active Scenes.
 		void PostRender();
 

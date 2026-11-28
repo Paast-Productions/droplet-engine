@@ -32,5 +32,6 @@ namespace Droplet::Graphics::Render
         GUID defaultVertexShader{ C_INVALID_GUID };   ///< for objects without working shaders
         GUID defaultFragmentShader{ C_INVALID_GUID }; ///< for objects without working shaders
         float time = 0.0f; ///< seconds, for shaders
+        std::vector<Common::LightData> lights; ///< each lights in active scenes, not culled
     };
 }
