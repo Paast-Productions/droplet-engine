@@ -76,6 +76,56 @@
                     1.0
                 ]
             }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 1,
+            "components": [
+                {
+                    "active": true,
+                    "data": {
+                        "fs": 13680123319807966343,
+                        "fsName": "Base.FS",
+                        "gs": 0,
+                        "gsName": "",
+                        "meshDisplayName": "BranchPile3",
+                        "meshGUID": 10451524908450325952,
+                        "tcs": 0,
+                        "tcsName": "",
+                        "tes": 0,
+                        "tesName": "",
+                        "textureDisplayName": "DeadWood",
+                        "textureGUID": 10237492024983445003,
+                        "transparent": false,
+                        "vs": 7809030845991192100,
+                        "vsName": "Base.VS"
+                    },
+                    "id": 1,
+                    "type": "MeshComponent"
+                }
+            ],
+            "drawLayer": 1,
+            "id": 6,
+            "name": "Mesh Node",
+            "transform": {
+                "position": [
+                    -0.15974286198616028,
+                    -0.5180189609527588,
+                    0.15499785542488098
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.1449999809265137
+                ]
+            }
         }
     ],
     "version": 1
