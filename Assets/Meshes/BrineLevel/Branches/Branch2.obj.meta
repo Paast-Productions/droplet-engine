@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "Branch2",
+            "guid": 11195752521901532968,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "Branch2",
+            "type": 3
+        }
+    ]
+}

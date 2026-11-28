@@ -1,0 +1,16 @@
+{
+    "resources": [
+        {
+            "displayName": "BranchPile1",
+            "guid": 15052482557139274676,
+            "loadFlags": 3,
+            "loadSettings": {
+                "generate_normals": true,
+                "join_identical_vertices": true,
+                "triangulate": true
+            },
+            "sourceName": "BranchPile1",
+            "type": 3
+        }
+    ]
+}
