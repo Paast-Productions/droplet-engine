@@ -35,11 +35,11 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
             return p_scene.FindNodeById(p_id).lock();
         },
 		"RaycastNode",
-		[](Scene::Scene &p_scene, const Math::Ray &p_ray)
+		[](Scene::Scene &p_scene, const Math::Ray &p_ray, sol::optional<float> p_maxLength)
 		{
 			Math::RayHit hit{};
 
-			std::weak_ptr<Scene::Node> weakNode = p_scene.RaycastNode(p_ray, &hit);
+			std::weak_ptr<Scene::Node> weakNode = p_scene.RaycastNode(p_ray, &hit, nullptr, CollisionLayer::All, p_maxLength.value_or(std::numeric_limits<float>::infinity()));
 
 			auto node = weakNode.lock();
 
@@ -51,11 +51,11 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
 			return std::make_tuple(node, hit);
 		},
 		"RaycastNodes",
-		[](Scene::Scene &p_scene, const Math::Ray &p_ray)
+		[](Scene::Scene &p_scene, const Math::Ray &p_ray, sol::optional<float> p_maxLength)
 		{
 			std::vector<std::shared_ptr<Scene::Node>> nodes;
 
-			for (const auto &weakNode : p_scene.RaycastNodes(p_ray))
+			for (const auto &weakNode : p_scene.RaycastNodes(p_ray, CollisionLayer::All, p_maxLength.value_or(std::numeric_limits<float>::infinity())))
 			{
 				if (auto node = weakNode.lock())
 				{
@@ -109,14 +109,16 @@ void Script::Bindings::RegisterScenes(sol::state_view p_luaState, Scene::SceneMa
             "RaycastNode",
             "tuple<Node, RayHit>",
             {
-                {"ray", "Ray"}
+                {"ray", "Ray"},
+                {"maxLength", "number"}
             }
         },
         {
             "RaycastNodes",
             "Node[]",
             {
-                {"ray", "Ray"}
+                {"ray", "Ray"},
+                {"maxLength", "number"}
             }
         }
     };

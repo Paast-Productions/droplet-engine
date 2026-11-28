@@ -11,22 +11,22 @@ void Bindings::RegisterOctree(sol::state_view p_luaState)
         "Octree",
 
         "GetNodeFromRaycast",
-        [](Octree &p_octree, const Math::Ray &p_ray)
+        [](Octree &p_octree, const Math::Ray &p_ray, sol::optional<float> p_maxLength)
         {
             Math::RayHit hit;
 
             std::shared_ptr<Node> node =
-                p_octree.GetNodeFromRaycast(p_ray, &hit).lock();
+                p_octree.GetNodeFromRaycast(p_ray, &hit, nullptr, Droplet::CollisionLayer::All, p_maxLength.value_or(std::numeric_limits<float>::infinity())).lock();
 
             return std::make_tuple(node, hit);
         },
 
         "GetNodesFromRaycast",
-        [&p_luaState](Octree &p_octree, const Math::Ray &p_ray)
+        [&p_luaState](Octree &p_octree, const Math::Ray &p_ray, sol::optional<float> p_maxLength)
         {
             sol::table result = p_luaState.create_table();
 
-            auto nodes = p_octree.GetNodesFromRaycast(p_ray);
+            auto nodes = p_octree.GetNodesFromRaycast(p_ray, Droplet::CollisionLayer::All, p_maxLength.value_or(std::numeric_limits<float>::infinity()));
 
             int index = 1;
 
@@ -66,11 +66,13 @@ void Bindings::RegisterOctree(sol::state_view p_luaState)
         }},
 
         {"GetNodeFromRaycast", "tuple<Node, RayHit>", {
-            {"ray", "Ray"}
+            {"ray", "Ray"},
+            {"maxLength", "number"}
         }},
 
         {"GetNodesFromRaycast", "Node[]", {
-            {"ray", "Ray"}
+            {"ray", "Ray"},
+            {"maxLength", "number"}
         }},
 
         {"GetNodesFromOBB", "Node[]", {

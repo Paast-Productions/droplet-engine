@@ -247,13 +247,15 @@ namespace Droplet::Scene
 		/// @param p_ray The ray to check for intersections
 		/// @param[out] p_hit Optional pointer to a RayHit struct to store hit information
 		/// @param p_ignoreNodes Optional pointer to a vector of weak pointers to Nodes to ignore during the raycast
+		/// @param p_maxLength Maximum hit distance from the ray origin. Hits beyond it are ignored and octants past it are skipped
 		/// @return A weak pointer to the first Node instance intersecting with the ray, or an empty weak pointer if no intersection is found
-		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr, CollisionLayer p_layerMask = CollisionLayer::All);
+		[[nodiscard]] std::weak_ptr<Node> RaycastNode(const Math::Ray &p_ray, Math::RayHit *p_hit = nullptr, std::vector<std::weak_ptr<Node>> *p_ignoreNodes = nullptr, CollisionLayer p_layerMask = CollisionLayer::All, float p_maxLength = std::numeric_limits<float>::infinity());
 
 		/// @brief Finds all Node instances intersecting with a ray
 		/// @param p_ray The ray to check for intersections
+		/// @param p_maxLength Maximum hit distance from the ray origin. Hits beyond it are ignored and octants past it are skipped
 		/// @return A vector of weak pointers to all Node instances intersecting with the ray
-		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask = CollisionLayer::All);
+		[[nodiscard]] std::vector<std::weak_ptr<Node>> RaycastNodes(const Math::Ray &p_ray, CollisionLayer p_layerMask = CollisionLayer::All, float p_maxLength = std::numeric_limits<float>::infinity());
 
         /// @brief Finds all Node instances whose world-space bounds intersect a frustum
         /// @param p_frustum The frustum that must intersect the nodes
