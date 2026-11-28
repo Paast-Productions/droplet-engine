@@ -37,7 +37,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 15,
+                    "id": 29,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -88,7 +88,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 16,
+                    "id": 30,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -139,7 +139,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 17,
+                    "id": 31,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -190,7 +190,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 18,
+                    "id": 32,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -241,7 +241,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 19,
+                    "id": 33,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -292,7 +292,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 20,
+                    "id": 34,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -343,7 +343,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 21,
+                    "id": 35,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -394,7 +394,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 22,
+                    "id": 36,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -445,7 +445,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 23,
+                    "id": 37,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -496,7 +496,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 24,
+                    "id": 38,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -547,7 +547,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 25,
+                    "id": 39,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -598,7 +598,7 @@
                         }
                     ],
                     "drawLayer": 1,
-                    "id": 26,
+                    "id": 40,
                     "name": "Fish-oid",
                     "transform": {
                         "position": [
@@ -628,24 +628,33 @@
                         "alignmentWeight": 1.0,
                         "avoidanceDistance": 3.0,
                         "avoidanceWeight": 4.0,
+                        "bounds": [
+                            41
+                        ],
+                        "boundsMargin": 1.0,
+                        "boundsWeight": 4.0,
                         "cohesionWeight": 1.0,
                         "fish": [
-                            15,
-                            16,
-                            17,
-                            18,
-                            19,
-                            20,
-                            21,
-                            22,
-                            23,
-                            24,
-                            25,
-                            26
+                            29,
+                            30,
+                            31,
+                            32,
+                            33,
+                            34,
+                            35,
+                            36,
+                            37,
+                            38,
+                            39,
+                            40
                         ],
                         "maxSpeed": 3.0,
                         "maxSteeringForce": 6.0,
                         "minSpeed": 1.0,
+                        "mode": "bounds",
+                        "path": [],
+                        "pathLookahead": 3.0,
+                        "pathWeight": 2.0,
                         "perceptionRadius": 4.0,
                         "separationRadius": 1.5,
                         "separationWeight": 1.5
@@ -655,7 +664,7 @@
                 }
             ],
             "drawLayer": 1,
-            "id": 14,
+            "id": 28,
             "name": "Empty Node",
             "transform": {
                 "position": [
@@ -673,6 +682,33 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "active": true,
+            "children": [],
+            "collisionLayerMask": 16,
+            "components": [],
+            "drawLayer": 128,
+            "id": 41,
+            "name": "Fish Bounds",
+            "transform": {
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    4.835000038146973,
+                    4.835003852844238,
+                    4.835003852844238
                 ]
             }
         }

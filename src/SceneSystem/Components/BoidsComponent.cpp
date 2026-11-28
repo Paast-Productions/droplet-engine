@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
+#include <string>
 
 #include <ImGui/imgui.h>
 
@@ -9,6 +11,7 @@
 #include <Editor/NodeSlot.hpp>
 #endif
 
+#include <Math/Bounds/OBB.hpp>
 #include <Node.hpp>
 #include <Time.hpp>
 #include <Transform.hpp>
@@ -48,6 +51,8 @@ namespace
     glm::vec3 ComputeAvoidance(Scene &p_scene, const glm::vec3 &p_position, const glm::vec3 &p_heading,
         std::vector<std::weak_ptr<Node>> &p_ignoreNodes, float p_range)
     {
+        ZoneScoped;
+
         RayHit forwardHit;
         if (p_scene.RaycastNode(Ray(p_position, p_heading), &forwardHit, &p_ignoreNodes, Droplet::CollisionLayer::All, p_range).expired())
         {
@@ -78,6 +83,229 @@ namespace
         }
 
         return (bestDirection - p_heading) * urgency;
+    }
+
+    constexpr float BOUNDS_TOLERANCE = 1.0e-4f;
+
+    /// The node's world transform applied to a unit cube, so a node with scale 1 spans one unit.
+    OBB GetNodeBox(Node &p_node)
+    {
+        return OBB::Transform(OBB(glm::vec3(0.0f), glm::vec3(0.5f)), p_node.GetTransform().GetMatrix(Transform::Space::World));
+    }
+
+    glm::vec3 ToBoxLocal(const OBB &p_box, const glm::vec3 &p_point)
+    {
+        return glm::transpose(p_box.orientation) * (p_point - p_box.center);
+    }
+
+    /// Distance from the point to the nearest face of the box: positive inside, negative outside.
+    float BoxDepth(const OBB &p_box, const glm::vec3 &p_point)
+    {
+        const glm::vec3 margin = p_box.extents - glm::abs(ToBoxLocal(p_box, p_point));
+        return std::min({margin.x, margin.y, margin.z});
+    }
+
+    glm::vec3 ClosestPointOnBox(const OBB &p_box, const glm::vec3 &p_point)
+    {
+        const glm::vec3 local = glm::clamp(ToBoxLocal(p_box, p_point), -p_box.extents, p_box.extents);
+        return p_box.center + p_box.orientation * local;
+    }
+
+    /// Closest point on any of the boxes, or the point itself when there are no boxes.
+    glm::vec3 ClosestPointOnBoxes(const std::vector<OBB> &p_boxes, const glm::vec3 &p_point)
+    {
+        glm::vec3 best = p_point;
+        float bestDistSq = std::numeric_limits<float>::max();
+        for (const OBB &box : p_boxes)
+        {
+            const glm::vec3 candidate = ClosestPointOnBox(box, p_point);
+            const glm::vec3 offset = candidate - p_point;
+            const float distSq = glm::dot(offset, offset);
+            if (distSq < bestDistSq)
+            {
+                bestDistSq = distSq;
+                best = candidate;
+            }
+        }
+        return best;
+    }
+
+    /// Index of the box that contains the point most deeply, or -1 when no box contains it.
+    int DeepestContainingBox(const std::vector<OBB> &p_boxes, const glm::vec3 &p_point, float &p_depth)
+    {
+        int deepest = -1;
+        p_depth = 0.0f;
+        for (std::size_t i = 0; i < p_boxes.size(); ++i)
+        {
+            const float depth = BoxDepth(p_boxes[i], p_point);
+            if (depth >= -BOUNDS_TOLERANCE && (deepest < 0 || depth > p_depth))
+            {
+                deepest = static_cast<int>(i);
+                p_depth = depth;
+            }
+        }
+        return deepest;
+    }
+
+    /// Moves a position that has left every box onto the nearest box surface, and removes the velocity pointing out of the box.
+    void ConstrainToBoxes(const std::vector<OBB> &p_boxes, glm::vec3 &p_position, glm::vec3 &p_velocity)
+    {
+        if (p_boxes.empty())
+        {
+            return;
+        }
+
+        float depth;
+        if (DeepestContainingBox(p_boxes, p_position, depth) >= 0)
+        {
+            return;
+        }
+
+        const glm::vec3 surface = ClosestPointOnBoxes(p_boxes, p_position);
+        const glm::vec3 outward = p_position - surface;
+        const float length = glm::length(outward);
+        if (length > EPSILON)
+        {
+            const glm::vec3 normal = outward / length;
+            const float outwardSpeed = glm::dot(p_velocity, normal);
+            if (outwardSpeed > 0.0f)
+            {
+                p_velocity -= normal * outwardSpeed;
+            }
+        }
+        p_position = surface;
+    }
+
+    glm::vec3 SeekSteer(const glm::vec3 &p_target, const glm::vec3 &p_position, const glm::vec3 &p_velocity, float p_maxSpeed)
+    {
+        const glm::vec3 offset = p_target - p_position;
+        const float distance = glm::length(offset);
+        const glm::vec3 desired = distance > EPSILON ? offset / distance * p_maxSpeed : glm::vec3(0.0f);
+        return desired - p_velocity;
+    }
+
+    /// Steers toward the nearest box when outside every box, or toward the deepest box's centre when too close to its faces.
+    glm::vec3 ComputeBoundsSteer(const std::vector<OBB> &p_boxes, const glm::vec3 &p_position, const glm::vec3 &p_velocity, float p_margin, float p_maxSpeed)
+    {
+        if (p_boxes.empty())
+        {
+            return glm::vec3(0.0f);
+        }
+
+        float depth;
+        const int deepest = DeepestContainingBox(p_boxes, p_position, depth);
+        if (deepest < 0)
+        {
+            return SeekSteer(ClosestPointOnBoxes(p_boxes, p_position), p_position, p_velocity, p_maxSpeed);
+        }
+        if (depth >= p_margin)
+        {
+            return glm::vec3(0.0f);
+        }
+        return SeekSteer(p_boxes[deepest].center, p_position, p_velocity, p_maxSpeed);
+    }
+
+    /// The point p_lookahead further along the closed loop from the point on the loop nearest to p_position.
+    glm::vec3 SamplePathTarget(const std::vector<glm::vec3> &p_points, const glm::vec3 &p_position, float p_lookahead)
+    {
+        ZoneScoped;
+
+        const std::size_t count = p_points.size();
+
+        std::size_t nearest = 0;
+        float nearestT = 0.0f;
+        float nearestDistSq = std::numeric_limits<float>::max();
+        float totalLength = 0.0f;
+        for (std::size_t i = 0; i < count; ++i)
+        {
+            const glm::vec3 &a = p_points[i];
+            const glm::vec3 &b = p_points[(i + 1) % count];
+            const glm::vec3 ab = b - a;
+            const float abLengthSq = glm::dot(ab, ab);
+            const float t = abLengthSq > EPSILON ? std::clamp(glm::dot(p_position - a, ab) / abLengthSq, 0.0f, 1.0f) : 0.0f;
+            const glm::vec3 offset = a + ab * t - p_position;
+            const float distSq = glm::dot(offset, offset);
+            if (distSq < nearestDistSq)
+            {
+                nearestDistSq = distSq;
+                nearest = i;
+                nearestT = t;
+            }
+            totalLength += std::sqrt(abLengthSq);
+        }
+
+        if (totalLength < EPSILON)
+        {
+            return p_points[0];
+        }
+
+        std::size_t segment = nearest;
+        float offsetOnSegment = nearestT * glm::length(p_points[(nearest + 1) % count] - p_points[nearest]);
+        float remaining = std::fmod(std::max(p_lookahead, 0.0f), totalLength);
+        for (std::size_t step = 0; step <= count; ++step)
+        {
+            const glm::vec3 &a = p_points[segment];
+            const glm::vec3 &b = p_points[(segment + 1) % count];
+            const float length = glm::length(b - a);
+            if (offsetOnSegment + remaining <= length)
+            {
+                const float t = length > EPSILON ? (offsetOnSegment + remaining) / length : 0.0f;
+                return a + (b - a) * t;
+            }
+
+            remaining -= length - offsetOnSegment;
+            offsetOnSegment = 0.0f;
+            segment = (segment + 1) % count;
+        }
+        return p_points[segment];
+    }
+
+    void WriteNodeIDs(nlohmann::json &p_json, const char *p_key, const std::vector<std::weak_ptr<Node>> &p_nodes,
+        const std::vector<std::uint64_t> &p_unresolved)
+    {
+        nlohmann::json ids = nlohmann::json::array();
+        for (const std::weak_ptr<Node> &weakNode : p_nodes)
+        {
+            if (const std::shared_ptr<Node> node = weakNode.lock())
+            {
+                ids.push_back(node->GetID());
+            }
+        }
+        for (const std::uint64_t id : p_unresolved)
+        {
+            ids.push_back(id);
+        }
+        p_json[p_key] = ids;
+    }
+
+    void ReadNodeIDs(const nlohmann::json &p_json, const char *p_key, std::vector<std::uint64_t> &p_unresolved)
+    {
+        p_unresolved.clear();
+        if (p_json.contains(p_key))
+        {
+            for (const nlohmann::json &id : p_json.at(p_key))
+            {
+                p_unresolved.push_back(id.get<std::uint64_t>());
+            }
+        }
+    }
+
+    void ResolveNodeIDs(SerializationContext &p_context, std::vector<std::uint64_t> &p_unresolved, std::vector<std::weak_ptr<Node>> &p_nodes)
+    {
+        std::vector<std::uint64_t> stillUnresolved;
+        for (const std::uint64_t id : p_unresolved)
+        {
+            const std::shared_ptr<Node> node = p_context.FindNode(id);
+            if (!node)
+            {
+                stillUnresolved.push_back(id);
+            }
+            else if (!ContainsNode(p_nodes, node.get()))
+            {
+                p_nodes.push_back(node);
+            }
+        }
+        p_unresolved = std::move(stillUnresolved);
     }
 }
 
@@ -144,8 +372,48 @@ namespace Droplet::Scene
         std::vector<std::weak_ptr<Node>> ignoreNodes;
         ignoreNodes.push_back(GetOwner());
 
+        std::vector<OBB> boxes;
+        if (m_mode == BoidsMode::Bounds)
+        {
+			ZoneNamed(computeBoundsZone, "Compute Bounds");
+
+            for (const std::weak_ptr<Node> &weakBound : m_bounds)
+            {
+                if (std::shared_ptr<Node> bound = weakBound.lock())
+                {
+                    boxes.push_back(GetNodeBox(*bound));
+                    ignoreNodes.push_back(bound);
+                    for (const std::shared_ptr<Node> &child : bound->GetChildren(true))
+                    {
+                        ignoreNodes.push_back(child);
+                    }
+                }
+            }
+        }
+
+        std::vector<glm::vec3> pathPoints;
+        if (m_mode == BoidsMode::Path)
+        {
+            ZoneNamed(computePathZone, "Compute Path");
+
+            for (const std::weak_ptr<Node> &weakPoint : m_path)
+            {
+                if (const std::shared_ptr<Node> point = weakPoint.lock())
+                {
+                    pathPoints.push_back(point->GetTransform().GetPosition(Transform::Space::World));
+                    ignoreNodes.push_back(point);
+                    for (const std::shared_ptr<Node> &child : point->GetChildren(true))
+                    {
+                        ignoreNodes.push_back(child);
+                    }
+                }
+            }
+        }
+
         for (std::size_t i = 0; i < boidCount; ++i)
         {
+            ZoneNamed(fetchBoidZone, "Fetch Boid");
+
             nodes[i] = m_fish[i].lock();
             if (!nodes[i])
             {
@@ -177,6 +445,8 @@ namespace Droplet::Scene
 
         for (std::size_t i : live)
         {
+            ZoneNamed(computeSteeringZone, "Compute Steering");
+
             const glm::vec3 position = positions[i];
             const glm::vec3 velocity = velocities[i];
             const float speed = glm::length(velocity);
@@ -224,6 +494,15 @@ namespace Droplet::Scene
                 steering += ComputeAvoidance(*scene, position, heading, ignoreNodes, m_avoidanceDistance) * m_avoidanceWeight;
             }
 
+            if (m_mode == BoidsMode::Bounds)
+            {
+                steering += ComputeBoundsSteer(boxes, position, velocity, m_boundsMargin, m_maxSpeed) * m_boundsWeight;
+            }
+            else if (m_mode == BoidsMode::Path && !pathPoints.empty())
+            {
+                steering += SeekSteer(SamplePathTarget(pathPoints, position, m_pathLookahead), position, velocity, m_maxSpeed) * m_pathWeight;
+            }
+
             const float steeringLength = glm::length(steering);
             if (steeringLength > m_maxSteeringForce && steeringLength > EPSILON)
             {
@@ -239,10 +518,16 @@ namespace Droplet::Scene
         m_velocities.clear();
         for (std::size_t i : live)
         {
-            const glm::vec3 &velocity = newVelocities[i];
+			ZoneNamed(applySteeringZone, "Apply Steering");
+
+            glm::vec3 velocity = newVelocities[i];
+            glm::vec3 newPosition = positions[i] + velocity * deltaTime;
+            if (m_mode == BoidsMode::Bounds)
+            {
+                ConstrainToBoxes(boxes, newPosition, velocity);
+            }
             m_velocities[nodes[i].get()] = velocity;
 
-            const glm::vec3 newPosition = positions[i] + velocity * deltaTime;
             Transform &transform = nodes[i]->GetTransform();
             transform.SetPosition(newPosition, Transform::Space::World);
 
@@ -258,20 +543,9 @@ namespace Droplet::Scene
 
     void BoidsComponent::ResolveReferences(SerializationContext &p_context)
     {
-        std::vector<std::uint64_t> unresolved;
-        for (const std::uint64_t fishID : m_unresolvedFishIDs)
-        {
-            std::shared_ptr<Node> fish = p_context.FindNode(fishID);
-            if (!fish)
-            {
-                unresolved.push_back(fishID);
-            }
-            else if (!ContainsNode(m_fish, fish.get()))
-            {
-                m_fish.push_back(fish);
-            }
-        }
-        m_unresolvedFishIDs = std::move(unresolved);
+        ResolveNodeIDs(p_context, m_unresolvedFishIDs, m_fish);
+        ResolveNodeIDs(p_context, m_unresolvedBoundIDs, m_bounds);
+        ResolveNodeIDs(p_context, m_unresolvedPathIDs, m_path);
     }
 
     void BoidsComponent::RenderUIImpl()
@@ -279,11 +553,39 @@ namespace Droplet::Scene
 #ifdef _EDITOR
         ImGui::PushID(this);
 
+        int mode = static_cast<int>(m_mode);
+        const char *modes[] = {"Free", "Bounds", "Path"};
+        if (ImGui::Combo("Mode", &mode, modes, IM_COUNTOF(modes)))
+        {
+            m_mode = static_cast<BoidsMode>(mode);
+        }
+
         const auto acceptFish = [this](Node *p_node)
         {
             return p_node != nullptr && !ContainsNode(m_fish, p_node);
         };
         Droplet::Editor::NodeListSlot("Fish", m_fish, -1, acceptFish, std::nullopt, "This node is already in the flock");
+
+        if (m_mode == BoidsMode::Bounds)
+        {
+            const auto acceptBound = [this](Node *p_node)
+            {
+                return p_node != nullptr && !ContainsNode(m_bounds, p_node);
+            };
+            Droplet::Editor::NodeListSlot("Bounds", m_bounds, -1, acceptBound, std::nullopt, "This node is already a bounds volume");
+            ImGui::DragFloat("Bounds Weight", &m_boundsWeight, 0.05f, 0.0f, 0.0f, "%.2f");
+            ImGui::DragFloat("Bounds Margin", &m_boundsMargin, 0.05f, 0.0f, 0.0f, "%.2f");
+        }
+        else if (m_mode == BoidsMode::Path)
+        {
+            const auto acceptPoint = [this](Node *p_node)
+            {
+                return p_node != nullptr && !ContainsNode(m_path, p_node);
+            };
+            Droplet::Editor::NodeListSlot("Path Points", m_path, -1, acceptPoint, std::nullopt, "This node is already a path point");
+            ImGui::DragFloat("Path Weight", &m_pathWeight, 0.05f, 0.0f, 0.0f, "%.2f");
+            ImGui::DragFloat("Path Lookahead", &m_pathLookahead, 0.05f, 0.0f, 0.0f, "%.2f");
+        }
 
         ImGui::DragFloat("Perception Radius", &m_perceptionRadius, 0.05f, 0.0f, 0.0f, "%.2f");
         ImGui::DragFloat("Separation Radius", &m_separationRadius, 0.05f, 0.0f, 0.0f, "%.2f");
@@ -302,21 +604,24 @@ namespace Droplet::Scene
 
     nlohmann::json BoidsComponent::SerializeImpl()
     {
-        nlohmann::json fishIDs = nlohmann::json::array();
-        for (const std::weak_ptr<Node> &weakFish : m_fish)
+        nlohmann::json json;
+        WriteNodeIDs(json, "fish", m_fish, m_unresolvedFishIDs);
+        WriteNodeIDs(json, "bounds", m_bounds, m_unresolvedBoundIDs);
+        WriteNodeIDs(json, "path", m_path, m_unresolvedPathIDs);
+
+        if (m_mode == BoidsMode::Bounds)
         {
-            if (const std::shared_ptr<Node> fish = weakFish.lock())
-            {
-                fishIDs.push_back(fish->GetID());
-            }
+            json["mode"] = "bounds";
         }
-        for (const std::uint64_t fishID : m_unresolvedFishIDs)
+        else if (m_mode == BoidsMode::Path)
         {
-            fishIDs.push_back(fishID);
+            json["mode"] = "path";
+        }
+        else
+        {
+            json["mode"] = "free";
         }
 
-        nlohmann::json json;
-        json["fish"] = fishIDs;
         json["perceptionRadius"] = m_perceptionRadius;
         json["separationRadius"] = m_separationRadius;
         json["separationWeight"] = m_separationWeight;
@@ -327,6 +632,10 @@ namespace Droplet::Scene
         json["maxSteeringForce"] = m_maxSteeringForce;
         json["avoidanceDistance"] = m_avoidanceDistance;
         json["avoidanceWeight"] = m_avoidanceWeight;
+        json["boundsWeight"] = m_boundsWeight;
+        json["boundsMargin"] = m_boundsMargin;
+        json["pathWeight"] = m_pathWeight;
+        json["pathLookahead"] = m_pathLookahead;
         return json;
     }
 
@@ -338,13 +647,27 @@ namespace Droplet::Scene
         }
 
         m_fish.clear();
-        m_unresolvedFishIDs.clear();
+        m_bounds.clear();
+        m_path.clear();
         m_velocities.clear();
-        if (p_compJson.contains("fish"))
+        ReadNodeIDs(p_compJson, "fish", m_unresolvedFishIDs);
+        ReadNodeIDs(p_compJson, "bounds", m_unresolvedBoundIDs);
+        ReadNodeIDs(p_compJson, "path", m_unresolvedPathIDs);
+
+        if (p_compJson.contains("mode"))
         {
-            for (const nlohmann::json &fishID : p_compJson.at("fish"))
+            const std::string mode = p_compJson.at("mode").get<std::string>();
+            if (mode == "bounds")
             {
-                m_unresolvedFishIDs.push_back(fishID.get<std::uint64_t>());
+                m_mode = BoidsMode::Bounds;
+            }
+            else if (mode == "path")
+            {
+                m_mode = BoidsMode::Path;
+            }
+            else
+            {
+                m_mode = BoidsMode::Free;
             }
         }
 
@@ -358,5 +681,9 @@ namespace Droplet::Scene
         ReadValue(p_compJson, "maxSteeringForce", m_maxSteeringForce);
         ReadValue(p_compJson, "avoidanceDistance", m_avoidanceDistance);
         ReadValue(p_compJson, "avoidanceWeight", m_avoidanceWeight);
+        ReadValue(p_compJson, "boundsWeight", m_boundsWeight);
+        ReadValue(p_compJson, "boundsMargin", m_boundsMargin);
+        ReadValue(p_compJson, "pathWeight", m_pathWeight);
+        ReadValue(p_compJson, "pathLookahead", m_pathLookahead);
     }
 }
